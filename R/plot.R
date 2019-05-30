@@ -1,0 +1,210 @@
+#' image the inclusions of variables from glm_spike over MCMC iterations
+#'
+#' @param model the runjags object
+#' @param col_labs column labels
+#' @param colors defaults to grey for absence and darkgreen for inclusion, c("grey", "darkgreen")
+#' @param ... other arguments to image()
+#'
+#' @return
+#' an image
+#'
+#' @export
+#'
+#' @examples
+#' image_inc()
+#'
+image_inc <- function(model, col_labs = NULL, colors = c("grey", "darkgreen"), ...){
+  x = as.matrix(combine.mcmc(model,collapse.chains = TRUE))
+  x = x[,grep(colnames(x), pattern =  "delta")]
+  if (is.null(col_labs) == FALSE){
+    colnames(x) <- col_labs
+  }
+  min <- min(x)
+  max <- max(x)
+  yLabels <- rownames(x)
+  xLabels <- colnames(x)
+  title <-c()
+  # check for additional function arguments
+  if( length(list(...)) ){
+    Lst <- list(...)
+    if( !is.null(Lst$zlim) ){
+      min <- Lst$zlim[1]
+      max <- Lst$zlim[2]
+    }
+    if( !is.null(Lst$yLabels) ){
+      yLabels <- c(Lst$yLabels)
+    }
+    if( !is.null(Lst$xLabels) ){
+      xLabels <- c(Lst$xLabels)
+    }
+    if( !is.null(Lst$title) ){
+      title <- Lst$title
+    }
+  }
+  if( is.null(yLabels) ){
+    yLabels <- c(1:nrow(x))
+  }
+
+  # Reverse Y axis
+  reverse <- nrow(x) : 1
+  yLabels <- yLabels[reverse]
+  x <- x[reverse,]
+
+  # Data Map
+  image(1:length(xLabels), 1:length(yLabels), t(x), col=colors, xlab="",
+        ylab="", axes=FALSE, zlim=c(min,max))
+  if( !is.null(title) ){
+    title(main=title)
+  }
+  axis(BELOW<-1, at=1:length(xLabels), labels=xLabels, cex.axis=0.7)
+}
+
+#' Plot the signs of regression coefficients over MCMC iterations.
+#'
+#' View the signs of the regression coefficients over a series of MCMC runs. Accepts
+#' any runjags object with the coefficients named "beta"
+#'
+#' @param model the runjags object
+#' @param col_labs column labels
+#' @param colors defaults to magenta, dark grey, and blue, c("#99004C", "#1c1c1c", "#0065CC")
+#' @param ... other arguments to image
+#'
+#' @return
+#' an image
+#' @export
+#'
+#' @examples
+#' image_signs()
+#'
+image_signs <- function(model, col_labs = NULL, colors=c("#99004C", "#1c1c1c", "#0065CC"), ...){
+  x = as.matrix(combine.mcmc(model,collapse.chains = TRUE))
+  x = x[,grep(colnames(x), pattern =  "beta")]
+  x = sign(x)
+  if (is.null(col_labs) == FALSE){
+    colnames(x) <- col_labs
+  }
+
+  min <- min(x)
+  max <- max(x)
+  yLabels <- rownames(x)
+  xLabels <- colnames(x)
+  title <-c()
+  # check for additional function arguments
+  if( length(list(...)) ){
+    Lst <- list(...)
+    if( !is.null(Lst$zlim) ){
+      min <- Lst$zlim[1]
+      max <- Lst$zlim[2]
+    }
+    if( !is.null(Lst$yLabels) ){
+      yLabels <- c(Lst$yLabels)
+    }
+    if( !is.null(Lst$xLabels) ){
+      xLabels <- c(Lst$xLabels)
+    }
+    if( !is.null(Lst$title) ){
+      title <- Lst$title
+    }
+  }
+  if( is.null(yLabels) ){
+    yLabels <- c(1:nrow(x))
+  }
+
+  # Reverse Y axis
+  reverse <- nrow(x) : 1
+  yLabels <- yLabels[reverse]
+  x <- x[reverse,]
+
+  # Data Map
+  image(1:length(xLabels), 1:length(yLabels), t(x), col=colors, xlab="",
+        ylab="", axes=FALSE, zlim=c(min,max))
+  if( !is.null(title) ){
+    title(main=title)
+  }
+  axis(BELOW<-1, at=1:length(xLabels), labels=xLabels, cex.axis=0.7)
+}
+
+
+
+
+#' plot inclusion probabilities from glm_spike models
+#'
+#' lollipop plot with ggplot2 of variable inclusion probabilities for glm_spike models.
+#'
+#' @param model the model
+#' @param col_labs variable names
+#'
+#' @return
+#' a plot
+#'
+#' @export
+#'
+#' @examples
+#' plot_pips()
+#'
+plot_pips = function(model, col_labs = NULL){
+  x = as.matrix(combine.mcmc(model,collapse.chains = TRUE))
+  x = x[,grep(colnames(x), pattern =  "delta")]
+  if (is.null(col_labs) == FALSE){
+    colnames(x) <- col_labs
+  }
+
+  data = rownames_to_column(as.data.frame(colMeans(x)))
+  colnames(data) = c("variable", "pip")
+  ggplot(data = data, aes(x = variable, y = pip, color = ifelse(pip < .50, "Fail", "Pass"), fill = ifelse(pip < .50, "Fail", "Pass"))) +
+    geom_segment( aes(x=variable, xend=variable , y=0, yend= pip - .001), size = 1.125, alpha = .60, linetype = "dotted") +
+    geom_point(size = 5, alpha = .80, shape = 21) +
+    scale_fill_manual(values =  c("red", "green"), aesthetics = "fill") +
+    scale_color_manual(values =  c("darkred", "darkgreen"), aesthetics = "color") +
+    theme(legend.position="none") +
+    coord_cartesian(ylim = c(0, 1)) +
+    geom_hline(yintercept = .50, colour="#990000", linetype="dashed")
+}
+
+
+#' plot a tally of how many variables should be included
+#'
+#' @param model a runjags object with inclusion indicators labeled "delta"
+#' @param binwidth defaults to .5
+#'
+#' @return
+#' a plot
+#' @export
+#'
+#' @examples
+#' plot_numvar()
+#'
+plot_numvar = function(model, binwidth = .5){
+  x = as.matrix(combine.mcmc(model,collapse.chains = TRUE))
+  x = x[,grep(colnames(x), pattern =  "delta")]
+  x = rowSums(x)
+  ggplot(data = data.frame(num.variables = as.factor(x)), aes(x=num.variables)) +
+    geom_bar(width = binwidth, fill = "darkblue")
+}
+
+#' plot the coefficients as a barplot
+#'
+#' @param samps a data frame or matrix of posterior samples
+#' @param name name of the coefficients. Defaults to "beta"
+#' @param xlimits defaults to 0 through the length of the samples.
+#'
+#' @return
+#' a plot
+#' @export
+#'
+#' @examples
+#' plot_spectrum()
+#'
+plot_spectrum <- function(samps, name = "beta", xlimits=c(0,length(samps))) {
+  wch = which(as.vector(regexpr(paste0(name), colnames(p))) == 1)
+  plot.data  <- colMeans(samps[,wch])
+  signs <- sign(plot.data)
+  pos=which(signs == 1)
+  neg=which(signs==-1)
+  zero=which(signs==0)
+  colors = rep(0, length(plot.data))
+  colors[pos] <- "green"
+  colors[neg] <- "blue"
+  colors[zero] <- "grey"
+  barplot(plot.data, col = colors, width = rep(.5 / length(plot.data), length(plot.data)))
+}

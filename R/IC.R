@@ -1,0 +1,135 @@
+#' Get WAIC and/or LOO-IC
+#'
+#' @description A common method of model comparison in Bayesian methods is to use the ratio
+#' of the marginal likelihoods, the Bayes Factor. However, marginal likelihoods are difficult
+#' to calculate, and sometimes analytically intractable. Hence, MCMC methods are used for model
+#' estimation, which are able to compute the posterior without the marginal likelihood. The marginal
+#' likelihood is the probability of the data given the model with the paramters integrated out, i.e.,
+#' p(Y ; M). Because the perameters are integrated out of the model in the marginal likelihood, it is an
+#' ideal way to perform model comparison without the risk of overfitting. This is because the posterior
+#' parameter estimates are in a sense unique to the model, being conditioned on the observed data. The
+#' likelihood function itself, p(Y | theta ; M), is conditioned on the parameters, telling you the likelihood
+#' of the present sample based on the present parameter estimates. The marginal likelihood, however, is
+#' dependent on the structure of the model itself and not the parameter estimates.
+#'
+#' Unfortunately, practical Bayesian analyses often without a way to get the marginal likelihoods.
+#' An alternative to marginal likelihood based model comparison are the class of information criteria,
+#' which minimize the Kullback-Leibler divergence between the estimated distribution of the observed data and
+#' the unknown population distribution. Classical information criteria such as the AIC and SIC (aka the BIC or SBIC)
+#' penalize the deviance of the model evaluated at the maximum likelihood estimate, i.e.
+#' -2*log( p(Y | theta_MLE ; M) ) + penalty.
+#'
+#' Full Bayesian analysis with MCMC affords an opportunity to obtain a likelihood function
+#' that is conceptually very similar (however distinct -- more on this later) to the marginal likelihood,
+#' thus allowing fully Bayesian model comparison.
+#'
+#' First one calculates the log pointwise predictive density, or lppd. This is given by taking the
+#' product of log-likelihood function at each data point, p(Y_i | theta ; M)
+#' and the log-posterior function of the parameters p(theta | Y ; M) and integrating this product
+#' over the parameters. Finally, this is summed across all N_i data points.
+#'
+#' \if{html}{\figure{lppd.png}{the log pointwise predictive density}}
+#' \if{latex}{\figure{lppd.png}{the log pointwise predictive density}}
+#'
+#' The Watanabe-Akaike Information Criterion is the extension of AIC to Bayesian analyses
+#' for calculating the out-of-sample expected log predictive density. Analagous to the AIC,
+#' this adds a penalty parameter. However, we substitute the lppd for the regular log likelihood
+#' function and use a penalty based on the number of effective parameters. The number of effective
+#' parameters is given by calculating the variance of each data point's log-likelihood function
+#' across the MCMC samples, and then summing these variances.
+#'
+#' \if{html}{\figure{pWAIC.png}{the WAIC penalty term}}
+#' \if{latex}{\figure{pWAIC.png}{the WAIC penalty term}}
+#'
+#' Finally, the pWAIC term is subtracted from the lppd to obtain the WAIC, which is an estimator
+#' of the expected log predictive density on the deviance scale (- 2  * LL).
+#'
+#' The other alternative, which is often preferable, uses leave-one-out (LOO) cross validation to
+#' obtain the expected log predictive density function, which serves as an estimator of the the log density
+#' function of the population distribution from which the observed data came. In other words, this estimates the
+#' predictive performance of the model on unseen data that might be obtained by sampling from the same population
+#' from which the current sample came.
+#'
+#' This is done by calculating loo weights and re-weighing the lppd (which is calculated the same way as in WAIC)
+#' and multiplying the reweighted lppd by -2 to put it on the deviance scale. Fortunately this can be done in
+#' an extremely efficient manner without having to actually refit the model N times.
+#' This reweighted lppd is the LOO-IC, an estimator of the expected log predictive density.
+#' Note that the penalty term is not calculated directly as in the case of pWAIC. However, the
+#' pWAIC can be extracted by taking the difference of the lppd and LOO-IC.
+#' The steps of calculating the LOO-IC are shown below.
+#'
+#' \if{html}{\figure{looic.png}{the steps in obtaining the LOO-IC}}
+#' \if{latex}{\figure{looic.png}{the steps in obtaining the LOO-IC}}
+#'
+#' The conceptual difference between the marginal likelihood and the log pointwise predictive density is that
+#' the marginal likelihood integrates over the prior distribution of the parameters in the model, p(theta, M),
+#' while the log pointwise predictive density integrates over the posterior distribution of the parameters given
+#' the data and model, p(theta | Y, M). However, since the posterior distribution is the weighted average of the
+#' prior and likelihood function integrating over the posterior indirectly integrates over the prior as well. Thus,
+#' what is obtained is very close conceptually to the marginal likelihood. Thus the elpd_waic and elpd_loo can arguably
+#' be seen as approximate corrections for this disparity, though this is not part of the definition. The goal of the lppd
+#' and elpd quantities is assessing predictive accuracy. Gelman, Wang, and Vehtari (2016) state that, "..the prior is
+#' relevant in estimating the parameters but not in assessing a model’s accuracy. We are not saying that the prior
+#' cannot be used in assessing a model’s fit to data; rather we say that the prior density is
+#' not relevant in computing predictive accuracy." Hence, marginal likelihood based model comparison can be best
+#' understood as being most appropriate when the true model, or a very good approximation to it, is among the candidate
+#' set of models (M-closed and M-complete scenarios) while log predictive density likelihood quantities are suitable
+#' for M-open scenarios where the best one can hope for is good predictive accuracy.
+#'
+#' Below is a figure displaying the log-marginal likelihood at the top, along with the WAIC and LOO relevant quantities
+#' re-expressed with full conditional probability notation for comparison.
+#'
+#' \if{html}{\figure{likelihoods.png}{A lineup of the different likelihood based quantities.}}
+#' \if{latex}{\figure{likelihoods.png}{A lineup of the different likelihood based quantities.}}
+#'
+#' @param out the stanfit or runjags objects. Must contain a log likelihood for each observation, not the
+#' total log likelihood of the model.
+#' @param loo Should the LOO also be returned? Defaults to TRUE.
+#' @param summarize Should only the expected values be returned? Defaults to TRUE. If set to FALSE, a data frame
+#' containing the pointwise WAIC and LOO-IC will be returned.
+#'
+#' @return
+#' either a point summary or data frame
+#'
+#' @export
+#'
+#' @examples
+#' IC()
+#'
+IC = function(out, loo = TRUE, summarize = TRUE){
+
+  stan <- inherits(out, "stanfit")
+  if (stan == TRUE) {
+    LL <- as.matrix(rstan::extract(out, pars = "log_lik"))
+    LL <- LL[, -which(colnames(LL) == "lp__")]
+  }
+  else if (class(out) == "runjags"){
+    LL = combine.mcmc(out, collapse.chains = TRUE, vars = "log_lik")
+    LL = as.matrix(LL)
+  }
+  S <- nrow(LL)
+  n <- ncol(LL)
+  # Calculate LPPD
+  LPPD = log(colMeans(exp(LL)))
+  # Calculate pWAIC
+  pWAIC = apply(LL, 2, var)
+  WAIC = -2 * (LPPD - pWAIC)
+  # Concatenate into a data frame containing the results
+  IC = data.frame("WAIC" = WAIC, "lppd" = LPPD, "pWAIC" = pWAIC)
+
+  if (loo == TRUE){
+    ## Code adapted from "Understanding predictive information criteria for Bayesian models"
+    ## Andrew Gelman, Jessica Hwang, and Aki Vehtari (2013)
+    loo_weights_raw <- 1/exp(LL-max(LL))
+    loo_weights_normalized <- loo_weights_raw/ matrix(colMeans(loo_weights_raw),nrow=S,ncol=n,byrow=TRUE)
+    loo_weights_regularized <- pmin(loo_weights_normalized, sqrt(S))
+    elpd_loo <- log(colMeans(exp(LL)*loo_weights_regularized)/ colMeans(loo_weights_regularized))
+    LOOIC = -2 * elpd_loo
+    p_loo <- LPPD - elpd_loo
+    IC = cbind.data.frame("WAIC" = WAIC, "LOO-IC" = LOOIC, "lppd" = LPPD, "pWAIC" = pWAIC, "pLOO" = p_loo)
+  }
+  if (summarize == TRUE){
+    return(colSums(IC))
+  }
+  else {return(IC)}
+}

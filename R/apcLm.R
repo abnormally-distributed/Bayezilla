@@ -1,8 +1,7 @@
-#' Adaptive Powered Correlation Variable Selection for Gaussian likelihoods
+#' Adaptive Powered Correlation Prior for Gaussian likelihoods
 #'
 #' @param formula the model formula
 #' @param data a data frame
-#' @param phi_prior the parameters of the beta prior on the overall probability of selection. Defaults to c(1, 3) implying phi = .25.
 #' @param lambda the power to use in the adaptive correlation prior. Default is -1, which gives the Zellner-Siow g prior. Setting
 #' lambda to 0 results in a ridge-regression like prior. Setting lambda to a positive value adapts to collinearity by shrinking 
 #' collinear variables towards a common value. Negative values of lambda pushes collinear variables further apart. I suggest 
@@ -24,7 +23,7 @@
 #'
 #' @examples
 #' apcLm()
-apcLmSpike = function(formula, data, phi_prior = c(1, 3), lambda = -1, log_lik = FALSE, iter=10000, warmup=1000, adapt=5000, chains=4, thin=3,method = "rjags", cl = NULL, ...)
+apcLm = function(formula, data, lambda = -1, log_lik = FALSE, iter=10000, warmup=1000, adapt=5000, chains=4, thin=3, method = "parallel", cl = makeCluster(2), ...)
 {
   data <- as.data.frame(data)
   y <- as.numeric(model.frame(formula, data)[, 1])
@@ -48,21 +47,12 @@ apcLmSpike = function(formula, data, phi_prior = c(1, 3), lambda = -1, log_lik =
               tau ~ dgamma(.001, .001)
               g_inv ~ dgamma(.5, .5 * N)
               g <- 1 / g_inv
-              phi ~ beta(a, b)
-              
-              for (p in 1:P){
-                delta[p] ~ dbern(phi)
-                
-              }
               for (j in 1:P){
                 for (k in 1:P){
                    prior_scale[j,k] = g * (1/tau) * prior_cov[j,k]
                 }
               }
-              theta[1:P] ~ dmnorm.vcov(zeros[1:P], prior_scale[1:P,1:P])
-              for (i in 1:P){
-                  beta[i] <- delta[i] * theta[i]
-              }
+              beta[1:P] ~ dmnorm.vcov(zeros[1:P], prior_scale[1:P,1:P])
               Intercept ~ dnorm(0, .01)            
               for (i in 1:N){
                  y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
@@ -74,12 +64,13 @@ apcLmSpike = function(formula, data, phi_prior = c(1, 3), lambda = -1, log_lik =
           }"
   
   write_lines(apcLm , "jags_apcLm.txt")
-  jagsdata = list(X = X, y = y, a = phi_prior[1], b = phi_prior[2], N = length(y), P = ncol(X), prior_cov = prior_cov, zeros = rep(0, P))
-  monitor = c("Intercept", "beta", "sigma", "g", "deviance", "delta", "ySim", "log_lik")
+  jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), prior_cov = prior_cov, zeros = rep(0, P))
+  monitor = c("Intercept", "beta", "sigma", "g", "deviance", "ySim", "log_lik")
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
-  inits = lapply(1:chains, function(z) list("Intercept" = 0, "delta" = rep(1, P), "theta" = jitter(rep(0, P), amount = .25), "g_inv" = 1, "tau" = 1, "ySim" = y))
+  inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = jitter(rep(0, P), amount = .25), "g_inv" = .001, "tau" = 3, "ySim" = y,
+                                            .RNG.name="base::Super-Duper", .RNG.seed= sample(1:10000, 1)))
   out = run.jags(model = "jags_apcLm.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, ...)
   if (!is.null(cl)){
     parallel::stopCluster(cl = cl)

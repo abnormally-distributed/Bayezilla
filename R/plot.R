@@ -11,9 +11,9 @@
 #' @export
 #'
 #' @examples
-#' image_inc()
+#' imageIncl()
 #'
-image_inc <- function(model, col_labs = NULL, colors = c("grey", "darkgreen"), ...){
+imageIncl <- function(model, col_labs = NULL, colors = c("grey", "darkgreen"), ...){
   x = as.matrix(combine.mcmc(model,collapse.chains = TRUE))
   x = x[,grep(colnames(x), pattern =  "delta")]
   if (is.null(col_labs) == FALSE){
@@ -74,9 +74,9 @@ image_inc <- function(model, col_labs = NULL, colors = c("grey", "darkgreen"), .
 #' @export
 #'
 #' @examples
-#' image_signs()
+#' imageSigns()
 #'
-image_signs <- function(model, col_labs = NULL, colors=c("#99004C", "#1c1c1c", "#0065CC"), ...){
+imageSigns <- function(model, col_labs = NULL, colors=c("#99004C", "#1c1c1c", "#0065CC"), ...){
   x = as.matrix(combine.mcmc(model,collapse.chains = TRUE))
   x = x[,grep(colnames(x), pattern =  "beta")]
   x = sign(x)
@@ -140,9 +140,9 @@ image_signs <- function(model, col_labs = NULL, colors=c("#99004C", "#1c1c1c", "
 #' @export
 #'
 #' @examples
-#' plot_pips()
+#' plotPips()
 #'
-plot_pips = function(model, col_labs = NULL){
+plotPips = function(model, col_labs = NULL){
   x = as.matrix(combine.mcmc(model,collapse.chains = TRUE))
   x = x[,grep(colnames(x), pattern =  "delta")]
   if (is.null(col_labs) == FALSE){
@@ -172,9 +172,9 @@ plot_pips = function(model, col_labs = NULL){
 #' @export
 #'
 #' @examples
-#' plot_numvar()
+#' plotNumvar()
 #'
-plot_numvar = function(model, binwidth = .5){
+plotNumvar = function(model, binwidth = .5){
   x = as.matrix(combine.mcmc(model,collapse.chains = TRUE))
   x = x[,grep(colnames(x), pattern =  "delta")]
   x = rowSums(x)
@@ -182,29 +182,3 @@ plot_numvar = function(model, binwidth = .5){
     geom_bar(width = binwidth, fill = "darkblue")
 }
 
-#' plot the coefficients as a barplot
-#'
-#' @param samps a data frame or matrix of posterior samples
-#' @param name name of the coefficients. Defaults to "beta"
-#' @param xlimits defaults to 0 through the length of the samples.
-#'
-#' @return
-#' a plot
-#' @export
-#'
-#' @examples
-#' plot_spectrum()
-#'
-plot_spectrum <- function(samps, name = "beta", xlimits=c(0,length(samps))) {
-  wch = which(as.vector(regexpr(paste0(name), colnames(p))) == 1)
-  plot.data  <- colMeans(samps[,wch])
-  signs <- sign(plot.data)
-  pos=which(signs == 1)
-  neg=which(signs==-1)
-  zero=which(signs==0)
-  colors = rep(0, length(plot.data))
-  colors[pos] <- "green"
-  colors[neg] <- "blue"
-  colors[zero] <- "grey"
-  barplot(plot.data, col = colors, width = rep(.5 / length(plot.data), length(plot.data)))
-}

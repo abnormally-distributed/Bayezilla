@@ -35,9 +35,9 @@
 #' @export
 #'
 #' @examples
-#' glm_spike()
+#' glmSpike()
 #'
-glm_spike  = function(formula, data, family = "gaussian", phi_prior = c(.5, .5), log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=3, method = "rjags", cl = NA, ...){
+glmSpike  = function(formula, data, family = "gaussian", phi_prior = c(.5, .5), log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=3, method = "rjags", cl = NA, ...){
 
   X = model.matrix(formula, data)[,-1]
   y = model.frame(formula, data)[,1]

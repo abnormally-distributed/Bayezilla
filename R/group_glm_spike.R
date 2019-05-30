@@ -41,9 +41,9 @@
 #' @export
 #'
 #' @examples
-#' group_glm_spike()
+#' groupSpike()
 #'
-group_glm_spike  = function(formula, data, family = "gaussian", phi_prior = c(.5, .5), log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=3, method = "rjags", cl = NA, ...){
+groupSpike  = function(formula, data, family = "gaussian", phi_prior = c(.5, .5), log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=3, method = "rjags", cl = NA, ...){
 
   if (family == "gaussian"){
 

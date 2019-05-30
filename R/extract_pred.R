@@ -4,9 +4,9 @@
 #' @param predname default name is "ySim".
 #' @export
 #' @examples
-#' extract_post_pred()
+#' extractPred()
 #'
-extract_pred =function (x, predname = "ySim")
+extractPred =function (x, predname = "ySim")
 {
   stan <- inherits(x, "stanfit")
   if (stan == TRUE) {

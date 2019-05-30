@@ -49,8 +49,8 @@
 #' @export
 #'
 #' @examples
-#' group_extLASSO
-group_extLASSO <- function(X, y, idx, family = "normal", eta_prior = "gamma", fixed_u = NA, log_lik = FALSE, iter = 10000, warmup = 1000, adapt = 2000, chains = 4, thin = 3, method = "rjags", cl = NULL, ...) {
+#' groupExtLASSO
+groupExtLASSO <- function(X, y, idx, family = "normal", eta_prior = "gamma", fixed_u = NA, log_lik = FALSE, iter = 10000, warmup = 1000, adapt = 2000, chains = 4, thin = 3, method = "rjags", cl = NULL, ...) {
   if (family == "gaussian" || family == "normal") {
     if (eta_prior == "gamma") {
       jags_grp_extended_LASSO <- "model{

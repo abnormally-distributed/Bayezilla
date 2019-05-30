@@ -1,0 +1,159 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Load the package..
+```{r}
+library(Bayezilla)
+```
+
+
+```{r eval=FALSE, include=FALSE}
+# Simulate data
+library(fBasics)
+library(gdata)
+set.seed(101)  # for reproducibility
+N <- 150
+P <- 50
+#True betas
+betas =c(
+  0.2927551, 0, -2.853434, 0, 0, 0.84, 0.32,
+  0, -0.51, 0, 1.09113776, -0.89273929, 0.271721614, 0,
+  -0.25, -1.18113776, -0.9273929, 0.72321414, 3.43034, 0, 0,
+  0, 0, -2.3, 1.1, 0, -0.033604, -0.353825816,
+  0, 0, 0, -0.03968, 0, 0.06324, 0,
+  -0.13530108224, 0.11069967196, -0.033693480136, 0, 0, -0.14646108224, 0,
+  -0.08967855336, -0.05336216, 0, 0, 0, 0, 0.2852,
+  -0.1364
+)
+#groupings = c(rep(1, 5), rep(2, 5), rep(3, 4))
+#wch = sample(1:P, size= length(temp))
+#betas[wch] <- temp
+#rm(temp)
+#idx = rep(0, P)
+#idx[wch] <- groupings
+#idx[which(idx == 0)] <- seq(4, 34)
+mu <- 0
+#Generate Covariance Matrix
+#Generate data simulation
+Sigma = jitter(diag(rep(1, P)), amount = .20)
+neg = which(Sigma < -1)
+pos = which(Sigma > 1)
+Sigma[neg] <- -1
+Sigma[pos] <- 1
+upperTriangle(Sigma) <- lowerTriangle(Sigma, byrow = TRUE)
+diag(Sigma) <- 1
+Sigma = makePositiveDefinite(as.matrix(Sigma))
+diag(Sigma) <- 1
+Sigma = makePositiveDefinite(Sigma)
+Sigma = cov2cor(Sigma)
+set.seed(101)
+X = MASS::mvrnorm(N, mu = rep(0, P), Sigma = Sigma, empirical = FALSE)
+X = as.matrix(scale(X))
+y = mu + as.vector(X %*% matrix(betas, ncol = 1))
+X = X + matrix(rnorm((N * P)/4 , 0, .25), N, P)
+#noise = rgamma((N * P)/4 , 2, 2)
+#noise = c(scale(noise), rev(scale(noise)), scale(noise), -1 * scale(noise)) * .62
+#X = X + matrix(noise, nrow = N, ncol = P)
+colnames(X) = paste0("X", 1:P)
+# Add gaussian noise
+data = cbind.data.frame(Y = y, X)
+colmeans  = colMeans(data)
+colsds = colSds(data)
+```
+
+Let's first take a look at the classical linear model.
+
+```{r echo=FALSE}
+broom::tidy(lm(Y ~ ., data)) %>% mutate_if(is.numeric, round, 3)
+lmcoefs = broom::tidy(lm(Y ~ ., data)) %>% mutate_if(is.numeric, round, 3)
+lmcoefs = lmcoefs$estimate
+```
+
+Bayes GLM 
+
+```{r}
+out = glmBayes(Y ~ ., data, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 2, chains = 4)
+```
+
+
+```{r echo=FALSE}
+post_summary(out)
+coefs1 = post_summary(out)$estimate[2:51]
+```
+
+Normal-Bernoulli Mixture Prior (Spike Selection)
+
+Excluded due to computational intensity. 
+
+
+Extended LASSO 
+
+```{r}
+out3 = extLASSO(Y ~ ., data, cl = makeCluster(4), eta_prior = "fixed_u", fixed_u = 10, log_lik = TRUE, iter = 15000, adapt = 10000, warmup = 2500, thin = 8)
+```
+
+As you can see, the results are quite consistent with the above results. 
+
+```{r}
+post_summary(out3)
+coefs3 = post_summary(out3)$median[2:51]
+```
+
+
+```{r}
+out4 = negLASSO(Y ~ ., data, cl = makeCluster(4), log_lik = TRUE, iter = 10000, adapt = 5000, thin = 3)
+```
+
+
+```{r}
+post_summary(out4)
+coefs4 = post_summary(out4)$median[2:51]
+```
+
+
+```{r}
+out5 = bayesEnet(Y ~ ., data, cl = makeCluster(4), log_lik = TRUE, iter = 15000, warmup = 2500, adapt = 5000,  thin = 4)
+```
+
+
+```{r}
+post_summary(out5)
+coefs5 = post_summary(out5)$median[2:51]
+```
+
+
+```{r}
+true.betas = round(c(
+  0.2927551, 0, -2.853434, 0, 0, 0.84, 0.32,
+  0, -0.51, 0, 1.09113776, -0.89273929, 0.271721614, 0,
+  -0.25, -1.18113776, -0.9273929, 0.72321414, 3.43034, 0, 0,
+  0, 0, -2.3, 1.1, 0, -0.033604, -0.353825816,
+  0, 0, 0, -0.03968, 0, 0.06324, 0,
+  -0.13530108224, 0.11069967196, -0.033693480136, 0, 0, -0.14646108224, 0,
+  -0.08967855336, -0.05336216, 0, 0, 0, 0, 0.2852,
+  -0.1364
+), 3)
+coefTable = data.frame(
+trueBetas = true.betas,
+OLS = lmcoefs[-1],
+BayesGLM = coefs1,
+extendedBLASSO = coefs3,
+negBLASSO = coefs4,
+BayesElasticNet = coefs5
+)
+
+coefTable
+
+EstimationError = cbind.data.frame(
+  OLS = sum(abs(lmcoefs[-1] - true.betas)),
+  BayesGLM = sum(abs(coefs1 - true.betas)),
+  extendedBLASSO = sum(abs(coefs3 - true.betas)),
+  negBLASSO = sum(abs(coefs4 - true.betas)),
+  BayesElasticNet = sum(abs(coefs5 - true.betas))
+)
+
+EstimationError
+```
+

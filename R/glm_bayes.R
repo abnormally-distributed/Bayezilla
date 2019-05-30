@@ -1,11 +1,16 @@
 #' Bayesian Basic GLMs
 #'
-#' This function utilizes a model where the prior precision on the coefficients is learned from the data
-#' through a hyper-prior. This hyperparameter "omega" allows the model to flexibly adapt to the data. In particular
-#' this hyperprior is a gamma(.5, .5) distribution which results in independent marginal cauchy distributions. The
-#' very heavy tails of the cauchy allow for maximum sensitivity to large coefficients, while the dense spike at zero
-#' allows the model to shrink the coefficients if neccesary. This process is completely data driven. Standard gaussian,
-#' binomial, and poisson likelihood functions are available. Note that if you do not scale and center your numeric predictors, this will likely not perform well or
+#' This model utilizes normal-gamma mixture priors. A student-t prior can be parameterized as a norma-gamma mixture 
+#' by utilizing a gamma(nu/2, nu/2) distribution where nu is the desired degrees of freedom. This model utilizes
+#' a single degree of freedom. One degree of freedom yields gamma(.5, .5), which is the cauchy distribution. Hence, 
+#' this model results in  marginal independent cauchy priors on each coefficient. The cauchy distribution has no defined 
+#' first or second moments (mean and variance) and hence is an ideal proper reference prior. The cauchy distribution's 
+#' extremely long tails allow coefficients with strong evidence of being large to not be shrunk too strongly, while the 
+#' large probability mass at the mode of zero captures small noisy coefficients and regularizes them. 
+#' This adaptive shrinkage property results in an ideal prior. This process is completely data driven. Standard gaussian,
+#' binomial, and poisson likelihood functions are available. 
+#' 
+#' Note that if you do not scale and center your numeric predictors, this will likely not perform well or
 #' give reasonable results. The mixing hyperparameter omega assumes all covariates are on the same scale.
 #'
 #' @param formula the model formula
@@ -17,8 +22,8 @@
 #' @param adapt How many adaptation steps? Defaults to 2000.
 #' @param chains How many chains? Defaults to 4.
 #' @param thin Thinning interval. Defaults to 3.
-#' @param method Defaults to "rjags" (single core run). For parallel, choose "rjparallel" or "parallel".
-#' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods.
+#' @param method Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).
+#' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.
 #' @param ... Other arguments to run.jags.
 #'
 #' @return A run.jags object
@@ -27,11 +32,16 @@
 #' @examples
 #' glmBayes()
 #'
-glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=3, method = "rjags", cl = NULL, ...){
+glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=3, method = "parallel", cl = makeCluster(2), ...){
 
   X = as.matrix(model.matrix(formula, data)[,-1])
   y = model.frame(formula, data)[,1]
 
+  RNGlist = c("base::Wichmann-Hill", "base::Marsaglia-Multicarry", "base::Super-Duper", "base::Mersenne-Twister")
+  if (chains > 4){
+    chains = 4
+  }
+  
   if (family == "gaussian"){
 
     jags_glm = "model{
@@ -63,7 +73,7 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" =0, "beta" = jitter(rep(0, P), amount = 1), "tau" = 1, "omega" = .001, "ySim" = y))
+    inits = lapply(1:chains, function(z) list("Intercept" =0, "beta" = jitter(rep(0, P), amount = 1), "tau" = 1, "omega" = .001, "ySim" = y, .RNG.name=RNGlist[z], .RNG.seed = sample(1:10000, 1)))
   }
 
   if (family == "binomial" || family == "logistic"){
@@ -96,7 +106,7 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = jitter(rep(0, P), amount = 1), "omega" = .001, "ySim" = y))
+    inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = jitter(rep(0, P), amount = 1), "omega" = .001, "ySim" = y, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1)))
   }
 
   if (family == "poisson"){
@@ -130,7 +140,7 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = 0, "omega" = .001, "ySim" = y, "beta" = jitter(rep(0, P), amount = 1)))
+    inits = lapply(1:chains, function(z) list("Intercept" = 0, "omega" = .001, "ySim" = y, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1),"beta" = jitter(rep(0, P), amount = 1)))
   }
 
   out = run.jags(model = "jags_glm.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, ...)

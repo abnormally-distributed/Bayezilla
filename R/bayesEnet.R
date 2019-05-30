@@ -8,8 +8,8 @@
 #' @param adapt How many adaptation steps? Defaults to 2000.
 #' @param chains How many chains? Defaults to 4.
 #' @param thin Thinning interval. Defaults to 3.
-#' @param method Defaults to "rjags" (single core run). For parallel, choose "rjparallel" or "parallel".
-#' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods.
+#' @param method Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).
+#' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.
 #' @param ... Other arguments to run.jags.
 #'
 #' @return A run.jags object
@@ -18,11 +18,16 @@
 #' @examples
 #' bayesEnet()
 #'
-bayesEnet  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=3, method = "rjags", cl = NULL, ...){
+bayesEnet  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=3, method = "parallel", cl = makeCluster(2), ...){
 
   X = model.matrix(formula, data)[,-1]
   y = model.frame(formula, data)[,1]
 
+  RNGlist = c("base::Wichmann-Hill", "base::Marsaglia-Multicarry", "base::Super-Duper", "base::Mersenne-Twister")
+  if (chains > 4){
+    chains = 4
+  }
+  
     jags_elastic_net = "model{
 
               tau ~ dgamma(.001, .001)
@@ -54,8 +59,11 @@ bayesEnet  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits <- lapply(1:chains, function(z) list("Intercept" = 0, "beta" = rep(0, P), "omega" = 1 + abs(jitter(rep(1, P), amount = .25)), "lambda1" = 50, "lambda2" = 15, "tau" = 1))
+    inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= RNGlist[z], .RNG.seed= sample(1:10000, 1), "beta" = rep(0, P), "omega" = 1 + abs(jitter(rep(1, P), amount = .25)), "lambda1" = 50, "lambda2" = 15, "tau" = 1))
   out = run.jags(model = "jags_elastic_net.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, ...)
   file.remove("jags_elastic_net.txt")
+  if (!is.null(cl)) {
+    parallel::stopCluster(cl = cl)
+  }
   return(out)
 }

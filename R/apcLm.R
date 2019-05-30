@@ -25,6 +25,12 @@
 #' apcLm()
 apcLm = function(formula, data, lambda = -1, log_lik = FALSE, iter=10000, warmup=1000, adapt=5000, chains=4, thin=3, method = "parallel", cl = makeCluster(2), ...)
 {
+  
+  RNGlist = c("base::Wichmann-Hill", "base::Marsaglia-Multicarry", "base::Super-Duper", "base::Mersenne-Twister")
+  if (chains > 4){
+    chains = 4
+  }
+  
   data <- as.data.frame(data)
   y <- as.numeric(model.frame(formula, data)[, 1])
   X <- model.matrix(formula, data)[, -1]
@@ -70,7 +76,7 @@ apcLm = function(formula, data, lambda = -1, log_lik = FALSE, iter=10000, warmup
     monitor = monitor[-(length(monitor))]
   }
   inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = jitter(rep(0, P), amount = .25), "g_inv" = .001, "tau" = 3, "ySim" = y,
-                                            .RNG.name="base::Super-Duper", .RNG.seed= sample(1:10000, 1)))
+                                            .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1)))
   out = run.jags(model = "jags_apcLm.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, ...)
   if (!is.null(cl)){
     parallel::stopCluster(cl = cl)

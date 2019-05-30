@@ -1,17 +1,23 @@
 #' Bernoulli-Normal Mixture Selection for GLMs
 #'
-#' @description This is the most basic type of Bayesian variable selection, however, it is
-#' very intuitive to understand and often performs well**. This models the
+#' @description This is the most basic type of Bayesian variable selection. This models the
 #' regression coefficients as coming from either a null distribution represented
-#' by a probability mass of 100% at zero, or as coming from a cauchy distribution parameterized
-#' as a normal-gamma(.5,.5) mixture with the mixing parameter given the name "omega".
-#' Note that you should center and scale your variables before using this function.
+#' by a probability mass of 100% at zero, or as coming from a normal distribution. A student-t family can be obtained
+#' as a norma-gamma mixture by utilizing a gamma(nu/2, nu/2) distribution where nu is the desired degrees of freedom.
+#' One degree of freedom yields gamma(.5, .5), which is the cauchy distribution. Hence, this model results in 
+#' marginal independent cauchy priors on each coefficient. The cauchy distribution has no defined first or second moments
+#' (mean and variance) and hence is an ideal proper reference prior. The cauchy distribution's extremely
+#' long tails allow coefficients with strong evidence of being large to not be shrunk too strongly, while the large
+#' probability mass at the mode of zero captures small noisy coefficients and regularizes them. This adaptive shrinkage
+#' property results in an ideal prior.
+#' 
+#' Note that you should center and scale your predictor variables before using this function.
 #' If you do not scale and center your numeric predictors, this will likely not perform well or
 #' give reasonable results. The mixing hyperparameter omega assumes all covariates are on the same scale.
 #'
-#' ** This model works best on smaller to medium sized data sets. If you experience difficulty with
-#' running times or obtaining a good effective sample size consider using the extended LASSO. Another tip that
-#' may improve performance is using a beta(1, 1) or beta(1.5, 1.5) prior on phi. If all coefficients are set to
+#' This model works best on smaller to medium sized data sets with a small number of variables (less than 20). 
+#' If you experience difficulty with running times or obtaining a good effective sample size consider using the extended LASSO. 
+#' Another tip that may improve performance is using a beta(1, 1) or beta(1.5, 1.5) prior on phi. If all coefficients are set to
 #' zero and there is truly good reason to believe this is not correct (ie, you aren't just hunting for "statistical
 #' significance", are you?) a prior such as beta(4, 2) may help. If there is no sparsity, and you have genuine reason
 #' to believe there should be try a beta(2,8) prior (if not, ask yourself why are you using variable selection?
@@ -27,8 +33,8 @@
 #' @param adapt How many adaptation steps? Defaults to 2000.
 #' @param chains How many chains? Defaults to 4.
 #' @param thin Thinning interval. Defaults to 3.
-#' @param method Defaults to "rjags" (single core run). For parallel, choose "rjparallel" or "parallel".
-#' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods.
+#' @param method Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).
+#' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.
 #' @param ... Other arguments to run.jags.
 #'
 #' @return A run.jags object
@@ -37,11 +43,16 @@
 #' @examples
 #' glmSpike()
 #'
-glmSpike  = function(formula, data, family = "gaussian", phi_prior = c(.5, .5), log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=3, method = "rjags", cl = NA, ...){
+Spike  = function(formula, data, family = "gaussian", phi_prior = c(.5, .5), log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=3, method = "parallel", cl = makeCluster(2), ...){
 
   X = model.matrix(formula, data)[,-1]
   y = model.frame(formula, data)[,1]
 
+  RNGlist = c("base::Wichmann-Hill", "base::Marsaglia-Multicarry", "base::Super-Duper", "base::Mersenne-Twister")
+  if (chains > 4){
+    chains = 4
+  }
+  
   if (family == "gaussian"){
 
     jags_glm_spike = "model{
@@ -72,7 +83,7 @@ glmSpike  = function(formula, data, family = "gaussian", phi_prior = c(.5, .5), 
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = 0, "omega" = .0001,  "ySim" = y, "delta"=rep(1, P), "phi" = .20 , "theta" = jitter(rep(0, P), amount = .25), "tau" = 1))
+    inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= RNGlist[z], .RNG.seed= sample(1:10000, 1), "omega" = .0001,  "ySim" = y, "delta"=rep(1, P), "phi" = .20 , "theta" = jitter(rep(0, P), amount = .25), "tau" = 1))
     out = run.jags(model = "jags_glm_spike.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, ...)
     return(out)
   }
@@ -105,7 +116,7 @@ glmSpike  = function(formula, data, family = "gaussian", phi_prior = c(.5, .5), 
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = 0, "omega" = .0001,  "ySim" = y, "delta" = rep(1, P), "phi" = .20 , "theta" = jitter(rep(0, P), amount = .25)))
+    inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= RNGlist[z], .RNG.seed= sample(1:10000, 1), "omega" = .0001,  "ySim" = y, "delta" = rep(1, P), "phi" = .20 , "theta" = jitter(rep(0, P), amount = .25)))
     out = run.jags(model = "jags_glm_spike.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, ...)
     return(out)
   }
@@ -137,8 +148,12 @@ glmSpike  = function(formula, data, family = "gaussian", phi_prior = c(.5, .5), 
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = 0, "omega" = .0001,  "ySim" = y, "delta"=rep(1, P), "phi" = .20 , "theta" = jitter(rep(0, P), amount = .25)))
+    inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= RNGlist[z], .RNG.seed= sample(1:10000, 1), "omega" = .0001,  "ySim" = y, "delta"=rep(1, P), "phi" = .20 , "theta" = jitter(rep(0, P), amount = .25)))
     out = run.jags(model = "jags_glm_spike.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, ...)
+    file.remove("jags_glm_spike.txt")
+    if (!is.null(cl)) {
+      parallel::stopCluster(cl = cl)
+    }
     return(out)
   }
 }

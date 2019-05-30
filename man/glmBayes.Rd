@@ -6,7 +6,7 @@
 \usage{
 glmBayes(formula, data, family = "gaussian", log_lik = FALSE,
   iter = 10000, warmup = 1000, adapt = 2000, chains = 4,
-  thin = 3, method = "rjags", cl = NULL, ...)
+  thin = 3, method = "parallel", cl = makeCluster(2), ...)
 }
 \arguments{
 \item{formula}{the model formula}
@@ -27,9 +27,9 @@ glmBayes(formula, data, family = "gaussian", log_lik = FALSE,
 
 \item{thin}{Thinning interval. Defaults to 3.}
 
-\item{method}{Defaults to "rjags" (single core run). For parallel, choose "rjparallel" or "parallel".}
+\item{method}{Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).}
 
-\item{cl}{Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods.}
+\item{cl}{Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.}
 
 \item{...}{Other arguments to run.jags.}
 }
@@ -37,12 +37,18 @@ glmBayes(formula, data, family = "gaussian", log_lik = FALSE,
 A run.jags object
 }
 \description{
-This function utilizes a model where the prior precision on the coefficients is learned from the data
-through a hyper-prior. This hyperparameter "omega" allows the model to flexibly adapt to the data. In particular
-this hyperprior is a gamma(.5, .5) distribution which results in independent marginal cauchy distributions. The
-very heavy tails of the cauchy allow for maximum sensitivity to large coefficients, while the dense spike at zero
-allows the model to shrink the coefficients if neccesary. This process is completely data driven. Standard gaussian,
-binomial, and poisson likelihood functions are available. Note that if you do not scale and center your numeric predictors, this will likely not perform well or
+This model utilizes normal-gamma mixture priors. A student-t prior can be parameterized as a norma-gamma mixture 
+by utilizing a gamma(nu/2, nu/2) distribution where nu is the desired degrees of freedom. This model utilizes
+a single degree of freedom. One degree of freedom yields gamma(.5, .5), which is the cauchy distribution. Hence, 
+this model results in  marginal independent cauchy priors on each coefficient. The cauchy distribution has no defined 
+first or second moments (mean and variance) and hence is an ideal proper reference prior. The cauchy distribution's 
+extremely long tails allow coefficients with strong evidence of being large to not be shrunk too strongly, while the 
+large probability mass at the mode of zero captures small noisy coefficients and regularizes them. 
+This adaptive shrinkage property results in an ideal prior. This process is completely data driven. Standard gaussian,
+binomial, and poisson likelihood functions are available.
+}
+\details{
+Note that if you do not scale and center your numeric predictors, this will likely not perform well or
 give reasonable results. The mixing hyperparameter omega assumes all covariates are on the same scale.
 }
 \examples{

@@ -6,8 +6,8 @@
 \usage{
 extLASSO(formula, data, family = "normal", eta_prior = "gamma",
   fixed_u = NA, log_lik = FALSE, iter = 10000, warmup = 1000,
-  adapt = 2000, chains = 4, thin = 5, method = "rjags",
-  cl = NULL, ...)
+  adapt = 2000, chains = 4, thin = 5, method = "parallel",
+  cl = makeCluster(2), ...)
 }
 \arguments{
 \item{formula}{the model formula}
@@ -33,9 +33,9 @@ default to force you to choose a good value through model comparison.}
 
 \item{thin}{Thinning interval. Defaults to 3.}
 
-\item{method}{Defaults to "rjags" (single core run). For parallel, choose "rjparallel" or "parallel".}
+\item{method}{Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).}
 
-\item{cl}{Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods.}
+\item{cl}{Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.}
 
 \item{...}{Other arguments to run.jags.}
 }

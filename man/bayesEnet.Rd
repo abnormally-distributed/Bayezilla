@@ -6,7 +6,7 @@
 \usage{
 bayesEnet(formula, data, family = "gaussian", log_lik = FALSE,
   iter = 10000, warmup = 1000, adapt = 2000, chains = 4,
-  thin = 3, method = "rjags", cl = NULL, ...)
+  thin = 3, method = "parallel", cl = makeCluster(2), ...)
 }
 \arguments{
 \item{formula}{the model formula}
@@ -25,9 +25,9 @@ bayesEnet(formula, data, family = "gaussian", log_lik = FALSE,
 
 \item{thin}{Thinning interval. Defaults to 3.}
 
-\item{method}{Defaults to "rjags" (single core run). For parallel, choose "rjparallel" or "parallel".}
+\item{method}{Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).}
 
-\item{cl}{Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods.}
+\item{cl}{Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.}
 
 \item{...}{Other arguments to run.jags.}
 }

@@ -37,8 +37,8 @@
 #' @param adapt How many adaptation steps? Defaults to 2000.
 #' @param chains How many chains? Defaults to 4.
 #' @param thin Thinning interval. Defaults to 3.
-#' @param method Defaults to "rjags" (single core run). For parallel, choose "rjparallel" or "parallel".
-#' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods.
+#' @param method Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).
+#' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.
 #' @param ... Other arguments to run.jags.
 #'
 #' @return A run.jags object
@@ -48,11 +48,16 @@
 #' extLASSO()
 #'
 
-extLASSO  = function(formula, data, family = "normal", eta_prior = "gamma", fixed_u = NA, log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=5, method = "rjags", cl = NULL, ...){
+extLASSO  = function(formula, data, family = "normal", eta_prior = "gamma", fixed_u = NA, log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=5, method = "parallel", cl = makeCluster(2), ...){
 
   X = model.matrix(formula, data)[,-1]
   y = model.frame(formula, data)[,1]
 
+  RNGlist = c("base::Wichmann-Hill", "base::Marsaglia-Multicarry", "base::Super-Duper", "base::Mersenne-Twister")
+  if (chains > 4){
+    chains = 4
+  }
+  
   if (family == "gaussian" || family == "normal") {
 
     if (eta_prior == "gamma") {
@@ -100,7 +105,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "gamma", fixe
         monitor = monitor[-(length(monitor))]
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X))
-      inits = lapply(1:chains, function(z) list("Intercept" = 0, "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P), amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
+      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P), amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
       write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
 
     }
@@ -152,7 +157,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "gamma", fixe
         monitor = monitor[-(length(monitor))]
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X),  u = fixed_u)
-      inits = lapply(1:chains, function(z) list("Intercept" = 0, "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P), amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
+      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P), amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
       write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
     }
 
@@ -205,7 +210,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "gamma", fixe
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X),  u = fixed_u)
 
-      inits = lapply(1:chains, function(z) list("Intercept" = 0, "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P), amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
+      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P), amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
       write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
     }
   }
@@ -254,7 +259,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "gamma", fixe
         monitor = monitor[-(length(monitor))]
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X))
-      inits = lapply(1:chains, function(z) list("Intercept" = 0, "ySim" = y, "Omega" = 50 , "beta" = jitter(rep(0,P), amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
+      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50 , "beta" = jitter(rep(0,P), amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
       write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
 
     }
@@ -303,7 +308,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "gamma", fixe
         monitor = monitor[-(length(monitor))]
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), u = fixed_u)
-      inits = lapply(1:chains, function(z) list("Intercept" = 0, "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P), amount = .25), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
+      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P), amount = .25), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
       write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
     }
 
@@ -352,7 +357,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "gamma", fixe
         monitor = monitor[-(length(monitor))]
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), u = fixed_u)
-      inits = lapply(1:chains, function(z) list("Intercept" = 0, "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P), amount = .25), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
+      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P), amount = .25), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
       write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
     }
 
@@ -402,7 +407,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "gamma", fixe
         monitor = monitor[-(length(monitor))]
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X))
-      inits = lapply(1:chains, function(z) list("Intercept" = 0, "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P)), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
+      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P)), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
       write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
 
     }
@@ -451,7 +456,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "gamma", fixe
         monitor = monitor[-(length(monitor))]
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), u = fixed_u)
-      inits = lapply(1:chains, function(z) list("Intercept" = 0, "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P)), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
+      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P)), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
       write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
     }
 
@@ -499,7 +504,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "gamma", fixe
         monitor = monitor[-(length(monitor))]
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), u = fixed_u)
-      inits = lapply(1:chains, function(z) list("Intercept" = 0, "ySim" = y, "Omega" = 50, "beta" = jitter(0, amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
+      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(0, amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
       write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
     }
   }

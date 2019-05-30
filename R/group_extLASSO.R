@@ -41,8 +41,9 @@
 #' @param adapt How many adaptation steps? Defaults to 2000.
 #' @param chains How many chains? Defaults to 4.
 #' @param thin Thinning interval. Defaults to 3.
-#' @param method Defaults to "rjags" (single core run). For parallel, choose "rjparallel" or "parallel".
-#' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods.
+#' @param method Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).
+#' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.
+
 #' @param ... Other arguments to run.jags.
 #'
 #' @return A run.jags object
@@ -50,7 +51,14 @@
 #'
 #' @examples
 #' groupExtLASSO
-groupExtLASSO <- function(X, y, idx, family = "normal", eta_prior = "gamma", fixed_u = NA, log_lik = FALSE, iter = 10000, warmup = 1000, adapt = 2000, chains = 4, thin = 3, method = "rjags", cl = NULL, ...) {
+groupExtLASSO <- function(X, y, idx, family = "normal", eta_prior = "gamma", fixed_u = NA, log_lik = FALSE, iter = 10000, warmup = 1000, adapt = 2000, chains = 4, thin = 3, method = "parallel", cl = makeCluster(2), ...) {
+  
+  RNGlist = c("base::Wichmann-Hill", "base::Marsaglia-Multicarry", "base::Super-Duper", "base::Mersenne-Twister")
+  if (chains > 4){
+    chains = 4
+  }
+  
+  
   if (family == "gaussian" || family == "normal") {
     if (eta_prior == "gamma") {
       jags_grp_extended_LASSO <- "model{
@@ -98,7 +106,7 @@ groupExtLASSO <- function(X, y, idx, family = "normal", eta_prior = "gamma", fix
         monitor <- monitor[-(length(monitor))]
       }
       jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), idx = idx, nG = nG)
-      inits <- lapply(1:chains, function(z) list("Intercept" = 0, "ySim" = y, "Omega" = 1, "beta" = jitter(rep(0, P), amount = .025), "eta" = rep(1, max(idx)), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
+      inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1),"ySim" = y, "Omega" = 1, "beta" = jitter(rep(0, P), amount = .025), "eta" = rep(1, max(idx)), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
       write_lines(jags_grp_extended_LASSO, "jags_grp_extended_LASSO.txt")
     }
 
@@ -146,7 +154,7 @@ groupExtLASSO <- function(X, y, idx, family = "normal", eta_prior = "gamma", fix
       P <- ncol(X)
       nG <- length(unique(idx))
       jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), u = fixed_u, idx = idx, nG = nG)
-      inits <- lapply(1:chains, function(z) list("Intercept" = 0, "ySim" = y, "Omega" = 1, "beta" = rnorm(P, 0, 1), "eta" = rep(1, nG), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
+      inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1),"ySim" = y, "Omega" = 1, "beta" = rnorm(P, 0, 1), "eta" = rep(1, nG), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
       write_lines(jags_grp_extended_LASSO, "jags_grp_extended_LASSO.txt")
     }
 
@@ -200,7 +208,7 @@ groupExtLASSO <- function(X, y, idx, family = "normal", eta_prior = "gamma", fix
       P <- ncol(X)
       nG <- length(unique(idx))
       jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), u = fixed_u, idx = idx, nG = nG)
-      inits <- lapply(1:chains, function(z) list("Intercept" = 0, "ySim" = y, "Omega" = 1, "beta" = rnorm(P, 0, 1), "eta" = rep(1, nG), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
+      inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1),"ySim" = y, "Omega" = 1, "beta" = rnorm(P, 0, 1), "eta" = rep(1, nG), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
       write_lines(jags_grp_extended_LASSO, "jags_grp_extended_LASSO.txt")
     }
   }
@@ -249,7 +257,7 @@ groupExtLASSO <- function(X, y, idx, family = "normal", eta_prior = "gamma", fix
         monitor <- monitor[-(length(monitor))]
       }
       jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), nG = nG)
-      inits <- lapply(1:chains, function(z) list("Intercept" = 0, "ySim" = y, "Omega" = 1, "beta" = rnorm(P, 0, 1), "eta" = rep(1, nG), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
+      inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1),"ySim" = y, "Omega" = 1, "beta" = rnorm(P, 0, 1), "eta" = rep(1, nG), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
       write_lines(jags_grp_extended_LASSO, "jags_grp_extended_LASSO.txt")
     }
 
@@ -296,7 +304,7 @@ groupExtLASSO <- function(X, y, idx, family = "normal", eta_prior = "gamma", fix
         monitor <- monitor[-(length(monitor))]
       }
       jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), u = fixed_u, idx = idx, nG = max(idx))
-      inits <- lapply(1:chains, function(z) list("Intercept" = 0, "ySim" = y, "Omega" = 1, "beta" = jitter(rep(0, P), amount = .25), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
+      inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1),"ySim" = y, "Omega" = 1, "beta" = jitter(rep(0, P), amount = .25), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
       write_lines(jags_grp_extended_LASSO, "jags_grp_extended_LASSO.txt")
     }
 
@@ -343,7 +351,7 @@ groupExtLASSO <- function(X, y, idx, family = "normal", eta_prior = "gamma", fix
         monitor <- monitor[-(length(monitor))]
       }
       jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), u = fixed_u, idx = idx, nG = max(idx))
-      inits <- lapply(1:chains, function(z) list("Intercept" = 0, "ySim" = y, "Omega" = 1, "beta" = jitter(rep(0, P), amount = .25), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
+      inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1),"ySim" = y, "Omega" = 1, "beta" = jitter(rep(0, P), amount = .25), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
       write_lines(jags_grp_extended_LASSO, "jags_grp_extended_LASSO.txt")
     }
   }
@@ -390,7 +398,7 @@ groupExtLASSO <- function(X, y, idx, family = "normal", eta_prior = "gamma", fix
         monitor <- monitor[-(length(monitor))]
       }
       jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X))
-      inits <- lapply(1:chains, function(z) list("Intercept" = 0, "ySim" = y, "Omega" = 1, "beta" = jitter(0, amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
+      inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= RNGlist[z], .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 1, "beta" = jitter(0, amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
       write_lines(jags_grp_extended_LASSO, "jags_grp_extended_LASSO.txt")
     }
 
@@ -438,7 +446,7 @@ groupExtLASSO <- function(X, y, idx, family = "normal", eta_prior = "gamma", fix
         monitor <- monitor[-(length(monitor))]
       }
       jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), u = fixed_u, idx = idx, nG = max(idx))
-      inits <- lapply(1:chains, function(z) list("Intercept" = 0, "ySim" = y, "Omega" = 1, "beta" = jitter(0, amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
+      inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= RNGlist[z], .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 1, "beta" = jitter(0, amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
       write_lines(jags_grp_extended_LASSO, "jags_grp_extended_LASSO.txt")
     }
 
@@ -485,7 +493,7 @@ groupExtLASSO <- function(X, y, idx, family = "normal", eta_prior = "gamma", fix
         monitor <- monitor[-(length(monitor))]
       }
       jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), u = fixed_u, idx = idx, nG = max(idx))
-      inits <- lapply(1:chains, function(z) list("Intercept" = 0, "Omega" = 1, "beta" = jitter(0, amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
+      inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= RNGlist[z], .RNG.seed= sample(1:10000, 1), "Omega" = 1, "beta" = jitter(0, amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
       write_lines(jags_grp_extended_LASSO, "jags_grp_extended_LASSO.txt")
     }
   }

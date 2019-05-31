@@ -1,39 +1,50 @@
 #' Bernoulli-Normal Mixture Group Selection for GLMs
 #'
-#' @description This is the most basic type of Bayesian variable selection, however, it is
-#' very intuitive to understand and often performs well**. This models the
+#' @description 
+#' 
+#' IMPORTANT NOTICE: This model works best on smaller to medium sized data sets with a small number of variables (less than 20).
+#' If you experience difficulty with running times or obtaining a good effective sample size consider using the extended LASSO.
+#' 
+#' IMPORTANT NOTICE: Center and scale your predictors before using this function.
+#' If you do not scale and center your numeric predictors, this will likely not give reasonable results. 
+#'
+#' This is the most basic type of Bayesian variable selection. This models the
 #' regression coefficients as coming from either a null distribution represented
-#' by a probability mass of 100% at zero, or as coming from a cauchy distribution parameterized
-#' as a normal-gamma(.5,.5) mixture with the mixing parameter given the name "omega". This variant of the
-#' Bernoulli-Normal mixture model models the selection of parameters as groups, akin to the group LASSO.
+#' by a probability mass of 100% at zero (the "spike"), or as coming from a Normal( mu=0 , sigma = sqrt(2) ) distribution. This variant of the
+#' Bernoulli-Normal mixture prior models the selection of parameters as groups, akin to the group LASSO.
+#' 
 #'
-#' Note that you should center and scale your variables before using this function.
-#' If you do not scale and center your numeric predictors, this will likely not perform well or
-#' give reasonable results. The mixing hyperparameter omega assumes all covariates are on the same scale.
+#' Some Suggestions for Priors on phi (the overall inclusion probability):
 #'
+#' beta(0.5, 0.5) Jeffrey's Prior (Truly uninformative)
 #'
-#' ** This model works best on smaller to medium sized data sets. If you experience difficulty with
-#' running times or obtaining a good effective sample size consider using the extended LASSO. Another tip that
-#' may improve performance is using a beta(1, 1) or beta(1.5, 1.5) prior on phi. If all coefficients are set to
-#' zero and there is truly good reason to believe this is not correct (ie, you aren't just hunting for "statistical
-#' significance", are you?) a prior such as beta(4, 2) may help. If there is no sparsity, and you have genuine reason
-#' to believe there should be try a beta(2,8) prior (if not, ask yourself why are you using variable selection?
-#' If it is to deal with collinearity or other foibles for least squares, consider trying the glm_bayes function instead).
+#' beta(1.0, 1.0) Laplace's Uniform Prior
 #'
+#' beta(1.0, 4.0) Weakly Informative, mean probability = 0.20 [This is the default prior used here]
+#'
+#' beta(2.0, 2.0) Weakly Informative, mean probability = 0.50 
+#'
+#' beta(4.0, 1.0) Weakly Informative, mean probability = 0.80
+#' 
+#' beta(2.0, 8.0) Moderately Informative, Regularizing, mean probability = 0.20 
+#' 
+#' beta(4.0, 4.0) Moderately Informative, Regularizing, mean probability = 0.50
+#'
+#' beta(8.0, 2.0) Moderately Informative, Regularizing, mean probability = 0.80
 #'
 #' @param X the model matrix. Construct this manually with model.matrix()[,-1]
 #' @param y the outcome variable
 #' @param idx the group labels. Should be of length = to ncol(model.matrix()[,-1]) with the group assignments
 #' for each covariate. Please ensure that you start numbering with 1, and not 0.
 #' @param family one of "gaussian", "binomial", or "poisson".
-#' @param phi_prior The beta distribution parameters on the inclusion probabilities. Default is Jeffrey's prior, c(0.5, 0.5).
+#' @param phi_prior Default is c(1, 4).
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 10000.
 #' @param warmup How many warmup samples? Defaults to 1000.
 #' @param adapt How many adaptation steps? Defaults to 2000.
-#' @param chains How many chains? Defaults to 4.
+#' @param chains How many chains? Defaults to 4. Max allowed is 4.
 #' @param thin Thinning interval. Defaults to 3.
-#' @param method Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).
+#' @param method Defaults to "parallel". For an alternative parallel option, choose "rjparallel". Otherwise, "rjags" (single core run).
 #' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.
 #' @param ... Other arguments to run.jags.
 #'
@@ -43,7 +54,7 @@
 #' @examples
 #' groupSpike()
 #'
-groupSpike  = function(formula, data, family = "gaussian", phi_prior = c(.5, .5), log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=3, method = "parallel", cl = makeCluster(2), ...){
+groupSpike  = function(formula, data, family = "gaussian", phi_prior = c(1, 4), log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=3, method = "parallel", cl = makeCluster(2), ...){
 
   RNGlist = c("base::Wichmann-Hill", "base::Marsaglia-Multicarry", "base::Super-Duper", "base::Mersenne-Twister")
   if (chains > 4){
@@ -55,7 +66,6 @@ groupSpike  = function(formula, data, family = "gaussian", phi_prior = c(.5, .5)
     jags_group_glm_spike = "model{
               tau ~ dgamma(.001, .001)
               phi ~ dbeta(a, b)
-              omega ~ dgamma(.5, .5)
 
               # Indicator Variables For Groups
               for (r in 1:nG){
@@ -64,7 +74,7 @@ groupSpike  = function(formula, data, family = "gaussian", phi_prior = c(.5, .5)
 
               # Coefficients
               for (p in 1:P){
-                theta[p] ~ dnorm(0, omega)
+                theta[p] ~ dnorm(0, .5)
                 beta[p] <- delta[idx[p]] * theta[p]
               }
 
@@ -84,11 +94,11 @@ groupSpike  = function(formula, data, family = "gaussian", phi_prior = c(.5, .5)
     nG <- length(unique(idx))
     write_lines(jags_group_glm_spike, "jags_group_glm_spike.txt")
     jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), a = phi_prior[1], b = phi_prior[2], idx = idx, nG = nG)
-    monitor = c("Intercept", "beta", "sigma", "phi","omega", "delta", "deviance", "ySim" , "log_lik")
+    monitor = c("Intercept", "beta", "sigma", "phi", "delta", "deviance", "theta" , "ySim" , "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= RNGlist[z], .RNG.seed= sample(1:10000, 1), "omega" = .001,  "ySim" = y, "delta"=rep(1, nG), "phi" = .20 , "theta" = jitter(rep(0, P), amount = .25), "tau" = 1))
+    inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= RNGlist[z], .RNG.seed= sample(1:10000, 1),   "ySim" = y, "delta"=rep(1, nG), "phi" = .20 , "theta" = jitter(rep(0, P), amount = .25), "tau" = 1))
     out = run.jags(model = "jags_group_glm_spike.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, ...)
     return(out)
   }
@@ -96,9 +106,9 @@ groupSpike  = function(formula, data, family = "gaussian", phi_prior = c(.5, .5)
   if (family == "binomial" || family == "logistic"){
 
     jags_group_glm_spike = "model{
-              omega ~ dgamma(.5, .5)
+    
               phi ~ dbeta(a, b)
-
+              
               # Indicator Variables For Groups
               for (r in 1:nG){
                  delta[r] ~ dbern(phi)
@@ -106,7 +116,7 @@ groupSpike  = function(formula, data, family = "gaussian", phi_prior = c(.5, .5)
 
               # Coefficients
               for (p in 1:P){
-                theta[p] ~ dnorm(0, omega)
+                theta[p] ~ dnorm(0, .5)
                 beta[p] <- delta[idx[p]] * theta[p]
               }
 
@@ -125,11 +135,11 @@ groupSpike  = function(formula, data, family = "gaussian", phi_prior = c(.5, .5)
     y = as.numeric(as.factor(y)) - 1
     nG <- length(unique(idx))
     jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), a = phi_prior[1], b = phi_prior[2], idx = idx, nG = nG)
-    monitor = c("Intercept", "beta", "phi","omega", "delta", "deviance", "ySim" , "log_lik")
+    monitor = c("Intercept", "beta", "phi", "delta", "deviance", "theta" ,"ySim" , "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= RNGlist[z], .RNG.seed= sample(1:10000, 1),"omega" = .001,  "ySim" = y, "delta" = rep(1, nG), "phi" = .20 , "theta" = jitter(rep(0, P), amount = .25)))
+    inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= RNGlist[z], .RNG.seed= sample(1:10000, 1),  "ySim" = y, "delta" = rep(1, nG), "phi" = .20 , "theta" = jitter(rep(0, P), amount = .25)))
     out = run.jags(model = "jags_group_glm_spike.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, ...)
     return(out)
   }
@@ -137,7 +147,6 @@ groupSpike  = function(formula, data, family = "gaussian", phi_prior = c(.5, .5)
   if (family == "poisson"){
 
     jags_group_glm_spike = "model{
-              omega ~ dgamma(.5, .5)
               phi ~ dbeta(a, b)
 
               # Indicator Variables For Groups
@@ -147,7 +156,7 @@ groupSpike  = function(formula, data, family = "gaussian", phi_prior = c(.5, .5)
 
               # Coefficients
               for (p in 1:P){
-                theta[p] ~ dnorm(0, omega)
+                theta[p] ~ dnorm(0, .5)
                 beta[p] <- delta[idx[p]] * theta[p]
               }
 
@@ -166,11 +175,11 @@ groupSpike  = function(formula, data, family = "gaussian", phi_prior = c(.5, .5)
     P = ncol(X)
     nG <- length(unique(idx))
     jagsdata = list(X = X, y = y, N = length(y),  P = ncol(X), a = phi_prior[1], b = phi_prior[2], idx = idx, nG = nG)
-    monitor = c("Intercept", "beta", "phi","omega", "delta", "deviance", "ySim" , "log_lik")
+    monitor = c("Intercept", "beta", "phi", "delta", "deviance", "theta" , "ySim" , "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= RNGlist[z], .RNG.seed= sample(1:10000, 1),"omega" = .001,  "ySim" = y, "delta"=rep(1, nG), "phi" = .20 , "theta" = jitter(rep(0, P), amount = .25)))
+    inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= RNGlist[z], .RNG.seed= sample(1:10000, 1),  "ySim" = y, "delta"=rep(1, nG), "phi" = .20 , "theta" = jitter(rep(0, P), amount = .25)))
     out = run.jags(model = "jags_group_glm_spike.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, ...)
     file.remove("jags_group_glm_spike.txt")
     if (!is.null(cl)) {

@@ -12,7 +12,7 @@ groupSpike(formula, data, family = "gaussian", phi_prior = c(0.5, 0.5),
 \arguments{
 \item{family}{one of "gaussian", "binomial", or "poisson".}
 
-\item{phi_prior}{The beta distribution parameters on the inclusion probabilities. Default is Jeffrey's prior, c(0.5, 0.5).}
+\item{phi_prior}{Default is c(1, 4).}
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 
@@ -22,11 +22,11 @@ groupSpike(formula, data, family = "gaussian", phi_prior = c(0.5, 0.5),
 
 \item{adapt}{How many adaptation steps? Defaults to 2000.}
 
-\item{chains}{How many chains? Defaults to 4.}
+\item{chains}{How many chains? Defaults to 4. Max allowed is 4.}
 
 \item{thin}{Thinning interval. Defaults to 3.}
 
-\item{method}{Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).}
+\item{method}{Defaults to "parallel". For an alternative parallel option, choose "rjparallel". Otherwise, "rjags" (single core run).}
 
 \item{cl}{Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.}
 
@@ -43,25 +43,29 @@ for each covariate. Please ensure that you start numbering with 1, and not 0.}
 A run.jags object
 }
 \description{
-This is the most basic type of Bayesian variable selection, however, it is
-very intuitive to understand and often performs well**. This models the
+IMPORTANT NOTICE: This model works best on smaller to medium sized data sets with a small number of variables (less than 20).
+If you experience difficulty with running times or obtaining a good effective sample size consider using the extended LASSO.
+
+IMPORTANT NOTICE: Center and scale your predictors before using this function.
+If you do not scale and center your numeric predictors, this will likely not give reasonable results. 
+
+This is the most basic type of Bayesian variable selection. This models the
 regression coefficients as coming from either a null distribution represented
-by a probability mass of 100% at zero, or as coming from a cauchy distribution parameterized
-as a normal-gamma(.5,.5) mixture with the mixing parameter given the name "omega". This variant of the
-Bernoulli-Normal mixture model models the selection of parameters as groups, akin to the group LASSO.
-
-Note that you should center and scale your variables before using this function.
-If you do not scale and center your numeric predictors, this will likely not perform well or
-give reasonable results. The mixing hyperparameter omega assumes all covariates are on the same scale.
+by a probability mass of 100% at zero (the "spike"), or as coming from a Normal( mu=0 , sigma = sqrt(2) ) distribution. This variant of the
+Bernoulli-Normal mixture prior models the selection of parameters as groups, akin to the group LASSO.
 
 
-** This model works best on smaller to medium sized data sets. If you experience difficulty with
-running times or obtaining a good effective sample size consider using the extended LASSO. Another tip that
-may improve performance is using a beta(1, 1) or beta(1.5, 1.5) prior on phi. If all coefficients are set to
-zero and there is truly good reason to believe this is not correct (ie, you aren't just hunting for "statistical
-significance", are you?) a prior such as beta(4, 2) may help. If there is no sparsity, and you have genuine reason
-to believe there should be try a beta(2,8) prior (if not, ask yourself why are you using variable selection?
-If it is to deal with collinearity or other foibles for least squares, consider trying the glm_bayes function instead).
+Some Suggestions for Priors on phi (the overall inclusion probability):
+
+beta(0.5, 0.5) Jeffrey's Prior (Truly uninformative)
+
+beta(1.0, 1.0) Laplace's Uniform Prior
+
+beta(1.0, 4.0) Weakly Informative, mean probability = 0.20 [This is the default prior used here]
+
+beta(2.0, 2.0) Weakly Informative, mean probability = 0.50 
+
+beta(4.0, 1.0) Weakly Informative, mean probability = 0.80
 }
 \examples{
 groupSpike()

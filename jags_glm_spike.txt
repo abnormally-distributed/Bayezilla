@@ -1,7 +1,8 @@
 model{
               tau ~ dgamma(.001, .001)
               phi ~ dbeta(a, b)
-              omega ~ dgamma(.5, .5)
+              omega ~ dgamma(3, 3)
+              
               for (p in 1:P){
                 theta[p] ~ dnorm(0, omega)
                 delta[p] ~ dbern(phi)

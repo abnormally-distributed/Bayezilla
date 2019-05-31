@@ -4,14 +4,17 @@
 \alias{spikePlot}
 \title{Plot a large number of variable values as vertical lines}
 \usage{
-spikePlot(paramSamples, main.title = "", lwd = 2.5)
+spikePlot(paramSamples, main.title = "parameters", lwd = 2.5,
+  cex.axis = 0.85)
 }
 \arguments{
 \item{paramSamples}{the parameters as a vector of point values}
 
-\item{main.title}{defaults to blank ""}
+\item{main.title}{defaults to "parameters"}
 
 \item{lwd}{line width. defaults to 2.5}
+
+\item{cex.axis}{axis text size. defaults to .85.}
 }
 \value{
 a plot

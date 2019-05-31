@@ -11,9 +11,9 @@
 #' @param iter How many post-warmup samples? Defaults to 10000.
 #' @param warmup How many warmup samples? Defaults to 1000.
 #' @param adapt How many adaptation steps? Defaults to 2000.
-#' @param chains How many chains? Defaults to 4.
+#' @param chains How many chains? Defaults to 4. Max allowed is 4.
 #' @param thin Thinning interval. Defaults to 3.
-#' @param method Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).
+#' @param method Defaults to "parallel". For an alternative parallel option, choose "rjparallel". Otherwise, "rjags" (single core run).
 #' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.
 #' @param ... Other arguments to run.jags.
 #'
@@ -27,6 +27,7 @@ apcLm = function(formula, data, lambda = -1, log_lik = FALSE, iter=10000, warmup
 {
   
   RNGlist = c("base::Wichmann-Hill", "base::Marsaglia-Multicarry", "base::Super-Duper", "base::Mersenne-Twister")
+  
   if (chains > 4){
     chains = 4
   }

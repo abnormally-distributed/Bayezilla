@@ -26,7 +26,7 @@ Intercept <- 0
 
 #Generate Covariance Matrix
 #Generate data simulation
-Sigma = rcorr(P, 1)
+Sigma = rcorr(P, df = P, method = "wishart")
 
 set.seed(104)
 # Generate data

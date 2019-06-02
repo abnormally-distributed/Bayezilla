@@ -16,6 +16,8 @@ tTest(formula = NULL, data, like.func = "normal", compval = 0,
 If using the one sample t-test, the vector of observations. 
 If using repeated measures, the vector of group differences.}
 
+\item{like.func}{the likelihood function to use. either "normal" (the default) or "student_t"}
+
 \item{compval}{the hypothesized null value for a one sample t-test}
 
 \item{model}{one of "is" (independent samples t-test) , "rm" (repeated measures t-test), or "os" (one sample t-test)}
@@ -35,8 +37,6 @@ If using repeated measures, the vector of group differences.}
 \item{cl}{Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.}
 
 \item{...}{other arguments to run.jags}
-
-\item{lk.func}{the likelihood function to use. either "normal" (the default) or "student_t"}
 }
 \value{
 a runjags object
@@ -44,15 +44,28 @@ a runjags object
 \description{
 Two different likelihood functions are offered. For the normal likelihood, a conjugate normal-gamma model:
 
+   For unit scaled and centered response variables this implies gamma(.001, .001)
+   
    tau_i ~ dgamma(square(prec(y)) / 1000, prec(y) / 1000)
-   mu_i ~ normal(0, .5 * prec(y)) #equivalent to normal(0, sigma = sqrt(2 * var(y)))
+   
+   For unit scaled response variables this implies normal(0, .5) or normal(0, sigma = 1.414214)
+   
+   mu_i ~ normal(0, .5 * prec(y)) 
+   
    y ~ normal(mu_i, tau_i)
        
 For the Student-t likelihood: 
 
    nu ~ gamma(2, .01)
+   
+   For unit scaled and centered response variables this implies half-t(0, 1, 3) on the standard deviation
+   
    tau_i ~ scaled.gamma(ysd, 3)
+   
+   For unit scaled response variables this implies cauchy(0, .5) or equivalently, cauchy(0, sigma = 1.414214)
+   
    mu_i ~ cauchy(0, .5 * 1/var(y))           
+   
    y ~ t(mu_i, tau_i, nu)
 
 
@@ -73,7 +86,6 @@ The log-Bayes Factor is estimated as the  difference in log density of the effec
 at each point within the posterior distribution (the Savage-Dickey ratio method). It is presented on the log-density scale for
 numerical stability. Note that the log-Bayes Factor is here presented as the log-evidence in favor of the alternative hypothesis.
 Hence, a larger log-BF is evidence in favor of a non-zero difference. Use the median Bayes Factor if you use the median as your point estimate, and the mean if using the posterior mean as your point estimate. 
-A table is provided at the end of the description to facilitate interpretation. 
 
 Several effect size measures are also provided. A quantity variously known as Cohen's d or Hedge's g (1981)* is given as the primary effect size measure.
 Due to the ambiguity in which term is correct, it is simply labeled as "effSize" in the output. The specific formula used is given below: 
@@ -109,34 +121,6 @@ The effect size is simply the standardized mean difference (z-score)
 ONE SAMPLE T-TEST:
 
 Same as above, but the CLES is also dropped because it is not applicable to one group. The effect size is calculated as the mean of y - the comparison value  / sd(y)
-
-INTERPRETING BAYES FACTORS: 
-
- +-------------------------+------------------------------+---------------------------------------+-----------------------------------+
- | ln-Bayes Factor         | Equivalent Bayes Factor      | Evidence Strength Against Null        | Approximate Equivalent p-Value**  |
- +-------------------------+------------------------------+---------------------------------------+-----------------------------------+
- | <= 1.098612             | <= 3                         | Barely Worth Mentioning               | 0.0375                            |
- +-------------------------+------------------------------+---------------------------------------+-----------------------------------+
- | 1.609438                | 5                            | Moderate                              | 0.0180                            |
- +-------------------------+------------------------------+---------------------------------------+-----------------------------------+
- | 2.302585                | 10                           | Substantial                           | 0.0075                            |
- +-------------------------+------------------------------+---------------------------------------+-----------------------------------+
- | 2.70805                 | 15                           | Strong                                | 0.0045                            |
- +-------------------------+------------------------------+---------------------------------------+-----------------------------------+
- | 2.995732                | 20                           | Very Strong                           | 0.0035                            |
- +-------------------------+------------------------------+---------------------------------------+-----------------------------------+
- | 3.218876+               | 25+                          | Considerable                          | 0.0025                            |
- +-------------------------+------------------------------+---------------------------------------+-----------------------------------+
- | ** Note that the approximate p-values are calculated by finding the p-value which yields a Vovke-Sellke Maximum P-Ratio            |
- | (which is also equivalent numerically to the maximum Bayes Factor in favor of the hypothesis under the most favorable possible     |
- | prior¹) closest in value to the Bayes Factor in each row. Evidence considered barely worth mentioning would be considered          |
- | "statistically significant" under the commonly used alpha=0.05 criterion. Bayes Factors are inherently more conservative           |
- | than p-values even under .                                                                                                         |
- |                                                                                                                                    |
- | ¹James O. Berger and Thomas Sellke. Testing a Point Null Hypothesis: The Irreconcilability of P Values and Evidence.               |
- | Journal of the American Statistical Association Vol. 82, No. 397 (Mar., 1987), pp. 112-122                                         |
- |                                                                                                                                    |                                                                |              |
- +------------------------------------------------------------------------------------------------------------------------------------+
 }
 \examples{
 tTest(len ~ supp, ToothGrowth)

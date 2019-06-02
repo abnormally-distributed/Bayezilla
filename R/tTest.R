@@ -4,15 +4,28 @@
 #' 
 #' Two different likelihood functions are offered. For the normal likelihood, a conjugate normal-gamma model:
 #' 
+#'    For unit scaled and centered response variables this implies gamma(.001, .001)
+#'    
 #'    tau_i ~ dgamma(square(prec(y)) / 1000, prec(y) / 1000)
-#'    mu_i ~ normal(0, .5 * prec(y)) #equivalent to normal(0, sigma = sqrt(2 * var(y)))
+#'    
+#'    For unit scaled response variables this implies normal(0, .5) or normal(0, sigma = 1.414214)
+#'    
+#'    mu_i ~ normal(0, .5 * prec(y)) 
+#'    
 #'    y ~ normal(mu_i, tau_i)
 #'        
 #' For the Student-t likelihood: 
 #' 
 #'    nu ~ gamma(2, .01)
+#'    
+#'    For unit scaled and centered response variables this implies half-t(0, 1, 3) on the standard deviation
+#'    
 #'    tau_i ~ scaled.gamma(ysd, 3)
+#'    
+#'    For unit scaled response variables this implies cauchy(0, .5) or equivalently, cauchy(0, sigma = 1.414214)
+#'    
 #'    mu_i ~ cauchy(0, .5 * 1/var(y))           
+#'    
 #'    y ~ t(mu_i, tau_i, nu)
 #' 
 #' 
@@ -33,7 +46,6 @@
 #' at each point within the posterior distribution (the Savage-Dickey ratio method). It is presented on the log-density scale for
 #' numerical stability. Note that the log-Bayes Factor is here presented as the log-evidence in favor of the alternative hypothesis.
 #' Hence, a larger log-BF is evidence in favor of a non-zero difference. Use the median Bayes Factor if you use the median as your point estimate, and the mean if using the posterior mean as your point estimate. 
-#' A table is provided at the end of the description to facilitate interpretation. 
 #' 
 #' Several effect size measures are also provided. A quantity variously known as Cohen's d or Hedge's g (1981)* is given as the primary effect size measure.
 #' Due to the ambiguity in which term is correct, it is simply labeled as "effSize" in the output. The specific formula used is given below: 
@@ -70,40 +82,12 @@
 #' 
 #' Same as above, but the CLES is also dropped because it is not applicable to one group. The effect size is calculated as the mean of y - the comparison value  / sd(y)
 #'
-#' INTERPRETING BAYES FACTORS: 
-#' 
-#'  +-------------------------+------------------------------+---------------------------------------+-----------------------------------+
-#'  | ln-Bayes Factor         | Equivalent Bayes Factor      | Evidence Strength Against Null        | Approximate Equivalent p-Value**  |
-#'  +-------------------------+------------------------------+---------------------------------------+-----------------------------------+
-#'  | <= 1.098612             | <= 3                         | Barely Worth Mentioning               | 0.0375                            |
-#'  +-------------------------+------------------------------+---------------------------------------+-----------------------------------+
-#'  | 1.609438                | 5                            | Moderate                              | 0.0180                            |
-#'  +-------------------------+------------------------------+---------------------------------------+-----------------------------------+
-#'  | 2.302585                | 10                           | Substantial                           | 0.0075                            |
-#'  +-------------------------+------------------------------+---------------------------------------+-----------------------------------+
-#'  | 2.70805                 | 15                           | Strong                                | 0.0045                            |
-#'  +-------------------------+------------------------------+---------------------------------------+-----------------------------------+
-#'  | 2.995732                | 20                           | Very Strong                           | 0.0035                            |
-#'  +-------------------------+------------------------------+---------------------------------------+-----------------------------------+
-#'  | 3.218876+               | 25+                          | Considerable                          | 0.0025                            |
-#'  +-------------------------+------------------------------+---------------------------------------+-----------------------------------+
-#'  | ** Note that the approximate p-values are calculated by finding the p-value which yields a Vovke-Sellke Maximum P-Ratio            |
-#'  | (which is also equivalent numerically to the maximum Bayes Factor in favor of the hypothesis under the most favorable possible     |
-#'  | prior¹) closest in value to the Bayes Factor in each row. Evidence considered barely worth mentioning would be considered          |
-#'  | "statistically significant" under the commonly used alpha=0.05 criterion. Bayes Factors are inherently more conservative           |
-#'  | than p-values even under .                                                                                                         |
-#'  |                                                                                                                                    |
-#'  | ¹James O. Berger and Thomas Sellke. Testing a Point Null Hypothesis: The Irreconcilability of P Values and Evidence.               |
-#'  | Journal of the American Statistical Association Vol. 82, No. 397 (Mar., 1987), pp. 112-122                                         |
-#'  |                                                                                                                                    |                                                                |              |
-#'  +------------------------------------------------------------------------------------------------------------------------------------+  
-#'    
 #'        
 #' @param formula If using an independent samples t-test, supply a formula of the form y ~ group 
 #' @param data the data frame containing the outcome variable and group labels for independent samples t-test. 
 #' If using the one sample t-test, the vector of observations. 
 #' If using repeated measures, the vector of group differences.
-#' @param lk.func the likelihood function to use. either "normal" (the default) or "student_t"
+#' @param like.func the likelihood function to use. either "normal" (the default) or "student_t"
 #' @param model one of "is" (independent samples t-test) , "rm" (repeated measures t-test), or "os" (one sample t-test)
 #' @param compval the hypothesized null value for a one sample t-test
 #' @param iter the number of iterations. defaults to 10000.
@@ -141,7 +125,7 @@ tTest = function(formula = NULL, data, like.func = "normal", compval = 0, model 
 
   for (g in 1:2){
     tau[g] ~ dscaled.gamma(ysd, 3)
-    mu[g]  ~ dt(ymean, .5 * 1/pow(ysd,2), 1)
+    mu[g]  ~ dt(ymean, .5 * yprec, 1)
     sigma[g] <- sqrt(1 / tau[g])
   }    
     
@@ -151,7 +135,7 @@ tTest = function(formula = NULL, data, like.func = "normal", compval = 0, model 
   }
 
   mu_diff <- mu[1] - mu[2]
-  sigma_diff <- sqrt((1 / tau[1]) - (1 / tau[2]))
+  sigma_diff <- sigma[1] - sigma[2]
   effSize <- (mu_diff) / sqrt( ( (pow(sigma[1],2)*(N1-1)) + (pow(sigma[2],2)*(N2-1)) ) / (N1+N2-2) )
   U3 <- phi(effSize)
   CL <- phi(effSize / sqrt(2))
@@ -166,7 +150,7 @@ tTest = function(formula = NULL, data, like.func = "normal", compval = 0, model 
     N1 = as.vector(table(group))[1]
     N2 = as.vector(table(group))[2]
     write_lines(two_sample_t, "two_sample_t.txt")
-    jagsdata = list("N" = N, "N1" = N1, "N2" = N2, "group" = group, "y" = y, "ysd" = sd(y), "ymean" = mean(y))
+    jagsdata = list("N" = N, "N1" = N1, "N2" = N2, "group" = group, "y" = y, "yprec" = prec(y), "ysd" = sd(y), "ymean" = mean(y))
     monitor = c("mu_diff", "sigma_diff", "mu", "sigma", "nu", "effSize", "U3", "CL", "logBF", "ySim")
     inits = lapply(1:chains, function(z) list("mu" = c(mean(y), mean(y)), "ySim"  = y, "tau" = c(1/var(y),1/var(y)), "nu" = 3,
                                               .RNG.name=RNGlist[z], .RNG.seed= sample(1:1000, 1)))
@@ -185,7 +169,7 @@ tTest = function(formula = NULL, data, like.func = "normal", compval = 0, model 
   
   model {
     nu ~ dgamma(2, .01) 
-    mu ~ dt(0, .5 * 1/pow(ysd,2), 1)
+    mu ~ dt(0, .5 * yprec, 1)
     tau ~ dscaled.gamma(ysd, 3)
     
     for (i in 1:N) {
@@ -207,7 +191,7 @@ tTest = function(formula = NULL, data, like.func = "normal", compval = 0, model 
     
     y = data
     write_lines(repeated_measures_t, "repeated_measures_t.txt")
-    jagsdata = list("N" = length(y), "y" = y, "ysd" = sd(y))
+    jagsdata = list("N" = length(y), "y" = y, "yprec" = prec(y), "ysd" = sd(y))
     monitor = c("mu", "sigma", "nu", "effSize", "CL", "logBF", "ySim")
     inits = lapply(1:chains, function(z) list("mu" = mean(y), "ySim"  = y, "tau" = 1/var(y), "nu" = 3,
                                               .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1)))
@@ -226,7 +210,7 @@ tTest = function(formula = NULL, data, like.func = "normal", compval = 0, model 
   
   model {
     nu ~ dgamma(2, .01)
-    mu ~ dt(0, .5 * 1/pow(ysd,2), 1)
+    mu ~ dt(0, .5 * yprec, 1)
     tau ~ dscaled.gamma(ysd, 3)
     
     for (i in 1:N) {
@@ -250,7 +234,7 @@ tTest = function(formula = NULL, data, like.func = "normal", compval = 0, model 
     
     y = data
     write_lines(one_sample_t, "one_sample_t.txt")
-    jagsdata = list("N" = length(y), "y" = y, "ysd" = sd(y), compval = compval)
+    jagsdata = list("N" = length(y), "y" = y, "ysd" = sd(y), "yprec" = prec(y), compval = compval)
     monitor = c("mu", "sigma", "nu", "effSize", "logBF", "ySim")
     
     inits = lapply(1:chains, function(z) list("mu" = mean(y), "ySim"  = y, "tau" = 1/var(y), "nu" = 3,
@@ -274,11 +258,11 @@ if (like.func == "normal"){
     
     two_sample_t <- 
       
-      "model {
+"model {
 
     for (g in 1:2){
-      tau[g] ~ dgamma(square(1/pow(ysd,2)) / 1000, (1/pow(ysd,2)) / 1000)
-      mu[g]  ~ dnorm(ymean, .5 * 1/pow(ysd,2))
+      tau[g] ~ dgamma(sh, ra)
+      mu[g]  ~ dnorm(ymean, yprec)
       sigma[g] <- sqrt(1 / tau[g])
   }    
     
@@ -288,7 +272,7 @@ if (like.func == "normal"){
   }
 
   mu_diff <- mu[1] - mu[2]
-  sigma_diff <- sqrt((1 / tau[1]) - (1 / tau[2]))
+  sigma_diff <- sigma[1] - sigma[2]
   effSize <- (mu_diff) / sqrt( ( (pow(sigma[1],2)*(N1-1)) + (pow(sigma[2],2)*(N2-1)) ) / (N1+N2-2) )
   U3 <- phi(effSize)
   CL <- phi(effSize / sqrt(2))
@@ -303,7 +287,7 @@ if (like.func == "normal"){
   N1 = as.vector(table(group))[1]
   N2 = as.vector(table(group))[2]
   write_lines(two_sample_t, "two_sample_t.txt")
-  jagsdata = list("N" = N, "N1" = N1, "N2" = N2, "group" = group, "y" = y, "ysd" = sd(y), "ymean" = mean(y))
+  jagsdata = list("N" = N, "N1" = N1, "N2" = N2, "group" = group, "y" = y, "yprec" = prec(y), "ymean" = mean(y), sh = square(prec(y)) / 1000, ra = prec(y) / 1000)
   monitor = c("mu_diff", "sigma_diff", "mu", "sigma",  "effSize", "U3", "CL", "logBF", "ySim")
   inits = lapply(1:chains, function(z) list("mu" = c(mean(y), mean(y)), "ySim"  = y, "tau" = c(1/var(y),1/var(y)),
                                             .RNG.name=RNGlist[z], .RNG.seed= sample(1:1000, 1)))
@@ -321,8 +305,8 @@ if (model == "rm") {
   repeated_measures_t <- "
   
   model {
-    mu ~ dt(0, .5 * 1/pow(ysd,2), 1)
-    tau ~ dgamma(square(1/pow(ysd,2)) / 1000, (1/pow(ysd,2)) / 1000)
+    mu ~ dnorm(0, .5 * yprec)
+    tau ~ dgamma(sh, ra)
     
     for (i in 1:N) {
       y[i] ~ dnorm(mu, tau)
@@ -343,7 +327,7 @@ if (model == "rm") {
   
   y = data
   write_lines(repeated_measures_t, "repeated_measures_t.txt")
-  jagsdata = list("N" = length(y), "y" = y, "ysd" = sd(y))
+  jagsdata = list("N" = length(y), "y" = y, "yprec" = prec(y), sh = square(prec(y)) / 1000, ra = prec(y) / 1000)
   monitor = c("mu", "sigma",  "effSize", "CL", "logBF", "ySim")
   inits = lapply(1:chains, function(z) list("mu" = mean(y), "ySim"  = y, "tau" = 1/var(y),
                                             .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1)))
@@ -361,8 +345,8 @@ if (model == "os") {
   one_sample_t <- "
   
   model {
-    mu ~ dnorm(0, .5 * 1/pow(ysd,2))
-    tau ~ dgamma(square(1/pow(ysd,2)) / 1000, (1/pow(ysd,2)) / 1000)
+    mu ~ dnorm(0, .5 * yprec)
+    tau ~ dgamma(sh, ra)
     
     for (i in 1:N) {
       y[i] ~ dnorm(mu, tau)
@@ -385,7 +369,7 @@ if (model == "os") {
   
   y = data
   write_lines(one_sample_t, "one_sample_t.txt")
-  jagsdata = list("N" = length(y), "y" = y, "ysd" = sd(y), compval = compval)
+  jagsdata = list("N" = length(y), "y" = y, "yprec" = prec(y), compval = compval, sh = square(prec(y)) / 1000, ra = prec(y) / 1000)
   monitor = c("mu", "sigma",  "effSize", "logBF", "ySim")
   
   inits = lapply(1:chains, function(z) list("mu" = mean(y), "ySim"  = y, "tau" = 1/var(y),

@@ -143,7 +143,7 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
     inits = lapply(1:chains, function(z) list("Intercept" = 0, "omega" = .001, "ySim" = y, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1),"beta" = jitter(rep(0, P), amount = 1)))
   }
 
-  out = run.jags(model = "jags_glm.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, ...)
+  out = run.jags(model = "jags_glm.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)
   if (is.null(cl) == FALSE){
     parallel::stopCluster(cl = cl)
   }

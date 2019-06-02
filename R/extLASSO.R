@@ -509,7 +509,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "gamma", fixe
     }
   }
 
-  out = run.jags(model = "jags_extended_LASSO.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, n.chains = chains, method = method, cl = cl, ...)
+  out = run.jags(model = "jags_extended_LASSO.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, n.chains = chains, method = method, cl = cl, summarise = FALSE, ...)
   file.remove("jags_extended_LASSO.txt")
   if (is.null(cl) == FALSE){
     parallel::stopCluster(cl = cl)

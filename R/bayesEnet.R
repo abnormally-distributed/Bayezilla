@@ -60,7 +60,7 @@ bayesEnet  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=
       monitor = monitor[-(length(monitor))]
     }
     inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= RNGlist[z], .RNG.seed= sample(1:10000, 1), "beta" = rep(0, P), "omega" = 1 + abs(jitter(rep(1, P), amount = .25)), "lambda1" = 50, "lambda2" = 15, "tau" = 1))
-  out = run.jags(model = "jags_elastic_net.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, ...)
+  out = run.jags(model = "jags_elastic_net.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
   file.remove("jags_elastic_net.txt")
   if (!is.null(cl)) {
     parallel::stopCluster(cl = cl)

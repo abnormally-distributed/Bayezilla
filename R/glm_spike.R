@@ -51,7 +51,7 @@
 #'
 #' @examples
 #' glmSpike()
-Spike <- function(formula, data, family = "gaussian", phi_prior = c(1, 4), log_lik = FALSE, iter = 10000, warmup = 1000, adapt = 2000, chains = 4, thin = 3, method = "parallel", cl = makeCluster(2), ...) {
+Spike <- function(formula, data, family = "gaussian", phi_prior = c(1, 4), log_lik = FALSE, iter = 10000, warmup = 1000, adapt = 2000, chains = 4, thin = 3, method = "parallel", cl = makeCluster(2),summarise = FALSE, ...) {
   X <- model.matrix(formula, data)[, -1]
   y <- model.frame(formula, data)[, 1]
 
@@ -91,7 +91,7 @@ Spike <- function(formula, data, family = "gaussian", phi_prior = c(1, 4), log_l
       monitor <- monitor[-(length(monitor))]
     }
     inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name = RNGlist[z], .RNG.seed = sample(1:10000, 1),   "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = jitter(rep(0, P), amount = .25), "tau" = 1))
-    out <- run.jags(model = "jags_glm_spike.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, ...)
+    out <- run.jags(model = "jags_glm_spike.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl,summarise = FALSE, ...)
     return(out)
   }
 
@@ -123,7 +123,7 @@ Spike <- function(formula, data, family = "gaussian", phi_prior = c(1, 4), log_l
       monitor <- monitor[-(length(monitor))]
     }
     inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name = RNGlist[z], .RNG.seed = sample(1:10000, 1),   "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = jitter(rep(0, P), amount = .25)))
-    out <- run.jags(model = "jags_glm_spike.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, ...)
+    out <- run.jags(model = "jags_glm_spike.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)
     return(out)
   }
 
@@ -154,7 +154,7 @@ Spike <- function(formula, data, family = "gaussian", phi_prior = c(1, 4), log_l
       monitor <- monitor[-(length(monitor))]
     }
     inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name = RNGlist[z], .RNG.seed = sample(1:10000, 1), "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = jitter(rep(0, P), amount = .25)))
-    out <- run.jags(model = "jags_glm_spike.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, ...)
+    out <- run.jags(model = "jags_glm_spike.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
     file.remove("jags_glm_spike.txt")
     if (!is.null(cl)) {
       parallel::stopCluster(cl = cl)

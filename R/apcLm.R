@@ -78,7 +78,7 @@ apcLm = function(formula, data, lambda = -1, log_lik = FALSE, iter=10000, warmup
   }
   inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = jitter(rep(0, P), amount = .25), "g_inv" = .001, "tau" = 3, "ySim" = y,
                                             .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1)))
-  out = run.jags(model = "jags_apcLm.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, ...)
+  out = run.jags(model = "jags_apcLm.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
   if (!is.null(cl)){
     parallel::stopCluster(cl = cl)
   }

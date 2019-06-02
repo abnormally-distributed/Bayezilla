@@ -28,6 +28,9 @@
 #' plotPost()
 plotPost <- function(paramSampleVec, fit = NULL, param = NULL, xlab = NULL, col = "blue", ROPE = NULL, cred.level = 0.90, method = "QI", CItextPlace = 0.7, breaks = 40, showMedian = FALSE, ...) {
 
+  
+  old.par <- par(no.readonly = TRUE) # save default, for resetting... 
+  on.exit(par(old.par))     #and when we quit the function, restore to original values
   if (is.null(fit) != TRUE){
     if (is.null(param) == TRUE)
       stop("please choose a single parameter to plot with the 'param' argument")

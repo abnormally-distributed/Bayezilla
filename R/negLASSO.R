@@ -127,7 +127,7 @@ negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
     }
     inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = rep(0, P), "omega" = abs(jitter(rep(1, P), amount = 1)), "psi" = abs(jitter(rep(1, P), amount = 1)), "lambda" = 10))
   }
-  out = run.jags(model = "jags_neg_LASSO.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, ...)
+  out = run.jags(model = "jags_neg_LASSO.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
   file.remove("jags_neg_LASSO.txt")
   return(out)
 }

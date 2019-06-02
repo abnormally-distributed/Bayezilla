@@ -1,3 +1,46 @@
+#' Raise a number to a power
+#' 
+#' @description Ever use the command "pow(x, 3)" only to find that R does not have a pow function? I do this all the time
+#' out of habit because both JAGS and Stan use this, and matlab has the similar "power" function (but power does something else in R). 
+#' This function exists to save frustration if you use the pow command to raise a number to a power by avoiding 
+#' annoying error messages.
+#'
+#' @param x a number
+#' @param lambda a power
+#'
+#' @return
+#' a number
+#' @export
+#'
+#' @examples
+#' pow(3, 4)
+pow <- function(x, lambda=NULL){
+  if (is.null(lambda)){
+    cat(crayon::blue(crayon::bold("Please enter a power to which 'x' should be raised as an argument to 'lambda'.")))
+  }
+  return(x^lambda)
+}
+
+#' Square a number
+#' 
+#' @description Ever use the command "square(x)" only to find that R does not have a "square" function, despite the fact
+#' that it has a "sqrt" function? I do this all the time out of habit because I frequently use that when coding in Stan. 
+#' This function exists to save me (or you) frustration by not incurring annoying error messages if using square(x) 
+#' out of habit.
+#'
+#' @param x a number
+#'
+#' @return
+#' a number
+#' @export
+#'
+#' @examples
+#' square(2)
+square <- function(x){
+  return(x^2)
+}
+
+
 #' Scale a data frame or matrix
 #'
 #' @details an improvement of the base R scale function. Unlike R's standard scale function, this
@@ -16,7 +59,7 @@
 
 scale = function (data, scale.type = 1)
 {
-
+  
   if (isTRUE(is.vector(data))) {
     Vector = "YES"
     data = cbind.data.frame(x = data)
@@ -24,7 +67,7 @@ scale = function (data, scale.type = 1)
     Vector = "NO"
     data = as.data.frame(data)
   }
-
+  
   if (scale.type == "sd" || scale.type == 1) {
     Scale1 = function(x) {
       Mean = mean(x)
@@ -36,7 +79,7 @@ scale = function (data, scale.type = 1)
     ind <- sapply(data, is.numeric)
     scaled.data = data
     scaled.data[ind] <- lapply(scaled.data[ind], Scale1)
-
+    
     if (Vector=="YES") {
       return(as.vector(as.matrix(scaled.data)))
     }
@@ -113,3 +156,18 @@ scale = function (data, scale.type = 1)
     }
   }
 }
+
+
+#' Compute the precision of a vector
+#'
+#' An R function to compute the precision of a vector, 1 / var(x)
+#'
+#' @param x a vector
+#'
+#' @return
+#' the precision
+#' @export
+#'
+#' @examples
+#' prec(x)
+prec <- function(x) { 1 / var(x)}

@@ -7,7 +7,7 @@
 Spike(formula, data, family = "gaussian", phi_prior = c(1, 4),
   log_lik = FALSE, iter = 10000, warmup = 1000, adapt = 2000,
   chains = 4, thin = 3, method = "parallel", cl = makeCluster(2),
-  ...)
+  summarise = FALSE, ...)
 }
 \arguments{
 \item{formula}{the model formula}
@@ -62,6 +62,12 @@ beta(1.0, 4.0) Weakly Informative, mean probability = 0.20 [This is the default 
 beta(2.0, 2.0) Weakly Informative, mean probability = 0.50
 
 beta(4.0, 1.0) Weakly Informative, mean probability = 0.80
+
+beta(2.0, 8.0) Moderately Informative, Regularizing, mean probability = 0.20 
+
+beta(4.0, 4.0) Moderately Informative, Regularizing, mean probability = 0.50
+
+beta(8.0, 2.0) Moderately Informative, Regularizing, mean probability = 0.80
 }
 \examples{
 glmSpike()

@@ -99,7 +99,7 @@ groupSpike  = function(formula, data, family = "gaussian", phi_prior = c(1, 4), 
       monitor = monitor[-(length(monitor))]
     }
     inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= RNGlist[z], .RNG.seed= sample(1:10000, 1),   "ySim" = y, "delta"=rep(1, nG), "phi" = .20 , "theta" = jitter(rep(0, P), amount = .25), "tau" = 1))
-    out = run.jags(model = "jags_group_glm_spike.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, ...)
+    out = run.jags(model = "jags_group_glm_spike.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)
     return(out)
   }
 
@@ -140,7 +140,7 @@ groupSpike  = function(formula, data, family = "gaussian", phi_prior = c(1, 4), 
       monitor = monitor[-(length(monitor))]
     }
     inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= RNGlist[z], .RNG.seed= sample(1:10000, 1),  "ySim" = y, "delta" = rep(1, nG), "phi" = .20 , "theta" = jitter(rep(0, P), amount = .25)))
-    out = run.jags(model = "jags_group_glm_spike.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, ...)
+    out = run.jags(model = "jags_group_glm_spike.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)
     return(out)
   }
 
@@ -180,7 +180,7 @@ groupSpike  = function(formula, data, family = "gaussian", phi_prior = c(1, 4), 
       monitor = monitor[-(length(monitor))]
     }
     inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= RNGlist[z], .RNG.seed= sample(1:10000, 1),  "ySim" = y, "delta"=rep(1, nG), "phi" = .20 , "theta" = jitter(rep(0, P), amount = .25)))
-    out = run.jags(model = "jags_group_glm_spike.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, ...)
+    out = run.jags(model = "jags_group_glm_spike.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)
     file.remove("jags_group_glm_spike.txt")
     if (!is.null(cl)) {
       parallel::stopCluster(cl = cl)

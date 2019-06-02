@@ -1,0 +1,16 @@
+
+model{
+
+  for(i in 1:N){
+    Y[i] ~ dunif(mu - d[i], mu + d[i])
+    d[i] <- (pow(sigma, 2) / sqrt((2*c0))) * pow(u, beta/2)
+  }
+  #prior
+  beta ~ dunif(0.0001,3)
+  tau  ~ dscaled.gamma(1,3)
+  sigma <- 1/sqrt(tau)
+  mu ~ dnorm(0,0.001)
+  u ~ dgamma(1.5,.5)
+  c0 <- exp(loggam(3*beta/2)-loggam(beta/2))
+}
+

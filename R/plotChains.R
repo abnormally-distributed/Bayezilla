@@ -59,6 +59,8 @@ plotChains = function(fit, pars = c("Intercept", "sigma"), col = "blues") {
     ColorScheme= c("#11ff11", "#000000", "#ff0000B0", "#0061beED")
   }
 
+  old.par <- par(no.readonly = TRUE) # save default, for resetting... 
+  on.exit(par(old.par))     #and when we quit the function, restore to original values
   par( mar=0.5+c(3,3,.75, .10) , oma=0.1+c(0,0,1.25,.20) , mgp=c(2, 0.125, 0) ,
        cex.lab=1, cex.main = 1.35, family = 'serif')
   layout(matrix(1:4,nrow=2))

@@ -2,24 +2,41 @@
 #'
 #' @description 
 #' 
+#' Two different likelihood functions are offered. For the normal likelihood, a conjugate normal-gamma model:
+#' 
+#'    tau_i ~ dgamma(square(prec(y)) / 1000, prec(y) / 1000)
+#'    mu_i ~ normal(0, .5 * prec(y)) #equivalent to normal(0, sigma = sqrt(2 * var(y)))
+#'    y ~ normal(mu_i, tau_i)
+#'        
+#' For the Student-t likelihood: 
+#' 
+#'    nu ~ gamma(2, .01)
+#'    tau_i ~ scaled.gamma(ysd, 3)
+#'    mu_i ~ cauchy(0, .5 * 1/var(y))           
+#'    y ~ t(mu_i, tau_i, nu)
+#' 
+#' 
+#' Note the use of a student-t likelihood is wholly unrelated to this being analagous to the frequentist t-test.
+#' In the t-test, the student-t distribution is the asymptotic sampling distribution of the t-statistic,
+#' but here it is used to model the heaviness of the tails in the data. The estimation of nu in fact does nothing
+#' to bias results when there is not sufficient evidence of non-normality. It could well be used as a default
+#' in estimating the means, however, the student-t likelihood does not have conjugate priors. JAGS makes considerable
+#' gains in speed when using conjugate exponential family priors, so I have opted to set the normal likelihood as 
+#' the default.
 #' 
 #' INDEPENDENT SAMPLES T-TEST: 
 #' 
-#' The independent samples t-test places cauchy priors on the means of both groups with a median
-#' set at the overall mean of the measurement (null hypothesis = same means). The posterior distribution of the group
-#' differences is taken as the difference of each posterior group mean. The likelihood function is a student t distribution
-#' with a gamma(2, .01) prior on the normality parameter and a scaled gamma prior on the precisions of each group, implying
-#' half-cauchy priors on the standard deviations of each group. Note the use of a student-t likelihood is wholly unrelated to 
-#' this being analagous to the frequentist t-test. In the t-test, the student-t distribution is the asymptotic sampling distribution of the 
-#' t-statistic, but here it is used to model the heaviness of the tails in the data. When there are no outliers the resulting estimations and inferences
-#' remain Gaussian. This is an adaptive prior and not one that could prove to be a disadvantage. For this reason the Gaussian likelihood is not offered here.
-#'
-#' The Bayes Factor is estimated as the exponentiated difference in log density of the effect evaluated at zero and the log density evaluated
-#' at each point within the posterior distribution (the Savage-Dickey ratio method). Hence, this is an estimator of the log-marginal likelihood function of the group differences.
-#' Use the median Bayes Factor if you use the median as your point estimate, and the mean if using the posterior mean as your point estimate. 
+#' The difference in means is modeled as mu_1 - mu_2. The difference in the standard deviations of both groups
+#' is modeled as sqrt(1/tau_1 - 1/tau_2).
+#' 
+#' The log-Bayes Factor is estimated as the  difference in log density of the effect evaluated at zero and the log density evaluated
+#' at each point within the posterior distribution (the Savage-Dickey ratio method). It is presented on the log-density scale for
+#' numerical stability. Note that the log-Bayes Factor is here presented as the log-evidence in favor of the alternative hypothesis.
+#' Hence, a larger log-BF is evidence in favor of a non-zero difference. Use the median Bayes Factor if you use the median as your point estimate, and the mean if using the posterior mean as your point estimate. 
+#' A table is provided at the end of the description to facilitate interpretation. 
 #' 
 #' Several effect size measures are also provided. A quantity variously known as Cohen's d or Hedge's g (1981)* is given as the primary effect size measure.
-#' Due to the ambiguity in which term is correct, it is simply labeled as "effectSize" in the output. The specific formula used is given below: 
+#' Due to the ambiguity in which term is correct, it is simply labeled as "effSize" in the output. The specific formula used is given below: 
 #' 
 #' \deqn{\sqrt{\frac{\left[\sigma_{1}^{2} \times\left(n_{1}-1\right)\right]+\left[\sigma_{2}^{2} \times\left(n_{2}-1\right)\right]}{n_{1}+n_{2}-2}}}
 #' 
@@ -27,10 +44,10 @@
 #' 
 #' Cohen's U3 (1977) is defined as a measure of non-overlap, which quantifies the percentage of data points
 #' in group A that are smaller than the median of group B. It is given by the probability density below the observed effect size via the normal cumulative
-#' distribution function; phi(effectSize). 
+#' distribution function; phi(effSize). 
 #' 
 #' A similar measure of effect size known as the probability of superiority, or alternatively the common language effect size (CLES), is given by the effect size
-#' divided by the square root of two entered into the normal cumulative distribution function; phi(effectSize / sqrt(2)). It is very similar in size to Cohen's U3 and 
+#' divided by the square root of two entered into the normal cumulative distribution function; phi(effSize / sqrt(2)). It is very similar in size to Cohen's U3 and 
 #' carries a similar meaning, but is more strightforward. The CLES gives the probability that an observation sampled at random from group A will have a higher value 
 #' than an observation sampled at random from group B. The common language effect size was developed to facilitate an easy way to explain the importance of a statistical 
 #' result to the layman who may not have an intuition for Cohen's d or Hedge's g, which are defined as changes in standard deviation. It is labeled "CL" in the posterior output. 
@@ -52,29 +69,60 @@
 #' ONE SAMPLE T-TEST:
 #' 
 #' Same as above, but the CLES is also dropped because it is not applicable to one group. The effect size is calculated as the mean of y - the comparison value  / sd(y)
-#'  
+#'
+#' INTERPRETING BAYES FACTORS: 
+#' 
+#'  +-------------------------+------------------------------+---------------------------------------+-----------------------------------+
+#'  | ln-Bayes Factor         | Equivalent Bayes Factor      | Evidence Strength Against Null        | Approximate Equivalent p-Value**  |
+#'  +-------------------------+------------------------------+---------------------------------------+-----------------------------------+
+#'  | <= 1.098612             | <= 3                         | Barely Worth Mentioning               | 0.0375                            |
+#'  +-------------------------+------------------------------+---------------------------------------+-----------------------------------+
+#'  | 1.609438                | 5                            | Moderate                              | 0.0180                            |
+#'  +-------------------------+------------------------------+---------------------------------------+-----------------------------------+
+#'  | 2.302585                | 10                           | Substantial                           | 0.0075                            |
+#'  +-------------------------+------------------------------+---------------------------------------+-----------------------------------+
+#'  | 2.70805                 | 15                           | Strong                                | 0.0045                            |
+#'  +-------------------------+------------------------------+---------------------------------------+-----------------------------------+
+#'  | 2.995732                | 20                           | Very Strong                           | 0.0035                            |
+#'  +-------------------------+------------------------------+---------------------------------------+-----------------------------------+
+#'  | 3.218876+               | 25+                          | Considerable                          | 0.0025                            |
+#'  +-------------------------+------------------------------+---------------------------------------+-----------------------------------+
+#'  | ** Note that the approximate p-values are calculated by finding the p-value which yields a Vovke-Sellke Maximum P-Ratio            |
+#'  | (which is also equivalent numerically to the maximum Bayes Factor in favor of the hypothesis under the most favorable possible     |
+#'  | prior¹) closest in value to the Bayes Factor in each row. Evidence considered barely worth mentioning would be considered          |
+#'  | "statistically significant" under the commonly used alpha=0.05 criterion. Bayes Factors are inherently more conservative           |
+#'  | than p-values even under .                                                                                                         |
+#'  |                                                                                                                                    |
+#'  | ¹James O. Berger and Thomas Sellke. Testing a Point Null Hypothesis: The Irreconcilability of P Values and Evidence.               |
+#'  | Journal of the American Statistical Association Vol. 82, No. 397 (Mar., 1987), pp. 112-122                                         |
+#'  |                                                                                                                                    |                                                                |              |
+#'  +------------------------------------------------------------------------------------------------------------------------------------+  
+#'    
+#'        
 #' @param formula If using an independent samples t-test, supply a formula of the form y ~ group 
-#' @param data the data frame containing the outcome variable and group labels
-#' @param y if using the one sample t-test, the vector of observations. If using repeated measures, the vector of group differences.
+#' @param data the data frame containing the outcome variable and group labels for independent samples t-test. 
+#' If using the one sample t-test, the vector of observations. 
+#' If using repeated measures, the vector of group differences.
+#' @param lk.func the likelihood function to use. either "normal" (the default) or "student_t"
 #' @param model one of "is" (independent samples t-test) , "rm" (repeated measures t-test), or "os" (one sample t-test)
 #' @param compval the hypothesized null value for a one sample t-test
-#' @param iter 
-#' @param warmup 
-#' @param adapt 
-#' @param chains 
-#' @param thin 
-#' @param method 
-#' @param cl 
-#' @param ... 
+#' @param iter the number of iterations. defaults to 10000.
+#' @param warmup number of burnin samples. defaults to 2500.
+#' @param adapt number of adaptation steps. defaults to 2500.
+#' @param chains number of chains. defaults to 4.
+#' @param thin the thinning interval. defaults to 3.
+#' @param method Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).
+#' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.
+#' @param ... other arguments to run.jags
 #'
 #' @return
+#' a runjags object
 #' @export
 #'
 #' @examples
+#' tTest(len ~ supp, ToothGrowth)
 #' 
-#' 
-
-tTest = function(formula, data, y = NULL, model = "is", iter=10000, warmup=1000, adapt=5000, chains=4, thin=3, method = "parallel", cl = makeCluster(2), ...){
+tTest = function(formula = NULL, data, like.func = "normal", compval = 0, model = "is", iter=10000, warmup=2500, adapt=2500, chains=4, thin=3, method = "parallel", cl = makeCluster(2), summarise = FALSE, ...){
   
   RNGlist = c("base::Wichmann-Hill", "base::Marsaglia-Multicarry", "base::Super-Duper", "base::Mersenne-Twister")
   
@@ -82,17 +130,19 @@ tTest = function(formula, data, y = NULL, model = "is", iter=10000, warmup=1000,
     chains = 4
   }
   
-  if (model == "is"){
-  
-  two_sample_t <- 
-    
-  "model {
+  if (like.func == "student_t"){
+    if (model == "is"){
+      
+      two_sample_t <- 
+        
+        "model {
 
-  nu ~ dgamma(2, .01) T(1, )
+  nu ~ dgamma(2, .01) 
 
   for (g in 1:2){
-    tau[g] ~ dscaled.gamma(ysd, 1)
-    mu[g]  ~ dt(ymean , .5 * 1/sqrt(ysd), 1)
+    tau[g] ~ dscaled.gamma(ysd, 3)
+    mu[g]  ~ dt(ymean, .5 * 1/pow(ysd,2), 1)
+    sigma[g] <- sqrt(1 / tau[g])
   }    
     
   for (i in 1:N){
@@ -100,46 +150,43 @@ tTest = function(formula, data, y = NULL, model = "is", iter=10000, warmup=1000,
        ySim[i] ~ dt(mu[group[i]], tau[group[i]], nu)
   }
 
-  sigma[1] <- sqrt(1 / tau[1])
-  sigma[2] <- sqrt(1 / tau[2])
   mu_diff <- mu[1] - mu[2]
-  sigma_diff <- sigma[1] - sigma[2] 
-  effectSize <- (mu_diff) / sqrt( ( (pow(sigma[1],2)*(N1-1)) + (pow(sigma[2],2)*(N2-1)) ) / (N1+N2-2) )
-  U3 <- phi(effectSize)
-  CL <- phi(effectSize / sqrt(2))
-  prior_effectSize <- logdensity.norm(0, 0, 1)
-  posterior_effectSize <- logdensity.norm( 0, effectSize, 1)
-  BF <- exp(prior_effectSize - posterior_effectSize)
+  sigma_diff <- sqrt((1 / tau[1]) - (1 / tau[2]))
+  effSize <- (mu_diff) / sqrt( ( (pow(sigma[1],2)*(N1-1)) + (pow(sigma[2],2)*(N2-1)) ) / (N1+N2-2) )
+  U3 <- phi(effSize)
+  CL <- phi(effSize / sqrt(2))
+  prior_effSize <- logdensity.t(0, 0, 1, 1)
+  posterior_effSize <- logdensity.t(0, effSize, 1, 1)
+  logBF <- prior_effSize - posterior_effSize
 }
 "
-
-group = as.numeric(as.factor(model.matrix(formula, data)[,2]))
-N = length(y)
-N1 = as.vector(table(group))[1]
-N2 = as.vector(table(group))[2]
-y = model.frame(formula, data)[,1]
-write_lines(two_sample_t, "two_sample_t.txt")
-jagsdata = list("N" = N, "N1" = N1, "N2" = N2, "group" = group, "y" = y, "ysd" = mad(y), "ymean" = median(y))
-monitor = c("mu_diff", "sigma_diff", "mu", "sigma", "nu", "effectSize", "U3", "CL", "BF", "ySim")
-inits = lapply(1:chains, function(z) list("mu" = c(median(y), median(y)), "ySim"  = y, "tau" = c(1/var(y),1/var(y)), "nu" = 3,
-                                          .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1)))
-out = run.jags(model = "two_sample_t.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, ...)
-if (!is.null(cl)){
-  parallel::stopCluster(cl = cl)
-}
-file.remove("two_sample_t.txt")
-return(out)
+    y = model.frame(formula, data)[,1]
+    group = as.numeric(as.factor(model.matrix(formula, data)[,2]))
+    N = length(y)
+    N1 = as.vector(table(group))[1]
+    N2 = as.vector(table(group))[2]
+    write_lines(two_sample_t, "two_sample_t.txt")
+    jagsdata = list("N" = N, "N1" = N1, "N2" = N2, "group" = group, "y" = y, "ysd" = sd(y), "ymean" = mean(y))
+    monitor = c("mu_diff", "sigma_diff", "mu", "sigma", "nu", "effSize", "U3", "CL", "logBF", "ySim")
+    inits = lapply(1:chains, function(z) list("mu" = c(mean(y), mean(y)), "ySim"  = y, "tau" = c(1/var(y),1/var(y)), "nu" = 3,
+                                              .RNG.name=RNGlist[z], .RNG.seed= sample(1:1000, 1)))
+    out = run.jags(model = "two_sample_t.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+    if (!is.null(cl)){
+      parallel::stopCluster(cl = cl)
+    }
+    file.remove("two_sample_t.txt")
+    return(out)
+    
+    }
   
-}
-
-if (model == "rm") {
-  
-  repeated_measures_t <- "
+  if (model == "rm") {
+    
+    repeated_measures_t <- "
   
   model {
-    nu ~ dgamma(2, .01) T(1, )
-    mu ~ dt(0, 1, 1)
-    tau ~ dscaled.gamma(ysd, 1)
+    nu ~ dgamma(2, .01) 
+    mu ~ dt(0, .5 * 1/pow(ysd,2), 1)
+    tau ~ dscaled.gamma(ysd, 3)
     
     for (i in 1:N) {
       y[i] ~ dt(mu, tau , nu)
@@ -148,22 +195,159 @@ if (model == "rm") {
     
     sigma <- sqrt(1/tau)
     effSize <- (mu - 0) / sigma
-    CL <- phi(effectSize / sqrt(2))
-    prior_effectSize <- logdensity.norm(0, 0, 1)
-    posterior_effectSize <- logdensity.norm(0, effectSize, 1)
-    BF <- exp(prior_effectSize - posterior_effectSize)
+    CL <- phi(effSize / sqrt(2))
+    prior_effSize <- logdensity.t(0, 0, 1, 1)
+    posterior_effSize <- logdensity.t(0, effSize, 1, 1)
+    logBF <- prior_effSize - posterior_effSize
 }"
- 
-  if (is.null(y)) {
+    
+    if (is.null(data)) {
+      cat(crayon::red("Please provide a vector of paired differences "))
+    }
+    
+    y = data
+    write_lines(repeated_measures_t, "repeated_measures_t.txt")
+    jagsdata = list("N" = length(y), "y" = y, "ysd" = sd(y))
+    monitor = c("mu", "sigma", "nu", "effSize", "CL", "logBF", "ySim")
+    inits = lapply(1:chains, function(z) list("mu" = mean(y), "ySim"  = y, "tau" = 1/var(y), "nu" = 3,
+                                              .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1)))
+    out = run.jags(model = "repeated_measures_t.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+    if (!is.null(cl)){
+      parallel::stopCluster(cl = cl)
+    }
+    file.remove("repeated_measures_t.txt")
+    return(out)
+    
+  }
+  
+  if (model == "os") {
+    
+    one_sample_t <- "
+  
+  model {
+    nu ~ dgamma(2, .01)
+    mu ~ dt(0, .5 * 1/pow(ysd,2), 1)
+    tau ~ dscaled.gamma(ysd, 3)
+    
+    for (i in 1:N) {
+      y[i] ~ dt(mu, tau , nu)
+      ySim[i] ~ dt(mu, tau, nu)
+    }
+    
+    sigma <- sqrt(1/tau)
+    effSize <- (mu - compval) / sigma
+    prior_effSize <- logdensity.t(compval, compval, 1, 1)
+    posterior_effSize <- logdensity.t(compval, effSize, 1, 1)
+    logBF <- prior_effSize - posterior_effSize
+}"
+    
+    if (is.null(data)) {
+      cat(crayon::red("Please provide a vector of observations"))
+    }
+    if (is.null(compval)) {
+      cat(crayon::red("Please provide a comparison value against which to test the mean of y"))
+    }
+    
+    y = data
+    write_lines(one_sample_t, "one_sample_t.txt")
+    jagsdata = list("N" = length(y), "y" = y, "ysd" = sd(y), compval = compval)
+    monitor = c("mu", "sigma", "nu", "effSize", "logBF", "ySim")
+    
+    inits = lapply(1:chains, function(z) list("mu" = mean(y), "ySim"  = y, "tau" = 1/var(y), "nu" = 3,
+                                              .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1)))
+    
+    out = run.jags(model = "one_sample_t.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, 
+                   burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+    
+    if (!is.null(cl)){
+      parallel::stopCluster(cl = cl)
+    }
+    
+    file.remove("one_sample_t.txt")
+    return(out)
+    
+  }
+  }
+if (like.func == "normal"){
+  
+  if (model == "is"){
+    
+    two_sample_t <- 
+      
+      "model {
+
+    for (g in 1:2){
+      tau[g] ~ dgamma(square(1/pow(ysd,2)) / 1000, (1/pow(ysd,2)) / 1000)
+      mu[g]  ~ dnorm(ymean, .5 * 1/pow(ysd,2))
+      sigma[g] <- sqrt(1 / tau[g])
+  }    
+    
+    for (i in 1:N){
+      y[i] ~ dnorm(mu[group[i]], tau[group[i]])
+      ySim[i] ~ dnorm(mu[group[i]], tau[group[i]])
+  }
+
+  mu_diff <- mu[1] - mu[2]
+  sigma_diff <- sqrt((1 / tau[1]) - (1 / tau[2]))
+  effSize <- (mu_diff) / sqrt( ( (pow(sigma[1],2)*(N1-1)) + (pow(sigma[2],2)*(N2-1)) ) / (N1+N2-2) )
+  U3 <- phi(effSize)
+  CL <- phi(effSize / sqrt(2))
+  prior_effSize <- logdensity.norm(0, 0, 1)
+  posterior_effSize <- logdensity.norm(0, effSize, 1)
+  logBF <- prior_effSize - posterior_effSize
+}
+"
+  y = model.frame(formula, data)[,1]
+  group = as.numeric(as.factor(model.matrix(formula, data)[,2]))
+  N = length(y)
+  N1 = as.vector(table(group))[1]
+  N2 = as.vector(table(group))[2]
+  write_lines(two_sample_t, "two_sample_t.txt")
+  jagsdata = list("N" = N, "N1" = N1, "N2" = N2, "group" = group, "y" = y, "ysd" = sd(y), "ymean" = mean(y))
+  monitor = c("mu_diff", "sigma_diff", "mu", "sigma",  "effSize", "U3", "CL", "logBF", "ySim")
+  inits = lapply(1:chains, function(z) list("mu" = c(mean(y), mean(y)), "ySim"  = y, "tau" = c(1/var(y),1/var(y)),
+                                            .RNG.name=RNGlist[z], .RNG.seed= sample(1:1000, 1)))
+  out = run.jags(model = "two_sample_t.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+  if (!is.null(cl)){
+    parallel::stopCluster(cl = cl)
+  }
+  file.remove("two_sample_t.txt")
+  return(out)
+  
+  }
+
+if (model == "rm") {
+  
+  repeated_measures_t <- "
+  
+  model {
+    mu ~ dt(0, .5 * 1/pow(ysd,2), 1)
+    tau ~ dgamma(square(1/pow(ysd,2)) / 1000, (1/pow(ysd,2)) / 1000)
+    
+    for (i in 1:N) {
+      y[i] ~ dnorm(mu, tau)
+      ySim[i] ~ dnorm(mu, tau)
+    }
+    
+    sigma <- sqrt(1/tau)
+    effSize <- (mu - 0) / sigma
+    CL <- phi(effSize / sqrt(2))
+    prior_effSize <- logdensity.norm(0, 0, 1)
+    posterior_effSize <- logdensity.norm(0, effSize, 1)
+    logBF <- prior_effSize - posterior_effSize
+}"
+  
+  if (is.null(data)) {
     cat(crayon::red("Please provide a vector of paired differences "))
   }
   
+  y = data
   write_lines(repeated_measures_t, "repeated_measures_t.txt")
-  jagsdata = list("N" = length(y), "y" = y, "ysd" = mad(y))
-  monitor = c("mu", "sigma", "nu", "effectSize", "CL", "BF", "ySim")
-  inits = lapply(1:chains, function(z) list("mu" = median(y), "ySim"  = y, "tau" = 1/var(y), "nu" = 3,
+  jagsdata = list("N" = length(y), "y" = y, "ysd" = sd(y))
+  monitor = c("mu", "sigma",  "effSize", "CL", "logBF", "ySim")
+  inits = lapply(1:chains, function(z) list("mu" = mean(y), "ySim"  = y, "tau" = 1/var(y),
                                             .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1)))
-  out = run.jags(model = "repeated_measures_t.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, ...)
+  out = run.jags(model = "repeated_measures_t.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
   if (!is.null(cl)){
     parallel::stopCluster(cl = cl)
   }
@@ -177,38 +361,38 @@ if (model == "os") {
   one_sample_t <- "
   
   model {
-    nu ~ dgamma(2, .01) T(1, )
-    mu ~ dt(0, 1, 1)
-    tau ~ dscaled.gamma(ysd, 1)
+    mu ~ dnorm(0, .5 * 1/pow(ysd,2))
+    tau ~ dgamma(square(1/pow(ysd,2)) / 1000, (1/pow(ysd,2)) / 1000)
     
     for (i in 1:N) {
-      y[i] ~ dt(mu, tau , nu)
-      ySim[i] ~ dt(mu, tau, nu)
+      y[i] ~ dnorm(mu, tau)
+      ySim[i] ~ dnorm(mu, tau)
     }
     
     sigma <- sqrt(1/tau)
     effSize <- (mu - compval) / sigma
-    prior_effectSize <- logdensity.norm(compval, compval, 1)
-    posterior_effectSize <- logdensity.norm(compval, effectSize, 1)
-    BF <- exp(prior_effectSize - posterior_effectSize)
+    prior_effSize <- logdensity.norm(compval, compval, 1)
+    posterior_effSize <- logdensity.norm(compval, effSize, 1)
+    logBF <- prior_effSize - posterior_effSize
 }"
   
-  if (is.null(y)) {
+  if (is.null(data)) {
     cat(crayon::red("Please provide a vector of observations"))
   }
   if (is.null(compval)) {
     cat(crayon::red("Please provide a comparison value against which to test the mean of y"))
   }
   
+  y = data
   write_lines(one_sample_t, "one_sample_t.txt")
-  jagsdata = list("N" = length(y), "y" = y, "ysd" = mad(y))
-  monitor = c("mu", "sigma", "nu", "effectSize", "BF", "ySim")
+  jagsdata = list("N" = length(y), "y" = y, "ysd" = sd(y), compval = compval)
+  monitor = c("mu", "sigma",  "effSize", "logBF", "ySim")
   
-  inits = lapply(1:chains, function(z) list("mu" = median(y), "ySim"  = y, "tau" = 1/var(y), "nu" = 3,
+  inits = lapply(1:chains, function(z) list("mu" = mean(y), "ySim"  = y, "tau" = 1/var(y),
                                             .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1)))
   
   out = run.jags(model = "one_sample_t.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, 
-                 burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, ...)
+                 burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
   
   if (!is.null(cl)){
     parallel::stopCluster(cl = cl)
@@ -216,7 +400,8 @@ if (model == "os") {
   
   file.remove("one_sample_t.txt")
   return(out)
-
+  
+    }
   }
 }
 

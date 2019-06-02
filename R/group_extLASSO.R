@@ -43,7 +43,7 @@
 #' @param thin Thinning interval. Defaults to 3.
 #' @param method Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).
 #' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.
-
+#
 #' @param ... Other arguments to run.jags.
 #'
 #' @return A run.jags object
@@ -497,7 +497,7 @@ groupExtLASSO <- function(X, y, idx, family = "normal", eta_prior = "gamma", fix
       write_lines(jags_grp_extended_LASSO, "jags_grp_extended_LASSO.txt")
     }
   }
-  out <- run.jags(model = "jags_grp_extended_LASSO.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, n.chains = chains, method = method, cl = cl, ...)
+  out <- run.jags(model = "jags_grp_extended_LASSO.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, n.chains = chains, method = method, cl = cl, summarise = FALSE, ...)
   file.remove("jags_grp_extended_LASSO.txt")
   if (!is.null(cl)) {
     parallel::stopCluster(cl = cl)

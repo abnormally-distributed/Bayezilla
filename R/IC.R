@@ -28,8 +28,8 @@
 #' and the log-posterior function of the parameters p(theta | Y ; M) and integrating this product
 #' over the parameters. Finally, this is summed across all N_i data points.
 #'
-#' \if{html}{\figure{lppd.png}{the log pointwise predictive density}}
-#' \if{latex}{\figure{lppd.png}{the log pointwise predictive density}}
+#' \if{html}{\figure{lppd.png}{the log pointwise predictive density.}}
+#' \if{latex}{\figure{lppd.png}{the log pointwise predictive density.}}
 #'
 #' The Watanabe-Akaike Information Criterion is the extension of AIC to Bayesian analyses
 #' for calculating the out-of-sample expected log predictive density. Analagous to the AIC,
@@ -38,8 +38,10 @@
 #' parameters is given by calculating the variance of each data point's log-likelihood function
 #' across the MCMC samples, and then summing these variances.
 #'
-#' \if{html}{\figure{pWAIC.png}{the WAIC penalty term}}
-#' \if{latex}{\figure{pWAIC.png}{the WAIC penalty term}}
+#'
+#' \if{html}{\figure{pWAIC.png}{the WAIC penalty term.}}
+#' 
+#' \if{latex}{\figure{pWAIC..png}{the WAIC penalty term.}}
 #'
 #' Finally, the pWAIC term is subtracted from the lppd to obtain the WAIC, which is an estimator
 #' of the expected log predictive density on the deviance scale (- 2  * LL).
@@ -57,10 +59,11 @@
 #' Note that the penalty term is not calculated directly as in the case of pWAIC. However, the
 #' pWAIC can be extracted by taking the difference of the lppd and LOO-IC.
 #' The steps of calculating the LOO-IC are shown below.
-#'
-#' \if{html}{\figure{looic.png}{the steps in obtaining the LOO-IC}}
-#' \if{latex}{\figure{looic.png}{the steps in obtaining the LOO-IC}}
-#'
+#' 
+#' \item{
+#'     \if{html}{\figure{looic.png}{the steps in obtaining the LOO-IC.}}
+#'     \if{latex}{\figure{looic.png}{the steps in obtaining the LOO-IC.}}
+#' }
 #' The conceptual difference between the marginal likelihood and the log pointwise predictive density is that
 #' the marginal likelihood integrates over the prior distribution of the parameters in the model, p(theta, M),
 #' while the log pointwise predictive density integrates over the posterior distribution of the parameters given

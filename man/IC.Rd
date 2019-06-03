@@ -103,5 +103,4 @@ re-expressed with full conditional probability notation for comparison.
 }
 \examples{
 IC()
-
 }

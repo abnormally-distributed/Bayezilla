@@ -1,0 +1,13 @@
+model
+{
+  mu[1:P] ~ dmnorm(zeros[1:P], XtXinv[1:P,1:P])
+  # Precision matrix
+  Tau[1:P,1:P] ~ dscaled.wishart(s[1:P], 3)
+  #invert the  precision matrix
+  Sigma[1:P,1:P] <- inverse(Tau[1:P,1:P])
+  # likelihood function
+  for (i in 1:N)
+  {
+    y[i,1:P] ~ dmnorm(mu[], Tau[,])
+  }
+}

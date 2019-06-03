@@ -95,41 +95,62 @@
 #'
 #' @examples
 #' IC()
-#'
-IC = function(out, loo = TRUE, summarize = TRUE){
-
+IC <- function(out,
+               loo = TRUE,
+               summarize = TRUE) {
   stan <- inherits(out, "stanfit")
   if (stan == TRUE) {
     LL <- as.matrix(rstan::extract(out, pars = "log_lik"))
     LL <- LL[, -which(colnames(LL) == "lp__")]
   }
-  else if (class(out) == "runjags"){
-    LL = combine.mcmc(out, collapse.chains = TRUE, vars = "log_lik")
-    LL = as.matrix(LL)
+  else if (class(out) == "runjags") {
+    LL <- combine.mcmc(out, collapse.chains = TRUE, vars = "log_lik")
+    LL <- as.matrix(LL)
   }
   S <- nrow(LL)
   n <- ncol(LL)
   # Calculate LPPD
-  LPPD = log(colMeans(exp(LL)))
+  LPPD <- log(colMeans(exp(LL)))
   # Calculate pWAIC
-  pWAIC = apply(LL, 2, var)
-  WAIC = -2 * (LPPD - pWAIC)
+  pWAIC <- apply(LL, 2, var)
+  WAIC <- -2 * (LPPD - pWAIC)
   # Concatenate into a data frame containing the results
-  IC = data.frame("WAIC" = WAIC, "lppd" = LPPD, "pWAIC" = pWAIC)
+  IC <- data.frame(
+    "WAIC" = WAIC,
+    "lppd" = LPPD,
+    "pWAIC" = pWAIC
+  )
 
-  if (loo == TRUE){
+
+  if (loo == TRUE) {
     ## Code adapted from "Understanding predictive information criteria for Bayesian models"
     ## Andrew Gelman, Jessica Hwang, and Aki Vehtari (2013)
-    loo_weights_raw <- 1/exp(LL-max(LL))
-    loo_weights_normalized <- loo_weights_raw/ matrix(colMeans(loo_weights_raw),nrow=S,ncol=n,byrow=TRUE)
+    loo_weights_raw <- 1 / exp(LL - max(LL))
+    loo_weights_normalized <-
+      loo_weights_raw / matrix(
+        colMeans(loo_weights_raw),
+        nrow = S,
+        ncol = n,
+        byrow = TRUE
+      )
     loo_weights_regularized <- pmin(loo_weights_normalized, sqrt(S))
-    elpd_loo <- log(colMeans(exp(LL)*loo_weights_regularized)/ colMeans(loo_weights_regularized))
-    LOOIC = -2 * elpd_loo
+    elpd_loo <-
+      log(colMeans(exp(LL) * loo_weights_regularized) / colMeans(loo_weights_regularized))
+    LOOIC <- -2 * elpd_loo
     p_loo <- LPPD - elpd_loo
-    IC = cbind.data.frame("WAIC" = WAIC, "LOO-IC" = LOOIC, "lppd" = LPPD, "pWAIC" = pWAIC, "pLOO" = p_loo)
+    IC <-
+      cbind.data.frame(
+        "WAIC" = WAIC,
+        "LOO-IC" = LOOIC,
+        "lppd" = LPPD,
+        "pWAIC" = pWAIC,
+        "pLOO" = p_loo
+      )
   }
-  if (summarize == TRUE){
+  if (summarize == TRUE) {
     return(colSums(IC))
   }
-  else {return(IC)}
+  else {
+    return(IC)
+  }
 }

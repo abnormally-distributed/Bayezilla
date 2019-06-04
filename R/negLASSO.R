@@ -8,8 +8,8 @@
 #' @param warmup How many warmup samples? Defaults to 1000.
 #' @param adapt How many adaptation steps? Defaults to 2000.
 #' @param chains How many chains? Defaults to 4.
-#' @param thin Thinning interval. Defaults to 3.
-#' @param method Defaults to "rjags" (single core run). For parallel, choose "rjparallel" or "parallel".
+#' @param thin Thinning interval. Defaults to 1.
+#' @param method Defaults to "parallel". For another parallel option, choose "rjparallel" or "rjags" for a single core run.
 #' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods.
 #' @param ... Other arguments to run.jags.
 #'
@@ -19,7 +19,7 @@
 #' @examples
 #' negLASSO()
 #'
-negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=3, method = "rjags", cl = NULL, ...){
+negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = NULL, ...){
 
   X = model.matrix(formula, data)[,-1]
   y = model.frame(formula, data)[,1]
@@ -46,17 +46,17 @@ negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
                  ySim[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
               }
               sigma <- sqrt(1/tau)
-              deviance <- -2 * sum(log_lik[1:N])
+              Deviance <- -2 * sum(log_lik[1:N])
           }"
 
   P <- ncol(X)
   write_lines(jags_neg_LASSO, "jags_neg_LASSO.txt")
   jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X))
-  monitor <- c("Intercept", "beta", "sigma", "lambda", "omega", "deviance", "psi", "ySim", "log_lik")
+  monitor <- c("Intercept", "beta", "sigma", "lambda", "omega", "Deviance", "psi", "ySim", "log_lik")
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
-  inits <- lapply(1:chains, function(z) list("Intercept" = 0, "beta" = rep(0, P), "omega" = abs(jitter(rep(1, P), amount = 1)), "psi" = abs(jitter(rep(1, P), amount = 1)), "lambda" = 10, "tau" = 1))
+  inits <- lapply(1:chains, function(z) list("Intercept" = 0, "beta" = rep(0, P), "omega" = abs(jitter(rep(1, P), amount = 1)), "psi" = abs(jitter(rep(1, P), amount = 1)), "lambda" = 10, "tau" = 1, .RNG.name= "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1)))
 }
 
 
@@ -81,17 +81,17 @@ negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
                  ySim[i] ~ dbern(psi[i])
               }
               sigma <- sqrt(1/tau)
-              deviance <- -2 * sum(log_lik[1:N])
+              Deviance <- -2 * sum(log_lik[1:N])
           }"
 
     P = ncol(X)
     write_lines(jags_neg_LASSO, "jags_neg_LASSO.txt")
     jagsdata = list(X = X, y = y, N = length(y), P = ncol(X))
-    monitor = c("Intercept", "beta", "lambda", "omega",  "deviance", "psi", "ySim", "log_lik")
+    monitor = c("Intercept", "beta", "lambda", "omega",  "Deviance", "psi", "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = rep(0, P), "omega" = abs(jitter(rep(1, P), amount = 1)), "psi" = abs(jitter(rep(1, P), amount = 1)), "lambda" = 10))
+    inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = rep(0, P), "omega" = abs(jitter(rep(1, P), amount = 1)), "psi" = abs(jitter(rep(1, P), amount = 1)), "lambda" = 10, .RNG.name= "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1)))
   }
 
   if (family == "poisson") {
@@ -115,19 +115,19 @@ negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
                  ySim[i] ~ dpois(psi[i])
               }
               sigma <- sqrt(1/tau)
-              deviance <- -2 * sum(log_lik[1:N])
+              Deviance <- -2 * sum(log_lik[1:N])
           }"
 
     P = ncol(X)
     write_lines(jags_neg_LASSO, "jags_neg_LASSO.txt")
     jagsdata = list(X = X, y = y, N = length(y), P = ncol(X))
-    monitor = c("Intercept", "beta", "lambda", "omega",  "deviance", "psi", "ySim", "log_lik")
+    monitor = c("Intercept", "beta", "lambda", "omega",  "Deviance", "psi", "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = rep(0, P), "omega" = abs(jitter(rep(1, P), amount = 1)), "psi" = abs(jitter(rep(1, P), amount = 1)), "lambda" = 10))
+    inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = rep(0, P), "omega" = abs(jitter(rep(1, P), amount = 1)), "psi" = abs(jitter(rep(1, P), amount = 1)), "lambda" = 10, .RNG.name= "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1)))
   }
-  out = run.jags(model = "jags_neg_LASSO.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+  out = run.jags(model = "jags_neg_LASSO.txt", modules = c("glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
   file.remove("jags_neg_LASSO.txt")
   return(out)
 }

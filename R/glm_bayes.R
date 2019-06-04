@@ -12,16 +12,26 @@
 #' 
 #' Note that if you do not scale and center your numeric predictors, this will likely not perform well or
 #' give reasonable results. The mixing hyperparameter omega assumes all covariates are on the same scale.
+#' 
+#' One exception to this is the softmax regression. Due to the nature of this model, I fond that using a hyperparameter on the 
+#' precions of the coefficient priors yielded poor sampling. When trying weakly informative priors I found that nonsensical 
+#' coefficients often resulted in  trial datasets. For these reasons, moderately informative logistic distribution priors with a 
+#' precision of 1.5 are placed on the coefficients. Softmax/multinomial regression is tricky in that each of k-1 
+#' (the first is set to zero as a reference baseline as is custom to ensure model identifiability) outcomes receives a set of coefficients. 
+#' In other words, for each predictor it has k-1 different coefficients. This is why a moderately informative prior-model structure is 
+#' neccessary to faciliate sensible results. It is advisable to run longer adaptation, warmup, and iterations.
+#' I suggest iter = 15000, warmup = 10000, adapt = 5000, thin = 3 and at least 4 chains.
+#' 
 #'
 #' @param formula the model formula
 #' @param data a data frame
-#' @param family one of "gaussian", "binomial", or "poisson".
+#' @param family one of "gaussian", "binomial", "softmax", or "poisson".
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 10000.
 #' @param warmup How many warmup samples? Defaults to 1000.
 #' @param adapt How many adaptation steps? Defaults to 2000.
 #' @param chains How many chains? Defaults to 4.
-#' @param thin Thinning interval. Defaults to 3.
+#' @param thin Thinning interval. Defaults to 1.
 #' @param method Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).
 #' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.
 #' @param ... Other arguments to run.jags.
@@ -32,15 +42,10 @@
 #' @examples
 #' glmBayes()
 #'
-glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=3, method = "parallel", cl = makeCluster(2), ...){
+glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
 
   X = as.matrix(model.matrix(formula, data)[,-1])
   y = model.frame(formula, data)[,1]
-
-  RNGlist = c("lecuyer::RngStream", "base::Wichmann-Hill", "base::Marsaglia-Multicarry", "base::Super-Duper", "base::Mersenne-Twister")
-  if (chains > 4){
-    chains = 4
-  }
   
   if (family == "gaussian"){
 
@@ -63,17 +68,17 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
                  ySim[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
               }
               sigma <- sqrt(1/tau)
-              deviance <- -2 * sum(log_lik[1:N])
+              Deviance <- -2 * sum(log_lik[1:N])
           }"
 
     P = ncol(X)
     write_lines(jags_glm, "jags_glm.txt")
     jagsdata = list(X = X, y = y,  N = length(y), P = ncol(X))
-    monitor = c("Intercept", "beta", "sigma", "omega", "deviance", "ySim" ,"log_lik")
+    monitor = c("Intercept", "beta", "sigma", "omega", "Deviance", "ySim" ,"log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" =0, "beta" = jitter(rep(0, P), amount = 1), "tau" = 1, "omega" = .001, "ySim" = y, .RNG.name=RNGlist[z], .RNG.seed = sample(1:10000, 1)))
+    inits = lapply(1:chains, function(z) list("Intercept" =0, "beta" = jitter(rep(0, P), amount = 1), "tau" = 1, "omega" = 1, "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1)))
   }
 
   if (family == "binomial" || family == "logistic"){
@@ -96,19 +101,56 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
                  log_lik[i] <- logdensity.bern(y[i], psi[i])
                  ySim[i] ~ dbern(psi[i])
               }
-             deviance <- -2 * sum(log_lik[1:N])
+             Deviance <- -2 * sum(log_lik[1:N])
           }"
 
     P = ncol(X)
     write_lines(jags_glm, "jags_glm.txt")
     jagsdata = list(X = X, y = y, N = length(y), P = ncol(X))
-    monitor = c("Intercept", "beta", "omega", "deviance", "ySim", "log_lik")
+    monitor = c("Intercept", "beta", "omega", "Deviance", "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = jitter(rep(0, P), amount = 1), "omega" = .001, "ySim" = y, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1)))
+    inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = jitter(rep(0, P), amount = 1), "omega" = 1, "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
   }
-
+  
+  if (family == "multinomial" || family == "softmax"){
+    
+    jags_glm = "model {
+        # Priors
+        Intercept[1] <- 0
+        for ( j in 1:P ) { beta[1,j] <- 0 }
+        for ( r in 2:Nout ) { # notice starts at 2
+        Intercept[r] ~ dlogis(0, 1)
+         for ( j in 1:P ) {
+            beta[r,j] ~ dlogis(0, 1.5)
+          }
+       }
+       # Likelihood Function
+     for ( i in 1:N ) {
+         y[i] ~ dcat(explambda[1:Nout,i]) # dcat normalizes its argument vector
+         ySim[i] ~ dcat(explambda[1:Nout,i])
+         log_lik[i] <- logdensity.cat(y[i], explambda[1:Nout,i])
+        for ( r in 1:Nout ) {
+            explambda[r,i] <- exp(Intercept[r] + sum( beta[r,1:P] * X[i,1:P])) 
+        }
+      }
+      Deviance <- -2 * sum(log_lik[1:N])
+    }
+    "
+    
+    P = ncol(X)
+    uniq = length(unique(as.numeric(y))) - 1
+    y = as.numeric(y)
+    write_lines(jags_glm, "jags_glm.txt")
+    jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), Nout = uniq+1)
+    monitor = c("Intercept", "beta", "Deviance", "ySim", "log_lik")
+    if (log_lik == FALSE){
+      monitor = monitor[-(length(monitor))]
+    }
+    inits = lapply(1:chains, function(z) list("ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
+  }
+  
   if (family == "poisson"){
 
     jags_glm = "model{
@@ -130,20 +172,20 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
                  ySim[i] ~ dpois(psi[i])
               }
 
-              deviance <- -2 * sum(log_lik[1:N])
+              Deviance <- -2 * sum(log_lik[1:N])
           }"
 
     write_lines(jags_glm, "jags_glm.txt")
     P = ncol(X)
     jagsdata = list(X = X, y = y, N = length(y),  P = ncol(X))
-    monitor = c("Intercept", "beta", "omega", "deviance", "ySim", "log_lik")
+    monitor = c("Intercept", "beta", "omega", "Deviance", "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = 0, "omega" = .001, "ySim" = y, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1),"beta" = jitter(rep(0, P), amount = 1)))
+    inits = lapply(1:chains, function(z) list("Intercept" = 0, "omega" = 1, "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1),"beta" = jitter(rep(0, P), amount = 1)))
   }
 
-  out = run.jags(model = "jags_glm.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)
+  out = run.jags(model = "jags_glm.txt", modules = c("glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)
   if (is.null(cl) == FALSE){
     parallel::stopCluster(cl = cl)
   }

@@ -4,7 +4,8 @@
 \alias{plotChains}
 \title{MCMC Diagnostic Plots}
 \usage{
-plotChains(fit, pars = c("Intercept", "sigma"), col = "blues")
+plotChains(fit, pars = NULL, droppars = c("ySim", "log_lik"),
+  col = "blues")
 }
 \arguments{
 \item{fit}{the stanfit or runjags object}
@@ -12,7 +13,7 @@ plotChains(fit, pars = c("Intercept", "sigma"), col = "blues")
 \item{pars}{the names of the parameters to be plotted.}
 
 \item{col}{the color scheme. One of "blue" (the default), "darkblue", "purples", "reds",
-"greens", or "mix"}
+"greens", "mix" , or "mix2"}
 }
 \value{
 a base R plot

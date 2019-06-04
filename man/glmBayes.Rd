@@ -6,14 +6,14 @@
 \usage{
 glmBayes(formula, data, family = "gaussian", log_lik = FALSE,
   iter = 10000, warmup = 1000, adapt = 2000, chains = 4,
-  thin = 3, method = "parallel", cl = makeCluster(2), ...)
+  thin = 1, method = "parallel", cl = makeCluster(2), ...)
 }
 \arguments{
 \item{formula}{the model formula}
 
 \item{data}{a data frame}
 
-\item{family}{one of "gaussian", "binomial", or "poisson".}
+\item{family}{one of "gaussian", "binomial", "softmax", or "poisson".}
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 
@@ -25,7 +25,7 @@ glmBayes(formula, data, family = "gaussian", log_lik = FALSE,
 
 \item{chains}{How many chains? Defaults to 4.}
 
-\item{thin}{Thinning interval. Defaults to 3.}
+\item{thin}{Thinning interval. Defaults to 1.}
 
 \item{method}{Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).}
 
@@ -50,6 +50,15 @@ binomial, and poisson likelihood functions are available.
 \details{
 Note that if you do not scale and center your numeric predictors, this will likely not perform well or
 give reasonable results. The mixing hyperparameter omega assumes all covariates are on the same scale.
+
+One exception to this is the softmax regression. Due to the nature of this model, I fond that using a hyperparameter on the 
+precions of the coefficient priors yielded poor sampling. When trying weakly informative priors I found that nonsensical 
+coefficients often resulted in  trial datasets. For these reasons, moderately informative logistic distribution priors with a 
+precision of 1.5 are placed on the coefficients. Softmax/multinomial regression is tricky in that each of k-1 
+(the first is set to zero as a reference baseline as is custom to ensure model identifiability) outcomes receives a set of coefficients. 
+In other words, for each predictor it has k-1 different coefficients. This is why a moderately informative prior-model structure is 
+neccessary to faciliate sensible results. It is advisable to run longer adaptation, warmup, and iterations.
+I suggest iter = 15000, warmup = 10000, adapt = 5000, thin = 3 and at least 4 chains.
 }
 \examples{
 glmBayes()

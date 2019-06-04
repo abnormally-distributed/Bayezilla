@@ -5,7 +5,7 @@
 \title{Plot Multiple Posterior Distributions}
 \usage{
 facetPost(fit, pars = NULL, droppars = c("log_lik", "ySim", "yTest",
-  "deviance"), col = "blue", nrow = 4, ncol = 2, method = "QI",
+  "Deviance"), col = "blue", nrow = 4, ncol = 2, method = "QI",
   showMedian = FALSE, cred.level = 0.9)
 }
 \arguments{
@@ -15,7 +15,7 @@ fit = "yourmodel" so that the function knows it is not intended to be a vector.}
 
 \item{pars}{variables to keep}
 
-\item{droppars}{variables to drop. Defaults to c("log_lik", "ySim", "yTest", "deviance")}
+\item{droppars}{variables to drop. Defaults to c("log_lik", "ySim", "yTest", "Deviance")}
 
 \item{col}{the color scheme. One of "blue", "green" "red", or "purple".}
 

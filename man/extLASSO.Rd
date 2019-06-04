@@ -6,7 +6,7 @@
 \usage{
 extLASSO(formula, data, family = "normal", eta_prior = "gamma",
   fixed_u = NA, log_lik = FALSE, iter = 10000, warmup = 1000,
-  adapt = 2000, chains = 4, thin = 5, method = "parallel",
+  adapt = 2000, chains = 4, thin = 1, method = "parallel",
   cl = makeCluster(2), ...)
 }
 \arguments{

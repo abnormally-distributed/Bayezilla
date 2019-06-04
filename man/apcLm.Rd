@@ -5,7 +5,7 @@
 \title{Adaptive Powered Correlation Prior for Gaussian likelihoods}
 \usage{
 apcLm(formula, data, lambda = -1, log_lik = FALSE, iter = 10000,
-  warmup = 1000, adapt = 5000, chains = 4, thin = 3,
+  warmup = 1000, adapt = 5000, chains = 4, thin = 1,
   method = "parallel", cl = makeCluster(2), ...)
 }
 \arguments{
@@ -26,9 +26,9 @@ fitting multiple values of lambda and selecting which is best via LOO-IC or WAIC
 
 \item{adapt}{How many adaptation steps? Defaults to 2000.}
 
-\item{chains}{How many chains? Defaults to 4. Max allowed is 4.}
+\item{chains}{How many chains? Defaults to 4.}
 
-\item{thin}{Thinning interval. Defaults to 3.}
+\item{thin}{Thinning interval. Defaults to 1.}
 
 \item{method}{Defaults to "parallel". For an alternative parallel option, choose "rjparallel". Otherwise, "rjags" (single core run).}
 

@@ -40,8 +40,8 @@
 #' @param iter How many post-warmup samples? Defaults to 10000.
 #' @param warmup How many warmup samples? Defaults to 1000.
 #' @param adapt How many adaptation steps? Defaults to 2000.
-#' @param chains How many chains? Defaults to 4. Max allowed is 4.
-#' @param thin Thinning interval. Defaults to 3.
+#' @param chains How many chains? Defaults to 4. 
+#' @param thin Thinning interval. Defaults to 1.
 #' @param method Defaults to "parallel". For an alternative parallel option, choose "rjparallel". Otherwise, "rjags" (single core run).
 #' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.
 #' @param ... Other arguments to run.jags.
@@ -51,14 +51,10 @@
 #'
 #' @examples
 #' glmSpike()
-Spike <- function(formula, data, family = "gaussian", phi_prior = c(1, 4), log_lik = FALSE, iter = 10000, warmup = 1000, adapt = 2000, chains = 4, thin = 3, method = "parallel", cl = makeCluster(2),summarise = FALSE, ...) {
+Spike <- function(formula, data, family = "gaussian", phi_prior = c(1, 4), log_lik = FALSE, iter = 10000, warmup = 1000, adapt = 2000, chains = 4, thin = 1, method = "parallel", cl = makeCluster(2), ...) {
   X <- model.matrix(formula, data)[, -1]
   y <- model.frame(formula, data)[, 1]
 
-  RNGlist <- c("base::Wichmann-Hill", "base::Marsaglia-Multicarry", "base::Super-Duper", "base::Mersenne-Twister")
-  if (chains > 4) {
-    chains <- 4
-  }
 
   if (family == "gaussian") {
     jags_glm_spike <- "model{
@@ -80,18 +76,18 @@ Spike <- function(formula, data, family = "gaussian", phi_prior = c(1, 4), log_l
                  ySim[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
               }
               sigma <- sqrt(1/tau)
-              deviance <- -2 * sum(log_lik[1:N])
+              Deviance <- -2 * sum(log_lik[1:N])
           }"
 
     P <- ncol(X)
     write_lines(jags_glm_spike, "jags_glm_spike.txt")
     jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), a = phi_prior[1], b = phi_prior[2])
-    monitor <- c("Intercept", "beta", "sigma", "phi", "deviance",  "delta", "theta" ,"ySim", "log_lik")
+    monitor <- c("Intercept", "beta", "sigma", "phi", "Deviance",  "delta", "theta" ,"ySim", "log_lik")
     if (log_lik == FALSE) {
       monitor <- monitor[-(length(monitor))]
     }
-    inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name = RNGlist[z], .RNG.seed = sample(1:10000, 1),   "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = jitter(rep(0, P), amount = .25), "tau" = 1))
-    out <- run.jags(model = "jags_glm_spike.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl,summarise = FALSE, ...)
+    inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name = "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1),   "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = jitter(rep(0, P), amount = .25), "tau" = 1))
+    out <- run.jags(model = "jags_glm_spike.txt", modules = c("glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl,summarise = FALSE, ...)
     return(out)
   }
 
@@ -111,19 +107,19 @@ Spike <- function(formula, data, family = "gaussian", phi_prior = c(1, 4), log_l
                  log_lik[i] <- logdensity.bern(y[i], psi[i])
                  ySim[i] ~ dbern(psi[i])
               }
-             deviance <- -2 * sum(log_lik[1:N])
+             Deviance <- -2 * sum(log_lik[1:N])
           }"
 
     P <- ncol(X)
     write_lines(jags_glm_spike, "jags_glm_spike.txt")
     y <- as.numeric(as.factor(y)) - 1
     jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), a = phi_prior[1], b = phi_prior[2])
-    monitor <- c("Intercept", "beta", "phi",  "delta", "deviance", "theta" , "ySim", "log_lik")
+    monitor <- c("Intercept", "beta", "phi", "Deviance", "delta",  "theta" , "ySim", "log_lik")
     if (log_lik == FALSE) {
       monitor <- monitor[-(length(monitor))]
     }
-    inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name = RNGlist[z], .RNG.seed = sample(1:10000, 1),   "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = jitter(rep(0, P), amount = .25)))
-    out <- run.jags(model = "jags_glm_spike.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)
+    inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name = "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1),   "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = jitter(rep(0, P), amount = .25)))
+    out <- run.jags(model = "jags_glm_spike.txt", modules = c("glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)
     return(out)
   }
 
@@ -143,18 +139,18 @@ Spike <- function(formula, data, family = "gaussian", phi_prior = c(1, 4), log_l
                  log_lik[i] <- logdensity.pois(y[i], psi[i])
                  ySim[i] ~ dpois(psi[i])
               }
-              deviance <- -2 * sum(log_lik[1:N])
+              Deviance <- -2 * sum(log_lik[1:N])
           }"
 
     write_lines(jags_glm_spike, "jags_glm_spike.txt")
     P <- ncol(X)
     jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), a = phi_prior[1], b = phi_prior[2])
-    monitor <- c("Intercept", "beta", "phi",  "delta", "deviance", "theta" , "ySim", "log_lik")
+    monitor <- c("Intercept", "beta", "phi", "Deviance", "delta",  "theta" , "ySim", "log_lik")
     if (log_lik == FALSE) {
       monitor <- monitor[-(length(monitor))]
     }
-    inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name = RNGlist[z], .RNG.seed = sample(1:10000, 1), "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = jitter(rep(0, P), amount = .25)))
-    out <- run.jags(model = "jags_glm_spike.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+    inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name = "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1), "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = jitter(rep(0, P), amount = .25)))
+    out <- run.jags(model = "jags_glm_spike.txt", modules = c("glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
     file.remove("jags_glm_spike.txt")
     if (!is.null(cl)) {
       parallel::stopCluster(cl = cl)

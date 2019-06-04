@@ -6,7 +6,7 @@
 \usage{
 negLASSO(formula, data, family = "gaussian", log_lik = FALSE,
   iter = 10000, warmup = 1000, adapt = 2000, chains = 4,
-  thin = 3, method = "rjags", cl = NULL, ...)
+  thin = 1, method = "parallel", cl = NULL, ...)
 }
 \arguments{
 \item{formula}{the model formula}
@@ -25,9 +25,9 @@ negLASSO(formula, data, family = "gaussian", log_lik = FALSE,
 
 \item{chains}{How many chains? Defaults to 4.}
 
-\item{thin}{Thinning interval. Defaults to 3.}
+\item{thin}{Thinning interval. Defaults to 1.}
 
-\item{method}{Defaults to "rjags" (single core run). For parallel, choose "rjparallel" or "parallel".}
+\item{method}{Defaults to "parallel". For another parallel option, choose "rjparallel" or "rjags" for a single core run.}
 
 \item{cl}{Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods.}
 

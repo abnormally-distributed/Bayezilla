@@ -48,16 +48,11 @@
 #' extLASSO()
 #'
 
-extLASSO  = function(formula, data, family = "normal", eta_prior = "gamma", fixed_u = NA, log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=5, method = "parallel", cl = makeCluster(2), ...){
+extLASSO  = function(formula, data, family = "normal", eta_prior = "gamma", fixed_u = NA, log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin = 1, method = "parallel", cl = makeCluster(2), ...){
 
   X = model.matrix(formula, data)[,-1]
   y = model.frame(formula, data)[,1]
 
-  RNGlist = c("base::Wichmann-Hill", "base::Marsaglia-Multicarry", "base::Super-Duper", "base::Mersenne-Twister")
-  if (chains > 4){
-    chains = 4
-  }
-  
   if (family == "gaussian" || family == "normal") {
 
     if (eta_prior == "gamma") {
@@ -96,16 +91,16 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "gamma", fixe
                  ySim[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
               }
               sigma <- sqrt(1/tau)
-              deviance <- -2 * sum(log_lik[1:N])
+              Deviance <- -2 * sum(log_lik[1:N])
           }"
 
       P = ncol(X)
-      monitor = c("Intercept", "beta", "sigma",  "Omega", "eta" , "lambda", "delta", "deviance", "ySim" ,"log_lik")
+      monitor = c("Intercept", "beta", "sigma",  "Omega", "Deviance", "eta" , "lambda", "delta", "ySim" ,"log_lik")
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X))
-      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P), amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
+      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P), amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
       write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
 
     }
@@ -148,16 +143,16 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "gamma", fixe
                  ySim[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
               }
               sigma <- sqrt(1/tau)
-              deviance <- -2 * sum(log_lik[1:N])
+              Deviance <- -2 * sum(log_lik[1:N])
           }"
 
       P = ncol(X)
-      monitor = c("Intercept", "beta", "sigma",  "Omega", "eta" , "lambda", "delta", "deviance", "ySim" ,"log_lik")
+      monitor = c("Intercept", "beta", "sigma",  "Omega", "Deviance",  "eta" , "lambda", "delta", "ySim" ,"log_lik")
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X),  u = fixed_u)
-      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P), amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
+      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P), amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
       write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
     }
 
@@ -200,17 +195,17 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "gamma", fixe
                  ySim[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
               }
               sigma <- sqrt(1/tau)
-              deviance <- -2 * sum(log_lik[1:N])
+              Deviance <- -2 * sum(log_lik[1:N])
           }"
 
       P = ncol(X)
-      monitor = c("Intercept", "beta", "sigma",  "Omega", "eta" , "lambda", "delta", "deviance", "ySim" ,"log_lik")
+      monitor = c("Intercept", "beta", "sigma",  "Omega",  "Deviance", "eta" , "lambda", "delta", "ySim" ,"log_lik")
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X),  u = fixed_u)
 
-      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P), amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
+      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P), amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
       write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
     }
   }
@@ -250,16 +245,16 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "gamma", fixe
                  log_lik[i] <- logdensity.bern(y[i], psi[i])
                  ySim[i] ~ dbern(psi[i])
               }
-              deviance <- -2 * sum(log_lik[1:N])
+              Deviance <- -2 * sum(log_lik[1:N])
           }"
 
       P = ncol(X)
-      monitor = c("Intercept", "beta", "Omega", "eta" , "lambda", "delta", "deviance", "ySim" ,"log_lik")
+      monitor = c("Intercept", "beta", "Omega", "Deviance", "eta" , "lambda", "delta",  "ySim" ,"log_lik")
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X))
-      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50 , "beta" = jitter(rep(0,P), amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
+      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50 , "beta" = jitter(rep(0,P), amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
       write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
 
     }
@@ -299,16 +294,16 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "gamma", fixe
                   log_lik[i] <- logdensity.bern(y[i], psi[i])
                   ySim[i] ~ dbern(psi[i])
               }
-              deviance <- -2 * sum(log_lik[1:N])
+              Deviance <- -2 * sum(log_lik[1:N])
             }"
 
       P = ncol(X)
-      monitor = c("Intercept", "beta", "Omega", "eta" , "lambda", "delta", "deviance", "ySim" ,"log_lik")
+      monitor = c("Intercept", "beta", "Omega", "Deviance", "eta" , "lambda", "delta", "ySim" ,"log_lik")
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), u = fixed_u)
-      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P), amount = .25), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
+      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P), amount = .25), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
       write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
     }
 
@@ -348,16 +343,16 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "gamma", fixe
                   log_lik[i] <- logdensity.bern(y[i], psi[i])
                   ySim[i] ~ dbern(psi[i])
               }
-              deviance <- -2 * sum(log_lik[1:N])
+              Deviance <- -2 * sum(log_lik[1:N])
             }"
 
       P = ncol(X)
-      monitor = c("Intercept", "beta", "Omega", "eta" , "lambda", "delta", "deviance", "ySim" ,"log_lik")
+      monitor = c("Intercept", "beta", "Omega", "Deviance",  "eta" , "lambda", "delta", "ySim" ,"log_lik")
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), u = fixed_u)
-      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P), amount = .25), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
+      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P), amount = .25), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
       write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
     }
 
@@ -398,16 +393,16 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "gamma", fixe
                  log_lik[i] <- logdensity.pois(y[i], psi[i])
                  ySim[i] ~ dpois(psi[i])
               }
-              deviance <- -2 * sum(log_lik[1:N])
+              Deviance <- -2 * sum(log_lik[1:N])
           }"
 
       P = ncol(X)
-      monitor = c("Intercept", "beta", "Omega", "eta" , "lambda", "delta", "deviance", "ySim" ,"log_lik")
+      monitor = c("Intercept", "beta", "Omega","Deviance", "eta" , "lambda", "delta", "ySim" ,"log_lik")
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X))
-      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P)), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
+      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P)), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
       write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
 
     }
@@ -447,16 +442,16 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "gamma", fixe
                  log_lik[i] <- logdensity.pois(y[i], psi[i])
                  ySim[i] ~ dpois(psi[i])
               }
-              deviance <- -2 * sum(log_lik[1:N])
+              Deviance <- -2 * sum(log_lik[1:N])
           }"
 
       P = ncol(X)
-      monitor = c("Intercept", "beta", "Omega", "eta" , "lambda", "delta", "deviance", "ySim" ,"log_lik")
+      monitor = c("Intercept", "beta", "Omega",  "Deviance", "eta" , "lambda", "delta", "ySim" ,"log_lik")
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), u = fixed_u)
-      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P)), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
+      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P)), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
       write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
     }
 
@@ -495,21 +490,21 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "gamma", fixe
                  log_lik[i] <- logdensity.pois(y[i], psi[i])
                  ySim[i] ~ dpois(psi[i])
               }
-              deviance <- -2 * sum(log_lik[1:N])
+              Deviance <- -2 * sum(log_lik[1:N])
           }"
 
       P = ncol(X)
-      monitor = c("Intercept", "beta", "Omega", "eta" , "lambda", "delta", "deviance", "ySim" ,"log_lik")
+      monitor = c("Intercept", "beta", "Omega", "Deviance", "eta" , "lambda", "delta", "ySim" ,"log_lik")
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), u = fixed_u)
-      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(0, amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
+      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(0, amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
       write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
     }
   }
 
-  out = run.jags(model = "jags_extended_LASSO.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, n.chains = chains, method = method, cl = cl, summarise = FALSE, ...)
+  out = run.jags(model = "jags_extended_LASSO.txt", modules = c("glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, n.chains = chains, method = method, cl = cl, summarise = FALSE, ...)
   file.remove("jags_extended_LASSO.txt")
   if (is.null(cl) == FALSE){
     parallel::stopCluster(cl = cl)

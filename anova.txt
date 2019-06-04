@@ -1,0 +1,13 @@
+
+model {
+ tau ~ dgamma(.0001, .0001)
+ Intercept ~ dnorm(ymean, .01)
+ beta[1:P] ~ dmnorm(zeros[1:P], prior_scale[1:P,1:P])
+ for (i in 1:Lvls){
+   finite_variance[i] <- sd(c(Intercept,beta[lvl[i]]))
+ }        
+ for (i in 1:N){
+    y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
+ }
+ residual.variance <- 1 / tau 
+}

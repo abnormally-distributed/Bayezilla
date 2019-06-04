@@ -6,8 +6,8 @@
 \usage{
 Spike(formula, data, family = "gaussian", phi_prior = c(1, 4),
   log_lik = FALSE, iter = 10000, warmup = 1000, adapt = 2000,
-  chains = 4, thin = 3, method = "parallel", cl = makeCluster(2),
-  summarise = FALSE, ...)
+  chains = 4, thin = 1, method = "parallel", cl = makeCluster(2),
+  ...)
 }
 \arguments{
 \item{formula}{the model formula}
@@ -26,9 +26,9 @@ Spike(formula, data, family = "gaussian", phi_prior = c(1, 4),
 
 \item{adapt}{How many adaptation steps? Defaults to 2000.}
 
-\item{chains}{How many chains? Defaults to 4. Max allowed is 4.}
+\item{chains}{How many chains? Defaults to 4.}
 
-\item{thin}{Thinning interval. Defaults to 3.}
+\item{thin}{Thinning interval. Defaults to 1.}
 
 \item{method}{Defaults to "parallel". For an alternative parallel option, choose "rjparallel". Otherwise, "rjags" (single core run).}
 

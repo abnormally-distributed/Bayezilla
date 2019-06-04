@@ -11,8 +11,8 @@
 #' @param iter How many post-warmup samples? Defaults to 10000.
 #' @param warmup How many warmup samples? Defaults to 1000.
 #' @param adapt How many adaptation steps? Defaults to 2000.
-#' @param chains How many chains? Defaults to 4. Max allowed is 4.
-#' @param thin Thinning interval. Defaults to 3.
+#' @param chains How many chains? Defaults to 4. 
+#' @param thin Thinning interval. Defaults to 1.
 #' @param method Defaults to "parallel". For an alternative parallel option, choose "rjparallel". Otherwise, "rjags" (single core run).
 #' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.
 #' @param ... Other arguments to run.jags.
@@ -23,15 +23,9 @@
 #'
 #' @examples
 #' apcLm()
-apcLm = function(formula, data, lambda = -1, log_lik = FALSE, iter=10000, warmup=1000, adapt=5000, chains=4, thin=3, method = "parallel", cl = makeCluster(2), ...)
+apcLm = function(formula, data, lambda = -1, log_lik = FALSE, iter=10000, warmup=1000, adapt=5000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...)
 {
-  
-  RNGlist = c("base::Wichmann-Hill", "base::Marsaglia-Multicarry", "base::Super-Duper", "base::Mersenne-Twister")
-  
-  if (chains > 4){
-    chains = 4
-  }
-  
+
   data <- as.data.frame(data)
   y <- as.numeric(model.frame(formula, data)[, 1])
   X <- model.matrix(formula, data)[, -1]
@@ -67,18 +61,18 @@ apcLm = function(formula, data, lambda = -1, log_lik = FALSE, iter=10000, warmup
                  ySim[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
               }
               sigma <- sqrt(1/tau)
-              deviance <- -2 * sum(log_lik)
+              Deviance <- -2 * sum(log_lik)
           }"
   
   write_lines(apcLm , "jags_apcLm.txt")
   jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), prior_cov = prior_cov, zeros = rep(0, P))
-  monitor = c("Intercept", "beta", "sigma", "g", "deviance", "ySim", "log_lik")
+  monitor = c("Intercept", "beta", "sigma", "g", "Deviance", "ySim", "log_lik")
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
   inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = jitter(rep(0, P), amount = .25), "g_inv" = .001, "tau" = 3, "ySim" = y,
-                                            .RNG.name=RNGlist[z], .RNG.seed= sample(1:10000, 1)))
-  out = run.jags(model = "jags_apcLm.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+                                            .RNG.name = "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
+  out = run.jags(model = "jags_apcLm.txt", modules = c("glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
   if (!is.null(cl)){
     parallel::stopCluster(cl = cl)
   }

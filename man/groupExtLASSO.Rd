@@ -6,7 +6,7 @@
 \usage{
 groupExtLASSO(X, y, idx, family = "normal", eta_prior = "gamma",
   fixed_u = NA, log_lik = FALSE, iter = 10000, warmup = 1000,
-  adapt = 2000, chains = 4, thin = 3, method = "parallel",
+  adapt = 2000, chains = 4, thin = 1, method = "parallel",
   cl = makeCluster(2), ...)
 }
 \arguments{
@@ -34,7 +34,7 @@ default to force you to choose a good value through model comparison.}
 
 \item{chains}{How many chains? Defaults to 4.}
 
-\item{thin}{Thinning interval. Defaults to 3.}
+\item{thin}{Thinning interval. Defaults to 1.}
 
 \item{method}{Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).}
 

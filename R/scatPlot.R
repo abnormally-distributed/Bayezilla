@@ -19,7 +19,6 @@ scatPlot = function(x, y, xlab="x", ylab="y", col = "blues", x.breaks = 15, y.br
   old.par <- par(no.readonly = TRUE) # save default, for resetting... 
   on.exit(par(old.par))     #and when we quit the function, restore to original values
   
-  
   #light, dark, dark, light, smoothline 
   if (col == "blues" || col == "blue"){
     ColorScheme = c("#6495edCC", "#0d2f6dCC", "#0a2556CC", "#6dabff5E", "#1f7dffA1")
@@ -54,13 +53,6 @@ scatPlot = function(x, y, xlab="x", ylab="y", col = "blues", x.breaks = 15, y.br
   barplot(yhist$counts, axes=FALSE, xlim=c(0, top), space=0, horiz=TRUE, border = ColorScheme[3], col = ColorScheme[4])
   par(oma=c(4,4,0,0))
 }
-
-
-
-
-
-
-
 
 #' Visualize your data with a scatterplot matrix
 #'

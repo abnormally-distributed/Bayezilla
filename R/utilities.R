@@ -171,3 +171,37 @@ scale = function (data, scale.type = 1)
 #' @examples
 #' prec(x)
 prec <- function(x) { 1 / var(x)}
+
+#' Compute the posterior model weights from a vector of Information Criteria 
+#' 
+#' Supply a vector containing AIC, AICc, WAIC, LOO-IC, BIC, DIC, etc. 
+#'
+#' First a delta score is calculated, which is the difference between each model's
+#' score and the minimum model score of the vector. The best model has a delta of zero.
+#' 
+#' The model weights are calculated from the delta scores as in the equation below:
+#'
+#' \deqn{w_{m}=\frac{\exp \left(-\frac{1}{2} \Delta_{m}\right)}{\sum_{j=1}^{M} \exp \left(-\frac{1}{2} \Delta_{j}\right)}}:
+#' 
+#' See: 
+#' Wagenmakers, EJ. & Farrell, S. AIC model selection using Akaike weights
+#' Psychonomic Bulletin & Review (2004) 11: 192. https://doi.org/10.3758/BF03206482
+#' 
+#' Burnham, Kenneth P., Anderson, David R. (2002) Model Selection and Multimodel Inference: A Practical Information-Theoretic Approach
+#' 2nd Ed. Springer. https://doi.org/10.1007/b97636
+#'
+#' @param ICs 
+#'
+#' @return
+#' a data frame of delta scores and model weights
+#' @export
+#'
+#' @examples
+#' ICs(c(-923.13, -232.45, -896.12))
+modelWeights = function (ICs) 
+{
+  delta = ICs - min(ICs)
+  probs = round(exp(-0.5 * delta), 4) / sum(round(exp(-0.5 * delta), 4))
+  names = paste0("model", 1:length(probs))
+  cbind.data.frame("model" = names, "delta" = delta, "prob[best.model]" = probs)
+}

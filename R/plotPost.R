@@ -38,7 +38,12 @@ plotPost <- function(paramSampleVec, fit = NULL, param = NULL, xlab = NULL, col 
     param.label <- noquote(param)
   }
   else {
+    if (is.null(param)){
     param.label <- expression(theta)
+    }
+    else if (!is.null(param)){
+      param.label <- noquote(param)
+    }
   }
 
   if (is.null(xlab) != TRUE){

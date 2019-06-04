@@ -37,7 +37,7 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
   X = as.matrix(model.matrix(formula, data)[,-1])
   y = model.frame(formula, data)[,1]
 
-  RNGlist = c("base::Wichmann-Hill", "base::Marsaglia-Multicarry", "base::Super-Duper", "base::Mersenne-Twister")
+  RNGlist = c("lecuyer::RngStream", "base::Wichmann-Hill", "base::Marsaglia-Multicarry", "base::Super-Duper", "base::Mersenne-Twister")
   if (chains > 4){
     chains = 4
   }
@@ -85,7 +85,7 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
               omega ~ dgamma(.5, .5)
 
               for (p in 1:P){
-                beta[p] ~ dnorm(0, , omega)
+                beta[p] ~ dnorm(0, omega)
               }
 
               Intercept ~ dnorm(0, .01)

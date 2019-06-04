@@ -41,7 +41,7 @@
 #'
 #' \if{html}{\figure{pWAIC.png}{the WAIC penalty term.}}
 #' 
-#' \if{latex}{\figure{pWAIC..png}{the WAIC penalty term.}}
+#' \if{latex}{\figure{pWAIC.png}{the WAIC penalty term.}}
 #'
 #' Finally, the pWAIC term is subtracted from the lppd to obtain the WAIC, which is an estimator
 #' of the expected log predictive density on the deviance scale (- 2  * LL).
@@ -60,10 +60,9 @@
 #' pWAIC can be extracted by taking the difference of the lppd and LOO-IC.
 #' The steps of calculating the LOO-IC are shown below.
 #' 
-#' \item{
 #'     \if{html}{\figure{looic.png}{the steps in obtaining the LOO-IC.}}
 #'     \if{latex}{\figure{looic.png}{the steps in obtaining the LOO-IC.}}
-#' }
+#' 
 #' The conceptual difference between the marginal likelihood and the log pointwise predictive density is that
 #' the marginal likelihood integrates over the prior distribution of the parameters in the model, p(theta, M),
 #' while the log pointwise predictive density integrates over the posterior distribution of the parameters given

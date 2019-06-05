@@ -22,21 +22,17 @@ corMat = function(x, iter=10000, warmup=2500, adapt=2500, chains=4, thin=3,
                    method = "parallel", cl = makeCluster(2), ...){
   
   if (!is.matrix(x)){
-    y = as.matrix(x)
+    x = as.matrix(x)
   } 
-  
+  y = as.matrix(scale(x))
   jags_cor_matrix = "
 model {
   for ( i in 1:N ) {
-    y[i,1:P] ~ dmnorm(mu[1:P] , Tau[1:P,1:P]) 
+    y[i,1:P] ~ dmnorm(means[1:P] , Tau[1:P,1:P]) 
   }
-  
-  for ( varIdx in 1:P ) {
-    mu[varIdx] ~ dnorm( 0 , 1/2^2 ) 
-  }
-  
+
   # Estimate Precision Matrix
-  Tau ~ dwish(priorScale[1:P, 1:P], df)
+  Tau ~ dscaled.wishart(priorScale[1:P], 3)
   
   # Convert Precision Matrix to sd and correlation:
   Sigma <- inverse( Tau )
@@ -59,9 +55,10 @@ jagsdata = list(
   "y"  =  as.matrix(y),
   "N"  =  nrow(y),
   "P"  =  ncol(y),
-  "df" =  ncol(y) + log(ncol(y)),
+  # "df" =  ncol(y) + log(ncol(y)),
+  "means" = colMeans(y),
   # For wishart (dwish) prior on inverse covariance matrix:
-  priorScale = diag(diag(pseudoinverse(as.matrix(cov(y)))))
+  priorScale = diag(cov2cor(solve(pseudoinverse(as.matrix(cov(y))))))
 )
 
 monitor = c("Rho")

@@ -5,7 +5,7 @@
 #' enabled greater control over the priors, and also set the default priors to more sensible options. I have also added the ability for the model
 #' to execute automatically, much like what one would experience with the rstanarm package. I have also added automatic generation of the full
 #' log-likelihood function for use with this package's IC() function (or the loo package from the stan team) as well as automatic generation of
-#' the full posterior predictive distribution. Furthermore, the model deviance is automatically calculated without need for the dic module. This is 
+#' the full posterior predictive distribution. Furthermore, the model Deviance is automatically calculated without need for the dic module. This is 
 #' a very useful addition because the dic module will not function when using parallel cores or clusters for sampling in JAGS 4.3.0.
 #' 
 #' PLEASE NOTE: This function only supports random intercept models. This does not support random slopes. To use a random slopes model
@@ -606,7 +606,7 @@ bayesLme <- function (formula,
   }
   factories <- ""
   monitor <- c(varnames[!varnames %in% c("non_zero_group", 
-                                         "zero_inflation_Intercept")], if (zifamily) c("non_zero_propotion", "deviance", "ySim", "log_lik") else c("sigma", "deviance", "ySim", "log_lik"))
+                                         "zero_inflation_Intercept")], if (zifamily) c("non_zero_propotion", "Deviance", "ySim", "log_lik") else c("sigma", "Deviance", "ySim", "log_lik"))
   
   monitor = monitor[-which(monitor == "tau")]
   if (family == "student_t"){
@@ -628,7 +628,7 @@ bayesLme <- function (formula,
   }
   model <- paste("\n\nmodel{\n\n\nfor(i in 1:N){\n\n", 
                  respline, "}\n\n# These lines give the prior distributions for the parameters to be estimated:\n", 
-                 priorline, "\nsigma <- sqrt(1/tau)\n", "\ndeviance <- -2 * sum(log_lik[1:N])\n",
+                 priorline, "\nsigma <- sqrt(1/tau)\n", "\nDeviance <- -2 * sum(log_lik[1:N])\n",
                  magicline, "\n}\n\n# These lines are hooks to be read by runjags (they are ignored by JAGS):", 
                  sep = "")
   rjo <- list(model = model, data = data, end.state = end.state, 
@@ -645,10 +645,9 @@ bayesLme <- function (formula,
              file, "\", data=data) - where \"data\" is the same data frame specified to the bayesLme function\n", 
              sep = "")
     invisible(file)
-    
   }
   else if (autorun == TRUE){
-    run.jags(file , burnin = warmup, sample = iter, n.chains = n.chains, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE)
+    run.jags(file , burnin = warmup, sample = iter, modules = "glm", n.chains = n.chains, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE)
   }
   
 }

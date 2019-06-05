@@ -258,12 +258,12 @@ tTest = function(formula = NULL, data, like.func = "normal", compval = 0, model 
         
         "model {
 
-  nu ~ dgamma(2, .01) 
+  nu ~ dgamma(2, .01) T(3, )
 
   for (g in 1:2){
-    tau[g] ~ dscaled.gamma(ysd, 3)
-    mu[g]  ~ dt(ymean, .5 * yprec, 1)
-    sigma[g] <- sqrt(1 / tau[g])
+    tau[g] ~ dgamma(nu / 2, nu / 2)
+    mu[g]  ~ dnorm(ymean, .5 * yprec)
+    sigma[g] <- sqrt((1 / tau[g])   * (nu-2 / nu))
   }    
     
   for (i in 1:N){
@@ -276,8 +276,8 @@ tTest = function(formula = NULL, data, like.func = "normal", compval = 0, model 
   effSize <- (muDiff) / sqrt( ( (pow(sigma[1],2)*(N1-1)) + (pow(sigma[2],2)*(N2-1)) ) / (N1+N2-2) )
   U3 <- phi(effSize)
   CL <- phi(effSize / sqrt(2))
-  prior_effSize <- logdensity.t(0, 0, 1, 1)
-  posterior_effSize <- logdensity.t(0, effSize, 1, 1)
+  prior_effSize <- logdensity.norm(0, 0, 1)
+  posterior_effSize <- logdensity.norm(0, effSize, 1)
   logBF <- prior_effSize - posterior_effSize
 }
 "

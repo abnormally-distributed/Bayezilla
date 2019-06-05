@@ -73,7 +73,7 @@ This is an extremely heavily modified variant of the template.jags function in t
 enabled greater control over the priors, and also set the default priors to more sensible options. I have also added the ability for the model
 to execute automatically, much like what one would experience with the rstanarm package. I have also added automatic generation of the full
 log-likelihood function for use with this package's IC() function (or the loo package from the stan team) as well as automatic generation of
-the full posterior predictive distribution. Furthermore, the model deviance is automatically calculated without need for the dic module. This is 
+the full posterior predictive distribution. Furthermore, the model Deviance is automatically calculated without need for the dic module. This is 
 a very useful addition because the dic module will not function when using parallel cores or clusters for sampling in JAGS 4.3.0.
 
 PLEASE NOTE: This function only supports random intercept models. This does not support random slopes. To use a random slopes model

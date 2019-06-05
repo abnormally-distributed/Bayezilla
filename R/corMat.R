@@ -59,7 +59,7 @@ jagsdata = list(
   "y"  =  as.matrix(y),
   "N"  =  nrow(y),
   "P"  =  ncol(y),
-  "df" =  ncol(y)^2  /  4,
+  "df" =  ncol(y) + log(ncol(y)),
   # For wishart (dwish) prior on inverse covariance matrix:
   priorScale = diag(diag(pseudoinverse(as.matrix(cov(y)))))
 )

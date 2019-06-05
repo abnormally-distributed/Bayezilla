@@ -2,7 +2,7 @@
 #'
 #' This model utilizes normal-gamma mixture priors. A student-t prior can be parameterized as a norma-gamma mixture 
 #' by utilizing a gamma(nu/2, nu/2) distribution where nu is the desired degrees of freedom. This model utilizes
-#' a single degree of freedom. One degree of freedom yields gamma(.5, .5), which is the cauchy distribution. Hence, 
+#' a single degree of freedom. One degree of freedom yields gamma(.5, .5), which gives marginal cauchy distributions. Hence, 
 #' this model results in  marginal independent cauchy priors on each coefficient. The cauchy distribution has no defined 
 #' first or second moments (mean and variance) and hence is an ideal proper reference prior. The cauchy distribution's 
 #' extremely long tails allow coefficients with strong evidence of being large to not be shrunk too strongly, while the 

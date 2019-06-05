@@ -118,6 +118,7 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
     
     jags_glm = "model {
         # Priors
+      
         Intercept[1] <- 0
         for ( j in 1:P ) { beta[1,j] <- 0 }
         for ( r in 2:Nout ) { # notice starts at 2

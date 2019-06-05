@@ -134,9 +134,9 @@ tTest = function(formula = NULL, data, like.func = "normal", compval = 0, model 
        ySim[i] ~ dt(mu[group[i]], tau[group[i]], nu)
   }
 
-  mu_diff <- mu[1] - mu[2]
-  sigma_diff <- sigma[1] - sigma[2]
-  effSize <- (mu_diff) / sqrt( ( (pow(sigma[1],2)*(N1-1)) + (pow(sigma[2],2)*(N2-1)) ) / (N1+N2-2) )
+  muDiff <- mu[1] - mu[2]
+  sigmaDiff <- sigma[1] - sigma[2]
+  effSize <- (muDiff) / sqrt( ( (pow(sigma[1],2)*(N1-1)) + (pow(sigma[2],2)*(N2-1)) ) / (N1+N2-2) )
   U3 <- phi(effSize)
   CL <- phi(effSize / sqrt(2))
   prior_effSize <- logdensity.t(0, 0, 1, 1)
@@ -151,7 +151,7 @@ tTest = function(formula = NULL, data, like.func = "normal", compval = 0, model 
     N2 = as.vector(table(group))[2]
     write_lines(two_sample_t, "two_sample_t.txt")
     jagsdata = list("N" = N, "N1" = N1, "N2" = N2, "group" = group, "y" = y, "yprec" = prec(y), "ysd" = sd(y), "ymean" = mean(y))
-    monitor = c("mu_diff", "sigma_diff", "mu", "sigma", "nu", "effSize", "U3", "CL", "logBF", "ySim")
+    monitor = c("muDiff", "sigmaDiff", "mu", "sigma", "nu", "effSize", "U3", "CL", "logBF", "ySim")
     inits = lapply(1:chains, function(z) list("mu" = c(mean(y), mean(y)), "ySim"  = y, "tau" = c(1/var(y),1/var(y)), "nu" = 3,
                                               .RNG.name=RNGlist[z], .RNG.seed= sample(1:1000, 1)))
     out = run.jags(model = "two_sample_t.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
@@ -271,9 +271,9 @@ if (like.func == "normal"){
       ySim[i] ~ dnorm(mu[group[i]], tau[group[i]])
   }
 
-  mu_diff <- mu[1] - mu[2]
-  sigma_diff <- sigma[1] - sigma[2]
-  effSize <- (mu_diff) / sqrt( ( (pow(sigma[1],2)*(N1-1)) + (pow(sigma[2],2)*(N2-1)) ) / (N1+N2-2) )
+  muDiff <- mu[1] - mu[2]
+  sigmaDiff <- sigma[1] - sigma[2]
+  effSize <- (muDiff) / sqrt( ( (pow(sigma[1],2)*(N1-1)) + (pow(sigma[2],2)*(N2-1)) ) / (N1+N2-2) )
   U3 <- phi(effSize)
   CL <- phi(effSize / sqrt(2))
   prior_effSize <- logdensity.norm(0, 0, 1)
@@ -288,7 +288,7 @@ if (like.func == "normal"){
   N2 = as.vector(table(group))[2]
   write_lines(two_sample_t, "two_sample_t.txt")
   jagsdata = list("N" = N, "N1" = N1, "N2" = N2, "group" = group, "y" = y, "yprec" = prec(y), "ymean" = mean(y), sh = square(prec(y)) / 1000, ra = prec(y) / 1000)
-  monitor = c("mu_diff", "sigma_diff", "mu", "sigma",  "effSize", "U3", "CL", "logBF", "ySim")
+  monitor = c("muDiff", "sigmaDiff", "mu", "sigma",  "effSize", "U3", "CL", "logBF", "ySim")
   inits = lapply(1:chains, function(z) list("mu" = c(mean(y), mean(y)), "ySim"  = y, "tau" = c(1/var(y),1/var(y)),
                                             .RNG.name=RNGlist[z], .RNG.seed= sample(1:1000, 1)))
   out = run.jags(model = "two_sample_t.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)

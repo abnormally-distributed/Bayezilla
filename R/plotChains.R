@@ -17,6 +17,8 @@
 #' @param pars the names of the parameters to be plotted.
 #' @param col the color scheme. One of "blue" (the default), "darkblue", "purples", "reds",
 #' "greens", "mix" , or "mix2"
+#' @param ncol number of columns in the layout
+#' @param nrow number of rows in the layout
 #'
 #' @return
 #' a base R plot
@@ -24,7 +26,7 @@
 #'
 #' @examples
 #' plotChains()
-plotChains = function(fit, pars = NULL, droppars = c("ySim", "log_lik"), col = "blues") {
+plotChains = function(fit, pars = NULL, droppars = c("ySim", "log_lik"), col = "blues", nrow = 4, ncol = 2) {
 
   list.mcmc <- as.mcmc.list(fit)
   codaObject <- lapply(list.mcmc, function(d) {as.mcmc(extractPost(d, pars = pars, droppars = droppars))})
@@ -70,7 +72,8 @@ plotChains = function(fit, pars = NULL, droppars = c("ySim", "log_lik"), col = "
   on.exit(par(old.par))     #and when we quit the function, restore to original values
   par( mar=0.5+c(3,3,.75, .10) , oma=0.1+c(0,0,1.25,.20) , mgp=c(2, 0.125, 0) ,
        cex.lab=1, cex.main = 1.35, family = 'serif')
-  layout(matrix(1:4,nrow=2))
+  total = nrow*ncol
+  layout(matrix(1:total, nrow=nrow))
   require(coda)
   for (i in 1:length(parNames)){
     coda::traceplot(codaObject[, parNames[i]], xaxt = "n", yaxt = "n", lwd = .125, lty = 1, bty="n", cex.lab = 1.1, cex.axis = .65, type = "l",  main= noquote(parNames[i]), ylab="Value" , col=ColorScheme)

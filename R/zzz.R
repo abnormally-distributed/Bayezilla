@@ -1,4 +1,7 @@
 .onLoad <- function(libname, pkgname){
-  invisible(require(runjags))
-  invisible(runjags::runjags.options(list(modules = "dic off", inits.warning=FALSE , rng.warning=FALSE, summary.warning = FALSE, blockignore.warning = FALSE)))
+  .runjags.options <<- list(modules = "dic off", inits.warning=FALSE , rng.warning=FALSE, summary.warning = FALSE, blockcombine.warning = FALSE, blockignore.warning = FALSE)
+}
+
+.onAttach<- function(libname, pkgname){
+  .runjags.options <<- list(modules = "dic off", inits.warning=FALSE , rng.warning=FALSE, summary.warning = FALSE, blockcombine.warning = FALSE, blockignore.warning = FALSE)
 }

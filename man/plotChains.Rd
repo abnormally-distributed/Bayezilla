@@ -5,7 +5,7 @@
 \title{MCMC Diagnostic Plots}
 \usage{
 plotChains(fit, pars = NULL, droppars = c("ySim", "log_lik"),
-  col = "blues")
+  col = "blues", nrow = 4, ncol = 2)
 }
 \arguments{
 \item{fit}{the stanfit or runjags object}
@@ -14,6 +14,10 @@ plotChains(fit, pars = NULL, droppars = c("ySim", "log_lik"),
 
 \item{col}{the color scheme. One of "blue" (the default), "darkblue", "purples", "reds",
 "greens", "mix" , or "mix2"}
+
+\item{nrow}{number of rows in the layout}
+
+\item{ncol}{number of columns in the layout}
 }
 \value{
 a base R plot

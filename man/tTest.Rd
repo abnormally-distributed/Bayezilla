@@ -7,7 +7,7 @@
 tTest(formula = NULL, data, like.func = "normal", compval = 0,
   model = "is", iter = 10000, warmup = 2500, adapt = 2500,
   chains = 4, thin = 3, method = "parallel", cl = makeCluster(2),
-  summarise = FALSE, ...)
+  ...)
 }
 \arguments{
 \item{formula}{If using an independent samples t-test, supply a formula of the form y ~ group}
@@ -42,33 +42,38 @@ If using repeated measures, the vector of group differences.}
 a runjags object
 }
 \description{
-Two different likelihood functions are offered. For the normal likelihood, a conjugate normal-gamma model:
+Two different likelihood functions are offered. 
 
-   For unit scaled and centered response variables this implies gamma(.001, .001)
+For the normal likelihood, a conjugate normal-gamma model:
+
+
+   tau_i ~ dgamma(square(prec(y)) / 1000, prec(y) / 1000) *
    
-   tau_i ~ dgamma(square(prec(y)) / 1000, prec(y) / 1000)
-   
-   For unit scaled response variables this implies normal(0, .5) or normal(0, sigma = 1.414214)
-   
-   mu_i ~ normal(0, .5 * prec(y)) 
+   mu_i ~ normal(0, .5 * prec(y)) **
    
    y ~ normal(mu_i, tau_i)
+   
+   *For unit scaled and centered response variables this implies gamma(.001, .001)
+   
+   **For unit scaled response variables this implies normal(0, tau = .5) 
+   
        
 For the Student-t likelihood: 
 
+
    nu ~ gamma(2, .01)
    
-   For unit scaled and centered response variables this implies half-t(0, 1, 3) on the standard deviation
+   tau_i ~ scaled.gamma(ysd, 3) *
    
-   tau_i ~ scaled.gamma(ysd, 3)
-   
-   For unit scaled response variables this implies cauchy(0, .5) or equivalently, cauchy(0, sigma = 1.414214)
-   
-   mu_i ~ cauchy(0, .5 * 1/var(y))           
+   mu_i ~ cauchy(0, .5 * 1/var(y)) **
    
    y ~ t(mu_i, tau_i, nu)
-
-
+   
+   
+   *For unit scaled and centered response variables this implies half-t(0, 1, 3) on the standard deviation
+   
+   **For unit scaled response variables this implies cauchy(0, tau = .5) 
+   
 Note the use of a student-t likelihood is wholly unrelated to this being analagous to the frequentist t-test.
 In the t-test, the student-t distribution is the asymptotic sampling distribution of the t-statistic,
 but here it is used to model the heaviness of the tails in the data. The estimation of nu in fact does nothing
@@ -108,7 +113,8 @@ Finally, the output contains posterior predictive simulations for each participa
 that allow you to visualize what future data sets of the same size might look like.   
         
 *The labels Cohen's d and Hedge's g have both been applied to various measures of effect size. See the citation below for a discussion of this.
-        
+       
+         
         Difference between Cohen's d and Hedges' g for effect size metrics, URL (version: 2018-09-28): https://stats.stackexchange.com/q/338043
 
 

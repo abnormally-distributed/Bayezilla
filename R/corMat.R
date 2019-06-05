@@ -1,9 +1,7 @@
-#' Bivariate Correlation Test
+#' Estimate a Correlation Matrix 
 #' 
-#'    
 #' 
-#' @param x a data frame or matrix containing two variables to be correlated, OR a single vector to be paired with y.
-#' @param y if x is a vector, put the second variable to be correlated here.  
+#' @param x a data frame or matrix containing ONLY numeric variables to be correlated 
 #' @param iter the number of iterations. defaults to 10000.
 #' @param warmup number of burnin samples. defaults to 2500.
 #' @param adapt number of adaptation steps. defaults to 2500.
@@ -20,59 +18,59 @@
 #' @examples
 #' corTest(iris$Sepal.Width, iris$Petal.Length)
 #' 
-corTest = function(x, y = NULL, iter=10000, warmup=2500, adapt=2500, chains=4, thin=3, 
+corMat = function(x, iter=10000, warmup=2500, adapt=2500, chains=4, thin=3, 
                    method = "parallel", cl = makeCluster(2), ...){
   
-
-if (is.data.frame(x) || is.matrix(x)){
-  y = x
-} else if (!is.null(y)) {
-  y = cbind(x, y)
-}
-
-jags_cor_test = "
+  if (!is.matrix(x)){
+    y = as.matrix(x)
+  } 
+  
+  jags_cor_matrix = "
 model {
   for ( i in 1:N ) {
-    y[i,1:2] ~ dmnorm(mu[1:2] , Tau[1:2,1:2]) 
+    y[i,1:P] ~ dmnorm(mu[1:P] , Tau[1:P,1:P]) 
   }
-  for ( varIdx in 1:2 ) {
+  
+  for ( varIdx in 1:P ) {
     mu[varIdx] ~ dnorm( 0 , 1/2^2 ) 
   }
   
   # Estimate Precision Matrix
-  Tau ~ dwish(priorScale[1:2, 1:2], 3)
+  Tau ~ dwish(priorScale[1:P, 1:P], df)
   
-  # Convert invCovMat to sd and correlation:
+  # Convert Precision Matrix to sd and correlation:
   Sigma <- inverse( Tau )
   
-  for ( varIdx in 1:2 ) { 
+  for ( varIdx in 1:P ) { 
     sqrtSigma[varIdx] <- sqrt(Sigma[varIdx,varIdx]) 
-    }
-  for ( varIdx1 in 1:2 ) { 
-    for ( varIdx2 in 1:2 ) {
+  }
+    
+  for ( varIdx1 in 1:P ) { 
+    for ( varIdx2 in 1:P ) {
     Rho[varIdx1,varIdx2] <- ( Sigma[varIdx1,varIdx2] 
                                / (sqrtSigma[varIdx1]*sqrtSigma[varIdx2]) )
     }
   }
-  rho <- Rho[2,1]
 }
 " 
-write_lines(jags_cor_test, "jags_cor_test.txt")
+write_lines(jags_cor_matrix, "jags_cor_matrix.txt")
 
 jagsdata = list(
-  "y" = as.matrix(scale(y)) ,
-  "N"=  nrow(y) ,
+  "y"  =  as.matrix(y),
+  "N"  =  nrow(y),
+  "P"  =  ncol(y),
+  "df" =  ncol(y)^2  /  4,
   # For wishart (dwish) prior on inverse covariance matrix:
-  priorScale = diag(x=1,nrow=ncol(y))  # Rmat = diag(apply(y,2,var))
+  priorScale = diag(diag(pseudoinverse(as.matrix(cov(y)))))
 )
 
-monitor = c("rho")
-inits = lapply(1:chains, function(z) list(.RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:100000, 1)))
-out = run.jags(model = "jags_cor_test.txt", modules = "glm", monitor = monitor, data = jagsdata, n.chains = chains,
+monitor = c("Rho")
+inits = lapply(1:chains, function(z) list(.RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
+out = run.jags(model = "jags_cor_matrix.txt", modules = "glm", monitor = monitor, data = jagsdata, n.chains = chains,
                burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
 if (!is.null(cl)){
   parallel::stopCluster(cl = cl)
 }
-file.remove("jags_cor_test.txt")
+file.remove("jags_cor_matrix.txt")
 return(out)
 }

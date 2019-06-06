@@ -1,5 +1,17 @@
 #' Estimate a Correlation Matrix 
 #' 
+#' @description 
+#' Model correlation matrices via the following model structure:
+#' 
+#' Tau ~ scaled wishart(s, 3) # Precision Matrix
+#' 
+#' Sigma <- inverse(Tau) # Covariance Matrix
+#' 
+#' sqrtSigma_1..i <- sqrt(Sigma[1..i, 1..i]) # Square Root of Diagonal
+#' 
+#' y ~ multivariate normal(emprical.means , Tau) # Likelihood Function
+#' 
+#' Rho_[i,i] <- Sigma[i,j] / sqrtSigma[i]*sqrtSigma[j] # Standardize the Covariance Matrix
 #' 
 #' @param x a data frame or matrix containing ONLY numeric variables to be correlated 
 #' @param iter the number of iterations. defaults to 10000.
@@ -16,7 +28,7 @@
 #' @export
 #'
 #' @examples
-#' corTest(iris$Sepal.Width, iris$Petal.Length)
+#' corTest(iris[,1:4])
 #' 
 corMat = function(x, iter=10000, warmup=2500, adapt=2500, chains=4, thin=3, 
                    method = "parallel", cl = makeCluster(2), ...){

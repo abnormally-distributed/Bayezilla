@@ -30,9 +30,19 @@ corMat(x, iter = 10000, warmup = 2500, adapt = 2500, chains = 4,
 a runjags object
 }
 \description{
-Estimate a Correlation Matrix
+Model correlation matrices via the following model structure:
+
+Tau ~ scaled wishart(s, 3) # Precision Matrix
+
+Sigma <- inverse(Tau) # Covariance Matrix
+
+sqrtSigma_1..i <- sqrt(Sigma[1..i, 1..i]) # Square Root of Diagonal
+
+y ~ multivariate normal(emprical.means , Tau) # Likelihood Function
+
+Rho_[i,i] <- Sigma[i,j] / sqrtSigma[i]*sqrtSigma[j] # Standardize the Covariance Matrix
 }
 \examples{
-corTest(iris$Sepal.Width, iris$Petal.Length)
+corTest(iris[,1:4])
 
 }

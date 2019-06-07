@@ -30,7 +30,7 @@ post_summary = function (x, digits = 3, estimate.method = "both", ess = TRUE, cr
       ss <- as.matrix(ss)
     }
     else {
-      as.matrix(x)
+      ss <- as.matrix(x)
       ss <- ss[, !colnames(ss) %in% droppars, drop = FALSE]
     }
 
@@ -105,9 +105,8 @@ post_summary = function (x, digits = 3, estimate.method = "both", ess = TRUE, cr
 #' sign_probs()
 sign_probs = function(model, labs = NULL){
   x = as.matrix(combine.mcmc(model,collapse.chains = TRUE))
-  x = x[,grep(colnames(x), pattern =  "beta")]
+  x = x[, grep(colnames(x), pattern =  "beta")]
   x = sign(x)
-
 
   neg = x
   neg[which(sign(neg) == 1)] <- 0

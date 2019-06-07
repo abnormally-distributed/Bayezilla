@@ -205,3 +205,35 @@ modelWeights = function (ICs)
   names = paste0("model", 1:length(probs))
   cbind.data.frame("model" = names, "delta" = delta, "prob[best.model]" = probs)
 }
+
+
+#' Parameterize a Gamma Distribution by Mean and SD
+#'
+#' @param mean mean
+#' @param sd standard deviation
+#' @param plot defaults to TRUE
+#'
+#' @return
+#' a plot and/or parameters
+#' @export
+#'
+#' @examples
+#' gammaPars(3, 3)
+gammaPars = function (mean, sd, plot = TRUE) 
+{
+  ra = (mean)/(sd^2)
+  sh = (mean^2)/(sd^2)
+  params = c(sh, ra)
+  names(params) = c("shape", "rate")
+  if (plot == TRUE) {
+    rGamma = function(n, shape = 1, rate = 1){
+      return(qgamma(seq(1/n, 1 - 1/n, length.out = n), shape, rate))
+    }
+    
+    hist(rGamma(20000, sh, ra), col = "#20ed80", bty = "n", border = "#07562c", axes = FALSE,
+         family = "serif", main = paste0("Gamma( Shape = ", sh, ",  Rate = ", ra, " )"), 
+         xlab = NULL, ylab = NULL, breaks = 50)
+    axis(1, col = NA, tck = 0, family = "serif")
+  }
+  return(params)
+}

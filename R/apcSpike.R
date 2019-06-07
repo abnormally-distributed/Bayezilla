@@ -1,4 +1,4 @@
-#' Adaptive Powered Correlation Prior for Gaussian likelihoods
+#' Spike-Slab Adaptive Powered Correlation Prior for Gaussian likelihoods
 #'
 #' @param formula the model formula
 #' @param data a data frame
@@ -23,13 +23,13 @@
 #'
 #' @examples
 #' apcLm()
-apcLm = function(formula, data, lambda = -1, log_lik = FALSE, iter=10000, warmup=1000, adapt=5000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...)
+apcSpike = function(formula, data, family = "gaussian", lambda = -1, log_lik = FALSE, iter=10000, warmup=1000, adapt=5000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...)
 {
   data <- as.data.frame(data)
   y <- as.numeric(model.frame(formula, data)[, 1])
   X <- model.matrix(formula, data)[, -1]
   ## Overkill to ensure that the correlation matrix is positive definite.
-  cormat = cov2cor(pseudoinverse(pseudoinverse(cov(X))))
+  cormat = cov2cor(pseudoinverse(pseudoinverse(cor(X, method = "spearman"))))
   L = eigen(cormat)$vectors
   D = eigen(cormat)$values
   Trace = function(mat){sum(diag(mat))}
@@ -50,7 +50,8 @@ apcLm = function(formula, data, lambda = -1, log_lik = FALSE, iter=10000, warmup
   if (family == "gaussian"){
     
     jags_apc = "model{
-    
+              
+              phi ~ dbeta(1, 2)
               tau ~ dscaled.gamma(1, 3)
               g_inv ~ dgamma(.5, N * .5)
               g <- 1 / g_inv
@@ -61,8 +62,13 @@ apcLm = function(formula, data, lambda = -1, log_lik = FALSE, iter=10000, warmup
                   cov[j,k] = g * pow(sigma, 2) * prior_cov[j,k]
                 }
               }
+              
               omega <- inverse(cov) 
-              beta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
+              theta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
+              for (i in 1:P){
+                delta[i] ~ dbern(phi)
+                beta[i] <- delta[i] * theta[i]
+              }
               Intercept ~ dnorm(0, .01)
               for (i in 1:N){
                  y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
@@ -75,17 +81,18 @@ apcLm = function(formula, data, lambda = -1, log_lik = FALSE, iter=10000, warmup
     P = ncol(X)
     write_lines(jags_apc, "jags_apc.txt")
     jagsdata = list(X = X, y = y,  N = length(y), P = ncol(X), prior_cov = prior_cov)
-    monitor = c("Intercept", "beta", "sigma", "g", "Deviance", "ySim" ,"log_lik")
+    monitor = c("Intercept", "beta", "sigma", "g", "Deviance", "phi", "delta", "ySim" ,"log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" =0, "beta" = jitter(rep(0, P), amount = 1), "tau" = 1, "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1)))
+    inits = lapply(1:chains, function(z) list("Intercept" =0, "phi" = .2 , "delta" = rep(0, P), "theta" = jitter(rep(0, P), amount = 1), "tau" = 1, "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1)))
   }
   
   if (family == "binomial" || family == "logistic"){
     
     jags_apc = "model{
-
+    
+              phi ~ dbeta(1, 2)
               g_inv ~ dgamma(.5, N * .5)
               g <- 1 / g_inv
               
@@ -95,9 +102,13 @@ apcLm = function(formula, data, lambda = -1, log_lik = FALSE, iter=10000, warmup
                 }
               }
               
+           
               omega <- inverse(cov) 
-              beta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
-              Intercept ~ dnorm(0, 0.01)
+              theta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
+              for (i in 1:P){
+                delta[i] ~ dbern(phi)
+                beta[i] <- delta[i] * theta[i]
+              }
               for (i in 1:N){
                  logit(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P])
                  y[i] ~ dbern(psi[i])
@@ -110,16 +121,18 @@ apcLm = function(formula, data, lambda = -1, log_lik = FALSE, iter=10000, warmup
     P = ncol(X)
     write_lines(jags_apc, "jags_apc.txt")
     jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), prior_cov = prior_cov)
-    monitor = c("Intercept", "beta", "g", "Deviance", "ySim", "log_lik")
+    monitor = c("Intercept", "beta", "g", "Deviance", "phi", "delta","ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = jitter(rep(0, P), amount = 1), "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
+    inits = lapply(1:chains, function(z) list("Intercept" = 0, "phi" = .2 , "delta" = rep(0, P), "theta" = jitter(rep(0, P), amount = 1), "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
   }
   
   if (family == "poisson"){
     
     jags_apc = "model{
+    
+              phi ~ dbeta(1, 2)
 
               g_inv ~ dgamma(.5, N * .5)
               g <- 1 / g_inv
@@ -129,9 +142,13 @@ apcLm = function(formula, data, lambda = -1, log_lik = FALSE, iter=10000, warmup
                   cov[j,k] = g * 1.0 * prior_cov[j,k]
                 }
               }
+              
               omega <- inverse(cov) 
-              Intercept ~ dnorm(0, 0.01)
-              beta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
+              theta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
+              for (i in 1:P){
+                delta[i] ~ dbern(phi)
+                beta[i] <- delta[i] * theta[i]
+              }
               for (i in 1:N){
                  log(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P])
                  y[i] ~ dpois(psi[i])
@@ -144,11 +161,11 @@ apcLm = function(formula, data, lambda = -1, log_lik = FALSE, iter=10000, warmup
     write_lines(jags_apc, "jags_apc.txt")
     P = ncol(X)
     jagsdata = list(X = X, y = y, N = length(y),  P = ncol(X), prior_cov = prior_cov)
-    monitor = c("Intercept", "beta", "g", "Deviance", "ySim", "log_lik")
+    monitor = c("Intercept", "beta", "g", "Deviance", "phi", "delta", "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = 0, "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1),"beta" = jitter(rep(0, P), amount = 1)))
+    inits = lapply(1:chains, function(z) list("Intercept" = 0, "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1),"phi" = .2 , "delta" = rep(0, P), "theta" = jitter(rep(0, P), amount = 1)))
   }
   
   out = run.jags(model = "jags_apc.txt", modules = c("glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)

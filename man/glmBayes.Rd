@@ -13,7 +13,7 @@ glmBayes(formula, data, family = "gaussian", log_lik = FALSE,
 
 \item{data}{a data frame}
 
-\item{family}{one of "gaussian", "binomial", "softmax", or "poisson".}
+\item{family}{one of "gaussian", "binomial", or "poisson".}
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 
@@ -32,33 +32,32 @@ glmBayes(formula, data, family = "gaussian", log_lik = FALSE,
 \item{cl}{Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.}
 
 \item{...}{Other arguments to run.jags.}
+
+\item{nu}{the degrees of freedom for the marginal student-t priors on the coefficients}
 }
 \value{
 A run.jags object
 }
 \description{
 This model utilizes normal-gamma mixture priors. A student-t prior can be parameterized as a norma-gamma mixture 
-by utilizing a gamma(nu/2, nu/2) distribution where nu is the desired degrees of freedom. This model utilizes
-a single degree of freedom. One degree of freedom yields gamma(.5, .5), which gives marginal cauchy distributions. Hence, 
+by utilizing a gamma(nu/2, nu/2) distribution where nu is the desired degrees of freedom. By default,
+this model utilizes a single degree of freedom. One degree of freedom yields gamma(.5, .5), which gives marginal cauchy distributions. Hence, 
 this model results in  marginal independent cauchy priors on each coefficient. The cauchy distribution has no defined 
 first or second moments (mean and variance) and hence is an ideal proper reference prior. The cauchy distribution's 
 extremely long tails allow coefficients with strong evidence of being large to not be shrunk too strongly, while the 
-large probability mass at the mode of zero captures small noisy coefficients and regularizes them. 
-This adaptive shrinkage property results in an ideal prior. This process is completely data driven. Standard gaussian,
-binomial, and poisson likelihood functions are available.
+large probability mass at the mode of zero captures small noisy coefficients and regularizes them. However,
+at times the cauchy distribution can be difficult to sample from, so I have enabled the user to select from either 1, 3, 6,
+or 12 degrees of freedom. Larger degrees of freedom result in stronger regularization. Essentially, the degrees
+of freedom controls the prior values of the omega hyperparameter (precision on the coefficient priors). Nevertheless,
+this is only a *prior*. The model will learn from the data, and this adaptive shrinkage property results in an ideal prior
+that, other than subjective choice of selecting the degrees of freedom, is completely data driven. However, one could always
+usem mode comparison to select a degrees of freedom.
 }
 \details{
+Standard gaussian, binomial, and poisson likelihood functions are available.
+
 Note that if you do not scale and center your numeric predictors, this will likely not perform well or
 give reasonable results. The mixing hyperparameter omega assumes all covariates are on the same scale.
-
-One exception to this is the softmax regression. Due to the nature of this model, I fond that using a hyperparameter on the 
-precions of the coefficient priors yielded poor sampling. When trying weakly informative priors I found that nonsensical 
-coefficients often resulted in  trial datasets. For these reasons, moderately informative logistic distribution priors with a 
-precision of 1.5 are placed on the coefficients. Softmax/multinomial regression is tricky in that each of k-1 
-(the first is set to zero as a reference baseline as is custom to ensure model identifiability) outcomes receives a set of coefficients. 
-In other words, for each predictor it has k-1 different coefficients. This is why a moderately informative prior-model structure is 
-neccessary to faciliate sensible results. It is advisable to run longer adaptation, warmup, and iterations.
-I suggest iter = 15000, warmup = 10000, adapt = 5000, thin = 3 and at least 4 chains.
 }
 \examples{
 glmBayes()

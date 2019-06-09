@@ -25,6 +25,12 @@
 #' hyperparameter is given a uniform(0, 100) prior. The advice for the "fixed_u" version applies here as well.
 #'
 #'
+#' @references 
+#' 
+#' Mutshinda, C.M., & Sillanpää, M.J. (2010). Extended Bayesian LASSO for multiple quantitative trait loci mapping and unobserved phenotype prediction. Genetics, 186 3, 1067-75 . \cr
+#' Mutshinda, C. M., and M. J. Sillanpää (2012) A decision rule for quantitative trait locus detection under the extended Bayesian LASSO model. Genetics 192: 1483-1491. \cr
+#' Li, Z.,and Sillanpää, M. J. (2012) Overview of LASSO-related penalized regression methods for quantitative trait mapping and genomic selection. Theoretical and Applied Genetics 125: 419-435.
+#' 
 #' @param formula the model formula
 #' @param data a data frame.
 #' @param family one of "gaussian", "binomial", or "poisson".
@@ -504,7 +510,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "gamma", fixe
     }
   }
 
-  out = run.jags(model = "jags_extended_LASSO.txt", modules = c("glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, n.chains = chains, method = method, cl = cl, summarise = FALSE, ...)
+  out = run.jags(model = "jags_extended_LASSO.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, n.chains = chains, method = method, cl = cl, summarise = FALSE, ...)
   file.remove("jags_extended_LASSO.txt")
   if (is.null(cl) == FALSE){
     parallel::stopCluster(cl = cl)

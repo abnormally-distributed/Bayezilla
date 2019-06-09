@@ -37,9 +37,12 @@ negLASSO(formula, data, family = "gaussian", log_lik = FALSE,
 A run.jags object
 }
 \description{
-Negative-exponential-gamma LASSO
+This implements the normal-exponential-gamma "hyperlasso" of Griffin & Brown (2011).
 }
 \examples{
 negLASSO()
 
+}
+\references{
+Griffin, J. E. and Brown, P. J. (2011), Bayesian Hyper‐LASSOs With Non-Convex Penalization. Australian & New Zealand Journal of Statistics, 53: 423-442. doi:10.1111/j.1467-842X.2011.00641.x
 }

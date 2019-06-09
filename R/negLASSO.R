@@ -1,5 +1,10 @@
 #' Negative-exponential-gamma LASSO
 #'
+#' This implements the normal-exponential-gamma "hyperlasso" of Griffin & Brown (2011).
+#'
+#' @references 
+#' Griffin, J. E. and Brown, P. J. (2011), Bayesian Hyper‐LASSOs With Non-Convex Penalization. Australian & New Zealand Journal of Statistics, 53: 423-442. doi:10.1111/j.1467-842X.2011.00641.x
+#'
 #' @param formula the model formula
 #' @param data a data frame.
 #' @param family one of "gaussian", "binomial", or "poisson".
@@ -127,7 +132,7 @@ negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
     }
     inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = rep(0, P), "omega" = abs(jitter(rep(1, P), amount = 1)), "psi" = abs(jitter(rep(1, P), amount = 1)), "lambda" = 10, .RNG.name= "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1)))
   }
-  out = run.jags(model = "jags_neg_LASSO.txt", modules = c("glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+  out = run.jags(model = "jags_neg_LASSO.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
   file.remove("jags_neg_LASSO.txt")
   return(out)
 }

@@ -1,0 +1,24 @@
+model{
+
+ y ~ dmnorm(mu, inverse(Sigma))
+ ySim ~ dmnorm(mu, inverse(Sigma))
+ 
+ for (i in 1:N) {
+    mu[i] ~ dnorm(0, 1)
+ }
+
+ for (i in 1:(N-1)) {
+    for (j in (i+1):N) {
+        Sigma[i,j] <- sigma2 * exp(- pow(l*d[i,j],2))
+        Sigma[j,i] <- Sigma[i,j]
+    }
+ }
+
+ for (k in 1:N) {
+ Sigma[k,k] <- sigma2 + sigma2_w
+ }
+
+ sigma2_w ~ dunif(0, 100)
+ sigma2 ~ dunif(0, 100)
+ l ~ dunif(0, 100)
+ }

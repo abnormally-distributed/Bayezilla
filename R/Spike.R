@@ -1,4 +1,4 @@
-#' Bernoulli-Normal Mixture Selection for GLMs
+#' Bernoulli-Normal Mixture Selection for Variable Selection
 #'
 #' @description
 #'
@@ -9,33 +9,27 @@
 #' If you do not scale and center your numeric predictors, this will likely not give reasonable results. 
 #' 
 #' 
-#' This is the most basic type of Bayesian variable selection. This models the
-#' regression coefficients as coming from either a null distribution represented
-#' by a probability mass of 100% at zero (the "spike"), or as coming from a Normal( mu=0 , sigma = sqrt(2) ) distribution. 
-#'
-#' Some Suggestions for Priors on phi (the overall inclusion probability):
-#'
-#' beta(0.5, 0.5) Jeffrey's Prior (Truly uninformative)
-#'
-#' beta(1.0, 1.0) Laplace's Uniform Prior
+#' This is the most basic type of Bayesian variable selection. This is inspired by the method presented by Kuo and Mallick (1998), 
+#' with some improvements. This models the regression coefficients as coming from either a null distribution represented
+#' by a probability mass of 100% at zero (the "spike") or from a mildly broad normal(0, 0.50) distribution. The probability that a coefficient 
+#' comes from the null-spike is controlled by a hyperparameter "phi" which estimates the overall probability of inclusion, 
+#' i.e., the proportion of the P-number of predictors that are non-zero. This hyperparameter is given a Jeffrey's prior, 
+#' beta(1/2, 1/2) which is non-informative and objective.
 #' 
-#' beta(1.0, 4.0) Weakly Informative, mean probability = 0.20 [This is the default prior used here]
-#'
-#' beta(2.0, 2.0) Weakly Informative, mean probability = 0.50
-#'
-#' beta(4.0, 1.0) Weakly Informative, mean probability = 0.80
 #' 
-#' beta(2.0, 8.0) Moderately Informative, Regularizing, mean probability = 0.20 
-#' 
-#' beta(4.0, 4.0) Moderately Informative, Regularizing, mean probability = 0.50
+#' Standard gaussian, binomial, and poisson likelihood functions are available. 
+#' \cr 
+#' For an alternative reference prior based variable selection method, see the \code{\link[Bayezilla]{apcSpike}} and \code{\link[Bayezilla]{apcSpikeHS}} 
+#' functions. This package also implements several variants of the Bayesian LASSO.
 #'
-#' beta(8.0, 2.0) Moderately Informative, Regularizing, mean probability = 0.80
+#'
+#' @references  
+#' Kuo, L., & Mallick, B. (1998). Variable Selection for Regression Models. Sankhyā: The Indian Journal of Statistics, Series B, 60(1), 65-81.
 #'
 #'
 #' @param formula the model formula
 #' @param data a data frame
 #' @param family one of "gaussian", "binomial", or "poisson".
-#' @param phi_prior Default is c(1, 4).
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 10000.
 #' @param warmup How many warmup samples? Defaults to 1000.
@@ -51,19 +45,27 @@
 #'
 #' @examples
 #' glmSpike()
-Spike <- function(formula, data, family = "gaussian", phi_prior = c(1, 4), log_lik = FALSE, iter = 10000, warmup = 1000, adapt = 2000, chains = 4, thin = 1, method = "parallel", cl = makeCluster(2), ...) {
+#' 
+#' @seealso 
+#' \code{\link[Bayezilla]{apcSpike}} 
+#' \code{\link[Bayezilla]{apcSpikeHS}}
+#' \code{\link[Bayezilla]{extLASSO}}
+#' \code{\link[Bayezilla]{negLASSO}}
+#' \code{\link[Bayezilla]{bayesEnet}}
+#' 
+Spike <- function(formula, data, family = "gaussian", log_lik = FALSE, iter = 10000, warmup = 1000, adapt = 2000, chains = 4, thin = 1, method = "parallel", cl = makeCluster(2), ...) {
   X <- model.matrix(formula, data)[, -1]
   y <- model.frame(formula, data)[, 1]
 
 
   if (family == "gaussian") {
+    
     jags_glm_spike <- "model{
               tau ~ dgamma(.001, .001)
-              phi ~ dbeta(a, b)
-              omega ~ dgamma(3, 3)
+              phi ~ dbeta(.5, .5) 
               
               for (p in 1:P){
-                theta[p] ~ dnorm(0, omega)
+                theta[p] ~ dnorm(0, .5)
                 delta[p] ~ dbern(phi)
                 beta[p] <- delta[p] * theta[p]
               }
@@ -81,22 +83,22 @@ Spike <- function(formula, data, family = "gaussian", phi_prior = c(1, 4), log_l
 
     P <- ncol(X)
     write_lines(jags_glm_spike, "jags_glm_spike.txt")
-    jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), a = phi_prior[1], b = phi_prior[2])
+    jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X))
     monitor <- c("Intercept", "beta", "sigma", "phi", "Deviance",  "delta", "theta" ,"ySim", "log_lik")
     if (log_lik == FALSE) {
       monitor <- monitor[-(length(monitor))]
     }
     inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name = "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1),   "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = jitter(rep(0, P), amount = .25), "tau" = 1))
-    out <- run.jags(model = "jags_glm_spike.txt", modules = c("glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl,summarise = FALSE, ...)
+    out <- run.jags(model = "jags_glm_spike.txt", modules = c("glm on", "bugs on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl,summarise = FALSE, ...)
     return(out)
   }
-
+  
   if (family == "binomial" || family == "logistic") {
     jags_glm_spike <- "model{
-              phi ~ dbeta(a, b)
-              omega ~ dgamma(3, 3)
+              phi ~ dbeta(.5, .5) 
+              
               for (p in 1:P){
-                theta[p] ~ dnorm(0, omega)
+                theta[p] ~ dnorm(0, .5)
                 delta[p] ~ dbern(phi)
                 beta[p] <- delta[p] * theta[p]
               }
@@ -113,22 +115,22 @@ Spike <- function(formula, data, family = "gaussian", phi_prior = c(1, 4), log_l
     P <- ncol(X)
     write_lines(jags_glm_spike, "jags_glm_spike.txt")
     y <- as.numeric(as.factor(y)) - 1
-    jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), a = phi_prior[1], b = phi_prior[2])
+    jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X))
     monitor <- c("Intercept", "beta", "phi", "Deviance", "delta",  "theta" , "ySim", "log_lik")
     if (log_lik == FALSE) {
       monitor <- monitor[-(length(monitor))]
     }
     inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name = "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1),   "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = jitter(rep(0, P), amount = .25)))
-    out <- run.jags(model = "jags_glm_spike.txt", modules = c("glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)
+    out <- run.jags(model = "jags_glm_spike.txt", modules = c("glm on", "bugs on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)
     return(out)
   }
 
   if (family == "poisson") {
     jags_glm_spike <- "model{
-              phi ~ dbeta(a, b)
-              omega ~ dgamma(3, 3)
+              phi ~ dbeta(.5, .5) 
+              
               for (p in 1:P){
-                theta[p] ~ dnorm(0, omega)
+                theta[p] ~ dnorm(0, .5)
                 delta[p] ~ dbern(phi)
                 beta[p] <- delta[p] * theta[p]
               }
@@ -144,13 +146,13 @@ Spike <- function(formula, data, family = "gaussian", phi_prior = c(1, 4), log_l
 
     write_lines(jags_glm_spike, "jags_glm_spike.txt")
     P <- ncol(X)
-    jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), a = phi_prior[1], b = phi_prior[2])
+    jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X))
     monitor <- c("Intercept", "beta", "phi", "Deviance", "delta",  "theta" , "ySim", "log_lik")
     if (log_lik == FALSE) {
       monitor <- monitor[-(length(monitor))]
     }
     inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name = "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1), "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = jitter(rep(0, P), amount = .25)))
-    out <- run.jags(model = "jags_glm_spike.txt", modules = c("glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+    out <- run.jags(model = "jags_glm_spike.txt", modules = c("glm on", "bugs on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
     file.remove("jags_glm_spike.txt")
     if (!is.null(cl)) {
       parallel::stopCluster(cl = cl)

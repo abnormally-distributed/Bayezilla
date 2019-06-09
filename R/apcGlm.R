@@ -1,10 +1,24 @@
-#' Adaptive Powered Correlation Prior for Gaussian likelihoods
+#' Adaptive Powered Correlation Prior
 #'
+#' This function adapts the adaptive powered correlation prior to the situation of estimating a single general(ized) linear regression
+#' model. Typically, in regression the cross-product XtX is inverted in the process of calculating the coefficients. In addition, 
+#' the Zellner-Siow cauchy g-prior utilizes the inverse crossproduct is used as an empirical Bayesian method of determining the proper scale of the coefficient
+#' priors by treating the inverse crossproduct as a covariance matrix, which is scaled by the parameter "g". 
+#' 
+#' The adaptive powered correlation prior simply extends this to allow using other powers besides -1. The power here will be referred to as "lambda".
+#' Setting lambda to 0 results in a ridge-regression like prior. Setting lambda to a positive value adapts to collinearity by shrinking 
+#' collinear variables towards a common value. Negative values of lambda pushes collinear variables further apart. Of course, setting lambda
+#' to -1 is just the Zellner-Siow cauchy g-prior. This is designed to deal with collinearity in a more adaptive way than even ridge regression
+#' by allowing the analyst to use model comparison techniques to choose an optimal value of lambda, and then using the best model for inference.
+#' Note, however, that this prior is designed to deal with collinearity but not necessarily P > N scenarios. For that you may wish to take a look
+#' at the \code{\link[Bayezilla]{glmBayes}} function, which does not utilize the crossproduct matrix in setting prior scales (rather they are
+#' fully estimated in the model).
+#'
+#' @references Krishna, A., Bondell, H. D., & Ghosh, S. K. (2009). Bayesian variable selection using an adaptive powered correlation prior. Journal of statistical planning and inference, 139(8), 2665–2674. doi:10.1016/j.jspi.2008.12.004
+#' 
 #' @param formula the model formula
 #' @param data a data frame
-#' @param lambda the power to use in the adaptive correlation prior. Default is -1, which gives the Zellner-Siow g prior. Setting
-#' lambda to 0 results in a ridge-regression like prior. Setting lambda to a positive value adapts to collinearity by shrinking 
-#' collinear variables towards a common value. Negative values of lambda pushes collinear variables further apart. I suggest 
+#' @param lambda the power to use in the adaptive correlation prior. Default is -1, which gives the Zellner-Siow g prior. I suggest 
 #' fitting multiple values of lambda and selecting which is best via LOO-IC or WAIC. 
 #' @param family one of "gaussian", "binomial", or "poisson".
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
@@ -22,14 +36,18 @@
 #' @export
 #'
 #' @examples
-#' apcLm()
-apcLm = function(formula, data, lambda = -1, log_lik = FALSE, iter=10000, warmup=1000, adapt=5000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...)
+#' apcGlm()
+#' 
+apcGlm = function(formula, data, family = "gaussian", lambda = -1, log_lik = FALSE, iter=10000, warmup=1000, adapt=5000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...)
 {
   data <- as.data.frame(data)
   y <- as.numeric(model.frame(formula, data)[, 1])
   X <- model.matrix(formula, data)[, -1]
-  ## Overkill to ensure that the correlation matrix is positive definite.
-  cormat = cov2cor(pseudoinverse(pseudoinverse(cov(X))))
+  ## Ensure that the correlation matrix is positive definite.
+  cormat = cor(X)
+  diag(cormat) <- diag(cormat) + 1e-2
+  cormat = cov2cor(solve(pseudoinverse(cov2cor(cormat))))
+  # Eigendecomposition
   L = eigen(cormat)$vectors
   D = eigen(cormat)$values
   Trace = function(mat){sum(diag(mat))}
@@ -42,10 +60,6 @@ apcLm = function(formula, data, lambda = -1, log_lik = FALSE, iter=10000, warmup
   prior_cov = (L %*% diag(Dpower) %*% t(L)) / length(y)
   K = Trace(t) / Trace(prior_cov)
   prior_cov = K * (prior_cov)
-  pd <- isPositiveDefinite(prior_cov)
-  if (pd == FALSE){
-    prior_cov <- solve(pseudoinverse(prior_cov))
-  }
   
   if (family == "gaussian"){
     
@@ -61,6 +75,7 @@ apcLm = function(formula, data, lambda = -1, log_lik = FALSE, iter=10000, warmup
                   cov[j,k] = g * pow(sigma, 2) * prior_cov[j,k]
                 }
               }
+              
               omega <- inverse(cov) 
               beta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
               Intercept ~ dnorm(0, .01)

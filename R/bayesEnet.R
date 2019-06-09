@@ -1,5 +1,9 @@
 #' Bayesian Elastic Net for Gaussian Likelihood
 #'
+#' The Bayesian elastic net described by Li, Lin, and Xi (2010). Note only the Gaussian likelihood is 
+#' provided because the Bayesian elastic net requires conditioning on the error variance, which GLM-families
+#' do not have.
+#'
 #' @param formula the model formula
 #' @param data a data frame.
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
@@ -12,13 +16,15 @@
 #' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.
 #' @param ... Other arguments to run.jags.
 #'
+#' @references Li, Qing; Xi, Ruibin; Lin, Nan. Bayesian regularized quantile regression. Bayesian Anal. 5 (2010), no. 3, 533--556. doi:10.1214/10-BA521. https://projecteuclid.org/euclid.ba/1340380540
+#' 
 #' @return A run.jags object
 #' @export
 #'
 #' @examples
 #' bayesEnet()
 #'
-bayesEnet  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
+bayesEnet  = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
 
   X = model.matrix(formula, data)[,-1]
   y = model.frame(formula, data)[,1]
@@ -33,8 +39,8 @@ bayesEnet  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=
               Intercept ~ dnorm(0, .01)
 
               for (p in 1:P){
-                omega[p] ~ dgamma(.5, (8 * lambda2 * sigma^2) / lambda1^2) T(1,)
-                beta_prec[p] <- (lambda2/sigma^2) * (omega[p]/(omega[p]-1))
+                eta[p] ~ dgamma(.5, (8 * lambda2 * sigma^2) / lambda1^2) T(1,)
+                beta_prec[p] <- (lambda2/sigma^2) * (eta[p]/(eta[p]-1))
                 beta[p] ~ dnorm(0, beta_prec[p])
               }
 
@@ -50,12 +56,13 @@ bayesEnet  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=
     P <- ncol(X)
     write_lines(jags_elastic_net, "jags_elastic_net.txt")
     jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X))
-    monitor <- c("Intercept", "beta", "sigma", "lambda1", "lambda2", "Deviance", "omega", "ySim", "log_lik")
+    monitor <- c("Intercept", "beta", "sigma", "lambda1", "lambda2", "Deviance", "eta", "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "beta" = rep(0, P), "omega" = 1 + abs(jitter(rep(1, P), amount = .25)), "lambda1" = 50, "lambda2" = 15, "tau" = 1))
-  out = run.jags(model = "jags_elastic_net.txt", modules = c("glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+  inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "beta" = rep(0, P), "eta" = 1 + abs(jitter(rep(1, P), amount = .25)), "lambda1" = 50, "lambda2" = 15, "tau" = 1))
+
+  out = run.jags(model = "jags_elastic_net.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
   file.remove("jags_elastic_net.txt")
   if (!is.null(cl)) {
     parallel::stopCluster(cl = cl)

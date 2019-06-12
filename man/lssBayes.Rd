@@ -18,7 +18,7 @@ lssBayes(formula, sigma.formula = ~1, nu.formula = ~1, data,
 
 \item{data}{a data frame}
 
-\item{family}{one of "gaussian", "laplace", or "student_t".}
+\item{family}{one of "gaussian", "laplace"}
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 

@@ -4,10 +4,10 @@
 \alias{extLASSO}
 \title{Extended Bayesian LASSO}
 \usage{
-extLASSO(formula, data, family = "normal", eta_prior = "gamma",
-  fixed_u = NA, log_lik = FALSE, iter = 10000, warmup = 1000,
-  adapt = 2000, chains = 4, thin = 1, method = "parallel",
-  cl = makeCluster(2), ...)
+extLASSO(formula, data, family = "normal", eta_prior = "classic",
+  local_u = 2, top_u = 50, log_lik = FALSE, iter = 10000,
+  warmup = 10000, adapt = 15000, chains = 4, thin = 3,
+  method = "parallel", cl = makeCluster(2), ...)
 }
 \arguments{
 \item{formula}{the model formula}
@@ -16,18 +16,19 @@ extLASSO(formula, data, family = "normal", eta_prior = "gamma",
 
 \item{family}{one of "gaussian", "binomial", or "poisson".}
 
-\item{eta_prior}{one of "gamma" (default), "fixed_u", or "classic".}
+\item{eta_prior}{one of "classic (default)", "fixed_u", or "gamma".}
 
-\item{fixed_u}{if using "fixed_u" or "classic" this must be assigned a value. It is empty by
-default to force you to choose a good value through model comparison.}
+\item{local_u}{if using "fixed_u" or "classic" this must be assigned a value. Default is 2.}
+
+\item{top_u}{if using eta_prior = "classic" this must be assigned a value. Default is 100.}
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 
 \item{iter}{How many post-warmup samples? Defaults to 10000.}
 
-\item{warmup}{How many warmup samples? Defaults to 1000.}
+\item{warmup}{How many warmup samples? Defaults to 10000.}
 
-\item{adapt}{How many adaptation steps? Defaults to 2000.}
+\item{adapt}{How many adaptation steps? Defaults to 15000.}
 
 \item{chains}{How many chains? Defaults to 4.}
 
@@ -45,27 +46,41 @@ A run.jags object
 \description{
 This is the extended Bayesian LASSO presented by
 Crispin M. Mutshinda and Mikko J. Sillanpää (2010) which is an improvement on the Baysian LASSO
-of Park & Casella (2008).
+of Park & Casella (2008). \cr
 
-Three versions of the model are presented. The default is "gamma" which places a gamma(.001, .001) prior
+The first version of the model is the original specification in Mutshinda and Sillanpää (2010), labeled
+"classic" in the options here. This requires you to choose upper limits for the uniform priors on both 
+the top-level shrinkage hyperparameter as well as the local shrinkage parameters. These can be tuned through
+model comparison if neccessary. The default values are 2 and 50. 
+\cr
+The second version is the "fixed_u" prior. This places a gamma(0.125 , 0.125) prior on the
+top level shrinkage hyperparameter. The tail of this distribution fades out at 50 (matching the default upper 
+limit of 50 in the "classic" version). The individaul shrinkage prameters are given independent uniform(0, local_u) 
+priors just as in the classic version. 
+\cr
+The third version is a hierarchical "gamma" variant which places a gamma(0.125 , 0.125) prior
 on the top-level shrinkage hyperparameter and independent gamma(1.007137, 0.7000579) priors on the
-individual shrinkage hyperparameters. This prior has a median of exactly 1, making the prior
-inclusion probability 50%. This leads to a denominator in the Bayes Factor for each coefficient of .50/.50 = 1,
-so that the posterior odds are equivalent to the Bayes Factor. In other words the posterior is fully
-data driven. This prior also can be a little better with convergence and sampling effeciency on certain data sets.
+individual shrinkage hyperparameters. The local shrinkage prior here has a median of exactly 1, just as the default option of uniform(0, 2)
+used in the classic and fixed_u variants here. This puts half equal probability mass on both inclusion and exclusion,
+however, there is greater probability **density** on smaller values which can increase sensitivity to "signals". 
+This variant is intended to provide better sampling efficiency than either of the other two variants, as well as
+increase sensitivty to signals as was just mentioned. 
+\cr
+The author of the extended Bayesian Lasso (Sillanpää, personal communication) confirmed that gamma priors 
+do work well in some settings, which is why I opted to include the "fixed_u" and "gamma" variants.
+\cr
+######## BAYES FACTORS AND INCLUSION PROBABILITIES ######## \cr
 
-The second version is the "fixed_u" prior. While this retain the gamma(.001, .001) prior on the
-top level shrinkage hyperparameter, the individaul shrinkage priors are of uniform(0, u) just as
-in the original extended Bayesian LASSO. This requires you to choose an upper limit to the uniform
-prior. Note that the prior inclusion probability is given by 1/u, so if you want a 50% inclusion
-probability choose u=2. Common in Bayesian variable selection is to use a 20% probability if
-dealing with a high dimensional problem, so for this choose u=5. If you have genuine prior
+Note that the prior inclusion probability is given by 1/local_u, so if you want a 50% inclusion
+probability choose local_u = 2. Common in Bayesian variable selection is to use a 20% probability if
+dealing with a high dimensional problem, so for this choose local_u = 5. If you have genuine prior
 information you can and should use this to guide your choice. If you are unsure, use model comparison
-to select which value of u to choose.
-
-The third version of the model is the original specification in Mutshinda and Sillanpää (2010), labeled
-"classic" in the options here. The only differing feature from the above is that the top level shrinkage
-hyperparameter is given a uniform(0, 100) prior. The advice for the "fixed_u" version applies here as well.
+to select which value of u to choose. Inclusion indicators are given by a step function based on the 
+marginal individual shrinkage parameter, delta = step(1 - eta). Inlcusion probabilities are then given as the number of
+1s that appear in the vector of monte carlo samples out of the total number of iterations. This will appear as
+the mean for each inclusion indicator in the summary. Bayes Factors for each cofficient can then be manually derived as 
+BF_alt = mean(delta) / (1/local_u) if you wish (Mutshinda, & Sillanpää, 2010;2012). 
+For the gamma model the formula is just mean(delta) / 0.50.
 }
 \examples{
 extLASSO()

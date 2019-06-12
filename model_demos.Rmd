@@ -1,0 +1,628 @@
+---
+title: "R Notebook"
+output:
+  html_document: 
+    df_print: kable
+    theme: readable
+---
+
+VARIABLE SELECTION AND REGULARIZATION SHOWDOWN. 
+
+Who is the mightiest regression model of all!? 
+
+The strategy is as follows: For two sample sizes (small = 25, large = 100) three different ratios of predictors will be used (.40 * N, .60 * N, 2 * N).
+
+N = 25, P = 10  
+N = 25, P = 15 
+N = 25, P = 50  
+
+N = 100, P = 40  
+N = 100, P = 60 
+N = 100, P = 200  
+
+The number of true nonzero coefficients will be held constant -- and to the same values -- across data sets. The same random seed will be used for all data generation.
+
+Models will be judged on four sets of criteria. The first two are the mean absolute error and mean squared error of the coefficient estimates relative to the known true coefficients. This is intended to assess the relative capabilities of each model at providing accurate measures of effect size. Posterior medians are used as the point estimates for Bayesian models. 
+
+The third and fourth criteria are the mean absolute error and mean squared error of the fitted/predicted values of the relative to the actual values of the dependent variable. This is intended to assess the relative superiority of each model at fitting to the observations. Presumably this reflects the capabilities of out of sample prediction, however, cross-validation is not explored here.
+
+## Data Set 1: N = 25, P = 10
+
+```{r message=FALSE, warning=FALSE}
+# Simulate data
+library(fBasics)
+library(gdata)
+library(Bayezilla)
+set.seed(101)  # for reproducibility
+N <- 25
+P <- 10
+
+#True betas
+betas = c(.9927551, -1.18113776, 1.01, .924, -.756, 0, 0, 0, 0, 0) 
+Intercept <- 0
+
+#Generate Covariance Matrix
+#Generate data simulation
+Sigma = rcorr(P, df = P, method = "lkj")
+
+set.seed(102)
+# Generate data
+X = MASS::mvrnorm(N, mu = rep(0, P), Sigma = Sigma, empirical = TRUE)
+X = as.matrix(scale(X))
+y = as.vector(X %*% matrix(betas, ncol = 1))
+
+# Add gaussian noise
+X = X + matrix(rnorm((N * P)/4 , 0, .025), N, P)
+X = scale(X)
+colnames(X) = paste0("X", 1:P)
+data = cbind.data.frame(y = y, X)
+```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(Bayezilla)
+library(glmnetUtils)
+ols = lm(y ~ ., data)
+blm = glmBayes(y ~ ., data, iter = 4000)
+blass = blasso(y ~ ., data, iter = 4000)
+ebl = extLASSO(y ~ ., data, iter = 4000)
+neg = negLASSO(y ~ ., data, iter = 4000)
+enet = bayesEnet(y ~ ., data, iter = 4000)
+hs = HS(y ~ ., data, iter = 4000)
+hsp = HSplus(y ~ ., data, iter = 4000)
+rhs = regHS(y ~ ., data, iter = 4000)
+apcs = apcSpikeHS(y ~ ., data, lambda = -1, iter = 4000)
+spike = Spike(y ~ ., data, iter = 4000)
+ridge = glmnet(y ~ ., data, alpha = 0, lambda = cv.glmnet(y ~ ., data, alpha = 0)$lambda.1se)
+elas = glmnet(y ~ ., data, alpha = 0.5, lambda = cv.glmnet(y ~ ., data, alpha = 0.5)$lambda.1se)
+lasso = glmnet(y ~ ., data, alpha = 1, lambda = cv.glmnet(y ~ ., data, alpha = 1)$lambda.1se)
+```
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+true.beta = c(0, betas)
+ols.beta = coef(ols)
+blm.beta = post_summary(blm)[1:P+1,]$median
+blass.beta = post_summary(blass)[1:P+1,]$median
+ebl.beta = post_summary(ebl)[1:P+1,]$median
+neg.beta = post_summary(neg)[1:P+1,]$median
+enet.beta = post_summary(enet)[1:P+1,]$median
+hs.beta = post_summary(hs)[1:P+1,]$median
+hsp.beta = post_summary(hsp)[1:P+1,]$median
+rhs.beta = post_summary(rhs)[1:P+1,]$median
+apcs.beta = post_summary(apcs)[1:P+1,]$median
+spike.beta = post_summary(spike)[1:P+1,]$median
+ridge.beta = coef(ridge)[,1]
+elas.beta = coef(elas)[,1]
+lasso.beta = coef(ridge)[,1]
+
+mae.beta1 = c("OLS" = mean(abs(true.beta - ols.beta)), "Bayes" = mean(abs(true.beta - blm.beta)), "Bayesian Lasso" = mean(abs(true.beta - blass.beta)), "Extended Bayesian Lasso" = mean(abs(true.beta - ebl.beta)), "N-E-G Bayesian Lasso" = mean(abs(true.beta - neg.beta)), "Bayesian Elastic Net" = mean(abs(true.beta - enet.beta)), "Horseshoe" = mean(abs(true.beta - hs.beta)), "Horseshoe+" = mean(abs(true.beta - hsp.beta)), "Regularized Horseshoe" = mean(abs(true.beta - rhs.beta)), "Adaptive Powered Correlation Prior" = mean(abs(true.beta - apcs.beta)), "Bernoulli-Normal Mixture Prior" = mean(abs(true.beta - spike.beta)), "Ridge Regression" = mean(abs(true.beta - ridge.beta)), "Elastic net (alpha = .50)" = mean(abs(true.beta - elas.beta)), "Lasso" = mean(abs(true.beta - lasso.beta)))
+
+as.data.frame(mae.beta1)
+
+mse.beta1 = c("OLS" = mean(square(true.beta - ols.beta)), "Bayes" = mean(square(true.beta - blm.beta)), "Bayesian Lasso" = mean(square(true.beta - blass.beta)), "Extended Bayesian Lasso" = mean(square(true.beta - ebl.beta)), "N-E-G Bayesian Lasso" = mean(square(true.beta - neg.beta)), "Bayesian Elastic Net" = mean(square(true.beta - enet.beta)), "Horseshoe" = mean(square(true.beta - hs.beta)), "Horseshoe+" = mean(square(true.beta - hsp.beta)), "Regularized Horseshoe" = mean(square(true.beta - rhs.beta)), "Adaptive Powered Correlation Prior" = mean(square(true.beta - apcs.beta)), "Bernoulli-Normal Mixture Prior" = mean(square(true.beta - spike.beta)), "Ridge Regression" = mean(square(true.beta - ridge.beta)), "Elastic net (alpha = .50)" = mean(square(true.beta - elas.beta)), "Lasso" = mean(square(true.beta - lasso.beta)))
+
+data.frame("mae" = mae.beta1, "mse" = mse.beta1)
+```
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+true.y = y
+ols.pred = predict(ols)
+blm.pred = colMeans(extractPred(blm))
+blass.pred = colMeans(extractPred(blass))
+ebl.pred = colMeans(extractPred(ebl))
+neg.pred = colMeans(extractPred(neg))
+enet.pred = colMeans(extractPred(enet))
+hs.pred = colMeans(extractPred(hs))
+hsp.pred = colMeans(extractPred(hsp))
+rhs.pred = colMeans(extractPred(rhs))
+ridge.pred = glmnet::predict.glmnet(ridge, newx = as.matrix(X))[,1]
+apcs.pred = colMeans(extractPred(apcs))
+spike.pred = colMeans(extractPred(spike))
+elas.pred = glmnet::predict.glmnet(elas, newx = as.matrix(X))[,1]
+lasso.pred = glmnet::predict.glmnet(lasso, newx = as.matrix(X))[,1]
+
+mae1 = c("OLS" = mean(abs(true.y - ols.pred)), "Bayes" = mean(abs(true.y - blm.pred)), "Bayesian Lasso" = mean(abs(true.y - blass.pred)), "Extended Bayesian Lasso" = mean(abs(true.y - ebl.pred)), "N-E-G Bayesian Lasso" = mean(abs(true.y - neg.pred)), "Bayesian Elastic Net" = mean(abs(true.y - enet.pred)), "Horseshoe" = mean(abs(true.y - hs.pred)), "Horseshoe+" = mean(abs(true.y - hsp.pred)), "Regularized Horseshoe" = mean(abs(true.y - rhs.pred)), "Adaptive Powered Correlation Prior" = mean(abs(true.y - apcs.pred)), "Bernoulli-Normal Mixture Prior" = mean(abs(true.y - spike.pred)), "Ridge Regression" = mean(abs(true.y - ridge.pred)), "Elastic net (alpha = .50)" = mean(abs(true.y - elas.pred)), "Lasso" = mean(abs(true.y - lasso.pred)))
+
+mse1 = c("OLS" = mean(square(true.y - ols.pred)), "Bayes" = mean(square(true.y - blm.pred)), "Bayesian Lasso" = mean(square(true.y - blass.pred)), "Extended Bayesian Lasso" = mean(square(true.y - ebl.pred)), "N-E-G Bayesian Lasso" = mean(square(true.y - neg.pred)), "Bayesian Elastic Net" = mean(square(true.y - enet.pred)), "Horseshoe" = mean(square(true.y - hs.pred)), "Horseshoe+" = mean(square(true.y - hsp.pred)), "Regularized Horseshoe" = mean(square(true.y - rhs.pred)), "Adaptive Powered Correlation Prior" = mean(square(true.y - apcs.pred)), "Bernoulli-Normal Mixture Prior" = mean(square(true.y - spike.pred)), "Ridge Regression" = mean(square(true.y - ridge.pred)), "Elastic net (alpha = .50)" = mean(square(true.y - elas.pred)), "Lasso" = mean(square(true.y - lasso.pred)))
+
+data.frame("mae" = mae1, "mse" = mse1)
+```
+
+
+## Data Set 2: N = 25, P = 15
+
+```{r message=FALSE, warning=FALSE}
+# Simulate data
+library(fBasics)
+library(gdata)
+
+set.seed(101)  # for reproducibility
+N <- 25
+P <- 15
+
+#True betas
+betas = c(.9927551, -1.18113776, 1.01, .924, -.756, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) 
+Intercept <- 0
+
+#Generate Covariance Matrix
+#Generate data simulation
+Sigma = rcorr(P, df = P, method = "lkj")
+
+set.seed(102)
+# Generate data
+X = MASS::mvrnorm(N, mu = rep(0, P), Sigma = Sigma, empirical = TRUE)
+X = as.matrix(scale(X))
+y = as.vector(X %*% matrix(betas, ncol = 1))
+
+# Add gaussian noise
+X = X + matrix(rnorm((N * P)/4 , 0, .025), N, P)
+X = scale(X)
+colnames(X) = paste0("X", 1:P)
+data = cbind.data.frame(y = y, X)
+```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(glmnetUtils)
+ols = lm(y ~ ., data)
+blm = glmBayes(y ~ ., data, iter = 4000)
+blass = blasso(y ~ ., data, iter = 4000)
+ebl = extLASSO(y ~ ., data, iter = 4000)
+neg = negLASSO(y ~ ., data, iter = 4000)
+enet = bayesEnet(y ~ ., data, iter = 4000)
+hs = HS(y ~ ., data, iter = 4000)
+hsp = HSplus(y ~ ., data, iter = 4000)
+rhs = regHS(y ~ ., data, iter = 4000)
+apcs = apcSpikeHS(y ~ ., data, lambda = -1, iter = 4000)
+spike = Spike(y ~ ., data, iter = 4000)
+ridge = glmnet(y ~ ., data, alpha = 0, lambda = cv.glmnet(y ~ ., data, alpha = 0)$lambda.1se)
+elas = glmnet(y ~ ., data, alpha = 0.5, lambda = cv.glmnet(y ~ ., data, alpha = 0.5)$lambda.1se)
+lasso = glmnet(y ~ ., data, alpha = 1, lambda = cv.glmnet(y ~ ., data, alpha = 1)$lambda.1se)
+```
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+true.beta = c(0, betas)
+ols.beta = coef(ols)
+blm.beta = post_summary(blm)[1:P+1,]$median
+blass.beta = post_summary(blass)[1:P+1,]$median
+ebl.beta = post_summary(ebl)[1:P+1,]$median
+neg.beta = post_summary(neg)[1:P+1,]$median
+enet.beta = post_summary(enet)[1:P+1,]$median
+hs.beta = post_summary(hs)[1:P+1,]$median
+hsp.beta = post_summary(hsp)[1:P+1,]$median
+rhs.beta = post_summary(rhs)[1:P+1,]$median
+apcs.beta = post_summary(apcs)[1:P+1,]$median
+spike.beta = post_summary(spike)[1:P+1,]$median
+ridge.beta = coef(ridge)[,1]
+elas.beta = coef(elas)[,1]
+lasso.beta = coef(ridge)[,1]
+
+mae.beta2 = c("OLS" = mean(abs(true.beta - ols.beta)), "Bayes" = mean(abs(true.beta - blm.beta)), "Bayesian Lasso" = mean(abs(true.beta - blass.beta)), "Extended Bayesian Lasso" = mean(abs(true.beta - ebl.beta)), "N-E-G Bayesian Lasso" = mean(abs(true.beta - neg.beta)), "Bayesian Elastic Net" = mean(abs(true.beta - enet.beta)), "Horseshoe" = mean(abs(true.beta - hs.beta)), "Horseshoe+" = mean(abs(true.beta - hsp.beta)), "Regularized Horseshoe" = mean(abs(true.beta - rhs.beta)), "Adaptive Powered Correlation Prior" = mean(abs(true.beta - apcs.beta)), "Bernoulli-Normal Mixture Prior" = mean(abs(true.beta - spike.beta)), "Ridge Regression" = mean(abs(true.beta - ridge.beta)), "Elastic net (alpha = .50)" = mean(abs(true.beta - elas.beta)), "Lasso" = mean(abs(true.beta - lasso.beta)))
+
+mse.beta2 = c("OLS" = mean(square(true.beta - ols.beta)), "Bayes" = mean(square(true.beta - blm.beta)), "Bayesian Lasso" = mean(square(true.beta - blass.beta)), "Extended Bayesian Lasso" = mean(square(true.beta - ebl.beta)), "N-E-G Bayesian Lasso" = mean(square(true.beta - neg.beta)), "Bayesian Elastic Net" = mean(square(true.beta - enet.beta)), "Horseshoe" = mean(square(true.beta - hs.beta)), "Horseshoe+" = mean(square(true.beta - hsp.beta)), "Regularized Horseshoe" = mean(square(true.beta - rhs.beta)), "Adaptive Powered Correlation Prior" = mean(square(true.beta - apcs.beta)), "Bernoulli-Normal Mixture Prior" = mean(square(true.beta - spike.beta)), "Ridge Regression" = mean(square(true.beta - ridge.beta)), "Elastic net (alpha = .50)" = mean(square(true.beta - elas.beta)), "Lasso" = mean(square(true.beta - lasso.beta)))
+
+data.frame("mae" = mae.beta2, "mse" = mse.beta2)
+```
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+true.y = y
+ols.pred = predict(ols)
+blm.pred = colMeans(extractPred(blm))
+blass.pred = colMeans(extractPred(blass))
+ebl.pred = colMeans(extractPred(ebl))
+neg.pred = colMeans(extractPred(neg))
+enet.pred = colMeans(extractPred(enet))
+hs.pred = colMeans(extractPred(hs))
+hsp.pred = colMeans(extractPred(hsp))
+rhs.pred = colMeans(extractPred(rhs))
+ridge.pred = glmnet::predict.glmnet(ridge, newx = as.matrix(X))[,1]
+apcs.pred = colMeans(extractPred(apcs))
+spike.pred = colMeans(extractPred(spike))
+elas.pred = glmnet::predict.glmnet(elas, newx = as.matrix(X))[,1]
+lasso.pred = glmnet::predict.glmnet(lasso, newx = as.matrix(X))[,1]
+
+mae2 = c("OLS" = mean(abs(true.y - ols.pred)), "Bayes" = mean(abs(true.y - blm.pred)), "Bayesian Lasso" = mean(abs(true.y - blass.pred)), "Extended Bayesian Lasso" = mean(abs(true.y - ebl.pred)), "N-E-G Bayesian Lasso" = mean(abs(true.y - neg.pred)), "Bayesian Elastic Net" = mean(abs(true.y - enet.pred)), "Horseshoe" = mean(abs(true.y - hs.pred)), "Horseshoe+" = mean(abs(true.y - hsp.pred)), "Regularized Horseshoe" = mean(abs(true.y - rhs.pred)), "Adaptive Powered Correlation Prior" = mean(abs(true.y - apcs.pred)), "Bernoulli-Normal Mixture Prior" = mean(abs(true.y - spike.pred)), "Ridge Regression" = mean(abs(true.y - ridge.pred)), "Elastic net (alpha = .50)" = mean(abs(true.y - elas.pred)), "Lasso" = mean(abs(true.y - lasso.pred)))
+
+mse2 = c("OLS" = mean(square(true.y - ols.pred)), "Bayes" = mean(square(true.y - blm.pred)), "Bayesian Lasso" = mean(square(true.y - blass.pred)), "Extended Bayesian Lasso" = mean(square(true.y - ebl.pred)), "N-E-G Bayesian Lasso" = mean(square(true.y - neg.pred)), "Bayesian Elastic Net" = mean(square(true.y - enet.pred)), "Horseshoe" = mean(square(true.y - hs.pred)), "Horseshoe+" = mean(square(true.y - hsp.pred)), "Regularized Horseshoe" = mean(square(true.y - rhs.pred)), "Adaptive Powered Correlation Prior" = mean(square(true.y - apcs.pred)), "Bernoulli-Normal Mixture Prior" = mean(square(true.y - spike.pred)), "Ridge Regression" = mean(square(true.y - ridge.pred)), "Elastic net (alpha = .50)" = mean(square(true.y - elas.pred)), "Lasso" = mean(square(true.y - lasso.pred)))
+
+data.frame("mae" = mae2, "mse" = mse2)
+```
+
+## Data Set 3: N = 25, P = 50
+
+```{r message=FALSE, warning=FALSE}
+# Simulate data
+library(fBasics)
+library(gdata)
+
+set.seed(101)  # for reproducibility
+N <- 25
+P <- 50
+
+#True betas
+betas = c(.9927551, -1.18113776, 1.01, .924, -.756, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, rep(0, 35)) 
+Intercept <- 0
+
+#Generate Covariance Matrix
+#Generate data simulation
+Sigma = rcorr(P, df = P, method = "lkj")
+
+set.seed(102)
+# Generate data
+X = MASS::mvrnorm(N, mu = rep(0, P), Sigma = Sigma, empirical = FALSE)
+X = as.matrix(scale(X))
+y = as.vector(X %*% matrix(betas, ncol = 1))
+
+# Add gaussian noise
+X = X + matrix(rnorm((N * P)/4 , 0, .025), N, P)
+X = scale(X)
+colnames(X) = paste0("X", 1:P)
+data = cbind.data.frame(y = y, X)
+```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(glmnetUtils)
+ols = lm(y ~ ., data)
+blm = glmBayes(y ~ ., data, iter = 4000)
+blass = blasso(y ~ ., data, iter = 4000)
+ebl = extLASSO(y ~ ., data, iter = 4000)
+neg = negLASSO(y ~ ., data, iter = 4000)
+enet = bayesEnet(y ~ ., data, iter = 4000)
+hs = HS(y ~ ., data, iter = 4000)
+hsp = HSplus(y ~ ., data, iter = 4000)
+rhs = regHS(y ~ ., data, iter = 4000)
+apcs = apcSpikeHS(y ~ ., data, lambda = -1, iter = 4000)
+spike = Spike(y ~ ., data, iter = 4000)
+ridge = glmnet(y ~ ., data, alpha = 0, lambda = cv.glmnet(y ~ ., data, alpha = 0)$lambda.1se)
+elas = glmnet(y ~ ., data, alpha = 0.5, lambda = cv.glmnet(y ~ ., data, alpha = 0.5)$lambda.1se)
+lasso = glmnet(y ~ ., data, alpha = 1, lambda = cv.glmnet(y ~ ., data, alpha = 1)$lambda.1se)
+```
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+true.beta = c(0, betas)
+ols.beta = coef(ols)
+blm.beta = post_summary(blm)[1:P+1,]$median
+blass.beta = post_summary(blass)[1:P+1,]$median
+ebl.beta = post_summary(ebl)[1:P+1,]$median
+neg.beta = post_summary(neg)[1:P+1,]$median
+enet.beta = post_summary(enet)[1:P+1,]$median
+hs.beta = post_summary(hs)[1:P+1,]$median
+hsp.beta = post_summary(hsp)[1:P+1,]$median
+rhs.beta = post_summary(rhs)[1:P+1,]$median
+apcs.beta = post_summary(apcs)[1:P+1,]$median
+spike.beta = post_summary(spike)[1:P+1,]$median
+ridge.beta = coef(ridge)[,1]
+elas.beta = coef(elas)[,1]
+lasso.beta = coef(ridge)[,1]
+
+mae.beta3 = c("OLS" = mean(abs(true.beta - ols.beta)), "Bayes" = mean(abs(true.beta - blm.beta)), "Bayesian Lasso" = mean(abs(true.beta - blass.beta)), "Extended Bayesian Lasso" = mean(abs(true.beta - ebl.beta)), "N-E-G Bayesian Lasso" = mean(abs(true.beta - neg.beta)), "Bayesian Elastic Net" = mean(abs(true.beta - enet.beta)), "Horseshoe" = mean(abs(true.beta - hs.beta)), "Horseshoe+" = mean(abs(true.beta - hsp.beta)), "Regularized Horseshoe" = mean(abs(true.beta - rhs.beta)), "Adaptive Powered Correlation Prior" = mean(abs(true.beta - apcs.beta)), "Bernoulli-Normal Mixture Prior" = mean(abs(true.beta - spike.beta)), "Ridge Regression" = mean(abs(true.beta - ridge.beta)), "Elastic net (alpha = .50)" = mean(abs(true.beta - elas.beta)), "Lasso" = mean(abs(true.beta - lasso.beta)))
+
+mse.beta3 = c("OLS" = mean(square(true.beta - ols.beta)), "Bayes" = mean(square(true.beta - blm.beta)), "Bayesian Lasso" = mean(square(true.beta - blass.beta)), "Extended Bayesian Lasso" = mean(square(true.beta - ebl.beta)), "N-E-G Bayesian Lasso" = mean(square(true.beta - neg.beta)), "Bayesian Elastic Net" = mean(square(true.beta - enet.beta)), "Horseshoe" = mean(square(true.beta - hs.beta)), "Horseshoe+" = mean(square(true.beta - hsp.beta)), "Regularized Horseshoe" = mean(square(true.beta - rhs.beta)), "Adaptive Powered Correlation Prior" = mean(square(true.beta - apcs.beta)), "Bernoulli-Normal Mixture Prior" = mean(square(true.beta - spike.beta)), "Ridge Regression" = mean(square(true.beta - ridge.beta)), "Elastic net (alpha = .50)" = mean(square(true.beta - elas.beta)), "Lasso" = mean(square(true.beta - lasso.beta)))
+
+data.frame("mae" = mae.beta3, "mse" = mse.beta3)
+```
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+true.y = y
+ols.pred = predict(ols)
+blm.pred = colMeans(extractPred(blm))
+blass.pred = colMeans(extractPred(blass))
+ebl.pred = colMeans(extractPred(ebl))
+neg.pred = colMeans(extractPred(neg))
+enet.pred = colMeans(extractPred(enet))
+hs.pred = colMeans(extractPred(hs))
+hsp.pred = colMeans(extractPred(hsp))
+rhs.pred = colMeans(extractPred(rhs))
+ridge.pred = glmnet::predict.glmnet(ridge, newx = as.matrix(X))[,1]
+apcs.pred = colMeans(extractPred(apcs))
+spike.pred = colMeans(extractPred(spike))
+elas.pred = glmnet::predict.glmnet(elas, newx = as.matrix(X))[,1]
+lasso.pred = glmnet::predict.glmnet(lasso, newx = as.matrix(X))[,1]
+
+mae3 = c("OLS" = mean(abs(true.y - ols.pred)), "Bayes" = mean(abs(true.y - blm.pred)), "Bayesian Lasso" = mean(abs(true.y - blass.pred)), "Extended Bayesian Lasso" = mean(abs(true.y - ebl.pred)), "N-E-G Bayesian Lasso" = mean(abs(true.y - neg.pred)), "Bayesian Elastic Net" = mean(abs(true.y - enet.pred)), "Horseshoe" = mean(abs(true.y - hs.pred)), "Horseshoe+" = mean(abs(true.y - hsp.pred)), "Regularized Horseshoe" = mean(abs(true.y - rhs.pred)), "Adaptive Powered Correlation Prior" = mean(abs(true.y - apcs.pred)), "Bernoulli-Normal Mixture Prior" = mean(abs(true.y - spike.pred)), "Ridge Regression" = mean(abs(true.y - ridge.pred)), "Elastic net (alpha = .50)" = mean(abs(true.y - elas.pred)), "Lasso" = mean(abs(true.y - lasso.pred)))
+
+mse3 = c("OLS" = mean(square(true.y - ols.pred)), "Bayes" = mean(square(true.y - blm.pred)), "Bayesian Lasso" = mean(square(true.y - blass.pred)), "Extended Bayesian Lasso" = mean(square(true.y - ebl.pred)), "N-E-G Bayesian Lasso" = mean(square(true.y - neg.pred)), "Bayesian Elastic Net" = mean(square(true.y - enet.pred)), "Horseshoe" = mean(square(true.y - hs.pred)), "Horseshoe+" = mean(square(true.y - hsp.pred)), "Regularized Horseshoe" = mean(square(true.y - rhs.pred)), "Adaptive Powered Correlation Prior" = mean(square(true.y - apcs.pred)), "Bernoulli-Normal Mixture Prior" = mean(square(true.y - spike.pred)), "Ridge Regression" = mean(square(true.y - ridge.pred)), "Elastic net (alpha = .50)" = mean(square(true.y - elas.pred)), "Lasso" = mean(square(true.y - lasso.pred)))
+
+data.frame("mae" = mae3, "mse" = mse3)
+```
+
+## Data Set 1: N = 100, P = 40
+
+```{r message=FALSE, warning=FALSE}
+# Simulate data
+library(fBasics)
+library(gdata)
+
+set.seed(101)  # for reproducibility
+N <- 100
+P <- 40
+
+#True betas
+betas = c(.9927551, -1.18113776, 1.01, .924, -.756, 0, 0, 0, 0, 0) 
+Intercept <- 0
+
+#Generate Covariance Matrix
+#Generate data simulation
+Sigma = rcorr(P, df = P, method = "lkj")
+
+set.seed(102)
+# Generate data
+X = MASS::mvrnorm(N, mu = rep(0, P), Sigma = Sigma, empirical = TRUE)
+X = as.matrix(scale(X))
+y = as.vector(X %*% matrix(betas, ncol = 1))
+
+# Add gaussian noise
+X = X + matrix(rnorm((N * P)/4 , 0, .025), N, P)
+X = scale(X)
+colnames(X) = paste0("X", 1:P)
+data = cbind.data.frame(y = y, X)
+```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(glmnetUtils)
+ols = lm(y ~ ., data)
+blm = glmBayes(y ~ ., data, iter = 4000)
+blass = blasso(y ~ ., data, iter = 4000)
+ebl = extLASSO(y ~ ., data, iter = 4000)
+neg = negLASSO(y ~ ., data, iter = 4000)
+enet = bayesEnet(y ~ ., data, iter = 4000)
+hs = HS(y ~ ., data, iter = 4000)
+hsp = HSplus(y ~ ., data, iter = 4000)
+rhs = regHS(y ~ ., data, iter = 4000)
+apcs = apcSpikeHS(y ~ ., data, lambda = -1, iter = 4000)
+spike = Spike(y ~ ., data, iter = 4000)
+ridge = glmnet(y ~ ., data, alpha = 0, lambda = cv.glmnet(y ~ ., data, alpha = 0)$lambda.1se)
+elas = glmnet(y ~ ., data, alpha = 0.5, lambda = cv.glmnet(y ~ ., data, alpha = 0.5)$lambda.1se)
+lasso = glmnet(y ~ ., data, alpha = 1, lambda = cv.glmnet(y ~ ., data, alpha = 1)$lambda.1se)
+```
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+true.beta = c(0, betas)
+ols.beta = coef(ols)
+blm.beta = post_summary(blm)[1:P+1,]$median
+blass.beta = post_summary(blass)[1:P+1,]$median
+ebl.beta = post_summary(ebl)[1:P+1,]$median
+neg.beta = post_summary(neg)[1:P+1,]$median
+enet.beta = post_summary(enet)[1:P+1,]$median
+hs.beta = post_summary(hs)[1:P+1,]$median
+hsp.beta = post_summary(hsp)[1:P+1,]$median
+rhs.beta = post_summary(rhs)[1:P+1,]$median
+apcs.beta = post_summary(apcs)[1:P+1,]$median
+spike.beta = post_summary(spike)[1:P+1,]$median
+ridge.beta = coef(ridge)[,1]
+elas.beta = coef(elas)[,1]
+lasso.beta = coef(ridge)[,1]
+
+mae.beta4 = c("OLS" = mean(abs(true.beta - ols.beta)), "Bayes" = mean(abs(true.beta - blm.beta)), "Bayesian Lasso" = mean(abs(true.beta - blass.beta)), "Extended Bayesian Lasso" = mean(abs(true.beta - ebl.beta)), "N-E-G Bayesian Lasso" = mean(abs(true.beta - neg.beta)), "Bayesian Elastic Net" = mean(abs(true.beta - enet.beta)), "Horseshoe" = mean(abs(true.beta - hs.beta)), "Horseshoe+" = mean(abs(true.beta - hsp.beta)), "Regularized Horseshoe" = mean(abs(true.beta - rhs.beta)), "Adaptive Powered Correlation Prior" = mean(abs(true.beta - apcs.beta)), "Bernoulli-Normal Mixture Prior" = mean(abs(true.beta - spike.beta)), "Ridge Regression" = mean(abs(true.beta - ridge.beta)), "Elastic net (alpha = .50)" = mean(abs(true.beta - elas.beta)), "Lasso" = mean(abs(true.beta - lasso.beta)))
+
+as.data.frame(mae.beta1)
+
+mse.beta4 = c("OLS" = mean(square(true.beta - ols.beta)), "Bayes" = mean(square(true.beta - blm.beta)), "Bayesian Lasso" = mean(square(true.beta - blass.beta)), "Extended Bayesian Lasso" = mean(square(true.beta - ebl.beta)), "N-E-G Bayesian Lasso" = mean(square(true.beta - neg.beta)), "Bayesian Elastic Net" = mean(square(true.beta - enet.beta)), "Horseshoe" = mean(square(true.beta - hs.beta)), "Horseshoe+" = mean(square(true.beta - hsp.beta)), "Regularized Horseshoe" = mean(square(true.beta - rhs.beta)), "Adaptive Powered Correlation Prior" = mean(square(true.beta - apcs.beta)), "Bernoulli-Normal Mixture Prior" = mean(square(true.beta - spike.beta)), "Ridge Regression" = mean(square(true.beta - ridge.beta)), "Elastic net (alpha = .50)" = mean(square(true.beta - elas.beta)), "Lasso" = mean(square(true.beta - lasso.beta)))
+
+data.frame("mae" = mae.beta1, "mse" = mse.beta1)
+```
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+true.y = y
+ols.pred = predict(ols)
+blm.pred = colMeans(extractPred(blm))
+blass.pred = colMeans(extractPred(blass))
+ebl.pred = colMeans(extractPred(ebl))
+neg.pred = colMeans(extractPred(neg))
+enet.pred = colMeans(extractPred(enet))
+hs.pred = colMeans(extractPred(hs))
+hsp.pred = colMeans(extractPred(hsp))
+rhs.pred = colMeans(extractPred(rhs))
+ridge.pred = glmnet::predict.glmnet(ridge, newx = as.matrix(X))[,1]
+apcs.pred = colMeans(extractPred(apcs))
+spike.pred = colMeans(extractPred(spike))
+elas.pred = glmnet::predict.glmnet(elas, newx = as.matrix(X))[,1]
+lasso.pred = glmnet::predict.glmnet(lasso, newx = as.matrix(X))[,1]
+
+mae1 = c("OLS" = mean(abs(true.y - ols.pred)), "Bayes" = mean(abs(true.y - blm.pred)), "Bayesian Lasso" = mean(abs(true.y - blass.pred)), "Extended Bayesian Lasso" = mean(abs(true.y - ebl.pred)), "N-E-G Bayesian Lasso" = mean(abs(true.y - neg.pred)), "Bayesian Elastic Net" = mean(abs(true.y - enet.pred)), "Horseshoe" = mean(abs(true.y - hs.pred)), "Horseshoe+" = mean(abs(true.y - hsp.pred)), "Regularized Horseshoe" = mean(abs(true.y - rhs.pred)), "Adaptive Powered Correlation Prior" = mean(abs(true.y - apcs.pred)), "Bernoulli-Normal Mixture Prior" = mean(abs(true.y - spike.pred)), "Ridge Regression" = mean(abs(true.y - ridge.pred)), "Elastic net (alpha = .50)" = mean(abs(true.y - elas.pred)), "Lasso" = mean(abs(true.y - lasso.pred)))
+
+mse4 = c("OLS" = mean(square(true.y - ols.pred)), "Bayes" = mean(square(true.y - blm.pred)), "Bayesian Lasso" = mean(square(true.y - blass.pred)), "Extended Bayesian Lasso" = mean(square(true.y - ebl.pred)), "N-E-G Bayesian Lasso" = mean(square(true.y - neg.pred)), "Bayesian Elastic Net" = mean(square(true.y - enet.pred)), "Horseshoe" = mean(square(true.y - hs.pred)), "Horseshoe+" = mean(square(true.y - hsp.pred)), "Regularized Horseshoe" = mean(square(true.y - rhs.pred)), "Adaptive Powered Correlation Prior" = mean(square(true.y - apcs.pred)), "Bernoulli-Normal Mixture Prior" = mean(square(true.y - spike.pred)), "Ridge Regression" = mean(square(true.y - ridge.pred)), "Elastic net (alpha = .50)" = mean(square(true.y - elas.pred)), "Lasso" = mean(square(true.y - lasso.pred)))
+
+data.frame("mae" = mae1, "mse" = mse4)
+```
+
+
+## Data Set 5: N = 100, P = 60
+
+```{r message=FALSE, warning=FALSE}
+# Simulate data
+library(fBasics)
+library(gdata)
+
+set.seed(101)  # for reproducibility
+N <- 100
+P <-  60
+
+#True betas
+betas = c(.9927551, -1.18113776, 1.01, .924, -.756, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) 
+Intercept <- 0
+
+#Generate Covariance Matrix
+#Generate data simulation
+Sigma = rcorr(P, df = P, method = "lkj")
+
+set.seed(102)
+# Generate data
+X = MASS::mvrnorm(N, mu = rep(0, P), Sigma = Sigma, empirical = TRUE)
+X = as.matrix(scale(X))
+y = as.vector(X %*% matrix(betas, ncol = 1))
+
+# Add gaussian noise
+X = X + matrix(rnorm((N * P)/4 , 0, .025), N, P)
+X = scale(X)
+colnames(X) = paste0("X", 1:P)
+data = cbind.data.frame(y = y, X)
+```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(glmnetUtils)
+ols = lm(y ~ ., data)
+blm = glmBayes(y ~ ., data, iter = 4000)
+blass = blasso(y ~ ., data, iter = 4000)
+ebl = extLASSO(y ~ ., data, iter = 4000)
+neg = negLASSO(y ~ ., data, iter = 4000)
+enet = bayesEnet(y ~ ., data, iter = 4000)
+hs = HS(y ~ ., data, iter = 4000)
+hsp = HSplus(y ~ ., data, iter = 4000)
+rhs = regHS(y ~ ., data, iter = 4000)
+apcs = apcSpikeHS(y ~ ., data, lambda = -1, iter = 4000)
+spike = Spike(y ~ ., data, iter = 4000)
+ridge = glmnet(y ~ ., data, alpha = 0, lambda = cv.glmnet(y ~ ., data, alpha = 0)$lambda.1se)
+elas = glmnet(y ~ ., data, alpha = 0.5, lambda = cv.glmnet(y ~ ., data, alpha = 0.5)$lambda.1se)
+lasso = glmnet(y ~ ., data, alpha = 1, lambda = cv.glmnet(y ~ ., data, alpha = 1)$lambda.1se)
+```
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+true.beta = c(0, betas)
+ols.beta = coef(ols)
+blm.beta = post_summary(blm)[1:P+1,]$median
+blass.beta = post_summary(blass)[1:P+1,]$median
+ebl.beta = post_summary(ebl)[1:P+1,]$median
+neg.beta = post_summary(neg)[1:P+1,]$median
+enet.beta = post_summary(enet)[1:P+1,]$median
+hs.beta = post_summary(hs)[1:P+1,]$median
+hsp.beta = post_summary(hsp)[1:P+1,]$median
+rhs.beta = post_summary(rhs)[1:P+1,]$median
+apcs.beta = post_summary(apcs)[1:P+1,]$median
+spike.beta = post_summary(spike)[1:P+1,]$median
+ridge.beta = coef(ridge)[,1]
+elas.beta = coef(elas)[,1]
+lasso.beta = coef(ridge)[,1]
+
+mae.beta5 = c("OLS" = mean(abs(true.beta - ols.beta)), "Bayes" = mean(abs(true.beta - blm.beta)), "Bayesian Lasso" = mean(abs(true.beta - blass.beta)), "Extended Bayesian Lasso" = mean(abs(true.beta - ebl.beta)), "N-E-G Bayesian Lasso" = mean(abs(true.beta - neg.beta)), "Bayesian Elastic Net" = mean(abs(true.beta - enet.beta)), "Horseshoe" = mean(abs(true.beta - hs.beta)), "Horseshoe+" = mean(abs(true.beta - hsp.beta)), "Regularized Horseshoe" = mean(abs(true.beta - rhs.beta)), "Adaptive Powered Correlation Prior" = mean(abs(true.beta - apcs.beta)), "Bernoulli-Normal Mixture Prior" = mean(abs(true.beta - spike.beta)), "Ridge Regression" = mean(abs(true.beta - ridge.beta)), "Elastic net (alpha = .50)" = mean(abs(true.beta - elas.beta)), "Lasso" = mean(abs(true.beta - lasso.beta)))
+
+mse.beta5 = c("OLS" = mean(square(true.beta - ols.beta)), "Bayes" = mean(square(true.beta - blm.beta)), "Bayesian Lasso" = mean(square(true.beta - blass.beta)), "Extended Bayesian Lasso" = mean(square(true.beta - ebl.beta)), "N-E-G Bayesian Lasso" = mean(square(true.beta - neg.beta)), "Bayesian Elastic Net" = mean(square(true.beta - enet.beta)), "Horseshoe" = mean(square(true.beta - hs.beta)), "Horseshoe+" = mean(square(true.beta - hsp.beta)), "Regularized Horseshoe" = mean(square(true.beta - rhs.beta)), "Adaptive Powered Correlation Prior" = mean(square(true.beta - apcs.beta)), "Bernoulli-Normal Mixture Prior" = mean(square(true.beta - spike.beta)), "Ridge Regression" = mean(square(true.beta - ridge.beta)), "Elastic net (alpha = .50)" = mean(square(true.beta - elas.beta)), "Lasso" = mean(square(true.beta - lasso.beta)))
+
+data.frame("mae" = mae.beta5, "mse" = mse.beta5)
+```
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+true.y = y
+ols.pred = predict(ols)
+blm.pred = colMeans(extractPred(blm))
+blass.pred = colMeans(extractPred(blass))
+ebl.pred = colMeans(extractPred(ebl))
+neg.pred = colMeans(extractPred(neg))
+enet.pred = colMeans(extractPred(enet))
+hs.pred = colMeans(extractPred(hs))
+hsp.pred = colMeans(extractPred(hsp))
+rhs.pred = colMeans(extractPred(rhs))
+ridge.pred = glmnet::predict.glmnet(ridge, newx = as.matrix(X))[,1]
+apcs.pred = colMeans(extractPred(apcs))
+spike.pred = colMeans(extractPred(spike))
+elas.pred = glmnet::predict.glmnet(elas, newx = as.matrix(X))[,1]
+lasso.pred = glmnet::predict.glmnet(lasso, newx = as.matrix(X))[,1]
+
+mae2 = c("OLS" = mean(abs(true.y - ols.pred)), "Bayes" = mean(abs(true.y - blm.pred)), "Bayesian Lasso" = mean(abs(true.y - blass.pred)), "Extended Bayesian Lasso" = mean(abs(true.y - ebl.pred)), "N-E-G Bayesian Lasso" = mean(abs(true.y - neg.pred)), "Bayesian Elastic Net" = mean(abs(true.y - enet.pred)), "Horseshoe" = mean(abs(true.y - hs.pred)), "Horseshoe+" = mean(abs(true.y - hsp.pred)), "Regularized Horseshoe" = mean(abs(true.y - rhs.pred)), "Adaptive Powered Correlation Prior" = mean(abs(true.y - apcs.pred)), "Bernoulli-Normal Mixture Prior" = mean(abs(true.y - spike.pred)), "Ridge Regression" = mean(abs(true.y - ridge.pred)), "Elastic net (alpha = .50)" = mean(abs(true.y - elas.pred)), "Lasso" = mean(abs(true.y - lasso.pred)))
+
+mse5 = c("OLS" = mean(square(true.y - ols.pred)), "Bayes" = mean(square(true.y - blm.pred)), "Bayesian Lasso" = mean(square(true.y - blass.pred)), "Extended Bayesian Lasso" = mean(square(true.y - ebl.pred)), "N-E-G Bayesian Lasso" = mean(square(true.y - neg.pred)), "Bayesian Elastic Net" = mean(square(true.y - enet.pred)), "Horseshoe" = mean(square(true.y - hs.pred)), "Horseshoe+" = mean(square(true.y - hsp.pred)), "Regularized Horseshoe" = mean(square(true.y - rhs.pred)), "Adaptive Powered Correlation Prior" = mean(square(true.y - apcs.pred)), "Bernoulli-Normal Mixture Prior" = mean(square(true.y - spike.pred)), "Ridge Regression" = mean(square(true.y - ridge.pred)), "Elastic net (alpha = .50)" = mean(square(true.y - elas.pred)), "Lasso" = mean(square(true.y - lasso.pred)))
+
+data.frame("mae" = mae2, "mse" = mse5)
+```
+
+## Data Set 6: N = 100, P = 200
+
+```{r message=FALSE, warning=FALSE}
+# Simulate data
+library(fBasics)
+library(gdata)
+
+set.seed(101)  # for reproducibility
+N <- 100
+P <- 200
+
+#True betas
+betas = c(.9927551, -1.18113776, 1.01, .924, -.756, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, rep(0, 35)) 
+Intercept <- 0
+
+#Generate Covariance Matrix
+#Generate data simulation
+Sigma = rcorr(P, df = P, method = "lkj")
+
+set.seed(102)
+# Generate data
+X = MASS::mvrnorm(N, mu = rep(0, P), Sigma = Sigma, empirical = FALSE)
+X = as.matrix(scale(X))
+y = as.vector(X %*% matrix(betas, ncol = 1))
+
+# Add gaussian noise
+X = X + matrix(rnorm((N * P)/4 , 0, .025), N, P)
+X = scale(X)
+colnames(X) = paste0("X", 1:P)
+data = cbind.data.frame(y = y, X)
+```
+
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(glmnetUtils)
+ols = lm(y ~ ., data)
+blm = glmBayes(y ~ ., data, iter = 4000)
+blass = blasso(y ~ ., data, iter = 4000)
+ebl = extLASSO(y ~ ., data, iter = 4000)
+neg = negLASSO(y ~ ., data, iter = 4000)
+enet = bayesEnet(y ~ ., data, iter = 4000)
+hs = HS(y ~ ., data, iter = 4000)
+hsp = HSplus(y ~ ., data, iter = 4000)
+rhs = regHS(y ~ ., data, iter = 4000)
+apcs = apcSpikeHS(y ~ ., data, lambda = -1, iter = 4000)
+spike = Spike(y ~ ., data, iter = 4000)
+ridge = glmnet(y ~ ., data, alpha = 0, lambda = cv.glmnet(y ~ ., data, alpha = 0)$lambda.1se)
+elas = glmnet(y ~ ., data, alpha = 0.5, lambda = cv.glmnet(y ~ ., data, alpha = 0.5)$lambda.1se)
+lasso = glmnet(y ~ ., data, alpha = 1, lambda = cv.glmnet(y ~ ., data, alpha = 1)$lambda.1se)
+```
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+true.beta = c(0, betas)
+ols.beta = coef(ols)
+blm.beta = post_summary(blm)[1:P+1,]$median
+blass.beta = post_summary(blass)[1:P+1,]$median
+ebl.beta = post_summary(ebl)[1:P+1,]$median
+neg.beta = post_summary(neg)[1:P+1,]$median
+enet.beta = post_summary(enet)[1:P+1,]$median
+hs.beta = post_summary(hs)[1:P+1,]$median
+hsp.beta = post_summary(hsp)[1:P+1,]$median
+rhs.beta = post_summary(rhs)[1:P+1,]$median
+apcs.beta = post_summary(apcs)[1:P+1,]$median
+spike.beta = post_summary(spike)[1:P+1,]$median
+ridge.beta = coef(ridge)[,1]
+elas.beta = coef(elas)[,1]
+lasso.beta = coef(ridge)[,1]
+
+mae.beta6 = c("OLS" = mean(abs(true.beta - ols.beta)), "Bayes" = mean(abs(true.beta - blm.beta)), "Bayesian Lasso" = mean(abs(true.beta - blass.beta)), "Extended Bayesian Lasso" = mean(abs(true.beta - ebl.beta)), "N-E-G Bayesian Lasso" = mean(abs(true.beta - neg.beta)), "Bayesian Elastic Net" = mean(abs(true.beta - enet.beta)), "Horseshoe" = mean(abs(true.beta - hs.beta)), "Horseshoe+" = mean(abs(true.beta - hsp.beta)), "Regularized Horseshoe" = mean(abs(true.beta - rhs.beta)), "Adaptive Powered Correlation Prior" = mean(abs(true.beta - apcs.beta)), "Bernoulli-Normal Mixture Prior" = mean(abs(true.beta - spike.beta)), "Ridge Regression" = mean(abs(true.beta - ridge.beta)), "Elastic net (alpha = .50)" = mean(abs(true.beta - elas.beta)), "Lasso" = mean(abs(true.beta - lasso.beta)))
+
+mse.beta6 = c("OLS" = mean(square(true.beta - ols.beta)), "Bayes" = mean(square(true.beta - blm.beta)), "Bayesian Lasso" = mean(square(true.beta - blass.beta)), "Extended Bayesian Lasso" = mean(square(true.beta - ebl.beta)), "N-E-G Bayesian Lasso" = mean(square(true.beta - neg.beta)), "Bayesian Elastic Net" = mean(square(true.beta - enet.beta)), "Horseshoe" = mean(square(true.beta - hs.beta)), "Horseshoe+" = mean(square(true.beta - hsp.beta)), "Regularized Horseshoe" = mean(square(true.beta - rhs.beta)), "Adaptive Powered Correlation Prior" = mean(square(true.beta - apcs.beta)), "Bernoulli-Normal Mixture Prior" = mean(square(true.beta - spike.beta)), "Ridge Regression" = mean(square(true.beta - ridge.beta)), "Elastic net (alpha = .50)" = mean(square(true.beta - elas.beta)), "Lasso" = mean(square(true.beta - lasso.beta)))
+
+data.frame("mae" = mae.beta6, "mse" = mse.beta6)
+```
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+true.y = y
+ols.pred = predict(ols)
+blm.pred = colMeans(extractPred(blm))
+blass.pred = colMeans(extractPred(blass))
+ebl.pred = colMeans(extractPred(ebl))
+neg.pred = colMeans(extractPred(neg))
+enet.pred = colMeans(extractPred(enet))
+hs.pred = colMeans(extractPred(hs))
+hsp.pred = colMeans(extractPred(hsp))
+rhs.pred = colMeans(extractPred(rhs))
+ridge.pred = glmnet::predict.glmnet(ridge, newx = as.matrix(X))[,1]
+apcs.pred = colMeans(extractPred(apcs))
+spike.pred = colMeans(extractPred(spike))
+elas.pred = glmnet::predict.glmnet(elas, newx = as.matrix(X))[,1]
+lasso.pred = glmnet::predict.glmnet(lasso, newx = as.matrix(X))[,1]
+
+mae3 = c("OLS" = mean(abs(true.y - ols.pred)), "Bayes" = mean(abs(true.y - blm.pred)), "Bayesian Lasso" = mean(abs(true.y - blass.pred)), "Extended Bayesian Lasso" = mean(abs(true.y - ebl.pred)), "N-E-G Bayesian Lasso" = mean(abs(true.y - neg.pred)), "Bayesian Elastic Net" = mean(abs(true.y - enet.pred)), "Horseshoe" = mean(abs(true.y - hs.pred)), "Horseshoe+" = mean(abs(true.y - hsp.pred)), "Regularized Horseshoe" = mean(abs(true.y - rhs.pred)), "Adaptive Powered Correlation Prior" = mean(abs(true.y - apcs.pred)), "Bernoulli-Normal Mixture Prior" = mean(abs(true.y - spike.pred)), "Ridge Regression" = mean(abs(true.y - ridge.pred)), "Elastic net (alpha = .50)" = mean(abs(true.y - elas.pred)), "Lasso" = mean(abs(true.y - lasso.pred)))
+
+mse6 = c("OLS" = mean(square(true.y - ols.pred)), "Bayes" = mean(square(true.y - blm.pred)), "Bayesian Lasso" = mean(square(true.y - blass.pred)), "Extended Bayesian Lasso" = mean(square(true.y - ebl.pred)), "N-E-G Bayesian Lasso" = mean(square(true.y - neg.pred)), "Bayesian Elastic Net" = mean(square(true.y - enet.pred)), "Horseshoe" = mean(square(true.y - hs.pred)), "Horseshoe+" = mean(square(true.y - hsp.pred)), "Regularized Horseshoe" = mean(square(true.y - rhs.pred)), "Adaptive Powered Correlation Prior" = mean(square(true.y - apcs.pred)), "Bernoulli-Normal Mixture Prior" = mean(square(true.y - spike.pred)), "Ridge Regression" = mean(square(true.y - ridge.pred)), "Elastic net (alpha = .50)" = mean(square(true.y - elas.pred)), "Lasso" = mean(square(true.y - lasso.pred)))
+
+data.frame("mae" = mae3, "mse" = mse6)
+```

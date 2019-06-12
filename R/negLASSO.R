@@ -15,7 +15,7 @@
 #' @param chains How many chains? Defaults to 4.
 #' @param thin Thinning interval. Defaults to 1.
 #' @param method Defaults to "parallel". For another parallel option, choose "rjparallel" or "rjags" for a single core run.
-#' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods.
+#' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to 3.
 #' @param ... Other arguments to run.jags.
 #'
 #' @return A run.jags object
@@ -24,7 +24,7 @@
 #' @examples
 #' negLASSO()
 #'
-negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = NULL, ...){
+negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(3), ...){
 
   X = model.matrix(formula, data)[,-1]
   y = model.frame(formula, data)[,1]

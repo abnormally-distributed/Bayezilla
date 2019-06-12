@@ -47,7 +47,7 @@ If you experience difficulty with running times or obtaining a good effective sa
 IMPORTANT NOTICE: Center and scale your predictors before using this function.
 If you do not scale and center your numeric predictors, this will likely not give reasonable results. 
 
-The model is very similar to the \code{\link[Bayezilla]{glmSpike}} model. Each group receives its own inclusion 
+The model is very similar to the \code{\link[Bayezilla]{Spike}} model. Each group receives its own inclusion 
 probability prior "phi", which is in turn controlled by an overall inclusion probability parameterized as a hierarchical 
 structure similar to that in \code{\link[Bayezilla]{apcSpikeHS}} but simplified.
 }

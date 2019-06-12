@@ -2,9 +2,8 @@ model{
               tau ~ dgamma(.001, .001)
               phi ~ dbeta(.5, .5) 
               
-              
               for (p in 1:P){
-                theta[p] ~ dnorm(0, .001)
+                theta[p] ~ dnorm(0, .5)
                 delta[p] ~ dbern(phi)
                 beta[p] <- delta[p] * theta[p]
               }

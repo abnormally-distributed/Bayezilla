@@ -20,7 +20,7 @@
 #' @param sigma.formula the formula for the scale parameter. Defaults to ~ 1 (intercept only)
 #' @param nu.formula the formula for the normality parameter, if using family = "student_t". Defaults to ~ 1 (intercept only)
 #' @param data a data frame
-#' @param family one of "gaussian", "laplace", or "student_t".
+#' @param family one of "gaussian", "laplace"
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 10000.
 #' @param warmup How many warmup samples? Defaults to 1000.
@@ -120,53 +120,7 @@ if (family == "gaussian"){
     }
     inits = lapply(1:chains, function(z) list("Intercept" =0, "beta" = jitter(rep(0, P), amount = 1), "scale_beta" = jitter(rep(0, S), amount = 1), "ySim" = y, .RNG.name=RNGlist[z], .RNG.seed = sample(1:10000, 1)))
   }
-  
-  
-  if (family == "student_t"){
-    
-    jags_gamlss = "model{
-              
-              Intercept ~ dnorm(0, .0625)
-              
-              for (p in 1:P){
-                beta[p] ~ dnorm(0, .0625)
-              }
-              
-              for (s in 1:S){
-                nu_beta[s] ~ dnorm(0, .0625)
-              }
-              
-              for (v in 1:V){
-                scale_beta[v] ~ dnorm(0, .0625)
-              }
-              
-              for (i in 1:N){
-                 log(scale[i]) <- sum(scale_beta[1:S] * SX[i, 1:S])
-                 tau[i] <- 1 / pow(scale[i], 2)
-                 log(nu[i]) <- sum(nu_beta[1:V] * VX[i, 1:V])
-                 y[i] ~ ddexp(Intercept + sum(beta[1:P] * X[i,1:P]), tau[i])
-                 log_lik[i] <- logdensity.dexp(y[i], Intercept + sum(beta[1:P] * X[i,1:P]), tau[i])
-                 ySim[i] ~ ddexp(Intercept + sum(beta[1:P] * X[i,1:P]), tau[i])
-              }
-              deviance <- -2 * sum(log_lik[1:N])
-          }"
-    
-    X = as.matrix(model.matrix(formula, data)[,-1])
-    y = model.frame(formula, data)[,1]
-    SX = as.matrix(model.matrix(sigma.formula, data))
-    VX = as.matrix(model.matrix(nu.formula, data))
-    P = ncol(X)
-    S = ncol(SX)
-    V = nocl(VX)
-    write_lines(jags_gamlss, "jags_gamlss.txt")
-    jagsdata = list(X = X, SX = SX, VX = VX, y = y,  N = length(y), P = P, S = S, V=V)
-    monitor = c("Intercept", "beta", "scale_beta", "nu_beta", "deviance", "ySim" ,"log_lik")
-    if (log_lik == FALSE){
-      monitor = monitor[-(length(monitor))]
-    }
-    inits = lapply(1:chains, function(z) list("Intercept" =0, "beta" = jitter(rep(0, P), amount = 1), "scale_beta" = jitter(rep(0, S), amount = 1), "nu_beta" = jitter(rep(0, V), amount = 1), "ySim" = y, .RNG.name=RNGlist[z], .RNG.seed = sample(1:10000, 1)))
-  }
-  
+
   out = run.jags(model = "jags_gamlss.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)
   if (is.null(cl) == FALSE){
     parallel::stopCluster(cl = cl)

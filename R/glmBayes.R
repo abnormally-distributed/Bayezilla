@@ -47,7 +47,7 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
   if (family == "gaussian"){
 
     jags_glm = "model{
-              tau ~ dgamma(.001, .001)
+              tau ~ dgamma(.01, .01)
 
               ## omega is the hyper prior on the beta precision specified to yield
               ## independent marginal student-t distributions
@@ -57,7 +57,7 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
                 beta[p] ~ dnorm(0, omega)
               }
 
-              Intercept ~ dnorm(0, .001)
+              Intercept ~ dnorm(0, 1)
 
               for (i in 1:N){
                  y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
@@ -90,7 +90,7 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
                 beta[p] ~ dnorm(0, omega)
               }
 
-              Intercept ~ dnorm(0, .001)
+              Intercept ~ dnorm(0, 1)
 
               for (i in 1:N){
                  logit(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P])
@@ -123,7 +123,7 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
                   beta[p] ~ dnorm(0, omega)
               }
 
-              Intercept ~ dnorm(0, .001)
+              Intercept ~ dnorm(0, 1)
 
               for (i in 1:N){
                  log(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P])

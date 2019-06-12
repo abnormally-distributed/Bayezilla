@@ -2,6 +2,7 @@
 
 export(HS)
 export(HSplus)
+export(IAt)
 export(IC)
 export(Spike)
 export(XtXinv)

@@ -45,8 +45,10 @@ apcGlm = function(formula, data, family = "gaussian", lambda = -1, log_lik = FAL
   X <- model.matrix(formula, data)[, -1]
   ## Ensure that the correlation matrix is positive definite.
   cormat = cor(X)
-  diag(cormat) <- diag(cormat) + 1e-2
+  diag(cormat) <- diag(cormat) 
+  cormat = cov2cor(fBasics::makePositiveDefinite(Sigma))
   cormat = cov2cor(solve(pseudoinverse(cov2cor(cormat))))
+  cormat = cov2cor(fBasics::makePositiveDefinite(cormat))
   # Eigendecomposition
   L = eigen(cormat)$vectors
   D = eigen(cormat)$values
@@ -58,6 +60,7 @@ apcGlm = function(formula, data, family = "gaussian", lambda = -1, log_lik = FAL
     Dpower[i] <- (D[i]^lambda);
   }
   prior_cov = (L %*% diag(Dpower) %*% t(L)) / length(y)
+  prior_cov = fBasics::makePositiveDefinite(prior_cov)
   K = Trace(t) / Trace(prior_cov)
   prior_cov = K * (prior_cov)
   

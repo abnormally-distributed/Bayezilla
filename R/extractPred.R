@@ -11,7 +11,6 @@ extractPred =function (x, predname = "ySim")
   stan <- inherits(x, "stanfit")
   if (stan == TRUE) {
     ss <- as.matrix(x, pars = predname)
-    extrac
   }
   else if (class(x) == "runjags"){
     ss <- runjags::combine.mcmc(x, collapse.chains = TRUE, vars = predname)
@@ -19,6 +18,6 @@ extractPred =function (x, predname = "ySim")
   }
 
   df = as.matrix(ss)
-  rownames(df) = c(paste0("yRep[", 1:nrow(df), "]"))
+  rownames(df) = c(paste0("yIter[", 1:nrow(df), "]"))
   return(df)
 }

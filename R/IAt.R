@@ -82,7 +82,7 @@ if (family == "gaussian"){
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
-  jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u, top_u = top_u)
+  jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), df = df)
   inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(0, amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
   write_lines(jag_iat, "jag_iat.txt")
 }
@@ -114,7 +114,7 @@ if (family == "binomial"){
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
-  jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u, top_u = top_u)
+  jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), df = df)
   inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(0, amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
   write_lines(jag_iat, "jag_iat.txt")
 
@@ -143,11 +143,11 @@ if (family == "poisson"){
 }"
   
   P = ncol(X)
-  monitor = c("Intercept", "beta",  "sigma", "omega", "Deviance", "delta", "ySim" ,"log_lik")
+  monitor = c("Intercept", "beta", "omega", "Deviance", "delta", "ySim" ,"log_lik")
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
-  jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u, top_u = top_u)
+  jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), df = df)
   inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(0, amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
   write_lines(jag_iat, "jag_iat.txt")
 

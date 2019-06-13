@@ -1,7 +1,6 @@
 #' Bernoulli-Normal APC Prior for Variable Selection with unpenalized design covariates
 #'
-#' @description IMPORTANT: I suggest not using any factor predictor variables, only numeric. In my experience the inclusion of categorical
-#' predictors tends to lead to odd results in calculating the prior scale. \cr
+#' @description
 #' \cr
 #' This function impements the adaptive powered correlation g-prior model described by 
 #' Krishna, Bondell, and Ghosh (2009), but with the allowance for a set of covariates that
@@ -66,8 +65,7 @@ apcSpike = function(formula, design.formula, data, family = "gaussian", lambda =
   ## Ensure that the correlation matrix is positive definite.
   cormat = cor(X)
   cormat = cov2cor(fBasics::makePositiveDefinite(cormat))
-  cormat = cov2cor(solve(pseudoinverse(cov2cor(cormat))))
-  cormat = cov2cor(fBasics::makePositiveDefinite(cormat))
+  cormat = cov2cor(pseudoinverse(pseudoinverse(cormat)))
   # Eigendecomposition
   L = eigen(cormat)$vectors
   D = eigen(cormat)$values

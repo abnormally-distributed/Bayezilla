@@ -62,8 +62,7 @@ apcSpike = function(formula, data, family = "gaussian", lambda = -1, log_lik = F
   ## Ensure that the correlation matrix is positive definite.
   cormat = cor(X)
   cormat = cov2cor(fBasics::makePositiveDefinite(cormat))
-  cormat = cov2cor(solve(pseudoinverse(cov2cor(cormat))))
-  cormat = cov2cor(fBasics::makePositiveDefinite(cormat))
+  cormat = cov2cor(pseudoinverse(pseudoinverse(cormat)))
   # Eigendecomposition
   L = eigen(cormat)$vectors
   D = eigen(cormat)$values

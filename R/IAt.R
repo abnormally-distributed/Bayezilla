@@ -1,19 +1,21 @@
 #' Indicator Variables and Adaptive Student-t prior (Bernoulli-Student's t mixture for variable selection)
 #'
 #' @description This is the \strong{I}ndicator variables and \strong{A}daptive Student’s \strong{t}-distributions (IAt)
-#' model discussed by Knürr, Läärä, and Sillanpää (2011). \cr It is essentially a variant of the  \code{\link[Bayezilla]{Spike}}
+#' model discussed by Knürr, Läärä, and Sillanpää (2011). It is essentially a variant of the  \code{\link[Bayezilla]{Spike}}
 #' model with adjustable degrees of freedom on the prior.
-#' 
+#' \cr
+#' \cr
 #' The prior probability for the inclusion rate ("phi") is given a non-informative Jeffrey's prior. The degrees of freedom
 #' for the thetas (raw coefficients) requires user input. The default is set to 3. It is doubtful that you would need to change
 #' this. However if there is a large amount of collinearity in your data you may want to set it to a higher number such as
 #' 12 or 30.\cr
-#' 
-#' # Top level parameters
+#' \cr
+#' \cr
+#' # Top level parameters \cr
 #' tau ~ gamma(0.01, 0.01) # only for Gaussian outcome \cr
 #' phi ~ beta(1/2, 1/2) \cr
 #' Intercept ~ normal(0, 1) \cr
-#' 
+#' \cr
 #' # Independent priors for each coefficient \cr
 #' delta_i ~ dbern(phi) \cr
 #' omega_i ~ dgamma(df / 2, df / 2) \cr
@@ -28,14 +30,14 @@
 #'
 #' @references 
 #  Knürr, T., E. Läärä, and M. J. Sillanpää (2011) Genetic analysis of complex traits via Bayesian variable selection: the utility of a mixture of uniform priors. Genetics Research 93: 303-318. doi:10.1017/S0016672311000164
-#' 
+#' \cr
 #' @param formula the model formula
 #' @param data a data frame.
 #' @param family one of "gaussian", "binomial", or "poisson".
 #' @param df degrees of freedom on the prior thetas 
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 10000.
-#' @param warmup How many warmup samples? Defaults to 10000.
+#' @param warmup How many warmup samples? Defaults to 5000.
 #' @param adapt How many adaptation steps? Defaults to 15000.
 #' @param chains How many chains? Defaults to 4.
 #' @param thin Thinning interval. Defaults to 3.
@@ -49,7 +51,7 @@
 #' @examples
 #' IAt()
 #'
-IAt = function(formula, data, family = "gaussian", df = 3,log_lik = FALSE, iter=10000, warmup = 10000, adapt=15000, chains=4, thin = 3, method = "parallel", cl = makeCluster(2), ...){
+IAt = function(formula, data, family = "gaussian", df = 3, log_lik = FALSE, iter= 10000, warmup = 5000, adapt=10000, chains=4, thin = 3, method = "parallel", cl = makeCluster(2), ...){
   
   X = model.matrix(formula, data)[,-1]
   y = model.frame(formula, data)[,1]
@@ -78,12 +80,12 @@ if (family == "gaussian"){
 }"
   
   P = ncol(X)
-  monitor = c("Intercept", "beta",  "sigma", "omega", "Deviance", "delta", "ySim" ,"log_lik")
+  monitor = c("Intercept", "beta", "sigma", "Deviance", "omega", "delta", "ySim", "log_lik")
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
   jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), df = df)
-  inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(0, amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
+  inits = lapply(1:chains, function(z) list("Intercept" = 0, "ySim" = y, "omega" = rep(1, P), "theta" = rep(0, P), "eta" = rep(1, P), "phi" = .5, tau = 1 , .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))  
   write_lines(jag_iat, "jag_iat.txt")
 }
 
@@ -110,14 +112,13 @@ if (family == "binomial"){
 }"
   
   P = ncol(X)
-  monitor = c("Intercept", "beta", "omega", "Deviance", "delta", "ySim" ,"log_lik")
+  monitor = c("Intercept", "beta", "Deviance", "omega",  "delta", "ySim" ,"log_lik")
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
   jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), df = df)
-  inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(0, amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
+  inits = lapply(1:chains, function(z) list("Intercept" = 0, "ySim" = y, "omega" = rep(1, P), "theta" = rep(0, P), "eta" = rep(1, P), "phi" = .5, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))  
   write_lines(jag_iat, "jag_iat.txt")
-
 }
 
 if (family == "poisson"){
@@ -143,12 +144,12 @@ if (family == "poisson"){
 }"
   
   P = ncol(X)
-  monitor = c("Intercept", "beta", "omega", "Deviance", "delta", "ySim" ,"log_lik")
+  monitor = c("Intercept", "beta", "Deviance", "omega", "delta", "ySim" ,"log_lik")
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
   jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), df = df)
-  inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(0, amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
+  inits = lapply(1:chains, function(z) list("Intercept" = 0, "ySim" = y, "omega" = rep(1, P), "theta" = rep(0, P), "eta" = rep(1, P), "phi" = .5, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
   write_lines(jag_iat, "jag_iat.txt")
 
 }

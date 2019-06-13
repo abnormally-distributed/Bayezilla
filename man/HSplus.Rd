@@ -39,8 +39,8 @@ This is the horseshoe+ model described by Bhadra et al (2017). This is essential
 of the extended LASSO. The specification is identical to the horseshoe except an additional local shrinkage parameter is
 added to the model. Note that in the model I use somewhat different names for the paramters. This is because a key parameter
 in the model is often called "tau" in the literature (often geared towards Stan), but JAGS uses the precision parameterization
-of the normal distribution. The precision is denoted as "tau", so this warranted some new terms. See the model specification below.
-
+of the normal distribution. The precision is denoted as "tau", so this warranted some new terms. See the model specification below. \cr
+\cr 
 # Top level parameters \cr
 tau ~ gamma(0.001, 0.001) # Precision \cr
 lambda^2 ~ half-cauchy(0, 1 / tau) # the same as half-cauchy(0, sigma^2) \cr
@@ -50,6 +50,7 @@ Intercept ~ normal(0, 1) \cr
 xi_i ~ half-cauchy(0, 1) # The new local-shrinkage parameter introduced in the horseshoe+ \cr
 eta_i ~ half-cauchy(0, xi_i * lambda2) \cr
 beta ~ normal(0, 1/eta_i) \cr
+\cr
 }
 \examples{
 HSplus()
@@ -57,6 +58,6 @@ HSplus()
 }
 \references{
 Bhadra, Anindya; Datta, Jyotishka; Polson, Nicholas G.; Willard, Brandon. The Horseshoe+ Estimator of Ultra-Sparse Signals. Bayesian Anal. 12 (2017), no. 4, 1105--1131. doi:10.1214/16-BA1028. https://projecteuclid.org/euclid.ba/1474572263 \cr
-
+\cr
 Carvalho, C. M., Polson, N. G., and Scott, J. G. (2010). The horseshoe estimator for sparse signals. Biometrika, 97(2):465–480. \cr
 }

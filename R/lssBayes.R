@@ -1,5 +1,5 @@
 #' Regression Models for Location, Scale, and Shape
-#'
+#' \cr
 #' This is a very limited set models for estimating generalized linear models for location, scale, and shape.
 #' Essentially what one does is model the scale parameter (see the examples for usage and syntax).
 #' This is very useful if you have a heteroscedastic relationship between the linear predictor 
@@ -9,13 +9,15 @@
 #' in JAGS, the support for the glmlss / gamlss family of models is extremely limited. However,
 #' for more flexibility check out the bamlss package, which allows estimation of a wide class
 #' of likelihood functions including skewed normal, power exponential (generalized normal), and
-#' many more. This package only offers "gaussian" (the default), "student_t", and "laplace".
-#' 
+#' many more. This package only offers "gaussian" (the default) and "laplace".
+#' \cr 
+#' \cr
 #' NOTE: Make sure to center and scale the predictor variables. All priors on coefficients
 #' for all model parameters are set to a default precision of .0625, implying a standard 
 #' deviation of 4 on each coefficient's prior. This is weakly informative when the predictors
 #' are unit-scale, but cease to be weakly informative when the predictors are not unit scale.
-#'
+#' \cr
+#' \cr
 #' @param formula the model formula
 #' @param sigma.formula the formula for the scale parameter. Defaults to ~ 1 (intercept only)
 #' @param nu.formula the formula for the normality parameter, if using family = "student_t". Defaults to ~ 1 (intercept only)

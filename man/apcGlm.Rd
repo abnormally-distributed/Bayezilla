@@ -44,9 +44,8 @@ A run.jags object.
 This function adapts the adaptive powered correlation prior to the situation of estimating a single general(ized) linear regression
 model. Typically, in regression the cross-product XtX is inverted in the process of calculating the coefficients. In addition, 
 the Zellner-Siow cauchy g-prior utilizes the inverse crossproduct is used as an empirical Bayesian method of determining the proper scale of the coefficient
-priors by treating the inverse crossproduct as a covariance matrix, which is scaled by the parameter "g".
-}
-\details{
+priors by treating the inverse crossproduct as a covariance matrix, which is scaled by the parameter "g". \cr
+\cr
 The adaptive powered correlation prior simply extends this to allow using other powers besides -1. The power here will be referred to as "lambda".
 Setting lambda to 0 results in a ridge-regression like prior. Setting lambda to a positive value adapts to collinearity by shrinking 
 collinear variables towards a common value. Negative values of lambda pushes collinear variables further apart. Of course, setting lambda
@@ -54,7 +53,8 @@ to -1 is just the Zellner-Siow cauchy g-prior. This is designed to deal with col
 by allowing the analyst to use model comparison techniques to choose an optimal value of lambda, and then using the best model for inference.
 Note, however, that this prior is designed to deal with collinearity but not necessarily P > N scenarios. For that you may wish to take a look
 at the \code{\link[Bayezilla]{glmBayes}} function, which does not utilize the crossproduct matrix in setting prior scales (rather they are
-fully estimated in the model).
+fully estimated in the model). 
+\cr
 }
 \examples{
 apcGlm()

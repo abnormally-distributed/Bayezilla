@@ -5,7 +5,7 @@
 \title{Indicator Variables and Adaptive Student-t prior (Bernoulli-Student's t mixture for variable selection)}
 \usage{
 IAt(formula, data, family = "gaussian", df = 3, log_lik = FALSE,
-  iter = 10000, warmup = 10000, adapt = 15000, chains = 4,
+  iter = 10000, warmup = 5000, adapt = 10000, chains = 4,
   thin = 3, method = "parallel", cl = makeCluster(2), ...)
 }
 \arguments{
@@ -21,7 +21,7 @@ IAt(formula, data, family = "gaussian", df = 3, log_lik = FALSE,
 
 \item{iter}{How many post-warmup samples? Defaults to 10000.}
 
-\item{warmup}{How many warmup samples? Defaults to 10000.}
+\item{warmup}{How many warmup samples? Defaults to 5000.}
 
 \item{adapt}{How many adaptation steps? Defaults to 15000.}
 
@@ -40,19 +40,21 @@ A run.jags object
 }
 \description{
 This is the \strong{I}ndicator variables and \strong{A}daptive Student’s \strong{t}-distributions (IAt)
-model discussed by Knürr, Läärä, and Sillanpää (2011). \cr It is essentially a variant of the  \code{\link[Bayezilla]{Spike}}
+model discussed by Knürr, Läärä, and Sillanpää (2011). It is essentially a variant of the  \code{\link[Bayezilla]{Spike}}
 model with adjustable degrees of freedom on the prior.
-
+\cr
+\cr
 The prior probability for the inclusion rate ("phi") is given a non-informative Jeffrey's prior. The degrees of freedom
 for the thetas (raw coefficients) requires user input. The default is set to 3. It is doubtful that you would need to change
 this. However if there is a large amount of collinearity in your data you may want to set it to a higher number such as
 12 or 30.\cr
-
-# Top level parameters
+\cr
+\cr
+# Top level parameters \cr
 tau ~ gamma(0.01, 0.01) # only for Gaussian outcome \cr
 phi ~ beta(1/2, 1/2) \cr
 Intercept ~ normal(0, 1) \cr
-
+\cr
 # Independent priors for each coefficient \cr
 delta_i ~ dbern(phi) \cr
 omega_i ~ dgamma(df / 2, df / 2) \cr
@@ -70,5 +72,5 @@ IAt()
 
 }
 \references{
-
+\cr
 }

@@ -38,11 +38,11 @@ a runjags object
 The Bayesian LASSO of Park & Casella (2008). Note that the extended lasso and negative-exponential-gamma
 lasso will probably give better shrinkage but this is provided here for the curious. Note only the Gaussian likelihood
 is provided because the Bayesian LASSO requires conditioning on the error variance, which GLM-families
-do not have.
+do not have. \cr
 }
 \examples{
 blasso()
 }
 \references{
-Park, T., & Casella, G. (2008). The Bayesian Lasso. Journal of the American Statistical Association, 103(482), 681-686. Retrieved from http://www.jstor.org/stable/27640090
+Park, T., & Casella, G. (2008). The Bayesian Lasso. Journal of the American Statistical Association, 103(482), 681-686. Retrieved from http://www.jstor.org/stable/27640090 \cr
 }

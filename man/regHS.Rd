@@ -39,7 +39,10 @@ an rjags object
 This is the horseshoe model described by Piironen & Vehtari (2017). This tends to run very quickly
 even for larger data sets or larger numbers of predictors and in my experience is faster and more stable (at least
 on the tested data sets!) than the same model implemetned in Stan. If the horseshoe+ is analagous to the 
-extended Bayesian LASSO, then this could be compared to the Bayesian Elastic Net.
+extended Bayesian LASSO, then this could be compared to the Bayesian Elastic Net in that it imposes a combination
+of different shrinkage penalties (the elastic net being a combination of L1 and L2, and the regularized horseshoe being
+a combination of cauchy and student-t). \cr
+\cr
 }
 \examples{
 regHS()
@@ -47,6 +50,6 @@ regHS()
 }
 \references{
 Piironen, Juho; Vehtari, Aki. Sparsity information and regularization in the horseshoe and other shrinkage priors. Electron. J. Statist. 11 (2017), no. 2, 5018--5051. doi:10.1214/17-EJS1337SI. https://projecteuclid.org/euclid.ejs/1513306866 \cr
-
+\cr
 Carvalho, C. M., Polson, N. G., and Scott, J. G. (2010). The horseshoe estimator for sparse signals. Biometrika, 97(2):465–480. \cr
 }

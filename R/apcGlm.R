@@ -3,8 +3,8 @@
 #' This function adapts the adaptive powered correlation prior to the situation of estimating a single general(ized) linear regression
 #' model. Typically, in regression the cross-product XtX is inverted in the process of calculating the coefficients. In addition, 
 #' the Zellner-Siow cauchy g-prior utilizes the inverse crossproduct is used as an empirical Bayesian method of determining the proper scale of the coefficient
-#' priors by treating the inverse crossproduct as a covariance matrix, which is scaled by the parameter "g". 
-#' 
+#' priors by treating the inverse crossproduct as a covariance matrix, which is scaled by the parameter "g". \cr
+#' \cr
 #' The adaptive powered correlation prior simply extends this to allow using other powers besides -1. The power here will be referred to as "lambda".
 #' Setting lambda to 0 results in a ridge-regression like prior. Setting lambda to a positive value adapts to collinearity by shrinking 
 #' collinear variables towards a common value. Negative values of lambda pushes collinear variables further apart. Of course, setting lambda
@@ -12,8 +12,8 @@
 #' by allowing the analyst to use model comparison techniques to choose an optimal value of lambda, and then using the best model for inference.
 #' Note, however, that this prior is designed to deal with collinearity but not necessarily P > N scenarios. For that you may wish to take a look
 #' at the \code{\link[Bayezilla]{glmBayes}} function, which does not utilize the crossproduct matrix in setting prior scales (rather they are
-#' fully estimated in the model).
-#'
+#' fully estimated in the model). 
+#' \cr
 #' @references Krishna, A., Bondell, H. D., & Ghosh, S. K. (2009). Bayesian variable selection using an adaptive powered correlation prior. Journal of statistical planning and inference, 139(8), 2665–2674. doi:10.1016/j.jspi.2008.12.004
 #' 
 #' @param formula the model formula
@@ -45,8 +45,7 @@ apcGlm = function(formula, data, family = "gaussian", lambda = -1, log_lik = FAL
   X <- model.matrix(formula, data)[, -1]
   ## Ensure that the correlation matrix is positive definite.
   cormat = cor(X)
-  diag(cormat) <- diag(cormat) 
-  cormat = cov2cor(fBasics::makePositiveDefinite(Sigma))
+  cormat = cov2cor(fBasics::makePositiveDefinite(cormat))
   cormat = cov2cor(solve(pseudoinverse(cov2cor(cormat))))
   cormat = cov2cor(fBasics::makePositiveDefinite(cormat))
   # Eigendecomposition
@@ -81,7 +80,7 @@ apcGlm = function(formula, data, family = "gaussian", lambda = -1, log_lik = FAL
               
               omega <- inverse(cov) 
               beta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
-              Intercept ~ dnorm(0, .01)
+              Intercept ~ dnorm(0, 1)
               for (i in 1:N){
                  y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
                  log_lik[i] <- logdensity.norm(y[i], Intercept + sum(beta[1:P] * X[i,1:P]), tau)
@@ -115,7 +114,7 @@ apcGlm = function(formula, data, family = "gaussian", lambda = -1, log_lik = FAL
               
               omega <- inverse(cov) 
               beta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
-              Intercept ~ dnorm(0, 0.01)
+              Intercept ~ dlogis(0, 1)
               for (i in 1:N){
                  logit(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P])
                  y[i] ~ dbern(psi[i])
@@ -148,7 +147,7 @@ apcGlm = function(formula, data, family = "gaussian", lambda = -1, log_lik = FAL
                 }
               }
               omega <- inverse(cov) 
-              Intercept ~ dnorm(0, 0.01)
+              Intercept ~ dnorm(0, 1)
               beta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
               for (i in 1:N){
                  log(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P])

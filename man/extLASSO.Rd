@@ -47,16 +47,18 @@ A run.jags object
 This is the extended Bayesian LASSO presented by
 Crispin M. Mutshinda and Mikko J. Sillanpää (2010) which is an improvement on the Baysian LASSO
 of Park & Casella (2008). \cr
-
+\cr
 The first version of the model is the original specification in Mutshinda and Sillanpää (2010), labeled
 "classic" in the options here. This requires you to choose upper limits for the uniform priors on both 
 the top-level shrinkage hyperparameter as well as the local shrinkage parameters. These can be tuned through
 model comparison if neccessary. The default values are 2 and 50. 
 \cr
+\cr
 The second version is the "fixed_u" prior. This places a gamma(0.125 , 0.125) prior on the
 top level shrinkage hyperparameter. The tail of this distribution fades out at 50 (matching the default upper 
 limit of 50 in the "classic" version). The individaul shrinkage prameters are given independent uniform(0, local_u) 
 priors just as in the classic version. 
+\cr
 \cr
 The third version is a hierarchical "gamma" variant which places a gamma(0.125 , 0.125) prior
 on the top-level shrinkage hyperparameter and independent gamma(1.007137, 0.7000579) priors on the
@@ -66,11 +68,13 @@ however, there is greater probability **density** on smaller values which can in
 This variant is intended to provide better sampling efficiency than either of the other two variants, as well as
 increase sensitivty to signals as was just mentioned. 
 \cr
+\cr
 The author of the extended Bayesian Lasso (Sillanpää, personal communication) confirmed that gamma priors 
 do work well in some settings, which is why I opted to include the "fixed_u" and "gamma" variants.
 \cr
+\cr
 ######## BAYES FACTORS AND INCLUSION PROBABILITIES ######## \cr
-
+\cr
 Note that the prior inclusion probability is given by 1/local_u, so if you want a 50% inclusion
 probability choose local_u = 2. Common in Bayesian variable selection is to use a 20% probability if
 dealing with a high dimensional problem, so for this choose local_u = 5. If you have genuine prior
@@ -87,7 +91,9 @@ extLASSO()
 
 }
 \references{
-Mutshinda, C.M., & Sillanpää, M.J. (2010). Extended Bayesian LASSO for multiple quantitative trait loci mapping and unobserved phenotype prediction. Genetics, 186 3, 1067-75 . \cr
+Mutshinda, C.M., & Sillanpää, M.J. (2010). Extended Bayesian LASSO for multiple quantitative trait loci mapping and unobserved phenotype prediction. Genetics, 186 3, 1067-75 . \cr 
+\cr
 Mutshinda, C. M., and M. J. Sillanpää (2012) A decision rule for quantitative trait locus detection under the extended Bayesian LASSO model. Genetics 192: 1483-1491. \cr
-Li, Z.,and Sillanpää, M. J. (2012) Overview of LASSO-related penalized regression methods for quantitative trait mapping and genomic selection. Theoretical and Applied Genetics 125: 419-435.
+\cr
+Li, Z.,and Sillanpää, M. J. (2012) Overview of LASSO-related penalized regression methods for quantitative trait mapping and genomic selection. Theoretical and Applied Genetics 125: 419-435. \cr
 }

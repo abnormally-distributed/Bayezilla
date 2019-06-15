@@ -87,7 +87,7 @@ apcSpike = function(formula, design.formula, data, family = "gaussian", lambda =
     jags_apc = "model{
               
               phi ~ dbeta(0.5, 0.5)
-              tau ~ dscaled.gamma(1, 6)
+              tau ~ dgamma(.01, .01)
               g_inv ~ dgamma(.5, N * .5)
               g <- 1 / g_inv
               sigma <- sqrt(1/tau)
@@ -107,11 +107,11 @@ apcSpike = function(formula, design.formula, data, family = "gaussian", lambda =
               
               # Design Variable Coefficients
                   for (f in 1:FP){
-                  design_beta[f] ~ dt(0, .01, 6)
+                  design_beta[f] ~ dnorm(0, 0.0625)
               }
               
               
-              Intercept ~ dnorm(0, 2)
+              Intercept ~ dnorm(0, 1)
               
               for (i in 1:N){
                  y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]) + sum(design_beta[1:FP] * FX[i,1:FP]) , tau)
@@ -148,7 +148,7 @@ apcSpike = function(formula, design.formula, data, family = "gaussian", lambda =
               
               omega <- inverse(cov) 
               
-              Intercept ~ dlogis(0, 2)
+              Intercept ~ dlogis(0, 1)
               
               theta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
               for (i in 1:P){
@@ -159,7 +159,7 @@ apcSpike = function(formula, design.formula, data, family = "gaussian", lambda =
               
                # Design Variable Coefficients
               for (f in 1:FP){
-                  design_beta[f] ~ dlogis(0, .01)
+                  design_beta[f] ~ dnorm(0, 0.0625)
               }
               
               for (i in 1:N){
@@ -199,7 +199,7 @@ apcSpike = function(formula, design.formula, data, family = "gaussian", lambda =
               
               omega <- inverse(cov) 
               
-              Intercept ~ dnorm(0, 2)
+              Intercept ~ dnorm(0, 1)
               
               theta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
               for (i in 1:P){
@@ -209,7 +209,7 @@ apcSpike = function(formula, design.formula, data, family = "gaussian", lambda =
              
              # Design Variable Coefficients
                   for (f in 1:FP){
-                  design_beta[f] ~ dt(0, .01, 6)
+                  design_beta[f] ~ dnorm(0, 0.0625)
               }
               
               for (i in 1:N){

@@ -8,7 +8,7 @@
 #' estimate will be in column title "estimate". If "both" (the default) the mean will be the "estimate" column and the median will be in the "median" column.
 #' @param cred.method one of "HDI" (highest density intervals) or "QI" (equal tailed \ quantile intervals).
 #' @param cred.level the credibility level. defaults to 0.90
-#' @param keep.vars the list of specific variables to keep if passing an runjags object.
+#' @param keeppars the list of specific variables to keep if passing an runjags object.
 #' @param droppars list of parameters to exclude
 #' @param ess set to TRUE (default) to include ess
 #' @param knitr if you want to return the summary with knitr's kable function set to TRUE. Default is FALSE.
@@ -19,19 +19,48 @@
 #' @examples
 #' post_summary()
 #'
-post_summary = function (x, digits = 3, estimate.method = "both", ess = TRUE, cred.level = 0.90, cred.method = "QI", keep.vars = NA, droppars = NA, knitr = FALSE, type = "markdown", ...)
+post_summary = function (x, digits = 3, estimate.method = "both", ess = TRUE, cred.level = 0.90, cred.method = "QI", keeppars = NULL, droppars = c("ySim", "log_lik", "lp__"), knitr = FALSE, type = "markdown", ...)
   {
     stan <- inherits(x, "stanfit")
     if (stan == TRUE) {
       ss <- as.matrix(x)
+      wch = unique(unlist(sapply(droppars, function(z) which(regexpr(z, colnames(ss)) == 1))))
+      if (length(wch) != 0){
+        ss <- ss[,-wch]
+      }
+      if (!is.null(keeppars)) {
+        wch = unique(unlist(sapply(keeppars, function(z) which(regexpr(z, colnames(ss)) == 1))))
+        if (length(wch) != 0){
+          ss <- ss[,wch]
+        }
+      }
     }
     else if (class(x) == "runjags"){
-      ss <- runjags::combine.mcmc(x, collapse.chains = TRUE, vars = keep.vars)
+      ss <- runjags::combine.mcmc(x, collapse.chains = TRUE)
       ss <- as.matrix(ss)
+      wch = unique(unlist(sapply(droppars, function(z) which(regexpr(z, colnames(ss)) == 1))))
+      if (length(wch) != 0){
+        ss <- ss[,-wch]
+      }
+      if (!is.null(keeppars)) {
+        wch = unique(unlist(sapply(keeppars, function(z) which(regexpr(z, colnames(ss)) == 1))))
+        if (length(wch) != 0){
+          ss <- ss[,wch]
+        }
+      }
     }
     else {
       ss <- as.matrix(x)
-      ss <- ss[, !colnames(ss) %in% droppars, drop = FALSE]
+      wch = unique(unlist(sapply(droppars, function(z) which(regexpr(z, colnames(ss)) == 1))))
+      if (length(wch) != 0){
+        ss <- ss[,-wch]
+      }
+      if (!is.null(keeppars)) {
+        wch = unique(unlist(sapply(keeppars, function(z) which(regexpr(z, colnames(ss)) == 1))))
+        if (length(wch) != 0){
+          ss <- ss[,wch]
+        }
+      }
     }
 
     if (estimate.method == "mean") {

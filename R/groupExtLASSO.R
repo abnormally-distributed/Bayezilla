@@ -91,7 +91,7 @@ groupExtLASSO <- function(X, y, idx, family = "gaussian", eta_prior = "classic",
       jags_grp_extended_LASSO <- "model{
 
               # Precision
-              tau ~ dgamma(.1, .1)
+              tau ~ dgamma(.01, .01)
 
               # Shrinkage top-level-hyperparameter
               Omega ~ dgamma(0.4444444, 0.4444444) 

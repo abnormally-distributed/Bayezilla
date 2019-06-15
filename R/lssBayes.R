@@ -1,5 +1,6 @@
 #' Regression Models for Location, Scale, and Shape
-#' \cr
+#' 
+#' @description
 #' This is a very limited set models for estimating generalized linear models for location, scale, and shape.
 #' Essentially what one does is model the scale parameter (see the examples for usage and syntax).
 #' This is very useful if you have a heteroscedastic relationship between the linear predictor 
@@ -20,7 +21,6 @@
 #' \cr
 #' @param formula the model formula
 #' @param sigma.formula the formula for the scale parameter. Defaults to ~ 1 (intercept only)
-#' @param nu.formula the formula for the normality parameter, if using family = "student_t". Defaults to ~ 1 (intercept only)
 #' @param data a data frame
 #' @param family one of "gaussian", "laplace"
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
@@ -38,20 +38,15 @@
 #'
 #' @examples
 #' lssBayes(Petal.Width ~ . - Species, sigma.formula = ~ Species, data = scale(iris))
-#' lssBayes(Petal.Width ~ . - Sepal.Length - Species, sigma.formula = ~ Species, nu.formula = ~ Sepal.Length, data = scale(iris), family = "student_t")
 #' 
-lssBayes  = function(formula, sigma.formula = ~ 1, nu.formula = ~ 1, data, family = "gaussian", log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=3, method = "parallel", cl = makeCluster(2), ...){
+lssBayes  = function(formula, sigma.formula = ~ 1, data, family = "gaussian", log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=3, method = "parallel", cl = makeCluster(2), ...){
   
-  RNGlist = c("base::Wichmann-Hill", "base::Marsaglia-Multicarry", "base::Super-Duper", "base::Mersenne-Twister")
-  if (chains > 4){
-    chains = 4
-  }  
-  
+
 if (family == "gaussian"){
   
   jags_gamlss = "model{
               
-              Intercept ~ dnorm(0, .0625)
+              Intercept ~ dnorm(0, 1)
               
               for (p in 1:P){
                 beta[p] ~ dnorm(0, .0625)
@@ -82,21 +77,21 @@ if (family == "gaussian"){
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
-  inits = lapply(1:chains, function(z) list("Intercept" =0, "beta" = jitter(rep(0, P), amount = 1), "sigma_beta" = jitter(rep(0, S), amount = 1), "ySim" = y, .RNG.name=RNGlist[z], .RNG.seed = sample(1:10000, 1)))
+  inits = lapply(1:chains, function(z) list("Intercept" =0, "beta" = jitter(rep(0, P), amount = 1), "sigma_beta" = jitter(rep(0, S), amount = 1), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1)))
 }
   
   if (family == "laplace"){
     
     jags_gamlss = "model{
               
-              Intercept ~ ddexp(0, .0625)
+              Intercept ~ dnorm(0, 1)
               
               for (p in 1:P){
                 beta[p] ~ dnorm(0, .0625)
               }
               
               for (s in 1:S){
-                scale_beta[s] ~ ddexp(0, .0625)
+                scale_beta[s] ~ dnorm(0, .0625)
               }
               
               for (i in 1:N){
@@ -120,7 +115,7 @@ if (family == "gaussian"){
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" =0, "beta" = jitter(rep(0, P), amount = 1), "scale_beta" = jitter(rep(0, S), amount = 1), "ySim" = y, .RNG.name=RNGlist[z], .RNG.seed = sample(1:10000, 1)))
+    inits = lapply(1:chains, function(z) list("Intercept" =0, "beta" = jitter(rep(0, P), amount = 1), "scale_beta" = jitter(rep(0, S), amount = 1), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1)))
   }
 
   out = run.jags(model = "jags_gamlss.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)

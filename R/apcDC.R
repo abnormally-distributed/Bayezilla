@@ -44,8 +44,8 @@
 #' 
 apcDC = function(formula, design.formula, data, family = "gaussian", lambda = -1, log_lik = FALSE, iter=10000, warmup=1000, adapt=5000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...)
 {
-  FX <- model.matrix(design.formula, data)[, -1]
   data <- as.data.frame(data)
+  FX <- model.matrix(design.formula, data)[, -1]
   y <- as.numeric(model.frame(formula, data)[, 1])
   X <- model.matrix(formula, data)[, -1]
   ## Ensure that the correlation matrix is positive definite.
@@ -71,7 +71,7 @@ apcDC = function(formula, design.formula, data, family = "gaussian", lambda = -1
     
     jags_apc = "model{
     
-              tau ~ dscaled.gamma(1, 3)
+              tau ~ dgamma(.01, .01)
               g_inv ~ dgamma(.5, N * .5)
               g <- 1 / g_inv
               sigma <- sqrt(1/tau)
@@ -84,7 +84,7 @@ apcDC = function(formula, design.formula, data, family = "gaussian", lambda = -1
               
               # Design Variable Coefficients
                   for (f in 1:FP){
-                  design_beta[f] ~ dt(0, .01, 6)
+                  design_beta[f] ~ dnorm(0, 0.0625)
               }
               
               omega <- inverse(cov) 
@@ -103,15 +103,15 @@ apcDC = function(formula, design.formula, data, family = "gaussian", lambda = -1
 
     write_lines(jags_apc, "jags_apc.txt")
     P = ncol(X)
-    FP <- ncol(FX)
+    FP = ncol(FX)
     jagsdata = list(X = X, y = y, N = length(y),  P = ncol(X), prior_cov = prior_cov, FP = FP, FX = FX)
     monitor = c("Intercept", "beta", "design_beta", "sigma", "g", "Deviance", "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = jitter(rep(0, P), amount = 1), "design_beta" = rep(0, FP), "tau",  "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
-  }
-  
+    inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = jitter(rep(0, P), amount = 1), "design_beta" = rep(0, FP), "tau" = 1,  "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
+    out = run.jags(model = "jags_apc.txt", modules = c("glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)
+}
   if (family == "binomial" || family == "logistic"){
     
     jags_apc = "model{
@@ -127,7 +127,7 @@ apcDC = function(formula, design.formula, data, family = "gaussian", lambda = -1
               
               # Design Variable Coefficients
                   for (f in 1:FP){
-                  design_beta[f] ~ dlogis(0, .01)
+                  design_beta[f] ~ dnorm(0, 0.0625)
               }
               
               omega <- inverse(cov) 
@@ -151,7 +151,8 @@ apcDC = function(formula, design.formula, data, family = "gaussian", lambda = -1
       monitor = monitor[-(length(monitor))]
     }
     inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = jitter(rep(0, P), amount = 1), "design_beta" = rep(0, FP), "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
-  }
+    out = run.jags(model = "jags_apc.txt", modules = c("glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)
+}
   
   if (family == "poisson"){
     
@@ -168,7 +169,7 @@ apcDC = function(formula, design.formula, data, family = "gaussian", lambda = -1
 
               # Design Variable Coefficients
                   for (f in 1:FP){
-                  design_beta[f] ~ dt(0, .01, 6)
+                  design_beta[f] ~ dnorm(0, 0.0625)
               }
               
               omega <- inverse(cov) 
@@ -194,9 +195,9 @@ apcDC = function(formula, design.formula, data, family = "gaussian", lambda = -1
       monitor = monitor[-(length(monitor))]
     }
     inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = jitter(rep(0, P), amount = 1), "design_beta" = rep(0, FP), "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
-    }
-  
-   if (is.null(cl) == FALSE){
+    out = run.jags(model = "jags_apc.txt", modules = c("glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)
+  }
+  if (is.null(cl) == FALSE){
     parallel::stopCluster(cl = cl)
   }
   file.remove("jags_apc.txt")

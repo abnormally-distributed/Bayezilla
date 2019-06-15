@@ -66,7 +66,7 @@ apcGlm = function(formula, data, family = "gaussian", lambda = -1, log_lik = FAL
     
     jags_apc = "model{
     
-              tau ~ dscaled.gamma(1, 3)
+              tau ~ dgamma(.001, .001)
               g_inv ~ dgamma(.5, N * .5)
               g <- 1 / g_inv
               sigma <- sqrt(1/tau)

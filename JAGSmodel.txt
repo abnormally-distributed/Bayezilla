@@ -1,6 +1,6 @@
 ######################################################################################################
 ######################################################################################################
-#### JAGS model file written by runjags version 2.0.4-2 on 2019-05-31 22:04:46 
+#### JAGS model file written by runjags version 2.0.4-2 on 2019-06-14 21:32:35 
 ######################################################################################################
 ######################################################################################################
 
@@ -41,14 +41,14 @@ resid.sum.sq <- sum(regression_residual^2)
 
 inits{
 "regression_precision" <- 10
-"intercept" <- -1
-"Species_precision" <- 10
+"intercept" <- 1
+"Species_precision" <- 0.01
 }
 
 inits{
 "regression_precision" <- 10
-"intercept" <- -1
-"Species_precision" <- 10
+"intercept" <- 1
+"Species_precision" <- 0.01
 }
 
 

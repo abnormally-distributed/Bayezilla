@@ -104,8 +104,6 @@ Note, however, that this prior is designed to deal with collinearity but not nec
 at the \code{\link[Bayezilla]{extLASSO}} or \code{\link[Bayezilla]{bayesEnet}} functions. 
 \cr
 
-IMPORTANT: I suggest not using any factor predictor variables, only numeric. In my experience the inclusion of categorical
-predictors tends to lead to odd results in calculating the prior scale. \cr
 \cr
 This function impements the adaptive powered correlation g-prior model described by 
 Krishna, Bondell, and Ghosh (2009), but with the allowance for a set of covariates that

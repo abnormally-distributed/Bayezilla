@@ -40,7 +40,7 @@ even for larger data sets or larger numbers of predictors and in my experience i
 on the tested data sets!) than the same model implemetned in Stan. 
 
 # Top level parameters \cr
-tau ~ gamma(0.001, 0.001) # Precision \cr
+tau ~ gamma(0.01, 0.01) # Precision \cr
 lambda^2 ~ half-cauchy(0, 1 / tau) # the same as half-cauchy(0, sigma^2) \cr
 Intercept ~ normal(0, 1) \cr
 \cr

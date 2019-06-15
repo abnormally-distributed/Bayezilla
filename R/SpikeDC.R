@@ -50,7 +50,6 @@
 #' 
 #' @seealso 
 #' \code{\link[Bayezilla]{apcSpike}} 
-#' \code{\link[Bayezilla]{apcSpikeHS}}
 #' \code{\link[Bayezilla]{extLASSO}}
 #' \code{\link[Bayezilla]{negLASSO}}
 #' \code{\link[Bayezilla]{bayesEnet}}
@@ -63,7 +62,7 @@ SpikeDC <- function(formula, design.formula, data, family = "gaussian", log_lik 
   if (family == "gaussian") {
     
     jags_glm_spike <- "model{
-              tau ~ dgamma(.1, .1)
+              tau ~ dgamma(.01, .01)
               phi ~ dbeta(.5, .5) 
               
               for (p in 1:P){
@@ -73,7 +72,7 @@ SpikeDC <- function(formula, design.formula, data, family = "gaussian", log_lik 
               }
               
               for (f in 1:FP){
-                design_beta[f] ~ dt(0, .01, 6)
+                design_beta[f] ~ dnorm(0, .0625)
               }
 
               Intercept ~ dnorm(0, 1)
@@ -115,7 +114,7 @@ SpikeDC <- function(formula, design.formula, data, family = "gaussian", log_lik 
               }
               
               for (f in 1:FP){
-                design_beta[f] ~ dlogis(0, .01)
+                design_beta[f] ~ dlogis(0, .0625)
               }
               
               Intercept ~ dnorm(0, 1)
@@ -155,7 +154,7 @@ SpikeDC <- function(formula, design.formula, data, family = "gaussian", log_lik 
               }
               
               for (f in 1:FP){
-                design_beta[f] ~ dt(0, .01, 6)
+                design_beta[f] ~ dnorm(0, .0625)
               }
               
               Intercept ~ dnorm(0, 1)

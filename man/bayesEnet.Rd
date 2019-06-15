@@ -35,7 +35,7 @@ bayesEnet(formula, data, log_lik = FALSE, iter = 10000,
 A run.jags object
 }
 \description{
-The Bayesian elastic net described by Li, Lin, and Xi (2010). Note only the Gaussian likelihood is 
+The Bayesian elastic net described by Li and Lin (2010). Note only the Gaussian likelihood is 
 provided because the Bayesian elastic net requires conditioning on the error variance, which GLM-families
 do not have.
 }
@@ -44,5 +44,5 @@ bayesEnet()
 
 }
 \references{
-Li, Qing; Xi, Ruibin; Lin, Nan. Bayesian regularized quantile regression. Bayesian Anal. 5 (2010), no. 3, 533--556. doi:10.1214/10-BA521. https://projecteuclid.org/euclid.ba/1340380540
+Li, Qing; Lin, Nan. The Bayesian elastic net. Bayesian Anal. 5 (2010), no. 1, 151--170. doi:10.1214/10-BA506. https://projecteuclid.org/euclid.ba/1340369796
 }

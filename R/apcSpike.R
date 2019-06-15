@@ -84,7 +84,7 @@ apcSpike = function(formula, data, family = "gaussian", lambda = -1, log_lik = F
       jags_apc = "model{
               
               phi ~ dbeta(0.5, 0.5)
-              tau ~ dscaled.gamma(1, 1)
+              tau ~ dscaled.gamma(.01, .01)
               g_inv ~ dgamma(.5, N * .5)
               g <- 1 / g_inv
               sigma <- sqrt(1/tau)

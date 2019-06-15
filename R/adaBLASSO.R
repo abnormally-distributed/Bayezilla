@@ -1,10 +1,9 @@
 #' Adaptive Bayesian Lasso
 #'
 #' The Bayesian LASSO of Leng, Tran and David Nott (2018). Basically just the Bayesian Lasso of Park & Casella (2008) but with
-#' individual lambdas on each parameter defined by a gamma(r, d) distribution, where r and d are hyperparameters. Here r and d
-#' are given independent gamma(0.0001, 0.0001) priors which approximates a Jeffrey's prior. For alternatives that may peform better
-#' see \code{\link[Bayezilla]{negLASSO}} or \code{\link[Bayezilla]{extLASSO}}. However this is provided for a rich choice of options,
-#' as it is sometimes hard to tell a priori which LASSO variant will work the best.
+#' individual lambdas on each parameter defined by a gamma(sh, ra) distribution, where sh and ra are shape and rate hyperparameters. 
+#' Here sh and ra are given independent gamma(0.25, .5) and gamma(0.0025, .05) priors respectively. For alternatives 
+#' see \code{\link[Bayezilla]{negLASSO}} (which is extremely similar) or \code{\link[Bayezilla]{extLASSO}}.
 #'
 #' @param formula the model formula
 #' @param data a data frame.
@@ -36,11 +35,12 @@ adaBLASSO = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, ad
   y = model.frame(formula, data)[,1]
 
   jags_blasso = "model{
-  tau ~ dgamma(.001, .001)
-  r ~ rgamma(.0001, .0001)
-  d ~ rgamma(.0001, .0001)
+  tau ~ dgamma(.01, .01)
+  sh ~ dgamma(0.25, .5)
+  ra ~ dgamma(0.0025, .05)
+    
   for (p in 1:P){
-    lambda[p] ~ dgamma(r, d)
+    lambda[p] ~ dgamma(sh , ra)
     eta[p] ~ dexp(lambda[p]^2 / 2)
     omega[p] <- 1 / ( (1 / tau) * eta[p])
     beta[p] ~ dnorm(0, omega[p])
@@ -57,11 +57,11 @@ adaBLASSO = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, ad
   P <- ncol(X)
   write_lines(jags_blasso, "jags_blasso.txt")
   jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X))
-  monitor <- c("Intercept", "beta", "sigma", "r" , "d", "lambda", "Deviance", "eta", "ySim", "log_lik")
+  monitor <- c("Intercept", "beta", "sigma", "sh" , "ra", "lambda", "Deviance", "ySim", "log_lik")
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
-  inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "beta" = rep(0, P), "eta" = rep(1, P), "lambda" = rep(1, P), "tau" = 1, "r" = .001, "d" = .001))
+  inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "beta" = rep(0, P), "eta" = rep(1, P), "sh" = .5, "ra" = .05, "lambda" = sample(1:50, size = P, replace =TRUE), "tau" = 1))
 
   out = run.jags(model = "jags_blasso.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
   file.remove("jags_blasso.txt")

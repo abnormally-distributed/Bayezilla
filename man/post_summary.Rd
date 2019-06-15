@@ -5,8 +5,9 @@
 \title{Get a tidy summary of a bayesian model}
 \usage{
 post_summary(x, digits = 3, estimate.method = "both", ess = TRUE,
-  cred.level = 0.9, cred.method = "QI", keep.vars = NA,
-  droppars = NA, knitr = FALSE, type = "markdown", ...)
+  cred.level = 0.9, cred.method = "QI", keeppars = NULL,
+  droppars = c("ySim", "log_lik", "lp__"), knitr = FALSE,
+  type = "markdown", ...)
 }
 \arguments{
 \item{x}{the set of posterior samples to be summarized}
@@ -22,7 +23,7 @@ estimate will be in column title "estimate". If "both" (the default) the mean wi
 
 \item{cred.method}{one of "HDI" (highest density intervals) or "QI" (equal tailed \ quantile intervals).}
 
-\item{keep.vars}{the list of specific variables to keep if passing an runjags object.}
+\item{keeppars}{the list of specific variables to keep if passing an runjags object.}
 
 \item{droppars}{list of parameters to exclude}
 

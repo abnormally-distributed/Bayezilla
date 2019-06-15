@@ -36,10 +36,9 @@ a runjags object
 }
 \description{
 The Bayesian LASSO of Leng, Tran and David Nott (2018). Basically just the Bayesian Lasso of Park & Casella (2008) but with
-individual lambdas on each parameter defined by a gamma(r, d) distribution, where r and d are hyperparameters. Here r and d
-are given independent gamma(0.0001, 0.0001) priors which approximates a Jeffrey's prior. For alternatives that may peform better
-see \code{\link[Bayezilla]{negLASSO}} or \code{\link[Bayezilla]{extLASSO}}. However this is provided for a rich choice of options,
-as it is sometimes hard to tell a priori which LASSO variant will work the best.
+individual lambdas on each parameter defined by a gamma(sh, ra) distribution, where sh and ra are shape and rate hyperparameters. 
+Here sh and ra are given independent gamma(0.25, .5) and gamma(0.0025, .05) priors respectively. For alternatives 
+see \code{\link[Bayezilla]{negLASSO}} (which is extremely similar) or \code{\link[Bayezilla]{extLASSO}}.
 }
 \examples{
 adaBLASSO()

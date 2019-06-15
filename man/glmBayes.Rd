@@ -2,7 +2,7 @@
 % Please edit documentation in R/glmBayes.R
 \name{glmBayes}
 \alias{glmBayes}
-\title{Bayesian Basic GLMs}
+\title{Bayesian Regularized GLMs}
 \usage{
 glmBayes(formula, data, family = "gaussian", log_lik = FALSE,
   iter = 10000, warmup = 1000, adapt = 2000, chains = 4,
@@ -38,20 +38,23 @@ A run.jags object
 }
 \description{
 This model utilizes normal-gamma mixture priors. A student-t prior can be parameterized as a norma-gamma mixture 
-by utilizing a gamma(df/2, df/2) distribution where df is the desired degrees of freedom. 
-This model utilizes a single degree of freedom, which gives marginal cauchy distributions. The cauchy distribution has no defined 
-first or second moments (mean and variance), hence does not require subjective specification of the prior means. The cauchy
-distribution's extremely long tails allow coefficients with strong evidence of being large to not be shrunk too strongly, while the 
-large probability mass at the mode of zero captures small noisy coefficients and regularizes them. The scale is modeled as a single hyperparameter "omega" via the gamma(.5, .5)
-prior and this pooled-scale induces shrinkage when neccessary. 
-This setup yields an ideal proper reference / objective prior that is data-driven and adaptive.
-}
-\details{
-Standard gaussian, binomial, and poisson likelihood functions are available.
-
+by utilizing a gamma(df/2, df/2) distribution on the precision, where df is the desired degrees of freedom. Smaller
+degrees of freedom 
+result in long tails which can capture larger coefficients with sufficient evidence while also providing regularization
+for coefficients which lack strong evidence of being large. This prevents unrealistically large coefficient estimates
+due to collinearity. Collinearity results in increased posterior variance due to a flatter likelihood function, and a side
+effect of this is inflated coefficient estimates. \cr
+\cr
+This model utilizes a prior on the degrees of freedom, meaning the prior distribution is a mixture of student-t distributions
+with different degrees of freedom. This setup yields a prior that is data-driven and adaptive. In other words, only as much
+regularization is applied as is needed. The behavior of this estimator is nearly identical to ridge regression. \cr
+\cr
+Standard gaussian, binomial, and poisson likelihood functions are available. \cr
+\cr
+For an alternative prior that also performs very well see \code{\link[Bayezilla]{apcGlm}}
+\cr
 Note that if you do not scale and center your numeric predictors, this will likely not perform well or
-give reasonable results. The mixing hyperparameter omega assumes all covariates are on the same scale.
-For an alternative proper reference prior see \code{\link[Bayezilla]{apcGlm}}
+give reasonable results. The mixing hyperparameters assume all covariates are on the same scale.
 }
 \examples{
 glmBayes()

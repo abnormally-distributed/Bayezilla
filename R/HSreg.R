@@ -30,9 +30,9 @@
 #' @export
 #'
 #' @examples
-#' regHS()
+#' HSreg()
 #'
-regHS = function(formula, data, phi = .10, slab_scale = 2, slab_df = 6, log_lik = FALSE, 
+HSreg = function(formula, data, phi = .10, slab_scale = 2, slab_df = 6, log_lik = FALSE, 
                  iter = 10000, warmup = 4000, adapt = 5000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
   
   X = model.matrix(formula, data)[,-1]
@@ -41,7 +41,7 @@ regHS = function(formula, data, phi = .10, slab_scale = 2, slab_df = 6, log_lik 
   horseshoe = "model{
 
 # tau is the precision, inverse of variance.
-tau ~ dscaled.gamma(1, 3) 
+tau ~ dgamma(.01, .01) 
 sigma <- sqrt(1/tau)
 
 # lambda squared, the global penalty
@@ -77,7 +77,7 @@ inits = lapply(1:chains, function(z) list("beta" = rep(0, ncol(X)),
                                           "Intercept" = 0, 
                                           "eta" =  rep(1, ncol(X)),
                                           "c2_inv" = 1/slab_df, 
-                                          "lambda2"= 1, 
+                                          "lambda2"= 10, 
                                           "tau" = 1,
                                           .RNG.name= "lecuyer::RngStream",
                                           .RNG.seed= sample(1:10000, 1)))

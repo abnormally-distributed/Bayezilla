@@ -71,7 +71,6 @@ Kuo, L., & Mallick, B. (1998). Variable Selection for Regression Models. SankhyÄ
 }
 \seealso{
 \code{\link[Bayezilla]{apcSpike}} 
-\code{\link[Bayezilla]{apcSpikeHS}}
 \code{\link[Bayezilla]{extLASSO}}
 \code{\link[Bayezilla]{negLASSO}}
 \code{\link[Bayezilla]{bayesEnet}}

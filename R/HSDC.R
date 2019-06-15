@@ -55,13 +55,13 @@ HSDC = function(formula, design.formula, data, log_lik = FALSE, iter = 4000, war
   
   horseshoe = "model{
 # tau is the precision, inverse of variance.
-tau ~ dscaled.gamma(1, 6) 
+tau ~ dgamma(.01, .01) 
 
 # lambda squared, the global penalty
 lambda2 ~ dt(0, 1 / tau, 1) T(0, )
 
 # Coefficients
-Intercept ~ dnorm(0, 2)
+Intercept ~ dnorm(0, 1)
 for (i in 1:P){
   eta[i] ~ dt(0, lambda2, 1) T(0, ) # prior variance
   beta[i] ~ dnorm(0, 1 / eta[i])
@@ -70,7 +70,7 @@ for (i in 1:P){
 
 # Design Variable Coefficients
 for (f in 1:FP){
-    design_beta[f] ~ dt(0, .01, 6)
+    design_beta[f] ~ dnorm(0, 0.0625)
 }
   
 # Likelihood Function

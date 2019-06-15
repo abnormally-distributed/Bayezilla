@@ -5,7 +5,7 @@
 \title{Shape-adaptive shrinkage prior (SASP)}
 \usage{
 SASP(formula, data, family = "gaussian", log_lik = FALSE,
-  iter = 4000, warmup = 1500, adapt = 5000, chains = 4, thin = 1,
+  iter = 6000, warmup = 500, adapt = 2000, chains = 4, thin = 1,
   method = "parallel", cl = makeCluster(3), ...)
 }
 \arguments{
@@ -17,15 +17,15 @@ SASP(formula, data, family = "gaussian", log_lik = FALSE,
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 
-\item{iter}{How many post-warmup samples? Defaults to 10000.}
+\item{iter}{How many post-warmup samples? Defaults to 6000.}
 
-\item{warmup}{How many warmup samples? Defaults to 5000.}
+\item{warmup}{How many warmup samples? Defaults to 500.}
 
-\item{adapt}{How many adaptation steps? Defaults to 15000.}
+\item{adapt}{How many adaptation steps? Defaults to 2000.}
 
 \item{chains}{How many chains? Defaults to 4.}
 
-\item{thin}{Thinning interval. Defaults to 3.}
+\item{thin}{Thinning interval. Defaults to 1}
 
 \item{method}{Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).}
 
@@ -39,13 +39,52 @@ SASP(formula, data, family = "gaussian", log_lik = FALSE,
 A run.jags object
 }
 \description{
-This is the \Shape-adaptive shrinkage prior (SASP) 
-model discussed by Mutshinda and Sillanpää (2011). 
+This is the Shape-adaptive shrinkage prior (SASP) 
+model discussed by Mutshinda and Sillanpää (2011). This utilizes a power exponential (also known as generalized
+normal or generalized gaussian) type I (kurtotic) distribution for the coefficient priors. The power exponential
+distribution defines a continuum of distributional shapes, with the Laplacian, the Gaussian and continuous  
+uniform distributions arising as particular cases when kappa=1, kappa=2 and kappa = ∞, respectively. For kappa < 1
+a cauchy-like density is defined with extremely heavy tails and infinite density at zero. Here I have restricted
+the range of kappa to 1-2 for purposes of stability. While in the original paper a range that goes below 1 and above
+2 was used, I have found that, at least in JAGS, the sampler does not like the non-convex loss functions implied
+by Lq norms <1 or >2.
 \cr
+Henceforth, powexp(mu, omega, kappa) denotes the probability density function of a power exponential distribution 
+with a mean of mu = 0, scale parameter omega, and shape parameter kappa. \cr 
 
-Another model to consider is the  \code{\link[Bayezilla]{apcSpike}} (adaptive powered correlation prior) or 
-Sillanpää's other variable selection algorithms, the extended Bayesian Lasso and IAt models
-provided in this package, respectively at \code{\link[Bayezilla]{extLASSO}} and \code{\link[Bayezilla]{IAt}} \cr
+\cr 
+The power exponential distribution is not implemented in JAGS, so it is defined through a change of variables, following
+the example of Mutshinda and Sillanpää (2011) : \cr 
+\cr
+u_i ~ gamma(1 / kappa, 1 / omega^kappa) \cr
+z_i <- u_i^kappa \cr
+xi_i ~ bernoulli(.5) \cr
+beta_i <- -1^xi_i * z_i \cr
+# Implies: powexp(mu = 0, omega, kappa)
+
+\cr
+The variable xi is introduced so that the factor -1^xi_i yields symmetry about zero. Without this the distribution
+would be constrained to be positive. \cr
+\cr
+The remainder of the model is specified below: \cr
+\cr
+##### top level parameters ##### \cr
+kappa ~ dunif(1, 2) \cr
+lambda ~ gamma(2, 4) \cr
+tau ~ gamma(.1, .1) \cr
+Intercept ~ normal(0, 1) \cr
+\cr
+##### Coefficient specific parameters ##### \cr
+eta_i ~ half-normal(1, .25) # individual coefficient penalties. Note precision = .25 implies sd = 2. \cr
+omega_i ~ eta_i / lambda \cr
+\cr
+!!!!! NOTE !!!!!!! \cr
+I have an implementation of SASP in the Stan language in the companion package to this one,
+BayezillaPlus. I find that it can work better than the JAGS implementation since in the Stan language
+I am able to directly specify the log probability density function for the power exponential distribution. 
+The Stan implementation uses the exact same priors shown here, so if this function gives you trouble,
+it may be time to check out Stan! \cr
+\cr
 }
 \examples{
 SASP()

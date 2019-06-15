@@ -32,9 +32,9 @@ blasso = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, adapt
     y = model.frame(formula, data)[,1]
 
   jags_blasso = "model{
-  tau ~ dgamma(.001, .001)
+  tau ~ dgamma(.01, .01) 
   sigma2 <- 1/tau
-  lambda ~ dgamma(.0001, .0001)
+  lambda ~ dgamma(0.5 , 0.05)
   
   for (p in 1:P){
     eta[p] ~ dexp(lambda^2 / 2)
@@ -42,7 +42,7 @@ blasso = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, adapt
     beta[p] ~ dnorm(0, omega[p])
   }
   
-  Intercept ~ dnorm(0, .01)
+  Intercept ~ dnorm(0, 1)
   
   for (i in 1:N){
     y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)

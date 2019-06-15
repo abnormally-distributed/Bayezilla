@@ -2,7 +2,7 @@
 % Please edit documentation in R/negLASSO.R
 \name{negLASSO}
 \alias{negLASSO}
-\title{Negative-exponential-gamma LASSO}
+\title{Negative-exponential-gamma Bayesian LASSO}
 \usage{
 negLASSO(formula, data, family = "gaussian", log_lik = FALSE,
   iter = 10000, warmup = 1000, adapt = 2000, chains = 4,
@@ -37,7 +37,30 @@ negLASSO(formula, data, family = "gaussian", log_lik = FALSE,
 A run.jags object
 }
 \description{
-This implements the normal-exponential-gamma "hyperlasso" of Griffin & Brown (2011).
+This implements the normal-exponential-gamma "hyperlasso" of Griffin & Brown (2011). This model has independent normal priors
+on each coefficient, whose precision is modeled by independent, predictor specific, exponential distributions. The exponential
+distributions in turn have their respective rate parameters modeled through independent gamma(.5, 1 / lambda^2) distributions.
+Lambda is a single top-level hyperparameter here given a gamma(0.5 , 0.05) prior. \cr 
+\cr
+The model specification is given below: \cr
+\cr
+#### Top Level Parameters #### \cr 
+\cr
+tau ~ gamma(.01, .01) # only for Gaussian likelihood \cr
+lambda ~ gamma(0.5 , 0.05) \cr
+Intercept ~ normal(0, 1) \cr
+}
+\details{
+#### Predictor Level Parameters #### \cr
+eta_i ~ gamma(.5, 1 / lambda^2) \cr
+psi_i ~ exponential(eta_i) \cr
+beta_i ~ normal(0, 1 / psi_i) # psi is inverted here because JAGS parameterizes by the precision \cr
+\cr
+\cr
+The normal-exponential-gamma (NEG) lasso
+is very similar to the adaptive Bayesian Lasso (\code{\link[Bayezilla]{adaBLASSO}}), which also makes use of a 
+normal-exponential-gamma hierarchy, except that it is parameterized slightly differently. 
+\cr
 }
 \examples{
 negLASSO()

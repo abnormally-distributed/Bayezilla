@@ -54,7 +54,7 @@ beta(1/2, 1/2) which is non-informative and objective. \cr
 \cr
 Standard gaussian, binomial, and poisson likelihood functions are available. 
 \cr 
-For an alternative reference prior based variable selection method, see the \code{\link[Bayezilla]{apcSpike}} and \code{\link[Bayezilla]{apcSpikeHS}} 
+For an alternative variable selection method, see the \code{\link[Bayezilla]{apcSpike}} and \code{\link[Bayezilla]{IAt}} 
 functions. This package also implements several variants of the Bayesian LASSO.
 \cr
 }
@@ -67,7 +67,6 @@ Kuo, L., & Mallick, B. (1998). Variable Selection for Regression Models. SankhyÄ
 }
 \seealso{
 \code{\link[Bayezilla]{apcSpike}} 
-\code{\link[Bayezilla]{apcSpikeHS}}
 \code{\link[Bayezilla]{extLASSO}}
 \code{\link[Bayezilla]{negLASSO}}
 \code{\link[Bayezilla]{bayesEnet}}

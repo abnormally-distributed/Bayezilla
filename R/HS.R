@@ -5,7 +5,7 @@
 #' on the tested data sets!) than the same model implemetned in Stan. 
 #' 
 #' # Top level parameters \cr
-#' tau ~ gamma(0.001, 0.001) # Precision \cr
+#' tau ~ gamma(0.01, 0.01) # Precision \cr
 #' lambda^2 ~ half-cauchy(0, 1 / tau) # the same as half-cauchy(0, sigma^2) \cr
 #' Intercept ~ normal(0, 1) \cr
 #' \cr
@@ -43,7 +43,7 @@ HS = function(formula, data, log_lik = FALSE, iter = 4000, warmup=3000, adapt=30
   
   horseshoe = "model{
 # tau is the precision, inverse of variance.
-tau ~ dscaled.gamma(1, 3) 
+tau ~ dgamma(.01, .01) 
 # lambda squared, the global penalty
 lambda2 ~ dt(0, 1 / tau, 1) T(0, )
 # Coefficients

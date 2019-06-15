@@ -2,38 +2,17 @@
 % Please edit documentation in R/lssBayes.R
 \name{lssBayes}
 \alias{lssBayes}
-\title{Regression Models for Location, Scale, and Shape
-\cr
-This is a very limited set models for estimating generalized linear models for location, scale, and shape.
-Essentially what one does is model the scale parameter (see the examples for usage and syntax).
-This is very useful if you have a heteroscedastic relationship between the linear predictor 
-and the response variable. One can also model the scale of the response as a function of
-a grouping variable, such as that shown in the examples where the Species factor variable
-is used to model the standard deviation. Due to the limited set of distributions available
-in JAGS, the support for the glmlss / gamlss family of models is extremely limited. However,
-for more flexibility check out the bamlss package, which allows estimation of a wide class
-of likelihood functions including skewed normal, power exponential (generalized normal), and
-many more. This package only offers "gaussian" (the default) and "laplace".
-\cr 
-\cr
-NOTE: Make sure to center and scale the predictor variables. All priors on coefficients
-for all model parameters are set to a default precision of .0625, implying a standard 
-deviation of 4 on each coefficient's prior. This is weakly informative when the predictors
-are unit-scale, but cease to be weakly informative when the predictors are not unit scale.
-\cr
-\cr}
+\title{Regression Models for Location, Scale, and Shape}
 \usage{
-lssBayes(formula, sigma.formula = ~1, nu.formula = ~1, data,
-  family = "gaussian", log_lik = FALSE, iter = 10000,
-  warmup = 1000, adapt = 2000, chains = 4, thin = 3,
-  method = "parallel", cl = makeCluster(2), ...)
+lssBayes(formula, sigma.formula = ~1, data, family = "gaussian",
+  log_lik = FALSE, iter = 10000, warmup = 1000, adapt = 2000,
+  chains = 4, thin = 3, method = "parallel", cl = makeCluster(2),
+  ...)
 }
 \arguments{
 \item{formula}{the model formula}
 
 \item{sigma.formula}{the formula for the scale parameter. Defaults to ~ 1 (intercept only)}
-
-\item{nu.formula}{the formula for the normality parameter, if using family = "student_t". Defaults to ~ 1 (intercept only)}
 
 \item{data}{a data frame}
 
@@ -61,8 +40,6 @@ lssBayes(formula, sigma.formula = ~1, nu.formula = ~1, data,
 A run.jags object
 }
 \description{
-Regression Models for Location, Scale, and Shape
-\cr
 This is a very limited set models for estimating generalized linear models for location, scale, and shape.
 Essentially what one does is model the scale parameter (see the examples for usage and syntax).
 This is very useful if you have a heteroscedastic relationship between the linear predictor 
@@ -84,6 +61,5 @@ are unit-scale, but cease to be weakly informative when the predictors are not u
 }
 \examples{
 lssBayes(Petal.Width ~ . - Species, sigma.formula = ~ Species, data = scale(iris))
-lssBayes(Petal.Width ~ . - Sepal.Length - Species, sigma.formula = ~ Species, nu.formula = ~ Sepal.Length, data = scale(iris), family = "student_t")
 
 }

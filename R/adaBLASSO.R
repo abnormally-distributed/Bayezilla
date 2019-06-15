@@ -1,6 +1,6 @@
 #' Adaptive Bayesian Lasso
 #'
-#' The Bayesian LASSO of Leng, Tran and David Nott (2018). Basically just the Bayesian Lasso of Park & Casella (2008) but with
+#' @description The Bayesian LASSO of Leng, Tran and David Nott (2018). Basically just the Bayesian Lasso of Park & Casella (2008) but with
 #' individual lambdas on each parameter defined by a gamma(sh, ra) distribution, where sh and ra are shape and rate hyperparameters. 
 #' Here sh and ra are given independent gamma(0.25, .5) and gamma(0.0025, .05) priors respectively. For alternatives 
 #' see \code{\link[Bayezilla]{negLASSO}} (which is extremely similar) or \code{\link[Bayezilla]{extLASSO}}.

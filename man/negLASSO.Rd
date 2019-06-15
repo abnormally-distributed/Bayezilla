@@ -2,7 +2,7 @@
 % Please edit documentation in R/negLASSO.R
 \name{negLASSO}
 \alias{negLASSO}
-\title{Negative-exponential-gamma Bayesian LASSO}
+\title{Normal-exponential-gamma Bayesian LASSO}
 \usage{
 negLASSO(formula, data, family = "gaussian", log_lik = FALSE,
   iter = 10000, warmup = 1000, adapt = 2000, chains = 4,
@@ -49,8 +49,7 @@ The model specification is given below: \cr
 tau ~ gamma(.01, .01) # only for Gaussian likelihood \cr
 lambda ~ gamma(0.5 , 0.05) \cr
 Intercept ~ normal(0, 1) \cr
-}
-\details{
+
 #### Predictor Level Parameters #### \cr
 eta_i ~ gamma(.5, 1 / lambda^2) \cr
 psi_i ~ exponential(eta_i) \cr

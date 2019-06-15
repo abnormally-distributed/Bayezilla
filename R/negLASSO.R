@@ -1,6 +1,6 @@
-#' Negative-exponential-gamma Bayesian LASSO
+#' Normal-exponential-gamma Bayesian LASSO
 #'
-#' This implements the normal-exponential-gamma "hyperlasso" of Griffin & Brown (2011). This model has independent normal priors
+#' @description This implements the normal-exponential-gamma "hyperlasso" of Griffin & Brown (2011). This model has independent normal priors
 #' on each coefficient, whose precision is modeled by independent, predictor specific, exponential distributions. The exponential
 #' distributions in turn have their respective rate parameters modeled through independent gamma(.5, 1 / lambda^2) distributions.
 #' Lambda is a single top-level hyperparameter here given a gamma(0.5 , 0.05) prior. \cr 

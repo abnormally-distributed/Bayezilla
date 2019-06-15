@@ -1,6 +1,6 @@
 #' Bayesian Elastic Net for Gaussian Likelihood
 #'
-#' The Bayesian elastic net described by Li and Lin (2010). Note only the Gaussian likelihood is 
+#' @description The Bayesian elastic net described by Li and Lin (2010). Note only the Gaussian likelihood is 
 #' provided because the Bayesian elastic net requires conditioning on the error variance, which GLM-families
 #' do not have.
 #'

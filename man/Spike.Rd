@@ -2,7 +2,7 @@
 % Please edit documentation in R/Spike.R
 \name{Spike}
 \alias{Spike}
-\title{Bernoulli-Normal Mixture Selection for Variable Selection}
+\title{Stochastic Search Variable Selection (Bernoulli-Normal Mixture)}
 \usage{
 Spike(formula, data, family = "gaussian", log_lik = FALSE,
   iter = 10000, warmup = 1000, adapt = 2000, chains = 4,
@@ -38,8 +38,7 @@ A run.jags object
 }
 \description{
 IMPORTANT NOTICE: This model works best on smaller to medium sized data sets with a small number of variables (less than 20).
-If you experience difficulty with running times or obtaining a good effective sample size consider using the extended LASSO.
-\cr
+If you experience difficulty with running times or obtaining a good effective sample size consider using the extended LASSO. \cr
 \cr
 IMPORTANT NOTICE: Center and scale your predictors before using this function.
 If you do not scale and center your numeric predictors, this will likely not give reasonable results. 
@@ -47,10 +46,13 @@ If you do not scale and center your numeric predictors, this will likely not giv
 \cr
 This is the most basic type of Bayesian variable selection. This is inspired by the method presented by Kuo and Mallick (1998), 
 with some improvements. This models the regression coefficients as coming from either a null distribution represented
-by a probability mass of 100% at zero (the "spike") or from a mildly broad normal(0, 0.01) distribution. The probability that a coefficient 
+by a probability mass of 100% at zero (the "spike") or from a normal distribution. The probability that a coefficient 
 comes from the null-spike is controlled by a hyperparameter "phi" which estimates the overall probability of inclusion, 
 i.e., the proportion of the P-number of predictors that are non-zero. This hyperparameter is given a Jeffrey's prior, 
-beta(1/2, 1/2) which is non-informative and objective. \cr
+beta(1/2, 1/2) which is non-informative and objective. The specification of the prior is pictured below. \cr
+\cr
+\if{html}{\figure{spike.png}{}}
+\if{latex}{\figure{spike.png}{}}
 \cr
 Standard gaussian, binomial, and poisson likelihood functions are available. 
 \cr 

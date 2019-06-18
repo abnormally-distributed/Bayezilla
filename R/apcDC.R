@@ -48,21 +48,19 @@ apcDC = function(formula, design.formula, data, family = "gaussian", lambda = -1
   FX <- model.matrix(design.formula, data)[, -1]
   y <- as.numeric(model.frame(formula, data)[, 1])
   X <- model.matrix(formula, data)[, -1]
-  ## Ensure that the correlation matrix is positive definite.
-  cormat = cor(X)
-  cormat = cov2cor(fBasics::makePositiveDefinite(cormat))
-  cormat = cov2cor(pseudoinverse(pseudoinverse(cormat)))
   # Eigendecomposition
+  cormat = cov2cor(fBasics::makePositiveDefinite(cor(X)))
   L = eigen(cormat)$vectors
   D = eigen(cormat)$values
   Trace = function(mat){sum(diag(mat))}
   P = ncol(X)
   Dpower = rep(0, P)
-  t = XtXinv(X, tol=1e-2)
+  t = XtXinv(X, tol=1e-6)
   for(i in 1:P) {
     Dpower[i] <- (D[i]^lambda);
   }
   prior_cov = (L %*% diag(Dpower) %*% t(L)) / length(y)
+  ## Ensure that the matrix is positive definite.
   prior_cov = fBasics::makePositiveDefinite(prior_cov)
   K = Trace(t) / Trace(prior_cov)
   prior_cov = K * (prior_cov)

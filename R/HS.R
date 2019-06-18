@@ -2,16 +2,19 @@
 #'
 #' @description This is the horseshoe model described by Carvalho et al. (2010). This tends to run very quickly
 #' even for larger data sets or larger numbers of predictors and in my experience is faster and more stable (at least
-#' on the tested data sets!) than the same model implemetned in Stan. 
-#' 
+#' on the tested data sets!) than the same model implemetned in Stan. \cr
+#' \cr
+#' ##### Model Specification: ##### \cr
+#' \cr 
 #' # Top level parameters \cr
-#' tau ~ gamma(0.01, 0.01) # Precision \cr
-#' lambda^2 ~ half-cauchy(0, 1 / tau) # the same as half-cauchy(0, sigma^2) \cr
+#' tau ~ gamma(.01, .01) # Precision \cr
+#' global_lambda ~ half-cauchy(0, tau) # the same as half-cauchy(0, sigma) but JAGS uses the precision. \cr
 #' Intercept ~ normal(0, 1) \cr
 #' \cr
 #' # Coefficient Specific Parameters \cr
-#' eta_i ~ half-cauchy(0, lambda2) \cr
-#' beta ~ normal(0, 1/eta_i) \cr
+#' local_lambda_i ~ half-cauchy(0, 1) \cr
+#' eta_i <- 1 / (global_lambda^2 * local_lambda_i^2) # Prior Precision  \cr
+#' beta ~ normal(0, eta_i) \cr
 #' 
 #'
 #' @references
@@ -45,13 +48,14 @@ HS = function(formula, data, log_lik = FALSE, iter = 4000, warmup=3000, adapt=30
 # tau is the precision, inverse of variance.
 tau ~ dgamma(.01, .01) 
 # lambda squared, the global penalty
-lambda2 ~ dt(0, 1 / tau, 1) T(0, )
+global_lambda ~ dt(0, tau, 1) T(0, )
 # Coefficients
 Intercept ~ dnorm(0, 1)
 for (i in 1:P){
-  eta[i] ~ dt(0, lambda2, 1) T(0, ) # prior variance
-  beta[i] ~ dnorm(0, 1 / eta[i])
-  delta[i] <- 1 - ( 1 / (1+eta[i]) ) 
+  local_lambda[i] ~ dt(0, 1, 1) T(0, )
+  eta[i] <-  1 / (pow(global_lambda , 2) * pow(local_lambda[i], 2))
+  beta[i] ~ dnorm(0, eta[i])
+  delta[i] <- 1 - ( 1 / (1 + pow(local_lambda[i], 2))) 
 }
 # Likelihood Function
 for (i in 1:N){
@@ -67,12 +71,12 @@ write_lines(horseshoe, "horseshoe.txt")
 jagsdata = list("y" = y, "X" = X, "N" = nrow(X), "P" = ncol(X))
 inits = lapply(1:chains, function(z) list("beta" = rep(0, ncol(X)), 
                                           "Intercept" = 0, 
-                                          "eta" =  rep(1, ncol(X)),
-                                          "lambda2"= 1, 
+                                          "local_lambda" =  rep(1, ncol(X)),
+                                          "global_lambda"= 1, 
                                           "tau" = 1,
                                           .RNG.name= "lecuyer::RngStream",
                                           .RNG.seed= sample(1:10000, 1)))
-monitor = c("Intercept", "beta", "sigma", "Deviance" , "lambda2", "delta" , "eta", "ySim", "log_lik")
+monitor = c("Intercept", "beta", "sigma", "Deviance" , "global_lambda", "delta" , "local_lambda", "ySim", "log_lik")
 if (log_lik == FALSE){
   monitor = monitor[-(length(monitor))]
 }

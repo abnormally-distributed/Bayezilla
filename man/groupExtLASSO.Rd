@@ -5,7 +5,7 @@
 \title{Extended Group Bayesian LASSO}
 \usage{
 groupExtLASSO(X, y, idx, family = "gaussian", eta_prior = "classic",
-  local_u = 2, top_u = 20, log_lik = FALSE, iter = 10000,
+  local_u = 2, top_u = 10000, log_lik = FALSE, iter = 10000,
   warmup = 5000, adapt = 15000, chains = 4, thin = 1,
   method = "parallel", cl = makeCluster(2), ...)
 }
@@ -19,11 +19,11 @@ for each covariate. Please ensure that you start numbering with 1, and not 0.}
 
 \item{family}{one of "gaussian", "binomial", or "poisson".}
 
-\item{eta_prior}{one of "classic" (default), "fixed_u", or "gamma".}
+\item{eta_prior}{one of "classic" (default), or "gamma".}
 
-\item{local_u}{if using "fixed_u" or "classic" this must be assigned a value. Default is 2.}
+\item{local_u}{This must be assigned a value. Default is 2.}
 
-\item{top_u}{if using eta_prior = "classic" this must be assigned a value. Default is 20.}
+\item{top_u}{If using eta_prior = "classic" this must be assigned a value. Default is 10000.}
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 
@@ -51,53 +51,56 @@ Group selection was introduced in the group LASSO by Yuan and Lin (2006) in
 the context of the classical "frequentist" LASSO. The concept is adapted here to the extended Bayesian LASSO 
 presented by Crispin M. Mutshinda and Mikko J. Sillanpää (2010). 
 \cr
-\cr
-The model specification is identical to the extended Bayesian LASSO in all regards except the individual 
-shrinkage hyperparameters & associated inclusion indicators are replaced by group level parameters and the
-priors are slightly more informative to facilitate efficient sampling in the face of the non-convex nature
-of the group L1 penalty.
-\cr
-\cr
 The first version of the model is the original specification in Mutshinda and Sillanpää (2010), labeled
 "classic" in the options here. This requires you to choose upper limits for the uniform priors on both 
 the top-level shrinkage hyperparameter as well as the local shrinkage parameters. These can be tuned through
-model comparison if neccessary. The default values are 2 and 20. 
+model comparison if neccessary. 
 \cr
 \cr
-The second version is the "fixed_u" prior. This places a gamma(0.4444444, 0.4444444) prior on the
-top level shrinkage hyperparameter. The tail of this distribution fades out at around 20 (matching the default upper 
-limit of 20 in the "classic" version). The individaul shrinkage prameters are given independent uniform(0, local_u) 
+Model Specification:
+\cr
+\if{html}{\figure{extLASSO.png}{}}
+\if{latex}{\figure{extLASSO.png}{}}
+\cr
+\cr
+The second version is the "gamma" prior. This places a gamma(0.5 , 0.001) prior on the
+top level shrinkage hyperparameter. The individual shrinkage parameters are still given independent uniform(0, local_u) 
 priors just as in the classic version. 
 \cr
 \cr
-The third version is a hierarchical "gamma" variant which places a gamma(0.4444444, 0.4444444) prior
-on the top-level shrinkage hyperparameter and independent gamma(1.007137, 0.7000579) priors on the
-individual shrinkage hyperparameters. The local shrinkage prior here has a median of exactly 1, just as the default option of uniform(0, 2)
-used in the classic and fixed_u variants here. This puts half equal probability mass on both inclusion and exclusion,
-however, there is greater probability **density** on smaller values which can increase sensitivity to "signals". 
-This variant is intended to provide better sampling efficiency than either of the other two variants, as well as
-increase sensitivty to signals as was just mentioned. 
+Model Specification:
+\cr
+\if{html}{\figure{extLASSO2.png}{}}
+\if{latex}{\figure{extLASSO2.png}{}}
 \cr
 \cr
-The author of the extended Bayesian Lasso (Sillanpää, personal communication) confirmed that gamma priors 
-do work well in some settings, which is why I opted to include the "fixed_u" and "gamma" variants.
+The author of the extended Bayesian Lasso (Sillanpää, personal communication) confirmed that gamma prior on the top
+level shrinkage parameter 
+does work well in some settings, which is why I opted to include the "gamma" variant.
 \cr
 \cr
-######## BAYES FACTORS AND INCLUSION PROBABILITIES ######## \cr
-\cr
-Note that the prior inclusion probability is given by 1/local_u, so if you want a 50% inclusion
-probability choose local_u = 2. Common in Bayesian variable selection is to use a 20% probability if
+One really nice feature of the extended Bayesian Lasso is that inclusion probabilities and Bayes Factors for the 
+coefficients are easily obtained. The prior inclusion probability is given by 1/local_u, so for example
+uniform(0, 2) priors on the shrinkage parameters indicate a 50% prior inclusion
+probability. Common in Bayesian variable selection is to use a 20% probability if
 dealing with a high dimensional problem, so for this choose local_u = 5. If you have genuine prior
 information you can and should use this to guide your choice. If you are unsure, use model comparison
 to select which value of u to choose. Inclusion indicators are given by a step function based on the 
 marginal individual shrinkage parameter, delta = step(1 - eta). Inlcusion probabilities are then given as the number of
 1s that appear in the vector of monte carlo samples out of the total number of iterations. This will appear as
-the mean for each inclusion indicator in the summary. Bayes Factors for each cofficient can then be manually derived as 
-BF_alt = mean(delta) / (1/local_u) if you wish (Mutshinda, & Sillanpää, 2010;2012). 
-For the gamma model the formula is just mean(delta) / 0.50.
+the mean for each inclusion indicator in the summary. \cr
+\cr
+Bayes Factors for each cofficient can then be manually derived using the formula below (Mutshinda, & Sillanpää, 2010; 2012). 
+\cr
+\cr
+\if{html}{\figure{extLASSO_BF.png}{}}
+\if{latex}{\figure{extLASSO_BF.png}{}}
+\cr
+\cr
 }
 \examples{
 groupExtLASSO
+
 }
 \references{
 Mutshinda, C.M., & Sillanpää, M.J. (2010). Extended Bayesian LASSO for multiple quantitative trait loci mapping and unobserved phenotype prediction. Genetics, 186 3, 1067-75 . \cr 
@@ -107,4 +110,15 @@ Mutshinda, C. M., and M. J. Sillanpää (2012) A decision rule for quantitative 
 Li, Z.,and Sillanpää, M. J. (2012) Overview of LASSO-related penalized regression methods for quantitative trait mapping and genomic selection. Theoretical and Applied Genetics 125: 419-435. \cr
 \cr 
 Yuan, Ming; Lin, Yi (2006). "Model Selection and Estimation in Regression with Grouped Variables". Journal of the Royal Statistical Society. Series B (statistical Methodology). Wiley. 68 (1): 49–67. doi:10.1111/j.1467-9868.2005.00532.x
+}
+\seealso{
+\code{\link[Bayezilla]{groupBlasso}}
+\code{\link[Bayezilla]{blassoDC}}
+\code{\link[Bayezilla]{negLASSO}} 
+\code{\link[Bayezilla]{extLASSO}}
+\code{\link[Bayezilla]{adaLASSO}}
+\code{\link[Bayezilla]{blasso}}
+\code{\link[Bayezilla]{HS}}
+\code{\link[Bayezilla]{HSplus}}
+\code{\link[Bayezilla]{HSreg}}
 }

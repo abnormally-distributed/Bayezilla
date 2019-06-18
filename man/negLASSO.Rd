@@ -40,14 +40,14 @@ A run.jags object
 This implements the normal-exponential-gamma "hyperlasso" of Griffin & Brown (2011). This model has independent normal priors
 on each coefficient, whose precision is modeled by independent, predictor specific, exponential distributions. The exponential
 distributions in turn have their respective rate parameters modeled through independent gamma(.5, 1 / lambda^2) distributions.
-Lambda is a single top-level hyperparameter here given a gamma(0.5 , 0.05) prior. \cr 
+Lambda is a single top-level hyperparameter here given a gamma(0.5 , 0.001) prior. \cr 
 \cr
 The model specification is given below: \cr
 \cr
 #### Top Level Parameters #### \cr 
 \cr
 tau ~ gamma(.01, .01) # only for Gaussian likelihood \cr
-lambda ~ gamma(0.5 , 0.05) \cr
+lambda ~ gamma(0.5 , 0.001) \cr
 Intercept ~ normal(0, 1) \cr
 
 #### Predictor Level Parameters #### \cr
@@ -57,7 +57,7 @@ beta_i ~ normal(0, 1 / psi_i) # psi is inverted here because JAGS parameterizes 
 \cr
 \cr
 The normal-exponential-gamma (NEG) lasso
-is very similar to the adaptive Bayesian Lasso (\code{\link[Bayezilla]{adaBLASSO}}), which also makes use of a 
+is very similar to the adaptive Bayesian Lasso (\code{\link[Bayezilla]{adaLASSO}}), which also makes use of a 
 normal-exponential-gamma hierarchy, except that it is parameterized slightly differently. 
 \cr
 }
@@ -67,4 +67,12 @@ negLASSO()
 }
 \references{
 Griffin, J. E. and Brown, P. J. (2011), Bayesian Hyper‐LASSOs With Non-Convex Penalization. Australian & New Zealand Journal of Statistics, 53: 423-442. doi:10.1111/j.1467-842X.2011.00641.x
+}
+\seealso{
+\code{\link[Bayezilla]{adaLASSO}} 
+\code{\link[Bayezilla]{extLASSO}}
+\code{\link[Bayezilla]{blasso}}
+\code{\link[Bayezilla]{HS}}
+\code{\link[Bayezilla]{HSplus}}
+\code{\link[Bayezilla]{HSreg}}
 }

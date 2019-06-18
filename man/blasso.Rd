@@ -39,10 +39,31 @@ The Bayesian LASSO of Park & Casella (2008). Note that the extended lasso and ne
 lasso will probably give better shrinkage but this is provided here for the curious. Note only the Gaussian likelihood
 is provided because the Bayesian LASSO requires conditioning on the error variance, which GLM-families
 do not have. \cr
+The Bayesian Lasso is equivalent to using independent double exponential (Laplace distribution) priors on the 
+coefficients with a scale of sigma / lambda. However, doing this directly results in slow convergence and poor mixing.
+The Laplace distribution can be expressed as a scale mixture of normals with an exponential distribution as the scale 
+parameter. This is the method that Park & Casella (2008) utilize and the method that is utilized here. The hierarchical 
+structure of the prior distribution is given below. \cr
+
+\cr
+Model Specification:
+\cr
+\if{html}{\figure{blasso.png}{}}
+\if{latex}{\figure{blasso.png}{}}
 }
 \examples{
 blasso()
 }
 \references{
 Park, T., & Casella, G. (2008). The Bayesian Lasso. Journal of the American Statistical Association, 103(482), 681-686. Retrieved from http://www.jstor.org/stable/27640090 \cr
+}
+\seealso{
+\code{\link[Bayezilla]{groupBlasso}} 
+\code{\link[Bayezilla]{blassoDC}} 
+\code{\link[Bayezilla]{adaLASSO}}
+\code{\link[Bayezilla]{negLASSO}} 
+\code{\link[Bayezilla]{extLASSO}} 
+\code{\link[Bayezilla]{HS}}
+\code{\link[Bayezilla]{HSplus}}
+\code{\link[Bayezilla]{HSreg}}
 }

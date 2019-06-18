@@ -13,14 +13,15 @@
 #' \cr
 #' \cr
 #' # Top level parameters \cr
-#' tau ~ scaled.gamma(1, 3) # Precision \cr
-#' lambda^2 ~ half-cauchy(0, 1 / tau) # the same as half-cauchy(0, sigma^2) \cr
+#' tau ~ gamma(.01, .01) # Precision \cr
+#' global_lambda ~ half-cauchy(0, tau) # the same as half-cauchy(0, sigma) but JAGS uses the precision. \cr
 #' Intercept ~ normal(0, 1) \cr
 #' \cr
 #' # Coefficient Specific Parameters \cr
-#' eta_i ~ half-cauchy(0, lambda2) \cr
-#' beta ~ normal(0, 1/eta_i) \cr
-#' design_beta_i ~ student-t(0, .01, 6) \cr
+#' local_lambda_i ~ half-cauchy(0, 1) \cr
+#' eta_i <- 1 / (global_lambda^2 * local_lambda_i^2) # Prior Precision  \cr
+#' beta ~ normal(0, eta_i) \cr
+#' design_beta_i ~ normal(0, .0625) \cr
 #' \cr
 #'
 #' @references
@@ -53,19 +54,23 @@ HSDC = function(formula, design.formula, data, log_lik = FALSE, iter = 4000, war
   y = model.frame(formula, data)[,1]
   FX <- model.matrix(design.formula, data)[, -1]
   
-  horseshoe = "model{
+horseshoe = 
+
+"model{
 # tau is the precision, inverse of variance.
 tau ~ dgamma(.01, .01) 
 
 # lambda squared, the global penalty
-lambda2 ~ dt(0, 1 / tau, 1) T(0, )
+global_lambda ~ dt(0, tau, 1) T(0, )
+
 
 # Coefficients
 Intercept ~ dnorm(0, 1)
 for (i in 1:P){
-  eta[i] ~ dt(0, lambda2, 1) T(0, ) # prior variance
-  beta[i] ~ dnorm(0, 1 / eta[i])
-  delta[i] <- 1 - ( 1 / (1+eta[i]) ) 
+  local_lambda[i] ~ dt(0, 1, 1) T(0, )
+  eta[i] <-  1 / (pow(global_lambda , 2) * pow(local_lambda[i], 2))
+  beta[i] ~ dnorm(0, eta[i])
+  delta[i] <- 1 - ( 1 / (1 + pow(local_lambda[i], 2))) 
 }
 
 # Design Variable Coefficients
@@ -79,8 +84,10 @@ for (i in 1:N){
   ySim[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]) + sum(design_beta[1:FP] * FX[i,1:FP]) , tau)
   log_lik[i] <- logdensity.norm(y[i], Intercept + sum(beta[1:P] * X[i,1:P]) + sum(design_beta[1:FP] * FX[i,1:FP]) , tau)
 }
+
 Deviance <- -2 * sum(log_lik[1:N])
 sigma <- sqrt(1/tau)
+
 }"
 
 FP <- ncol(FX)
@@ -89,15 +96,17 @@ jagsdata = list("y" = y, "X" = X, "N" = nrow(X), "P" = ncol(X), FP = FP, FX = FX
 inits = lapply(1:chains, function(z) list("beta" = rep(0, ncol(X)), 
                                           "design_beta" = rep(0, FP),
                                           "Intercept" = 0, 
-                                          "eta" =  rep(1, ncol(X)),
-                                          "lambda2"= 1, 
+                                          "local_lambda" = rep(1, ncol(X)),
+                                          "global_lambda"= 1, 
                                           "tau" = 1,
                                           .RNG.name= "lecuyer::RngStream",
                                           .RNG.seed= sample(1:10000, 1)))
-monitor = c("Intercept", "beta", "design_beta", "sigma", "Deviance" , "lambda2", "delta" , "eta", "ySim", "log_lik")
+monitor = c("Intercept", "beta", "design_beta", "sigma", "Deviance", "global_lambda", "delta", "local_lambda", "ySim", "log_lik")
+
 if (log_lik == FALSE){
   monitor = monitor[-(length(monitor))]
 }
+
 out = run.jags(model = "horseshoe.txt", data = jagsdata, inits = inits, monitor = monitor, modules = c("bugs", "glm"), n.chains = chains, 
                thin = thin, adapt = adapt, burnin = warmup, sample = iter, cl = cl, method = method)
 
@@ -105,5 +114,6 @@ file.remove("horseshoe.txt")
 if (!is.null(cl)) {
   parallel::stopCluster(cl = cl)
 }
+
 return(out)
 }

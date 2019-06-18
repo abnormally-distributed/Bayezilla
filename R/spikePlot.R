@@ -1,6 +1,9 @@
 #' Plot a large number of variable values as vertical lines
 #'
-#' @param paramSamples the parameters as a vector of point values
+#' @param x the model
+#' @param estimate "mean" (the default) or "median"
+#' @param keeppars The list of specific variables to keep if passing an runjags object. Defaults to "beta"
+#' @param droppars list of parameters to exclude
 #' @param main.title defaults to "parameters"
 #' @param lwd line width. defaults to 2.5
 #' @param cex.axis axis text size. defaults to .85.
@@ -10,8 +13,57 @@
 #'
 #' @examples
 #' spikePlot()
-spikePlot <- function(paramSamples, main.title = "parameters", lwd = 2.5, cex.axis = .85){
+spikePlot <- function(x, estimate = "mean", keeppars = "beta", droppars = c("ySim", "log_lik", "lp__"), main.title = "parameters", lwd = 2.5, cex.axis = .85){
 
+  stan <- inherits(x, "stanfit")
+  if (stan == TRUE) {
+    paramSamples <- as.matrix(x)
+    wch = unique(unlist(sapply(droppars, function(z) which(regexpr(z, colnames(paramSamples)) == 1))))
+    if (length(wch) != 0){
+      paramSamples <- paramSamples[,-wch]
+    }
+    if (!is.null(keeppars)) {
+      wch = unique(unlist(sapply(keeppars, function(z) which(regexpr(z, colnames(paramSamples)) == 1))))
+      if (length(wch) != 0){
+        paramSamples <- paramSamples[,wch]
+      }
+    }
+  }
+  else if (class(x) == "runjags"){
+    paramSamples <- runjags::combine.mcmc(x, collapse.chains = TRUE)
+    paramSamples <- as.matrix(paramSamples)
+    wch = unique(unlist(sapply(droppars, function(z) which(regexpr(z, colnames(paramSamples)) == 1))))
+    if (length(wch) != 0){
+      paramSamples <- paramSamples[,-wch]
+    }
+    if (!is.null(keeppars)) {
+      wch = unique(unlist(sapply(keeppars, function(z) which(regexpr(z, colnames(paramSamples)) == 1))))
+      if (length(wch) != 0){
+        paramSamples <- paramSamples[,wch]
+      }
+    }
+  }
+  else {
+    paramSamples <- as.matrix(x)
+    wch = unique(unlist(sapply(droppars, function(z) which(regexpr(z, colnames(paramSamples)) == 1))))
+    if (length(wch) != 0){
+      paramSamples <- paramSamples[,-wch]
+    }
+    if (!is.null(keeppars)) {
+      wch = unique(unlist(sapply(keeppars, function(z) which(regexpr(z, colnames(paramSamples)) == 1))))
+      if (length(wch) != 0){
+        paramSamples <- paramSamples[,wch]
+      }
+    }
+  }
+  
+  if (estimate == "mean"){
+    paramSamples <- colMeans(paramSamples)
+  } 
+  else if (estimate == "median"){
+    paramSamples <- apply(paramSamples, 2, median)
+  }
+  
     color.assign = function(X){
       colors = rep(0, length(X))
       for (i in 1:length(X)){

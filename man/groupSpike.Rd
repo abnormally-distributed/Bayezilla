@@ -2,7 +2,7 @@
 % Please edit documentation in R/groupSpike.R
 \name{groupSpike}
 \alias{groupSpike}
-\title{Bernoulli-Normal Mixture Group Selection for GLMs}
+\title{Stochastic Search Variable Selection (Bernoulli-Normal Mixture) with group selection}
 \usage{
 groupSpike(X, y, family = "gaussian", phi_prior = c(1, 4),
   log_lik = FALSE, iter = 10000, warmup = 1000, adapt = 2000,
@@ -53,4 +53,9 @@ probability prior "phi", which is in turn controlled by an overall inclusion pro
 \examples{
 groupSpike()
 
+}
+\references{
+Kuo, L., & Mallick, B. (1998). Variable Selection for Regression Models. Sankhyā: The Indian Journal of Statistics, Series B, 60(1), 65-81. \cr
+\cr
+Yuan, Ming; Lin, Yi (2006). Model Selection and Estimation in Regression with Grouped Variables. Journal of the Royal Statistical Society. Series B (statistical Methodology). Wiley. 68 (1): 49–67. doi:10.1111/j.1467-9868.2005.00532.x \cr
 }

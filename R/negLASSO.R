@@ -3,14 +3,14 @@
 #' @description This implements the normal-exponential-gamma "hyperlasso" of Griffin & Brown (2011). This model has independent normal priors
 #' on each coefficient, whose precision is modeled by independent, predictor specific, exponential distributions. The exponential
 #' distributions in turn have their respective rate parameters modeled through independent gamma(.5, 1 / lambda^2) distributions.
-#' Lambda is a single top-level hyperparameter here given a gamma(0.5 , 0.05) prior. \cr 
+#' Lambda is a single top-level hyperparameter here given a gamma(0.5 , 0.001) prior. \cr 
 #' \cr
 #' The model specification is given below: \cr
 #' \cr
 #' #### Top Level Parameters #### \cr 
 #' \cr
 #' tau ~ gamma(.01, .01) # only for Gaussian likelihood \cr
-#' lambda ~ gamma(0.5 , 0.05) \cr
+#' lambda ~ gamma(0.5 , 0.001) \cr
 #' Intercept ~ normal(0, 1) \cr
 #' 
 #' #### Predictor Level Parameters #### \cr
@@ -20,7 +20,7 @@
 #' \cr
 #' \cr
 #' The normal-exponential-gamma (NEG) lasso
-#' is very similar to the adaptive Bayesian Lasso (\code{\link[Bayezilla]{adaBLASSO}}), which also makes use of a 
+#' is very similar to the adaptive Bayesian Lasso (\code{\link[Bayezilla]{adaLASSO}}), which also makes use of a 
 #' normal-exponential-gamma hierarchy, except that it is parameterized slightly differently. 
 #' \cr
 #' @references 
@@ -40,11 +40,19 @@
 #' @param ... Other arguments to run.jags.
 #'
 #' @return A run.jags object
-#' @export
 #'
 #' @examples
 #' negLASSO()
+#' 
+#' @seealso 
+#' \code{\link[Bayezilla]{adaLASSO}} 
+#' \code{\link[Bayezilla]{extLASSO}}
+#' \code{\link[Bayezilla]{blasso}}
+#' \code{\link[Bayezilla]{HS}}
+#' \code{\link[Bayezilla]{HSplus}}
+#' \code{\link[Bayezilla]{HSreg}}
 #'
+#' @export
 negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(3), ...){
 
   X = model.matrix(formula, data)[,-1]
@@ -56,7 +64,7 @@ negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
 
               tau ~ dgamma(.01, .01)
 
-              lambda ~ dgamma(0.5 , 0.05)
+              lambda ~ dgamma(0.5 , 0.001)
 
               Intercept ~ dnorm(0, 1)
 
@@ -89,7 +97,7 @@ negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
 
     jags_neg_LASSO = "model{
 
-              lambda ~ dgamma(.5, .05)
+              lambda ~ dgamma(0.5 , 0.001)
 
               Intercept ~ dnorm(0, 1)
 
@@ -122,7 +130,7 @@ negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
 
     jags_neg_LASSO = "model{
 
-              lambda ~ dgamma(.5, .05)
+              lambda ~ dgamma(0.5 , 0.001)
 
               Intercept ~ dnorm(0, 1)
 

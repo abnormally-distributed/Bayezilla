@@ -2,7 +2,7 @@
 % Please edit documentation in R/IAt.R
 \name{IAt}
 \alias{IAt}
-\title{Indicator Variables and Adaptive Student-t prior (Bernoulli-Student's t mixture for variable selection)}
+\title{Stochastic Search Variable Selection (Indicator Variable and Adaptive Student-t model)}
 \usage{
 IAt(formula, data, family = "gaussian", df = 3, log_lik = FALSE,
   iter = 10000, warmup = 5000, adapt = 10000, chains = 4,
@@ -40,14 +40,13 @@ A run.jags object
 }
 \description{
 This is the \strong{I}ndicator variables and \strong{A}daptive Student’s \strong{t}-distributions (IAt)
-model discussed by Knürr, Läärä, and Sillanpää (2011). It is essentially a variant of the  \code{\link[Bayezilla]{Spike}}
-model with adjustable degrees of freedom on the prior.
+model discussed by Knürr, Läärä, and Sillanpää (2011). 
 \cr
 \cr
 The prior probability for the inclusion rate ("phi") is given a non-informative Jeffrey's prior. The degrees of freedom
 for the thetas (raw coefficients) requires user input. The default is set to 3. It is doubtful that you would need to change
 this. However if there is a large amount of collinearity in your data you may want to set it to a higher number such as
-12 or 30.\cr
+12 or 30.
 \cr
 \cr
 # Top level parameters \cr
@@ -60,17 +59,15 @@ delta_i ~ dbern(phi) \cr
 omega_i ~ dgamma(df / 2, df / 2) \cr
 theta_i ~ dnorm(0, omega_i) \cr
 beta_i <- delta_i*theta_i \cr
-  
-\cr
-
-Another model to consider is the  \code{\link[Bayezilla]{apcSpike}} (adaptive powered correlation prior) or 
-Sillanpää's other variable selection algorithm, the extended Bayesian Lasso provided here in the 
-\code{\link[Bayezilla]{extLASSO}} function. \cr
 }
 \examples{
 IAt()
 
 }
 \references{
-\cr
+
+}
+\seealso{
+\code{\link[Bayezilla]{apcSpike}} 
+\code{\link[Bayezilla]{Spike}}
 }

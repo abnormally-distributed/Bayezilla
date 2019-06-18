@@ -1,4 +1,4 @@
-#' Bernoulli-Normal Mixture Variable Selection with design covariates
+#' Stochastic Search Variable Selection (Bernoulli-Normal Mixture) with unpenalized design covariates
 #'
 #' @description
 #'

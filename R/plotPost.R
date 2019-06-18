@@ -67,10 +67,10 @@ plotPost <- function(paramSampleVec, fit = NULL, param = NULL, xlab = NULL, col 
     # Get point estimate information for the title
 
     if ( showMedian==FALSE ) {
-      Param <- round(mean( paramSampleVec ), 3)
+      Param <- round(mean( paramSampleVec ), 2)
       estimate.text = paste("Mean", ":", Param)
     } else {
-      Param <- round(median( paramSampleVec ), 3)
+      Param <- round(median( paramSampleVec ), 2)
       estimate.text = paste("Median", ":", Param)
     }
 

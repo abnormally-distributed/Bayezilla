@@ -1,4 +1,4 @@
-#' Bernoulli-Normal Adaptive Powered Correlation Prior for Variable Selection
+#' Stochastic Search Variable Selection (Adaptive Powered Correlation Prior) 
 #'
 #' @description IMPORTANT: I suggest not using any factor predictor variables, only numeric. In my experience the inclusion of categorical
 #' predictors tends to lead to odd results in calculating the prior scale. \cr
@@ -22,7 +22,13 @@
 #' Note, however, that this prior is designed to deal with collinearity but not necessarily P > N scenarios. For that you may wish to take a look
 #' at the \code{\link[Bayezilla]{extLASSO}} or \code{\link[Bayezilla]{bayesEnet}} functions. 
 #' \cr
-#'
+#' The model specification is given below. Note that the model formulae have been adjusted to reflect the fact that JAGS
+#' parameterizes the normal and multivariate normal distributions by their precision, rater than (co)variance. 
+#' \cr
+#' \cr
+#' \if{html}{\figure{apcSpike.png}{}}
+#' \if{latex}{\figure{apcSpike.png}{}}
+#' 
 #' @references 
 #' Krishna, A., Bondell, H. D., & Ghosh, S. K. (2009). Bayesian variable selection using an adaptive powered correlation prior. Journal of statistical planning and inference, 139(8), 2665–2674. doi:10.1016/j.jspi.2008.12.004 \cr
 #' \cr
@@ -52,32 +58,29 @@
 #' @examples
 #' apcSpike()
 #' 
-apcSpike = function(formula, data, family = "gaussian", lambda = -1, log_lik = FALSE, 
+apcSpike = function(formula, data, lambda = -1, family = "gaussian",  log_lik = FALSE, 
                     iter = 10000, warmup=1000, adapt = 5000, chains=4, thin=1, method = "rjparallel", cl = makeCluster(2), ...)
 {
   
-  data <- as.data.frame(data)
+  data = as.data.frame(data)
   y <- as.numeric(model.frame(formula, data)[, 1])
   X <- model.matrix(formula, data)[, -1]
-  ## Ensure that the correlation matrix is positive definite.
-  cormat = cor(X)
-  cormat = cov2cor(fBasics::makePositiveDefinite(cormat))
-  cormat = cov2cor(pseudoinverse(pseudoinverse(cormat)))
   # Eigendecomposition
+  cormat = cov2cor(fBasics::makePositiveDefinite(cor(X)))
   L = eigen(cormat)$vectors
   D = eigen(cormat)$values
   Trace = function(mat){sum(diag(mat))}
   P = ncol(X)
   Dpower = rep(0, P)
-  t = XtXinv(X, tol=1e-2)
+  t = XtXinv(X, tol=1e-6)
   for(i in 1:P) {
     Dpower[i] <- (D[i]^lambda);
   }
   prior_cov = (L %*% diag(Dpower) %*% t(L)) / length(y)
+  ## Ensure that the matrix is positive definite.
   prior_cov = fBasics::makePositiveDefinite(prior_cov)
   K = Trace(t) / Trace(prior_cov)
   prior_cov = K * (prior_cov)
-  
     
     if (family == "gaussian"){
       

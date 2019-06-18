@@ -3,7 +3,7 @@
 #' @description Get summary including QI or HDI credible intervals
 #'
 #' @param x the set of posterior samples to be summarized
-#' @param digits number of digits to round estimates to. Defaults to 3.
+#' @param digits number of digits to round estimates to. Defaults to 2.
 #' @param estimate.method one of "mean" or "median", or "both". If "mean" or "median" the
 #' estimate will be in column title "estimate". If "both" (the default) the mean will be the "estimate" column and the median will be in the "median" column.
 #' @param cred.method one of "HDI" (highest density intervals) or "QI" (equal tailed \ quantile intervals).
@@ -19,7 +19,7 @@
 #' @examples
 #' post_summary()
 #'
-post_summary = function (x, digits = 3, estimate.method = "both", ess = TRUE, cred.level = 0.90, cred.method = "QI", keeppars = NULL, droppars = c("ySim", "log_lik", "lp__"), knitr = FALSE, type = "markdown", ...)
+post_summary = function (x, digits = 2, estimate.method = "both", ess = TRUE, cred.level = 0.90, cred.method = "QI", keeppars = NULL, droppars = c("ySim", "log_lik", "lp__"), knitr = FALSE, type = "markdown", ...)
   {
     stan <- inherits(x, "stanfit")
     if (stan == TRUE) {

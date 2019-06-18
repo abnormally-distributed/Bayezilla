@@ -5,9 +5,15 @@
 #' on the tested data sets!) than the same model implemetned in Stan. If the horseshoe+ is analagous to the 
 #' extended Bayesian LASSO, then this could be compared to the Bayesian Elastic Net in that it imposes a combination
 #' of different shrinkage penalties (the elastic net being a combination of L1 and L2, and the regularized horseshoe being
-#' a combination of cauchy and student-t). \cr
+#' a combination of sub-L1 and student-t penalties). \cr
 #' \cr
+#' Model Specification: \cr 
+#' \cr
+#' 
+#' \if{html}{\figure{regularizedHorseshoe.png}{}}
+#' \if{latex}{\figure{regularizedHorseshoe.png}{}}
 #'
+#' \cr
 #' @references
 #' Piironen, Juho; Vehtari, Aki. Sparsity information and regularization in the horseshoe and other shrinkage priors. Electron. J. Statist. 11 (2017), no. 2, 5018--5051. doi:10.1214/17-EJS1337SI. https://projecteuclid.org/euclid.ejs/1513306866 \cr
 #' \cr
@@ -15,6 +21,9 @@
 #'
 #' @param formula the model formula
 #' @param data a data frame.
+#' @param phi your prior guess on the inclusion probability. Defaults to .50. Best way to come up with a figure is a prior guess on how many coefficients are non-zero out of the total number of predictors.
+#' @param slab_scale the standard deviation of the "slab". Defaults to 2.
+#' @param slab_df the degrees of freedom fo the slab. Higher degrees of freedom give increased L2-like regularization. Defaults to 3.
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 10000.
 #' @param warmup How many warmup samples? Defaults to 1000.
@@ -32,7 +41,7 @@
 #' @examples
 #' HSreg()
 #'
-HSreg = function(formula, data, phi = .10, slab_scale = 2, slab_df = 6, log_lik = FALSE, 
+HSreg = function(formula, data, phi = .50, slab_scale = 2, slab_df = 3, log_lik = FALSE, 
                  iter = 10000, warmup = 4000, adapt = 5000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
   
   X = model.matrix(formula, data)[,-1]
@@ -45,19 +54,20 @@ tau ~ dgamma(.01, .01)
 sigma <- sqrt(1/tau)
 
 # lambda squared, the global penalty
-lambda2_0 <- pow((phi / (1-phi)) * (sigma/sqrt(N)), 2)
-lambda2 ~ dt(0, 1 / lambda2_0, 1) T(0, )
+lambda0sqrd <- pow((phi / (1-phi)) * (sigma/sqrt(N)), 2)
+lambda ~ dt(0, 1/lambda0sqrd, 1) T(0, )
 
 # control parameter
-c2_inv ~ dgamma(df / 2, (df*prior_variance) / 2 ) 
+c2_inv ~ dgamma(df / 2, (df*prior_variance)/2) 
 c2 <- 1 / c2_inv
 
 # Coefficients
 Intercept ~ dnorm(0, 1)
 for (i in 1:P){
-  eta[i] ~ dt(0, 1 / lambda2, 1) T(0, ) # prior variance
-  eta_tilde[i] <- (eta[i]*c2) / (c2 + (lambda2 * eta[i]))
-  beta[i] ~ dnorm(0, 1 / (eta_tilde[i] * lambda2))
+  eta[i] ~ dt(0,1,1) T(0, ) 
+  eta_tilde[i] <- (pow(eta[i], 2)*c2) / (c2+(pow(lambda,2)*pow(eta[i], 2)))
+  eta_inv[i] <- 1 / (eta_tilde[i] * lambda)
+  beta[i] ~ dnorm(0, eta_inv[i])
   delta[i] <- 1 - ( 1 / (1+eta_tilde[i]) ) 
 }
 
@@ -77,11 +87,11 @@ inits = lapply(1:chains, function(z) list("beta" = rep(0, ncol(X)),
                                           "Intercept" = 0, 
                                           "eta" =  rep(1, ncol(X)),
                                           "c2_inv" = 1/slab_df, 
-                                          "lambda2"= 10, 
+                                          "lambda"= 10, 
                                           "tau" = 1,
                                           .RNG.name= "lecuyer::RngStream",
                                           .RNG.seed= sample(1:10000, 1)))
-monitor = c("Intercept", "beta", "sigma", "Deviance" , "lambda2", "c2", "delta", "eta_tilde", "eta", "ySim", "log_lik")
+monitor = c("Intercept", "beta", "sigma", "Deviance" , "lambda", "c2", "delta", "eta_tilde", "eta", "ySim", "log_lik")
 if (log_lik == FALSE){
   monitor = monitor[-(length(monitor))]
 }

@@ -4,7 +4,7 @@
 \alias{post_summary}
 \title{Get a tidy summary of a bayesian model}
 \usage{
-post_summary(x, digits = 3, estimate.method = "both", ess = TRUE,
+post_summary(x, digits = 2, estimate.method = "both", ess = TRUE,
   cred.level = 0.9, cred.method = "QI", keeppars = NULL,
   droppars = c("ySim", "log_lik", "lp__"), knitr = FALSE,
   type = "markdown", ...)
@@ -12,7 +12,7 @@ post_summary(x, digits = 3, estimate.method = "both", ess = TRUE,
 \arguments{
 \item{x}{the set of posterior samples to be summarized}
 
-\item{digits}{number of digits to round estimates to. Defaults to 3.}
+\item{digits}{number of digits to round estimates to. Defaults to 2.}
 
 \item{estimate.method}{one of "mean" or "median", or "both". If "mean" or "median" the
 estimate will be in column title "estimate". If "both" (the default) the mean will be the "estimate" column and the median will be in the "median" column.}

@@ -1,4 +1,4 @@
-#' Bernoulli-Normal Mixture Group Selection for GLMs
+#' Stochastic Search Variable Selection (Bernoulli-Normal Mixture) with group selection
 #'
 #' @description 
 #' 
@@ -32,6 +32,11 @@
 #'
 #' @examples
 #' groupSpike()
+#' 
+#' @references 
+#' Kuo, L., & Mallick, B. (1998). Variable Selection for Regression Models. Sankhyā: The Indian Journal of Statistics, Series B, 60(1), 65-81. \cr
+#' \cr
+#' Yuan, Ming; Lin, Yi (2006). Model Selection and Estimation in Regression with Grouped Variables. Journal of the Royal Statistical Society. Series B (statistical Methodology). Wiley. 68 (1): 49–67. doi:10.1111/j.1467-9868.2005.00532.x \cr
 #'
 groupSpike  = function(X, y, family = "gaussian", phi_prior = c(1, 4), log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
 
@@ -49,7 +54,7 @@ groupSpike  = function(X, y, family = "gaussian", phi_prior = c(1, 4), log_lik =
 
               # Coefficients
               for (p in 1:P){
-                theta[p] ~ dnorm(0, .01)
+                theta[p] ~ dnorm(0, .5)
                 beta[p] <- delta[idx[p]] * theta[p]
               }
 
@@ -91,7 +96,7 @@ groupSpike  = function(X, y, family = "gaussian", phi_prior = c(1, 4), log_lik =
 
               # Coefficients
               for (p in 1:P){
-                theta[p] ~ dnorm(0, .01)
+                theta[p] ~ dnorm(0, .5)
                 beta[p] <- delta[idx[p]] * theta[p]
               }
 
@@ -131,7 +136,7 @@ groupSpike  = function(X, y, family = "gaussian", phi_prior = c(1, 4), log_lik =
 
               # Coefficients
               for (p in 1:P){
-                theta[p] ~ dnorm(0, .01)
+                theta[p] ~ dnorm(0, .5)
                 beta[p] <- delta[idx[p]] * theta[p]
               }
 

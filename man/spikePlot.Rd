@@ -4,11 +4,18 @@
 \alias{spikePlot}
 \title{Plot a large number of variable values as vertical lines}
 \usage{
-spikePlot(paramSamples, main.title = "parameters", lwd = 2.5,
-  cex.axis = 0.85)
+spikePlot(x, estimate = "mean", keeppars = "beta",
+  droppars = c("ySim", "log_lik", "lp__"), main.title = "parameters",
+  lwd = 2.5, cex.axis = 0.85)
 }
 \arguments{
-\item{paramSamples}{the parameters as a vector of point values}
+\item{x}{the model}
+
+\item{estimate}{"mean" (the default) or "median"}
+
+\item{keeppars}{The list of specific variables to keep if passing an runjags object. Defaults to "beta"}
+
+\item{droppars}{list of parameters to exclude}
 
 \item{main.title}{defaults to "parameters"}
 

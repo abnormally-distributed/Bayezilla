@@ -52,14 +52,15 @@ The model specification:
 \cr
 \cr
 # Top level parameters \cr
-tau ~ scaled.gamma(1, 3) # Precision \cr
-lambda^2 ~ half-cauchy(0, 1 / tau) # the same as half-cauchy(0, sigma^2) \cr
+tau ~ gamma(.01, .01) # Precision \cr
+global_lambda ~ half-cauchy(0, tau) # the same as half-cauchy(0, sigma) but JAGS uses the precision. \cr
 Intercept ~ normal(0, 1) \cr
 \cr
 # Coefficient Specific Parameters \cr
-eta_i ~ half-cauchy(0, lambda2) \cr
-beta ~ normal(0, 1/eta_i) \cr
-design_beta_i ~ student-t(0, .01, 6) \cr
+local_lambda_i ~ half-cauchy(0, 1) \cr
+eta_i <- 1 / (global_lambda^2 * local_lambda_i^2) # Prior Precision  \cr
+beta ~ normal(0, eta_i) \cr
+design_beta_i ~ normal(0, .0625) \cr
 \cr
 }
 \examples{

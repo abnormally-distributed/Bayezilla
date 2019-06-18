@@ -75,6 +75,12 @@ imageIncl <- function(model, col_labs = NULL, colors = c("grey", "darkgreen"), .
 #'
 #' @examples
 #' imageSigns()
+#' @details 
+#' 
+#' An example of output: \cr
+#' \cr
+#' \if{html}{\figure{imageSigns.png}{}}
+#' \if{latex}{\figure{imageSigns.png}{}}
 #'
 imageSigns <- function(model, col_labs = NULL, colors=c("#99004C", "#1c1c1c", "#0065CC"), ...){
   x = as.matrix(combine.mcmc(model,collapse.chains = TRUE))

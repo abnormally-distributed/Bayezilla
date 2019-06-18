@@ -1,10 +1,9 @@
-#' Bernoulli-Normal Mixture Selection for Variable Selection
+#' Stochastic Search Variable Selection (Bernoulli-Normal Mixture)
 #'
 #' @description
 #'
 #' IMPORTANT NOTICE: This model works best on smaller to medium sized data sets with a small number of variables (less than 20).
-#' If you experience difficulty with running times or obtaining a good effective sample size consider using the extended LASSO.
-#' \cr
+#' If you experience difficulty with running times or obtaining a good effective sample size consider using the extended LASSO. \cr
 #' \cr
 #' IMPORTANT NOTICE: Center and scale your predictors before using this function.
 #' If you do not scale and center your numeric predictors, this will likely not give reasonable results. 
@@ -12,10 +11,13 @@
 #' \cr
 #' This is the most basic type of Bayesian variable selection. This is inspired by the method presented by Kuo and Mallick (1998), 
 #' with some improvements. This models the regression coefficients as coming from either a null distribution represented
-#' by a probability mass of 100% at zero (the "spike") or from a mildly broad normal(0, 0.01) distribution. The probability that a coefficient 
+#' by a probability mass of 100% at zero (the "spike") or from a normal distribution. The probability that a coefficient 
 #' comes from the null-spike is controlled by a hyperparameter "phi" which estimates the overall probability of inclusion, 
 #' i.e., the proportion of the P-number of predictors that are non-zero. This hyperparameter is given a Jeffrey's prior, 
-#' beta(1/2, 1/2) which is non-informative and objective. \cr
+#' beta(1/2, 1/2) which is non-informative and objective. The specification of the prior is pictured below. \cr
+#' \cr
+#' \if{html}{\figure{spike.png}{}}
+#' \if{latex}{\figure{spike.png}{}}
 #' \cr
 #' Standard gaussian, binomial, and poisson likelihood functions are available. 
 #' \cr 
@@ -60,11 +62,11 @@ Spike <- function(formula, data, family = "gaussian", log_lik = FALSE, iter = 10
   if (family == "gaussian") {
     
     jags_glm_spike <- "model{
-              tau ~ dgamma(.1, .1)
+              tau ~ dgamma(.01, .01)
               phi ~ dbeta(.5, .5) 
               
               for (p in 1:P){
-                theta[p] ~ dnorm(0, .01)
+                theta[p] ~ dnorm(0, 0.5)
                 delta[p] ~ dbern(phi)
                 beta[p] <- delta[p] * theta[p]
               }
@@ -97,7 +99,7 @@ Spike <- function(formula, data, family = "gaussian", log_lik = FALSE, iter = 10
               phi ~ dbeta(.5, .5) 
               
               for (p in 1:P){
-                theta[p] ~ dlogis(0, .01)
+                theta[p] ~ dlogis(0, 0.5)
                 delta[p] ~ dbern(phi)
                 beta[p] <- delta[p] * theta[p]
               }
@@ -131,7 +133,7 @@ Spike <- function(formula, data, family = "gaussian", log_lik = FALSE, iter = 10
               phi ~ dbeta(.5, .5) 
               
               for (p in 1:P){
-                theta[p] ~ dnorm(0, .01)
+                theta[p] ~ dnorm(0, 0.5)
                 delta[p] ~ dbern(phi)
                 beta[p] <- delta[p] * theta[p]
               }

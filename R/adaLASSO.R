@@ -2,7 +2,7 @@
 #'
 #' @description The Bayesian LASSO of Leng, Tran and David Nott (2018). Basically just the Bayesian Lasso of Park & Casella (2008) but with
 #' individual lambdas on each parameter defined by a gamma(sh, ra) distribution, where sh and ra are shape and rate hyperparameters. 
-#' Here sh and ra are given independent gamma(0.25, .5) and gamma(0.0025, .05) priors respectively. For alternatives 
+#' Here sh and ra are given independent gamma(0.25, .5) and gamma(1e-06, 1e-03) priors respectively. For alternatives 
 #' see \code{\link[Bayezilla]{negLASSO}} (which is extremely similar) or \code{\link[Bayezilla]{extLASSO}}.
 #'
 #' @param formula the model formula
@@ -25,11 +25,18 @@
 #' a runjags object
 #' @export
 #'
+#' @seealso 
+#' \code{\link[Bayezilla]{negLASSO}} 
+#' \code{\link[Bayezilla]{extLASSO}}
+#' \code{\link[Bayezilla]{blasso}}
+#' \code{\link[Bayezilla]{HS}}
+#' \code{\link[Bayezilla]{HSplus}}
+#' \code{\link[Bayezilla]{HSreg}}
 #'
 #' @examples
-#' adaBLASSO()
+#' adaLASSO()
 #'
-adaBLASSO = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
+adaLASSO = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
 
   X = model.matrix(formula, data)[,-1]
   y = model.frame(formula, data)[,1]
@@ -37,7 +44,7 @@ adaBLASSO = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, ad
   jags_blasso = "model{
   tau ~ dgamma(.01, .01)
   sh ~ dgamma(0.25, .5)
-  ra ~ dgamma(0.0025, .05)
+  ra ~ dgamma(1e-06, 1e-03)
     
   for (p in 1:P){
     lambda[p] ~ dgamma(sh , ra)

@@ -41,9 +41,9 @@ blassoDC = function(formula, design.formula, data, log_lik = FALSE, iter=10000, 
   FX <- model.matrix(design.formula, data)[, -1]
   
   jags_blasso = "model{
-  tau ~ dgamma(0.001, 0.001)
+  tau ~ dgamma(0.01, 0.01)
   sigma2 <- 1/tau
-  lambda ~ dgamma(.5, .05)
+  lambda ~ dgamma(0.5 , 0.001)
   
   for (p in 1:P){
     eta[p] ~ dexp(lambda^2 / 2)

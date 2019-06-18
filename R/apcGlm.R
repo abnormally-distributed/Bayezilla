@@ -2,7 +2,7 @@
 #'
 #' This function adapts the adaptive powered correlation prior to the situation of estimating a single general(ized) linear regression
 #' model. Typically, in regression the cross-product XtX is inverted in the process of calculating the coefficients. In addition, 
-#' the Zellner-Siow cauchy g-prior utilizes the inverse crossproduct is used as an empirical Bayesian method of determining the proper scale of the coefficient
+#' the Zellner-Siow cauchy g-prior (Zellner & Siow, 1980; also see Liang et al., 2008) utilizes the inverse crossproduct is used as an empirical Bayesian method of determining the proper scale of the coefficient
 #' priors by treating the inverse crossproduct as a covariance matrix, which is scaled by the parameter "g". \cr
 #' \cr
 #' The adaptive powered correlation prior simply extends this to allow using other powers besides -1. The power here will be referred to as "lambda".
@@ -14,7 +14,22 @@
 #' at the \code{\link[Bayezilla]{glmBayes}} function, which does not utilize the crossproduct matrix in setting prior scales (rather they are
 #' fully estimated in the model). 
 #' \cr
-#' @references Krishna, A., Bondell, H. D., & Ghosh, S. K. (2009). Bayesian variable selection using an adaptive powered correlation prior. Journal of statistical planning and inference, 139(8), 2665–2674. doi:10.1016/j.jspi.2008.12.004
+#' \cr
+#' The model specification is given below. Note that the model formulae have been adjusted to reflect the fact that JAGS
+#' parameterizes the normal and multivariate normal distributions by their precision, rater than (co)variance. 
+#' \cr
+#' \cr
+#' \if{html}{\figure{apc.png}{}}
+#' \if{latex}{\figure{apc.png}{}}
+#' \cr
+#' @references 
+#' Zellner, A. & Siow S. (1980). Posterior odds ratio for selected regression hypotheses. In Bayesian statistics. Proc. 1st int. meeting (eds J. M. Bernardo, M. H. DeGroot, D. V. Lindley & A. F. M. Smith), 585–603. University Press, Valencia. \cr 
+#' \cr
+#' Liang, Paulo, Molina, Clyde, & Berger (2008) Mixtures of g Priors for Bayesian Variable Selection, Journal of the American Statistical Association, 103:481, 410-423, DOI: 10.1198/016214507000001337 \cr
+#' \cr
+#' Krishna, A., Bondell, H. D., & Ghosh, S. K. (2009). Bayesian variable selection using an adaptive powered correlation prior. Journal of statistical planning and inference, 139(8), 2665–2674. doi:10.1016/j.jspi.2008.12.004
+#' \cr
+#' 
 #' 
 #' @param formula the model formula
 #' @param data a data frame
@@ -43,21 +58,19 @@ apcGlm = function(formula, data, family = "gaussian", lambda = -1, log_lik = FAL
   data <- as.data.frame(data)
   y <- as.numeric(model.frame(formula, data)[, 1])
   X <- model.matrix(formula, data)[, -1]
-  ## Ensure that the correlation matrix is positive definite.
-  cormat = cor(X)
-  cormat = cov2cor(fBasics::makePositiveDefinite(cormat))
-  cormat = cov2cor(pseudoinverse(pseudoinverse(cormat)))
   # Eigendecomposition
+  cormat = cov2cor(fBasics::makePositiveDefinite(cor(X)))
   L = eigen(cormat)$vectors
   D = eigen(cormat)$values
   Trace = function(mat){sum(diag(mat))}
   P = ncol(X)
   Dpower = rep(0, P)
-  t = XtXinv(X, tol=1e-2)
+  t = XtXinv(X, tol=1e-6)
   for(i in 1:P) {
     Dpower[i] <- (D[i]^lambda);
   }
   prior_cov = (L %*% diag(Dpower) %*% t(L)) / length(y)
+  ## Ensure that the matrix is positive definite.
   prior_cov = fBasics::makePositiveDefinite(prior_cov)
   K = Trace(t) / Trace(prior_cov)
   prior_cov = K * (prior_cov)
@@ -66,7 +79,7 @@ apcGlm = function(formula, data, family = "gaussian", lambda = -1, log_lik = FAL
     
     jags_apc = "model{
     
-              tau ~ dgamma(.001, .001)
+              tau ~ dgamma(.01, .01)
               g_inv ~ dgamma(.5, N * .5)
               g <- 1 / g_inv
               sigma <- sqrt(1/tau)

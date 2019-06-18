@@ -49,16 +49,17 @@ HSplus = function(formula, data, log_lik = FALSE, iter = 4000, warmup=3000, adap
 
   horseshoePlus = "model{
 # tau is the precision, inverse of variance.
-tau ~ dgamma(.01, .01)
+tau ~ dgamma(.01, .01) 
 # lambda squared, the global penalty
-global_lambda ~ dt(0, 1 / tau, 1) T(0, )
+global_lambda ~ dt(0, tau, 1) T(0, )
 # Coefficients
 Intercept ~ dnorm(0, 1)
 for (i in 1:P){
-  local_lambda[i] ~ dt(1, 1, 1) T(0, )
-  eta[i] ~ dt(0, local_lambda[i] * global_lambda, 1) T(0, ) # prior variance
-  beta[i] ~ dnorm(0, 1 / eta[i])
-  delta[i] <- 1 - ( 1 / (1+eta[i]) )
+  local_lambda_A[i] ~ dt(0, 1, 1) T(0, )
+  local_lambda_B[i] ~ dt(0, global_lambda * local_lambda_A[i], 1) T(0, )
+  eta[i] <- 1 / pow(local_lambda_B[i], 2)
+  beta[i] ~ dnorm(0, eta[i])
+  delta[i] <- 1 - ( 1 / (1 + (pow(local_lambda_B[i], 2)*pow(global_lambda, 2)))) 
 }
 # Likelihood Function
 for (i in 1:N){
@@ -74,12 +75,13 @@ write_lines(horseshoePlus, "horseshoePlus.txt")
 jagsdata = list("y" = y, "X" = X, "N" = nrow(X), "P" = ncol(X))
 inits = lapply(1:chains, function(z) list("beta" = rep(0, ncol(X)),
                                           "Intercept" = 0,
-                                          "eta" =  rep(1, ncol(X)),
+                                          "local_lambda_A" =  rep(1, ncol(X)),
+                                          "local_lambda_B" =  rep(1, ncol(X)),
                                           "global_lambda"= 1,
                                           "tau" = 1,
                                           .RNG.name= "lecuyer::RngStream",
                                           .RNG.seed= sample(1:10000, 1)))
-monitor = c("Intercept", "beta", "sigma", "Deviance" , "global_lambda", "local_lambda", "eta", "delta","ySim", "log_lik")
+monitor = c("Intercept", "beta", "sigma", "Deviance" , "global_lambda", "local_lambda_A", "local_lambda_B", "delta", "ySim", "log_lik")
 if (log_lik == FALSE){
   monitor = monitor[-(length(monitor))]
 }

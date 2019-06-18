@@ -33,14 +33,14 @@ bayesEnet  = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, a
 
               tau ~ dgamma(.01, .01)
               sigma <- sqrt(1/tau)
-              lambda1 ~ dgamma(0.5 , 0.05)
-              lambda2 ~ dgamma(0.5 , 0.05)
+              lambda1 ~ dgamma(0.5 , 0.001)
+              lambda2 ~ dgamma(0.5 , 0.001)
 
               Intercept ~ dnorm(0, 1)
 
               for (p in 1:P){
-                eta[p] ~ dgamma(.5, (8 * lambda2 * sigma^2) / lambda1^2) T(1,)
-                beta_prec[p] <- (lambda2/sigma^2) * (eta[p]/(eta[p]-1))
+                eta[p] ~ dgamma(.5, (8 * lambda2 * pow(sigma,2)) / pow(lambda1, 2)) T(1,)
+                beta_prec[p] <- (lambda2/pow(sigma,2)) * (eta[p]/(eta[p]-1))
                 beta[p] ~ dnorm(0, beta_prec[p])
               }
 

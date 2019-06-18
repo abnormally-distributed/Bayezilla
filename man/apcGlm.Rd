@@ -43,7 +43,7 @@ A run.jags object.
 \description{
 This function adapts the adaptive powered correlation prior to the situation of estimating a single general(ized) linear regression
 model. Typically, in regression the cross-product XtX is inverted in the process of calculating the coefficients. In addition, 
-the Zellner-Siow cauchy g-prior utilizes the inverse crossproduct is used as an empirical Bayesian method of determining the proper scale of the coefficient
+the Zellner-Siow cauchy g-prior (Zellner & Siow, 1980; also see Liang et al., 2008) utilizes the inverse crossproduct is used as an empirical Bayesian method of determining the proper scale of the coefficient
 priors by treating the inverse crossproduct as a covariance matrix, which is scaled by the parameter "g". \cr
 \cr
 The adaptive powered correlation prior simply extends this to allow using other powers besides -1. The power here will be referred to as "lambda".
@@ -55,11 +55,24 @@ Note, however, that this prior is designed to deal with collinearity but not nec
 at the \code{\link[Bayezilla]{glmBayes}} function, which does not utilize the crossproduct matrix in setting prior scales (rather they are
 fully estimated in the model). 
 \cr
+\cr
+The model specification is given below. Note that the model formulae have been adjusted to reflect the fact that JAGS
+parameterizes the normal and multivariate normal distributions by their precision, rater than (co)variance. 
+\cr
+\cr
+\if{html}{\figure{apc.png}{}}
+\if{latex}{\figure{apc.png}{}}
+\cr
 }
 \examples{
 apcGlm()
 
 }
 \references{
+Zellner, A. & Siow S. (1980). Posterior odds ratio for selected regression hypotheses. In Bayesian statistics. Proc. 1st int. meeting (eds J. M. Bernardo, M. H. DeGroot, D. V. Lindley & A. F. M. Smith), 585–603. University Press, Valencia. \cr 
+\cr
+Liang, Paulo, Molina, Clyde, & Berger (2008) Mixtures of g Priors for Bayesian Variable Selection, Journal of the American Statistical Association, 103:481, 410-423, DOI: 10.1198/016214507000001337 \cr
+\cr
 Krishna, A., Bondell, H. D., & Ghosh, S. K. (2009). Bayesian variable selection using an adaptive powered correlation prior. Journal of statistical planning and inference, 139(8), 2665–2674. doi:10.1016/j.jspi.2008.12.004
+\cr
 }

@@ -1,0 +1,80 @@
+---
+title: "Using Information Criteria for Tuning the Adaptive Powered Correlation Model"
+output: html_notebook
+---
+
+
+```{r}
+library(Bayezilla)
+library(ElemStatLearn)
+data = scale(prostate)
+data$train = NULL
+```
+
+
+```{r echo = FALSE, message=FALSE, warning=FALSE}
+a = apcGlm(GNP ~ ., data, lambda = -3, log_lik = TRUE, iter = 5000)
+b = apcGlm(GNP ~ ., data, lambda = -2, log_lik = TRUE, iter = 5000)
+c = apcGlm(GNP ~ ., data, lambda = -1, log_lik = TRUE, iter = 5000)
+d = apcGlm(GNP ~ ., data, lambda = -.5, log_lik = TRUE, iter = 5000)
+e = apcGlm(GNP ~ ., data, lambda = 0, log_lik = TRUE, iter = 5000)
+f = apcGlm(GNP ~ ., data, lambda = .5, log_lik = TRUE, iter = 5000)
+g = apcGlm(GNP ~ ., data, lambda = 1, log_lik = TRUE, iter = 5000)
+h = apcGlm(GNP ~ ., data, lambda = 2, log_lik = TRUE, iter = 5000)
+i = apcGlm(GNP ~ ., data, lambda = 3, log_lik = TRUE, iter = 5000)
+```
+
+Now that I have fit the same model over a grid of different values of lambda, I will calculate the information criterion offered in my package (WAIC and LOO-IC) using the **IC()** function. For convenience I will bind them into a data frame.
+
+```{r}
+ic = as.data.frame(rbind(
+IC(a),
+IC(b),
+IC(c),
+IC(d),
+IC(e),
+IC(f),
+IC(g),
+IC(h),
+IC(i)
+))
+```
+
+The one I will pay attention to here is the LOO-IC, which is the leave-one-out cross validation information criterion. It is calculated using an extremely fast smoothed importance sampling algorithm. 
+
+```{r}
+lambdas = c(-3, -2, -1, -.5, 0, .5, 1, 2, 3)
+ggplot(data.frame(lambda = lambdas, LOOIC = ic$`LOO-IC`), aes(x = lambda, y = LOOIC)) + 
+    stat_smooth(se=FALSE, n = 500, method = "loess") + geom_point()
+ggplot(data.frame(lambda = lambdas, LOOIC = ic$`WAIC`), aes(x = lambda, y = LOOIC)) + 
+    stat_smooth(se=FALSE, n = 500, method = "loess") + geom_point()
+```
+
+
+The plot indicates that lambda = 0 is the minimum, although it scarcely has an advantage over nearby values. Another way to look at it is using delta scores and model weights. Delta scores are the difference between each model's information criterion value and the best one in the set. A delta scores of zero identifies the best. The model weights measure the relative strength of the model out of the set, and can be interpreted as the probability that it is the best model. Whereas delta scores indicate a "distance" from the best model in the set, the model weights/probabilities are a measure of confidence in the model.
+
+```{r}
+modelWeights(ic$`LOO-IC`)
+```
+
+These probabilities can be visualized with a barplot as well.
+
+```{r}
+barplot(modelWeights(ic$`LOO-IC`)[,3], names = lambdas)
+```
+
+One advantage of inspecting the model weights is that they are on the probability scale, while the LOO-IC curve is on a logarithmic scale. This can make the relative strengths of each model somewhat harder to discern at times.
+
+Now that a model has been selected, I'll get rid of the other ones -- wouldn't want tempation to snoop into other models for desired results hanging around -- and display the inferences from the selected model.
+
+```{r}
+post_summary(e)
+```
+
+
+```{r fig.height=8, fig.width=6}
+facetPost(e, nrow = 5)
+```
+
+
+

@@ -4,8 +4,9 @@
 #' @param fit a stanfit or runjags object. This can be used as an alternative to paramSampleVec,
 #' but you must specify which parameter you would like to plot. If using this argument be sure to type
 #' fit = "yourmodel" so that the function knows it is not intended to be a vector.
-#' @param pars variables to keep
-#' @param droppars variables to drop. Defaults to c("log_lik", "ySim", "yTest", "Deviance")
+#' 
+#' @param keeppars variables to keep
+#' @param droppars variables to drop. Defaults to c("ySim", "log_lik", "lp__")
 #' @param ncol number of columns in the layout
 #' @param nrow number of rows in the layout
 #' @param col the color scheme. One of "blue", "green" "red", or "purple".
@@ -19,14 +20,62 @@
 #'
 #' @examples
 #' facetPost()
+#' 
+#' @details 
+#' 
+#' An example of output: \cr
+#' \cr
+#' \if{html}{\figure{facetPost.png}{}}
+#' \if{latex}{\figure{facetPost.png}{}}
 #'
-facetPost = function(fit, pars = NULL, droppars = c("log_lik", "ySim", "yTest", "Deviance"), col = "blue",
+facetPost = function(fit, keeppars = NULL, droppars = c("ySim", "log_lik", "lp__"), col = "blue",
                      nrow = 4, ncol = 2, method = "QI", showMedian = FALSE, cred.level = .90){
  
   old.par <- par(no.readonly = TRUE) # save default, for resetting...
   on.exit(par(old.par))     #and when we quit the function, restore to original values
   
-  codaObject <- extractPost(fit, pars = pars, droppars = droppars)
+  stan <- inherits(fit, "stanfit")
+  if (stan == TRUE) {
+    codaObject <- as.matrix(fit)
+    wch = unique(unlist(sapply(droppars, function(z) which(regexpr(z, colnames(codaObject)) == 1))))
+    if (length(wch) != 0){
+      codaObject <- codaObject[,-wch]
+    }
+    if (!is.null(keeppars)) {
+      wch = unique(unlist(sapply(keeppars, function(z) which(regexpr(z, colnames(codaObject)) == 1))))
+      if (length(wch) != 0){
+        codaObject <- codaObject[,wch]
+      }
+    }
+  }
+  else if (class(fit) == "runjags"){
+    codaObject <- runjags::combine.mcmc(fit, collapse.chains = TRUE)
+    codaObject <- as.matrix(codaObject)
+    wch = unique(unlist(sapply(droppars, function(z) which(regexpr(z, colnames(codaObject)) == 1))))
+    if (length(wch) != 0){
+      codaObject <- codaObject[,-wch]
+    }
+    if (!is.null(keeppars)) {
+      wch = unique(unlist(sapply(keeppars, function(z) which(regexpr(z, colnames(codaObject)) == 1))))
+      if (length(wch) != 0){
+        codaObject <- codaObject[,wch]
+      }
+    }
+  }
+  else {
+    codaObject <- as.matrix(fit)
+    wch = unique(unlist(sapply(droppars, function(z) which(regexpr(z, colnames(codaObject)) == 1))))
+    if (length(wch) != 0){
+      codaObject <- codaObject[,-wch]
+    }
+    if (!is.null(keeppars)) {
+      wch = unique(unlist(sapply(keeppars, function(z) which(regexpr(z, colnames(codaObject)) == 1))))
+      if (length(wch) != 0){
+        codaObject <- codaObject[,wch]
+      }
+    }
+  }
+  
   parNames = colnames(codaObject)
 
   par(mar= c(3.25, 3, 3.5, 2) , oma= c(.25,.25,.25,.25) , mgp=c(1.5, 0.125, 0))

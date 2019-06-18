@@ -23,7 +23,12 @@ an image
 View the signs of the regression coefficients over a series of MCMC runs. Accepts
 any runjags object with the coefficients named "beta"
 }
+\details{
+An example of output: \cr
+\cr
+\if{html}{\figure{imageSigns.png}{}}
+\if{latex}{\figure{imageSigns.png}{}}
+}
 \examples{
 imageSigns()
-
 }

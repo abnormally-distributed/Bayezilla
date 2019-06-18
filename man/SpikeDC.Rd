@@ -2,7 +2,7 @@
 % Please edit documentation in R/SpikeDC.R
 \name{SpikeDC}
 \alias{SpikeDC}
-\title{Bernoulli-Normal Mixture Variable Selection with design covariates}
+\title{Stochastic Search Variable Selection (Bernoulli-Normal Mixture) with unpenalized design covariates}
 \usage{
 SpikeDC(formula, design.formula, data, family = "gaussian",
   log_lik = FALSE, iter = 10000, warmup = 1000, adapt = 2000,

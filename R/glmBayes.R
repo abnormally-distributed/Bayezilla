@@ -78,41 +78,6 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
     }
     inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = jitter(rep(0, P), amount = 1), "df" = 3, "tau" = 1, "omega" = 1, "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1)))
   }
-  
-  if (family == "student_t"){
-    
-    jags_glm = "model{
-              nu ~ dexp(1/27) T(3, )
-              tau_raw ~ dgamma(.01, .01)
-              tau <- pow((1/tau_raw) * ((nu-2)/nu), -1)
-              
-              df ~ dgamma(.01, .01)
-              omega ~ dgamma(.5 * df,  .5 * df)
-
-              for (p in 1:P){
-                beta[p] ~ dnorm(0, omega)
-              }
-
-              Intercept ~ dnorm(0, 1)
-
-              for (i in 1:N){
-                 y[i] ~ dt(Intercept + sum(beta[1:P] * X[i,1:P]), tau, nu)
-                 log_lik[i] <- logdensity.t(y[i], Intercept + sum(beta[1:P] * X[i,1:P]), tau, nu)
-                 ySim[i] ~ dt(Intercept + sum(beta[1:P] * X[i,1:P]), tau, nu)
-              }
-              sigma <- sqrt(1/tau)
-              Deviance <- -2 * sum(log_lik[1:N])
-          }"
-    
-    P = ncol(X)
-    write_lines(jags_glm, "jags_glm.txt")
-    jagsdata = list(X = X, y = y,  N = length(y), P = ncol(X))
-    monitor = c("Intercept", "beta", "sigma", "nu", "omega", "df", "Deviance", "ySim" ,"log_lik")
-    if (log_lik == FALSE){
-      monitor = monitor[-(length(monitor))]
-    }
-    inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = jitter(rep(0, P), amount = 1), "df" = 3, "nu" = 3, "tau_raw" = 1, "omega" = 1, "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1)))
-  }
 
   if (family == "binomial" || family == "logistic"){
 

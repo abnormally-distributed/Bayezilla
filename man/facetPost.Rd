@@ -4,8 +4,8 @@
 \alias{facetPost}
 \title{Plot Multiple Posterior Distributions}
 \usage{
-facetPost(fit, pars = NULL, droppars = c("log_lik", "ySim", "yTest",
-  "Deviance"), col = "blue", nrow = 4, ncol = 2, method = "QI",
+facetPost(fit, keeppars = NULL, droppars = c("ySim", "log_lik",
+  "lp__"), col = "blue", nrow = 4, ncol = 2, method = "QI",
   showMedian = FALSE, cred.level = 0.9)
 }
 \arguments{
@@ -13,9 +13,9 @@ facetPost(fit, pars = NULL, droppars = c("log_lik", "ySim", "yTest",
 but you must specify which parameter you would like to plot. If using this argument be sure to type
 fit = "yourmodel" so that the function knows it is not intended to be a vector.}
 
-\item{pars}{variables to keep}
+\item{keeppars}{variables to keep}
 
-\item{droppars}{variables to drop. Defaults to c("log_lik", "ySim", "yTest", "Deviance")}
+\item{droppars}{variables to drop. Defaults to c("ySim", "log_lik", "lp__")}
 
 \item{col}{the color scheme. One of "blue", "green" "red", or "purple".}
 
@@ -35,6 +35,12 @@ A plot
 }
 \description{
 Plot Multiple Posterior Distributions
+}
+\details{
+An example of output: \cr
+\cr
+\if{html}{\figure{facetPost.png}{}}
+\if{latex}{\figure{facetPost.png}{}}
 }
 \examples{
 facetPost()

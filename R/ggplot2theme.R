@@ -5,6 +5,7 @@
 #' @param base_line_size defaults to base_size/22
 #' @param base_rect_size defaults to base_size/22
 #' @export
+#' @return nothing
 #' @examples
 #' theme_set(theme_min())
 theme_min = function (base_size = 14, base_family = "serif", base_line_size = base_size/22, 
@@ -19,6 +20,3 @@ theme_min = function (base_size = 14, base_family = "serif", base_line_size = ba
 }
 
 
-.onLoad <- function(libname, pkgname) {
-  ggplot2::theme_set(Bayezilla::theme_min())
-}

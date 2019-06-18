@@ -1,7 +1,14 @@
 .onLoad <- function(libname, pkgname){
   .runjags.options <<- list(modules = "dic off", inits.warning=FALSE , rng.warning=FALSE, summary.warning = FALSE, blockcombine.warning = FALSE, blockignore.warning = FALSE)
+  invisible()
 }
 
 .onAttach<- function(libname, pkgname){
   .runjags.options <<- list(modules = "dic off", inits.warning=FALSE , rng.warning=FALSE, summary.warning = FALSE, blockcombine.warning = FALSE, blockignore.warning = FALSE)
+  invisible()
+  }
+
+.onLoad <- function(libname, pkgname) {
+  ggplot2::theme_set(Bayezilla:::theme_min())
+  invisible()
 }

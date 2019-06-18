@@ -16,6 +16,9 @@ theme_min(base_size = 14, base_family = "serif",
 
 \item{base_rect_size}{defaults to base_size/22}
 }
+\value{
+nothing
+}
 \description{
 Tufte-inspired ggplot2 theme
 }

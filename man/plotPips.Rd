@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot.R
 \name{plotPips}
 \alias{plotPips}
-\title{plot inclusion probabilities from glm_spike models}
+\title{plot inclusion probabilities from SSVS models}
 \usage{
 plotPips(model, col_labs = NULL)
 }
@@ -15,7 +15,7 @@ plotPips(model, col_labs = NULL)
 a plot
 }
 \description{
-lollipop plot with ggplot2 of variable inclusion probabilities for glm_spike models.
+lollipop plot with ggplot2 of variable inclusion probabilities for SSVS models.
 }
 \examples{
 plotPips()

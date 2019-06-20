@@ -1,88 +1,32 @@
-#' image the inclusions of variables from glm_spike over MCMC iterations
+#' Use the image function to plot the variables included at each iteration of an SSVS model
+#'
+#' @description This lets you view the presence or absence of a coefficient
+#' in the model sampeld over N MCMC chains. Positive values and negative 
+#' values are colored differently, which lets you assess the stability
+#' of the sign over different models. 
 #'
 #' @param model the runjags object
 #' @param col_labs column labels
-#' @param colors defaults to grey for absence and darkgreen for inclusion, c("grey", "darkgreen")
+#' @param colors colors defaults to magenta, dark grey, and blue, c("#99004C", "#1c1c1c", "#0065CC")
 #' @param ... other arguments to image()
 #'
-#' @return
-#' an image
 #'
 #' @export
 #'
 #' @examples
 #' imageIncl()
 #'
-imageIncl <- function(model, col_labs = NULL, colors = c("grey", "darkgreen"), ...){
-  x = as.matrix(combine.mcmc(model,collapse.chains = TRUE))
-  x = x[,grep(colnames(x), pattern =  "delta")]
-  if (is.null(col_labs) == FALSE){
-    colnames(x) <- col_labs
-  }
-  min <- min(x)
-  max <- max(x)
-  yLabels <- rownames(x)
-  xLabels <- colnames(x)
-  title <-c()
-  # check for additional function arguments
-  if( length(list(...)) ){
-    Lst <- list(...)
-    if( !is.null(Lst$zlim) ){
-      min <- Lst$zlim[1]
-      max <- Lst$zlim[2]
-    }
-    if( !is.null(Lst$yLabels) ){
-      yLabels <- c(Lst$yLabels)
-    }
-    if( !is.null(Lst$xLabels) ){
-      xLabels <- c(Lst$xLabels)
-    }
-    if( !is.null(Lst$title) ){
-      title <- Lst$title
-    }
-  }
-  if( is.null(yLabels) ){
-    yLabels <- c(1:nrow(x))
-  }
-
-  # Reverse Y axis
-  reverse <- nrow(x) : 1
-  yLabels <- yLabels[reverse]
-  x <- x[reverse,]
-
-  # Data Map
-  image(1:length(xLabels), 1:length(yLabels), t(x), col=colors, xlab="",
-        ylab="", axes=FALSE, zlim=c(min,max))
-  if( !is.null(title) ){
-    title(main=title)
-  }
-  axis(BELOW<-1, at=1:length(xLabels), labels=xLabels, cex.axis=0.7)
-}
-
-#' Plot the signs of regression coefficients over MCMC iterations.
-#'
-#' View the signs of the regression coefficients over a series of MCMC runs. Accepts
-#' any runjags object with the coefficients named "beta"
-#'
-#' @param model the runjags object
-#' @param col_labs column labels
-#' @param colors defaults to magenta, dark grey, and blue, c("#99004C", "#1c1c1c", "#0065CC")
-#' @param ... other arguments to image
-#'
 #' @return
 #' an image
-#' @export
 #'
-#' @examples
-#' imageSigns()
 #' @details 
 #' 
 #' An example of output: \cr
 #' \cr
-#' \if{html}{\figure{imageSigns.png}{}}
-#' \if{latex}{\figure{imageSigns.png}{}}
+#' \if{html}{\figure{imageIncl.png}{}}
+#' \if{latex}{\figure{imageIncl.png}{}}
 #'
-imageSigns <- function(model, col_labs = NULL, colors=c("#99004C", "#1c1c1c", "#0065CC"), ...){
+imageIncl <- function(model, col_labs = NULL, colors=c("#99004C", "#1c1c1c", "#0065CC"), ...){
   x = as.matrix(combine.mcmc(model,collapse.chains = TRUE))
   x = x[,grep(colnames(x), pattern =  "beta")]
   x = sign(x)
@@ -133,9 +77,9 @@ imageSigns <- function(model, col_labs = NULL, colors=c("#99004C", "#1c1c1c", "#
 
 
 
-#' plot inclusion probabilities from glm_spike models
+#' plot inclusion probabilities from SSVS models
 #'
-#' lollipop plot with ggplot2 of variable inclusion probabilities for glm_spike models.
+#' @description lollipop plot with ggplot2 of variable inclusion probabilities for SSVS models.
 #'
 #' @param model the model
 #' @param col_labs variable names
@@ -168,7 +112,8 @@ plotPips = function(model, col_labs = NULL){
 }
 
 
-#' plot a tally of how many variables should be included
+#' Plot distribution of num. of included vars. over iterations of an SSVS model
+#'
 #'
 #' @param model a runjags object with inclusion indicators labeled "delta"
 #' @param binwidth defaults to .5

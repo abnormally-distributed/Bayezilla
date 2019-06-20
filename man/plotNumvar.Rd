@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot.R
 \name{plotNumvar}
 \alias{plotNumvar}
-\title{plot a tally of how many variables should be included}
+\title{Plot distribution of num. of included vars. over iterations of an SSVS model}
 \usage{
 plotNumvar(model, binwidth = 0.5)
 }
@@ -15,7 +15,7 @@ plotNumvar(model, binwidth = 0.5)
 a plot
 }
 \description{
-plot a tally of how many variables should be included
+Plot distribution of num. of included vars. over iterations of an SSVS model
 }
 \examples{
 plotNumvar()

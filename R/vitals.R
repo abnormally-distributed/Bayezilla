@@ -1,0 +1,52 @@
+#' Quickly calculate the 'vital signs' of a supplied model matrix (rank, condition number, positive definite check)
+#'
+#'
+#' @description This lets you quickly and easily calculate a few important things to know about a model matrix. The first is the column rank of a matrix. If this returns a value 
+#' other than the number of columns full.rank will display FALSE.  If FALSE, the model matrix is not invertible and thus cannot be used for ordinary least squares or generalized
+#' linear models without regularization. Fortunately, this package provides a great number of regularized regression models. The second is #' the conditioning number of the  #' matrix, defined as as either the ratio of the maximum singular
+#' value to the minimum singular value, or the ratio of the minimum singular value to the maximum singular value. If the max/min ratio is large, that is bad. If the min/max #' ratio is very small, that is not good. The final metric is a check for positive definiteness of the covariance matrix, cov(Matrix). If the covariance matrix has zero or negative
+#' eigenvalues, it will fail the positive definiteness check.
+#' \cr
+#' \cr
+#' When a matrix has a bad condition number that indicates the matrix is  ill-conditioned. This means any algebraic functions of the matrix (ie, linear regression) will be 
+#' extremely sensitive to even the smallest errors and give untrustworthy results.  The condition number is an upper bound on how much precision may be lost . 
+#' When you solve a regression equation, y = bX, the idea is that small changes in X can yield very large changes in y. 
+#' To oversimplify an example for the sake of conceptual illustration, if all your entries in X were recorded with a precision up to two decimal places, ie +/- 
+#' 0.01, a condition number of 100 would mean that the solution y would potentially only be correct within a range of +/-100*0.01 = +/-1. Hence, 
+#' the condition number indicates here that the estimation error of y would be greater than the precision that the data in your matrix X even have! Hence, the predicted #' values #' of y and the vector of coefficients b would be suspect.
+#' 
+#' \cr
+#' \cr
+#' At worst, the model matrix may be non-invertible and OLS or GLMs will not work.  
+#' A sufficiently bad conditioning number, a lack of positive-definiteness, 
+#' and lack of full #' rank, can result in such cases where the problem is said to
+#' be ill-posed, which means one of the three following conditions of the 
+#' regression problem are consequently 
+#' violated: \cr
+#' \cr
+#' 1. A solution exists \cr
+#' 2. A unique solution exists \cr
+#' 3. The output of a function changes continuously with the input(s) \cr
+#' \cr
+#' \cr
+#'  NOTE: You must get rid of the intercept column of the supplied model matrix.
+#' @return
+#' a data frame
+#' @export
+#' @examples
+#' vitals(model.matrix(Sepal.Width ~ ., iris)[,-1])
+#' 
+vitals = function(matrix){
+  matrix = as.matrix(matrix)
+  d = svd(matrix)$d
+  rank = suppressWarnings(suppressMessages(Matrix::rankMatrix(matrix, method = "qrLINPACK")))
+  full.rank = isTRUE(ncol(matrix) - rank == 0)
+  
+  data.frame(
+    rank =  rank,
+    full.rank = full.rank,
+    condition.maxmin = max(d) / min(d),
+    condition.minmax = min(d) / max(d), 
+    positive.definite = fBasics::isPositiveDefinite(cov(matrix))
+  )
+}

@@ -49,8 +49,8 @@
 #' \if{latex}{\figure{genparetoPDF.png}{}}
 #' \cr 
 #' Which makes the implied prior on the coefficients \cr
-#' \if{html}{\figure{gpdMarginal.png}{}}
-#' \if{latex}{\figure{gpdMarginal.png}{}}
+#' \if{html}{\figure{gdpMarginal.png}{}}
+#' \if{latex}{\figure{gdpMarginal.png}{}}
 #' \cr 
 #'
 #' @param formula the model formula

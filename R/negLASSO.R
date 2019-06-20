@@ -7,16 +7,12 @@
 #' \cr
 #' The model specification is given below: \cr
 #' \cr
-#' #### Top Level Parameters #### \cr 
 #' \cr
-#' tau ~ gamma(.01, .01) # only for Gaussian likelihood \cr
-#' lambda ~ gamma(0.5 , 0.001) \cr
-#' Intercept ~ normal(0, 1) \cr
-#' 
-#' #### Predictor Level Parameters #### \cr
-#' eta_i ~ gamma(.5, 1 / lambda^2) \cr
-#' psi_i ~ exponential(eta_i) \cr
-#' beta_i ~ normal(0, 1 / psi_i) # psi is inverted here because JAGS parameterizes by the precision \cr
+#' \cr 
+#' Model Specification:
+#' \cr
+#' \if{html}{\figure{negLASSO.png}{}}
+#' \if{latex}{\figure{negLASSO.png}{}}
 #' \cr
 #' \cr
 #' The normal-exponential-gamma (NEG) lasso

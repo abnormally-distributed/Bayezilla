@@ -55,6 +55,14 @@ For an alternative prior that also performs very well see \code{\link[Bayezilla]
 \cr
 Note that if you do not scale and center your numeric predictors, this will likely not perform well or
 give reasonable results. The mixing hyperparameters assume all covariates are on the same scale.
+
+\cr
+The model structure is given below: \cr
+\cr
+\cr
+\if{html}{\figure{glm.png}{}}
+\if{latex}{\figure{glm.png}{}}
+\cr
 }
 \examples{
 glmBayes()

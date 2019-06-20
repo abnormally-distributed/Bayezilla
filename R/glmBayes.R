@@ -1,6 +1,6 @@
 #' Bayesian Regularized GLMs
 #'
-#' This model utilizes normal-gamma mixture priors. A student-t prior can be parameterized as a norma-gamma mixture 
+#' @description This model utilizes normal-gamma mixture priors. A student-t prior can be parameterized as a norma-gamma mixture 
 #' by utilizing a gamma(df/2, df/2) distribution on the precision, where df is the desired degrees of freedom. Smaller
 #' degrees of freedom 
 #' result in long tails which can capture larger coefficients with sufficient evidence while also providing regularization
@@ -18,6 +18,14 @@
 #' \cr
 #' Note that if you do not scale and center your numeric predictors, this will likely not perform well or
 #' give reasonable results. The mixing hyperparameters assume all covariates are on the same scale.
+#' 
+#' \cr
+#' The model structure is given below: \cr
+#' \cr
+#' \cr
+#' \if{html}{\figure{glm.png}{}}
+#' \if{latex}{\figure{glm.png}{}}
+#' \cr
 #' 
 #' @param formula the model formula
 #' @param data a data frame

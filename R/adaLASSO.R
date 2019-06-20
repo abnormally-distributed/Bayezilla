@@ -4,6 +4,13 @@
 #' individual lambdas on each parameter defined by a gamma(sh, ra) distribution, where sh and ra are shape and rate hyperparameters. 
 #' Here sh and ra are given independent gamma(0.25, .5) and gamma(1e-06, 1e-03) priors respectively. For alternatives 
 #' see \code{\link[Bayezilla]{negLASSO}} (which is extremely similar) or \code{\link[Bayezilla]{extLASSO}}.
+#' \cr
+#' \cr 
+#' Model Specification:
+#' \cr
+#' \if{html}{\figure{adaLASSO.png}{}}
+#' \if{latex}{\figure{adaLASSO.png}{}}
+#'
 #'
 #' @param formula the model formula
 #' @param data a data frame.

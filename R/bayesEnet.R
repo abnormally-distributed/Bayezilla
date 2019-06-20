@@ -3,6 +3,14 @@
 #' @description The Bayesian elastic net described by Li and Lin (2010). Note only the Gaussian likelihood is 
 #' provided because the Bayesian elastic net requires conditioning on the error variance, which GLM-families
 #' do not have.
+#' 
+#' \cr
+#' The model structure is given below: \cr
+#' \cr
+#' \cr
+#' \if{html}{\figure{elasticNet.png}{}}
+#' \if{latex}{\figure{elasticNet.png}{}}
+#' \cr
 #'
 #' @param formula the model formula
 #' @param data a data frame.

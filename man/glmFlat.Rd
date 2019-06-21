@@ -41,12 +41,12 @@ This model utilizes extremely vague uniform priors on all parameters.
 These are essentially, for practical purposes, improper flat priors. While JAGS 
 does not support an improper prior over the whole real line, the coefficients 
 have normal(0, 1e-200) priors (precision of 1e-200 is equivalent to a standard 
-deviation of 1e100) and the precision has a gamma(1e-200, 1e-200) prior for
+deviation of 1e100) and the precision has a uniform(0, 1e200) prior for
 the Gaussian likelihood. No data that 
 would ever be observed would be anywhere near this scale, so this can be used 
 with scaled or unscaled data with equal validity, though I still recommend 
 standardizing because MCMC samplers work better with data all on the same scale. 
-The results from this should be equivalen to using lm() or glm()
+The results from this should be equivalent to using lm() or glm()
 in R.
 
 

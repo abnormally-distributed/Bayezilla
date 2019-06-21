@@ -6,7 +6,7 @@
 \usage{
 facetPost(fit, keeppars = NULL, droppars = c("ySim", "log_lik",
   "lp__"), col = "blue", nrow = 4, ncol = 2, bins = 20,
-  type = "area", method = "QI", showMedian = FALSE,
+  type = "irregular", method = "QI", showMedian = FALSE,
   cred.level = 0.9)
 }
 \arguments{

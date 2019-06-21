@@ -52,7 +52,7 @@
 #' \if{html}{\figure{facetPost.png}{}}
 #' \if{latex}{\figure{facetPost.png}{}}
 #'
-facetPost = function(fit, keeppars = NULL, droppars = c("ySim", "log_lik", "lp__"), col = "blue",  nrow = 4, ncol = 2, bins = 20, type = "area", method = "QI", showMedian = FALSE, cred.level = .90){
+facetPost = function(fit, keeppars = NULL, droppars = c("ySim", "log_lik", "lp__"), col = "blue",  nrow = 4, ncol = 2, bins = 20, type = "irregular", method = "QI", showMedian = FALSE, cred.level = .90){
   
   old.par <- par(no.readonly = TRUE) # save default, for resetting...
   on.exit(par(old.par))     #and when we quit the function, restore to original values

@@ -128,10 +128,20 @@ plotPost <- function(paramSampleVec, fit = NULL, param = NULL, xlab = NULL, col 
   
   old.par <- par(no.readonly = TRUE) # save default, for resetting... 
   on.exit(par(old.par))     #and when we quit the function, restore to original values
+  
+  
   if (is.null(fit) != TRUE){
     if (is.null(param) == TRUE)
       stop("please choose a single parameter to plot with the 'param' argument")
-    paramSampleVec = as.matrix(combine.mcmc(fit,collapse.chains = TRUE, vars = param))
+ 
+    stan <- inherits(fit, "stanfit")
+    if (stan == TRUE) {
+      paramSampleVec <- as.matrix(fit)
+      paramSampleVec = as.vector(paramSampleVec[,which(colnames(paramSampleVec) == param)])
+    } else if (class(fit) == "runjags") {
+      paramSampleVec = as.matrix(combine.mcmc(fit, collapse.chains = TRUE, vars = param))
+    }
+    
     param.label <- noquote(param)
   }
   else {

@@ -131,14 +131,15 @@ plotPost <- function(paramSampleVec, fit = NULL, param = NULL, xlab = NULL, col 
   
   
   if (is.null(fit) != TRUE){
-    if (is.null(param) == TRUE)
+    if (is.null(param) == TRUE)  {
       stop("please choose a single parameter to plot with the 'param' argument")
- 
+      } 
     stan <- inherits(fit, "stanfit")
     if (stan == TRUE) {
       paramSampleVec <- as.matrix(fit)
       paramSampleVec = as.vector(paramSampleVec[,which(colnames(paramSampleVec) == param)])
-    } else if (class(fit) == "runjags") {
+    } 
+    else if (class(fit) == "runjags") {
       paramSampleVec = as.matrix(combine.mcmc(fit, collapse.chains = TRUE, vars = param))
     }
     

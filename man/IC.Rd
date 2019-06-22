@@ -21,15 +21,12 @@ either a point summary or data frame
 \description{
 A common method of model comparison in Bayesian methods is to use the ratio
 of the marginal likelihoods, the Bayes Factor. However, marginal likelihoods are difficult
-to calculate, and sometimes analytically intractable. Hence, MCMC methods are used for model
-estimation, which are able to compute the posterior without the marginal likelihood. The marginal
-likelihood is the probability of the data given the model with the paramters integrated out, i.e.,
-p(Y ; M). Because the perameters are integrated out of the model in the marginal likelihood, it is an
-ideal way to perform model comparison without the risk of overfitting. This is because the posterior
-parameter estimates are in a sense unique to the model, being conditioned on the observed data. The
+to calculate, and sometimes analytically intractable.  The
 likelihood function itself, p(Y | theta ; M), is conditioned on the parameters, telling you the likelihood
 of the present sample based on the present parameter estimates. The marginal likelihood, however, is
-dependent on the structure of the model itself and not the parameter estimates.
+dependent on the structure of the model itself and not the parameter estimates. Because the 
+parameters are integrated out of the model, it is an
+ideal way in theory to perform model comparison without the risk of overfitting.
 
 Unfortunately, practical Bayesian analyses often without a way to get the marginal likelihoods.
 An alternative to marginal likelihood based model comparison are the class of information criteria,
@@ -39,8 +36,7 @@ penalize the deviance of the model evaluated at the maximum likelihood estimate,
 -2*log( p(Y | theta_MLE ; M) ) + penalty.
 
 Full Bayesian analysis with MCMC affords an opportunity to obtain a likelihood function
-that is conceptually very similar (however distinct -- more on this later) to the marginal likelihood,
-thus allowing fully Bayesian model comparison.
+that is somewhat similar to the marginal likelihood, thus allowing fully Bayesian model comparison.
 
 First one calculates the log pointwise predictive density, or lppd. This is given by taking the
 product of log-likelihood function at each data point, p(Y_i | theta ; M)
@@ -105,4 +101,15 @@ re-expressed with full conditional probability notation for comparison.
 }
 \examples{
 IC()
+
+}
+\references{
+Gelman, A., Hwang, J., and Vehtari, A. (2013). Understanding predictive information criteria for Bayesian models. Statistics and Computing. Volume 24, Issue 6, pp 997–1016 \cr
+\cr
+Vehtari, A., Gelman, A. (2014). WAIC and cross-validation in Stan. Online manuscript. http://www.stat.columbia.edu/~gelman/research/unpublished/waic_stan \cr
+\cr
+Watanabe, S. (2010). Asymptotic equivalence of Bayes cross validation and widely applicable
+information criterion in singular learning theory. Journal of Machine Learning Research 11,
+3571–3594. \cr
+\cr
 }

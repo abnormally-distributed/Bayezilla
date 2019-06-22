@@ -2,15 +2,12 @@
 #'
 #' @description A common method of model comparison in Bayesian methods is to use the ratio
 #' of the marginal likelihoods, the Bayes Factor. However, marginal likelihoods are difficult
-#' to calculate, and sometimes analytically intractable. Hence, MCMC methods are used for model
-#' estimation, which are able to compute the posterior without the marginal likelihood. The marginal
-#' likelihood is the probability of the data given the model with the paramters integrated out, i.e.,
-#' p(Y ; M). Because the perameters are integrated out of the model in the marginal likelihood, it is an
-#' ideal way to perform model comparison without the risk of overfitting. This is because the posterior
-#' parameter estimates are in a sense unique to the model, being conditioned on the observed data. The
+#' to calculate, and sometimes analytically intractable.  The
 #' likelihood function itself, p(Y | theta ; M), is conditioned on the parameters, telling you the likelihood
 #' of the present sample based on the present parameter estimates. The marginal likelihood, however, is
-#' dependent on the structure of the model itself and not the parameter estimates.
+#' dependent on the structure of the model itself and not the parameter estimates. Because the 
+#' parameters are integrated out of the model, it is an
+#' ideal way in theory to perform model comparison without the risk of overfitting.
 #'
 #' Unfortunately, practical Bayesian analyses often without a way to get the marginal likelihoods.
 #' An alternative to marginal likelihood based model comparison are the class of information criteria,
@@ -20,8 +17,7 @@
 #' -2*log( p(Y | theta_MLE ; M) ) + penalty.
 #'
 #' Full Bayesian analysis with MCMC affords an opportunity to obtain a likelihood function
-#' that is conceptually very similar (however distinct -- more on this later) to the marginal likelihood,
-#' thus allowing fully Bayesian model comparison.
+#' that is somewhat similar to the marginal likelihood, thus allowing fully Bayesian model comparison.
 #'
 #' First one calculates the log pointwise predictive density, or lppd. This is given by taking the
 #' product of log-likelihood function at each data point, p(Y_i | theta ; M)
@@ -84,6 +80,18 @@
 #' \if{html}{\figure{likelihoods.png}{A lineup of the different likelihood based quantities.}}
 #' \if{latex}{\figure{likelihoods.png}{A lineup of the different likelihood based quantities.}}
 #'
+#'
+#' @references 
+#' Gelman, A., Hwang, J., and Vehtari, A. (2013). Understanding predictive information criteria for Bayesian models. Statistics and Computing. Volume 24, Issue 6, pp 997–1016 \cr
+#' \cr
+#' Vehtari, A., Gelman, A. (2014). WAIC and cross-validation in Stan. Online manuscript. http://www.stat.columbia.edu/~gelman/research/unpublished/waic_stan \cr
+#' \cr
+#' Watanabe, S. (2010). Asymptotic equivalence of Bayes cross validation and widely applicable
+#' information criterion in singular learning theory. Journal of Machine Learning Research 11,
+#' 3571–3594. \cr
+#' \cr
+#' 
+#'
 #' @param out the stanfit or runjags objects. Must contain a log likelihood for each observation, not the
 #' total log likelihood of the model.
 #' @param loo Should the LOO also be returned? Defaults to TRUE.
@@ -97,62 +105,58 @@
 #'
 #' @examples
 #' IC()
-IC <- function(out,
-               loo = TRUE,
-               summarize = TRUE) {
-  stan <- inherits(out, "stanfit")
-  if (stan == TRUE) {
-    LL <- as.matrix(rstan::extract(out, pars = "log_lik"))
-    LL <- LL[, -which(colnames(LL) == "lp__")]
+#' 
+IC <- function (out, loo = TRUE, summarize = TRUE) 
+  {
+    stan <- inherits(out, "stanfit")
+    if (stan == TRUE) {
+      LL <- as.matrix(out)
+      LL <- LL[, -which(colnames(LL) == "lp__")]
+      wch = which(regexpr("log_lik", colnames(LL)) == 1)
+      if (length(wch) != 0){
+        LL <- LL[,wch]
+      } else if (length(wch) == 0){
+        stop("Variables matching log_lik not found. Please enable log_lik = TRUE in the model function.")
+      }
+    }
+    else if (class(out) == "runjags") {
+      LL <- combine.mcmc(out, collapse.chains = TRUE)
+      wch = which(regexpr("log_lik", colnames(LL)) == 1)
+      if (length(wch) != 0){
+        LL <- LL[,-wch]
+      } else if (length(wch) == 0){
+        stop("Variables matching log_lik not found. Please enable log_lik = TRUE in the model function.")
+      }
+    }
+    
+    
+    S <- nrow(LL)
+    n <- ncol(LL)
+    
+    # A trick I found online to prevent numerical overflow.
+    offset <- log_lik[cbind(max.col(abs(t(log_lik))), 1:n)] 
+    LPPD  <- log(1./S)+log(colSums(exp(sweep(log_lik, 2, offset))))+offset
+    
+    pWAIC <- apply(LL, 2, var)
+    WAIC <- -2 * (LPPD - pWAIC)
+    IC <- data.frame(WAIC = WAIC, lppd = LPPD, pWAIC = pWAIC)
+    
+    if (loo == TRUE) {
+      loo_weights_raw <- 1/exp(LL - max(LL))
+      loo_weights_normalized <- loo_weights_raw/matrix(colMeans(loo_weights_raw), 
+                                                       nrow = S, ncol = n, byrow = TRUE)
+      loo_weights_regularized <- pmin(loo_weights_normalized, 
+                                      sqrt(S))
+      elpd_loo <- log(colMeans(exp(LL) * loo_weights_regularized)/colMeans(loo_weights_regularized))
+      LOOIC <- -2 * elpd_loo
+      p_loo <- LPPD - elpd_loo
+      IC <- cbind.data.frame(WAIC = WAIC, `LOO-IC` = LOOIC, 
+                             lppd = LPPD, pWAIC = pWAIC, pLOO = p_loo)
+    }
+    if (summarize == TRUE) {
+      return(colSums(IC))
+    }
+    else {
+      return(IC)
+    }
   }
-  else if (class(out) == "runjags") {
-    LL <- combine.mcmc(out, collapse.chains = TRUE, vars = "log_lik")
-    LL <- as.matrix(LL)
-  }
-  S <- nrow(LL)
-  n <- ncol(LL)
-  # Calculate LPPD
-  LPPD <- log(colMeans(exp(LL)))
-  # Calculate pWAIC
-  pWAIC <- apply(LL, 2, var)
-  WAIC <- -2 * (LPPD - pWAIC)
-  # Concatenate into a data frame containing the results
-  IC <- data.frame(
-    "WAIC" = WAIC,
-    "lppd" = LPPD,
-    "pWAIC" = pWAIC
-  )
-
-
-  if (loo == TRUE) {
-    ## Code adapted from "Understanding predictive information criteria for Bayesian models"
-    ## Andrew Gelman, Jessica Hwang, and Aki Vehtari (2013)
-    loo_weights_raw <- 1 / exp(LL - max(LL))
-    loo_weights_normalized <-
-      loo_weights_raw / matrix(
-        colMeans(loo_weights_raw),
-        nrow = S,
-        ncol = n,
-        byrow = TRUE
-      )
-    loo_weights_regularized <- pmin(loo_weights_normalized, sqrt(S))
-    elpd_loo <-
-      log(colMeans(exp(LL) * loo_weights_regularized) / colMeans(loo_weights_regularized))
-    LOOIC <- -2 * elpd_loo
-    p_loo <- LPPD - elpd_loo
-    IC <-
-      cbind.data.frame(
-        "WAIC" = WAIC,
-        "LOO-IC" = LOOIC,
-        "lppd" = LPPD,
-        "pWAIC" = pWAIC,
-        "pLOO" = p_loo
-      )
-  }
-  if (summarize == TRUE) {
-    return(colSums(IC))
-  }
-  else {
-    return(IC)
-  }
-}

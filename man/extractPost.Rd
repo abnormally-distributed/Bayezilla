@@ -4,13 +4,13 @@
 \alias{extractPost}
 \title{Extract a posterior to a data frame}
 \usage{
-extractPost(fit, pars = NULL, droppars = c("log_lik", "ySim", "yTest",
-  "deviance", "omega", "lambda"))
+extractPost(fit, keeppars = NULL, droppars = c("log_lik", "ySim",
+  "yTest", "deviance", "omega", "lambda"))
 }
 \arguments{
 \item{fit}{the model}
 
-\item{pars}{parameters to keep. Defaults to NULL (implying anything is kept that's not in droppars)}
+\item{keeppars}{parameters to keep. Defaults to NULL (implying anything is kept that's not in droppars)}
 
 \item{droppars}{parameters to drop. Defaults to  c("log_lik", "ySim", "yTest", "deviance", "omega", "lambda")}
 }

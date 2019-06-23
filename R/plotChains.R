@@ -14,7 +14,7 @@
 #' if those do not work.
 #'
 #' @param fit the stanfit or runjags object
-#' @param pars the names of the parameters to be plotted.
+#' @param keeppars the names of the parameters to be plotted.
 #' @param col the color scheme. One of "blue" (the default), "darkblue", "purples", "reds",
 #' "greens", "mix" , or "mix2"
 #' @param ncol number of columns in the layout
@@ -26,10 +26,19 @@
 #'
 #' @examples
 #' plotChains()
-plotChains = function(fit, pars = NULL, droppars = c("ySim", "log_lik"), col = "blues", nrow = 4, ncol = 2) {
+plotChains = function(fit, keeppars = NULL, droppars = c("ySim", "log_lik"), col = "blues", nrow = 4, ncol = 2) {
 
-  list.mcmc <- as.mcmc.list(fit)
-  codaObject <- lapply(list.mcmc, function(d) {as.mcmc(extractPost(d, pars = pars, droppars = droppars))})
+  
+  stan <- inherits(fit, "stanfit")
+  if (stan == TRUE) {
+    list.mcmc <- rstan::As.mcmc.list(fit)
+  }  else{
+    list.mcmc <- as.mcmc.list(fit)
+  }
+  
+  codaObject <- lapply(list.mcmc, function(d) {
+    as.mcmc(extractPost(d, keeppars = keeppars, droppars = droppars))
+    })
   codaObject <- as.mcmc.list(codaObject)
   
   getCummean <- function(codaObject) {

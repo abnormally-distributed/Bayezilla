@@ -4,7 +4,7 @@
 #' select parameters to keep and drop.
 #'
 #' @param fit the model
-#' @param pars parameters to keep. Defaults to NULL (implying anything is kept that's not in droppars)
+#' @param keeppars parameters to keep. Defaults to NULL (implying anything is kept that's not in droppars)
 #' @param droppars parameters to drop. Defaults to  c("log_lik", "ySim", "yTest", "deviance", "omega", "lambda")
 #'
 #' @return
@@ -13,52 +13,50 @@
 #'
 #' @examples
 #' extract(out)
-extractPost =  function (fit, pars = NULL, droppars = c("log_lik", "ySim", "yTest", "deviance", "omega", "lambda")) 
+extractPost =  function (fit, keeppars = NULL, droppars = c("log_lik", "ySim", "yTest", "deviance", "omega", "lambda")) 
 {
+
   stan <- inherits(fit, "stanfit")
   if (stan == TRUE) {
-    ss <- rstan::As.mcmc.list(fit)
-  }
-  else if (class(fit) == "runjags"){
-    ss <- runjags::combine.mcmc(fit, collapse.chains = FALSE)
-  }
-  else {
-    ss <- as.matrix(as.mcmc(fit))
-  }
-  
-  ss <- as.matrix(ss)
-  
-  select_parameters <- function (explicit = character(), patterns = character(), complete = character()) 
-  {
-    stopifnot(is.character(explicit), is.character(patterns), 
-              is.character(complete))
-    if (!length(explicit) && !length(patterns)) 
-      return(complete)
-    if (length(explicit)) {
-      if (!all(explicit %in% complete)) {
-        not_found <- which(!explicit %in% complete)
-        stop("Some 'pars' don't match parameter names: ", 
-             paste(explicit[not_found], collapse = ", "))
+    codaObject <- as.matrix(fit)
+    wch = unique(unlist(sapply(droppars, function(z) which(regexpr(z, colnames(codaObject)) == 1))))
+    if (length(wch) != 0){
+      codaObject <- codaObject[,-wch]
+    }
+    if (!is.null(keeppars)) {
+      wch = unique(unlist(sapply(keeppars, function(z) which(regexpr(z, colnames(codaObject)) == 1))))
+      if (length(wch) != 0){
+        codaObject <- codaObject[,wch]
       }
     }
-    if (!length(patterns)) {
-      return(unique(explicit))
+  }
+  else if (class(fit) == "runjags"){
+    codaObject <- runjags::combine.mcmc(fit, collapse.chains = TRUE)
+    codaObject <- as.matrix(codaObject)
+    wch = unique(unlist(sapply(droppars, function(z) which(regexpr(z, colnames(codaObject)) == 1))))
+    if (length(wch) != 0){
+      codaObject <- codaObject[,-wch]
     }
-    
-    else {
-      regex_pars <- unlist(lapply(seq_along(patterns), function(j) {
-        grep(patterns[j], complete, value = TRUE)
-      }))
-      
-      if (!length(regex_pars)) 
-        stop("No matches for 'regex_pars'.", call. = FALSE)
+    if (!is.null(keeppars)) {
+      wch = unique(unlist(sapply(keeppars, function(z) which(regexpr(z, colnames(codaObject)) == 1))))
+      if (length(wch) != 0){
+        codaObject <- codaObject[,wch]
+      }
     }
-    unique(c(explicit, regex_pars))
+  }
+  else {
+    codaObject <- as.matrix(fit)
+    wch = unique(unlist(sapply(droppars, function(z) which(regexpr(z, colnames(codaObject)) == 1))))
+    if (length(wch) != 0){
+      codaObject <- codaObject[,-wch]
+    }
+    if (!is.null(keeppars)) {
+      wch = unique(unlist(sapply(keeppars, function(z) which(regexpr(z, colnames(codaObject)) == 1))))
+      if (length(wch) != 0){
+        codaObject <- codaObject[,wch]
+      }
+    }
   }
   
-  
-  drop <- select_parameters(patterns = droppars, complete = colnames(ss))
-  drop <- sapply(1:length(drop), function(i) which(colnames(ss) == drop[i]))
-  ss <- ss[, -drop]
-  as.data.frame(ss)
+  as.data.frame(codaObject)
 }

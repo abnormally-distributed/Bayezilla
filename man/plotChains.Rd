@@ -4,13 +4,13 @@
 \alias{plotChains}
 \title{MCMC Diagnostic Plots}
 \usage{
-plotChains(fit, pars = NULL, droppars = c("ySim", "log_lik"),
+plotChains(fit, keeppars = NULL, droppars = c("ySim", "log_lik"),
   col = "blues", nrow = 4, ncol = 2)
 }
 \arguments{
 \item{fit}{the stanfit or runjags object}
 
-\item{pars}{the names of the parameters to be plotted.}
+\item{keeppars}{the names of the parameters to be plotted.}
 
 \item{col}{the color scheme. One of "blue" (the default), "darkblue", "purples", "reds",
 "greens", "mix" , or "mix2"}

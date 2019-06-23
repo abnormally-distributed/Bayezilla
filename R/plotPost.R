@@ -61,9 +61,7 @@ plotPost <- function(paramSampleVec, fit = NULL, param = NULL, xlab = NULL, col 
   # dhist.
   # An another algorithm for computing histogram breaks.  Produces irregular bins.
   # Provided by Lorraine Denby
-  #
-  #
-  # @keyword internal
+  
   dhist <- function(x, a=5*diff(quantile(x, c(0.05,.95))), nbins = bins, rx = range(x)) {
     x <- sort(x)
     if(a == 0)

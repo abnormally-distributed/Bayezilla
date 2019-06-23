@@ -1,6 +1,6 @@
 Package: Bayezilla
 Type: Package
-Title: Bayesian Models 
+Title: Bayesian Models With JAGS and Several Utilities for Data Exploration and Model Evaluation.
 Version: 0.1.0
 Author: Brandon Vaughan
 Maintainer: Brandon Vaughan <vaughanb@musc.edu>
@@ -25,4 +25,5 @@ Imports:
     fBasics (>= 3042.89),
     forcats (>= 0.3.0),
     broom (>= 0.5.0), 
-    corpcor (>= 1.6)
+    corpcor (>= 1.6),
+    EnvStats (>= 2.3.1)

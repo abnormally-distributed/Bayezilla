@@ -4,16 +4,16 @@
 \alias{plotDist}
 \title{plot a density function over a histogram}
 \usage{
-plotDist(dfunc, args = list(), x = NULL, bins = 20, n = 1500,
+plotDist(x = NULL, dfunc, args = list(), bins = 20, n = 1500,
   type = "irregular", xname = "<U+03C7>", xlab = xname,
   ylab = NULL, xlim = NULL, color = "#f45342CC", size = 2, ...)
 }
 \arguments{
+\item{x}{the data}
+
 \item{dfunc}{The name of a density function (ie, dnorm, dt, etc)}
 
 \item{args}{list of the additional argument of the function, ie, list(mu = 0, sigma = 1)}
-
-\item{x}{the data}
 
 \item{bins}{defaults to 20}
 

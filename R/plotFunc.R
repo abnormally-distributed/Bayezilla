@@ -10,11 +10,11 @@
 #' @param ylab label of the y-axis
 #' @param xlim restrict the range of the function
 #' @param args list of the additional argument of the function
-#' @param color the color of the line. defaults to "red"
+#' @param color the color of the line. defaults to blue
 #' @param size the size of the line. defaults to .75
 #' @param ... Additional arguments to stat_function()
 #' @examples
-#' ggfunc(dnorm, from = -8 to = 8)
+#' plotFunc(dnorm, from = -8 to = 8)
 #' @export
 #' 
 #' 
@@ -36,7 +36,7 @@ function (func, from = NULL, to = NULL, n = 1500, xname = "\u03C7",
   }
   
   if (is.null(ylab)) 
-    ylab <- paste0("ƒ ", "( ", "\u03C7", " )")
+    ylab <- paste0("ƒ ", "( ", "\u03C7", " )\n")
 
   tibble(x = c(from, to)) %>% 
       ggplot(aes(x = x)) + 

@@ -27,7 +27,7 @@ plotFunc(func, from = NULL, to = NULL, n = 1500,
 
 \item{args}{list of the additional argument of the function}
 
-\item{color}{the color of the line. defaults to "red"}
+\item{color}{the color of the line. defaults to blue}
 
 \item{size}{the size of the line. defaults to .75}
 
@@ -37,5 +37,5 @@ plotFunc(func, from = NULL, to = NULL, n = 1500,
 plot a function
 }
 \examples{
-ggfunc(dnorm, from = -8 to = 8)
+plotFunc(dnorm, from = -8 to = 8)
 }

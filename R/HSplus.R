@@ -5,17 +5,12 @@
 #' added to the model. Note that in the model I use somewhat different names for the paramters. This is because a key parameter
 #' in the model is often called "tau" in the literature (often geared towards Stan), but JAGS uses the precision parameterization
 #' of the normal distribution. The precision is denoted as "tau", so this warranted some new terms. See the model specification below. \cr
-#' \cr 
-#' # Top level parameters \cr
-#' tau ~ gamma(0.01, 0.01) # Precision \cr
-#' lambda^2 ~ half-cauchy(0, 1 / tau) # the same as half-cauchy(0, sigma^2) \cr
-#' Intercept ~ normal(0, 1) \cr
 #' \cr
-#' # Coefficient Specific Parameters \cr
-#' local_lambda_i ~ half-cauchy(0, 1) # The new local-shrinkage parameter introduced in the horseshoe+ \cr
-#' eta_i ~ half-cauchy(0, local_lambda_i * global_lambda) \cr
-#' beta ~ normal(0, 1/eta_i) \cr
+#' Model Specification: \cr 
 #' \cr
+#' 
+#' \if{html}{\figure{HorseshoePlus.png}{}}
+#' \if{latex}{\figure{HorseshoePlus.png}{}}
 #'
 #'
 #' @references

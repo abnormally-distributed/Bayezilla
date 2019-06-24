@@ -74,6 +74,7 @@ plotVIF = function(formula, data, family="gaussian"){
   }
   
   vifs = as.data.frame(vifs)
+  colnames(vifs) = "VIF"
   vifs$Variable = rownames(vifs)
 
   ggplot(data = vifs, aes(x=Variable, y=VIF, fill=VIF)) +

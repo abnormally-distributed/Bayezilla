@@ -206,7 +206,7 @@ plotPost <- function(paramSampleVec, fit = NULL, param = NULL, xlab = NULL, col 
   
   # Get breaks argument
   if (type == "irregular"){
-    breaks <- dhist
+    breaks <- dhist(paramSampleVec, a=5*diff(quantile(paramSampleVec, c(0.05,.95))), nbins = bins)
   } else {
     breaks <- bins
   }

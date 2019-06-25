@@ -16,8 +16,6 @@ tTest(formula = NULL, data, like.func = "normal", compval = 0,
 If using the one sample t-test, the vector of observations. 
 If using repeated measures, the vector of group differences.}
 
-\item{like.func}{the likelihood function to use. either "normal" (the default) or "student_t"}
-
 \item{compval}{the hypothesized null value for a one sample t-test}
 
 \item{model}{one of "is" (independent samples t-test) , "rm" (repeated measures t-test), or "os" (one sample t-test)}
@@ -42,46 +40,18 @@ If using repeated measures, the vector of group differences.}
 a runjags object
 }
 \description{
-Two different likelihood functions are offered. 
-
-For the normal likelihood, a conjugate normal-gamma model:
-
-
-   tau_i ~ dgamma(square(prec(y)) / 1000, prec(y) / 1000) *
+A conjugate normal-gamma model: \cr
+\cr
+   tau_i ~ dgamma(square(prec(y)) / 1000, prec(y) / 1000) \cr
+   \cr
+   mu_i ~ normal(0, .5 * prec(y)) ** \cr
+   \cr
+   y ~ normal(mu_i, tau_i) \cr
+   \cr
+   *For unit scaled and centered response variables this implies gamma(.001, .001) \cr
+   \cr
+   **For unit scaled response variables this implies normal(0, tau = .5) \cr
    
-   mu_i ~ normal(0, .5 * prec(y)) **
-   
-   y ~ normal(mu_i, tau_i)
-   
-   *For unit scaled and centered response variables this implies gamma(.001, .001)
-   
-   **For unit scaled response variables this implies normal(0, tau = .5) 
-   
-       
-For the Student-t likelihood: 
-
-
-   nu ~ gamma(2, .01)
-   
-   tau_i ~ scaled.gamma(ysd, 3) *
-   
-   mu_i ~ cauchy(0, .5 * 1/var(y)) **
-   
-   y ~ t(mu_i, tau_i, nu)
-   
-   
-   *For unit scaled and centered response variables this implies half-t(0, 1, 3) on the standard deviation
-   
-   **For unit scaled response variables this implies cauchy(0, tau = .5) 
-   
-Note the use of a student-t likelihood is wholly unrelated to this being analagous to the frequentist t-test.
-In the t-test, the student-t distribution is the asymptotic sampling distribution of the t-statistic,
-but here it is used to model the heaviness of the tails in the data. The estimation of nu in fact does nothing
-to bias results when there is not sufficient evidence of non-normality. It could well be used as a default
-in estimating the means, however, the student-t likelihood does not have conjugate priors. JAGS makes considerable
-gains in speed when using conjugate exponential family priors, so I have opted to set the normal likelihood as 
-the default.
-
 INDEPENDENT SAMPLES T-TEST: 
 
 The difference in means is modeled as mu_1 - mu_2. The difference in the standard deviations of both groups

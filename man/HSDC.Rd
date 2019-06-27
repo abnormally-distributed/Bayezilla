@@ -60,7 +60,7 @@ Intercept ~ normal(0, 1) \cr
 local_lambda_i ~ half-cauchy(0, 1) \cr
 eta_i <- 1 / (global_lambda^2 * local_lambda_i^2) # Prior Precision  \cr
 beta ~ normal(0, eta_i) \cr
-design_beta_i ~ normal(0, .0625) \cr
+design_beta_i ~ normal(0, 1e-200) \cr
 \cr
 }
 \examples{

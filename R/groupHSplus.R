@@ -1,10 +1,11 @@
-#' Horseshoe+
+#' Group+Within Group Selection with the Group Horseshoe+
 #'
-#' @description This is the horseshoe+ model described by Bhadra et al (2017). This is essentially the horseshoe homologue
-#' of the extended LASSO. The specification is identical to the horseshoe except an additional local shrinkage parameter is
-#' added to the model. Note that in the model I use somewhat different names for the paramters. This is because a key parameter
-#' in the model is often called "tau" in the literature (often geared towards Stan), but JAGS uses the precision parameterization
-#' of the normal distribution. The precision is denoted as "tau", so this warranted some new terms. See the model specification below. \cr
+#' @description This is the horseshoe+ model described by Bhadra et al (2017) adapted to the problem of group selection, and is
+#' akin to the group Bayesian LASSO. The resulting model has three levels of shrinkage: a global shrinkage level, group level shrinkage,
+#' and finally, coefficient level shrinkage. This is probably best applied when there are a rather large number of variables that can
+#' be clustered into groups that themselves have fairly large numbers (at least 5-6 variables each). 
+#' 
+#' \cr
 #' \cr
 #' Model Specification: \cr 
 #' \cr
@@ -18,8 +19,10 @@
 #' \cr
 #' Carvalho, C. M., Polson, N. G., and Scott, J. G. (2010). The horseshoe estimator for sparse signals. Biometrika, 97(2):465–480. \cr
 #'
-#' @param formula the model formula
-#' @param data a data frame.
+#' @param X the model matrix. Construct this manually with model.matrix()[,-1]
+#' @param y the outcome variable
+#' @param idx the group labels. Should be of length = to ncol(model.matrix()[,-1]) with the group assignments
+#' for each covariate. Please ensure that you start numbering with 1, and not 0.
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 10000.
 #' @param warmup How many warmup samples? Defaults to 1000.
@@ -35,26 +38,32 @@
 #' @export
 #'
 #' @examples
-#' HSplus()
+#' groupHSplus()
 #'
-HSplus = function(formula, data, log_lik = FALSE, iter = 4000, warmup=3000, adapt=3000, chains=4, thin=2, method = "rjparallel", cl = makeCluster(2), ...){
-
-  X = model.matrix(formula, data)[,-1]
-  y = model.frame(formula, data)[,1]
+groupHSplus = function(X, y, idx, log_lik = FALSE, iter = 4000, warmup=3000, adapt=3000, chains=4, thin=2, method = "rjparallel", cl = makeCluster(2), ...){
+  
 
   horseshoePlus = "model{
 # tau is the precision, inverse of variance.
 tau ~ dgamma(.01, .01) 
+
 # lambda squared, the global penalty
 global_lambda ~ dt(0, tau, 1) T(0, )
+
+# group lambda, the group level penalities
+for (g in 1:nG){
+  group_lambda[g] ~ dt(0, 1, 1) T(0, )
+}
+
 # Coefficients
 Intercept ~ dnorm(0, 1)
 for (i in 1:P){
-  local_lambda_A[i] ~ dt(0, 1, 1) T(0, )
-  local_lambda_B[i] ~ dt(0, global_lambda * local_lambda_A[i], 1) T(0, )
-  eta[i] <- 1 / pow(local_lambda_B[i], 2)
+  local_lambda[i] ~ dt(0, global_lambda * group_lambda[idx[i]], 1) T(0, )
+  eta[i] <- 1 / pow(local_lambda[i], 2)
   beta[i] ~ dnorm(0, eta[i])
+  delta[i] <- 1 - ( 1 / (1 + (pow(local_lambda[i], 2)*pow(global_lambda, 2)))) 
 }
+
 # Likelihood Function
 for (i in 1:N){
   y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
@@ -66,16 +75,16 @@ sigma <- sqrt(1/tau)
 }"
 
 write_lines(horseshoePlus, "horseshoePlus.txt")
-jagsdata = list("y" = y, "X" = X, "N" = nrow(X), "P" = ncol(X))
+jagsdata = list("y" = y, "X" = X, "N" = nrow(X), "P" = ncol(X), "idx" = idx, "nG" = max(idx))
 inits = lapply(1:chains, function(z) list("beta" = rep(0, ncol(X)),
                                           "Intercept" = 0,
-                                          "local_lambda_A" =  rep(1, ncol(X)),
-                                          "local_lambda_B" =  rep(1, ncol(X)),
+                                          "group_lambda" =  rep(1, max(idx)),
+                                          "local_lambda" =  rep(1, ncol(X)),
                                           "global_lambda"= 1,
                                           "tau" = 1,
                                           .RNG.name= "lecuyer::RngStream",
                                           .RNG.seed= sample(1:10000, 1)))
-monitor = c("Intercept", "beta", "sigma", "Deviance" , "global_lambda", "local_lambda_A", "local_lambda_B", "ySim", "log_lik")
+monitor = c("Intercept", "beta", "sigma", "Deviance" , "global_lambda", "group_lambda", "local_lambda", "delta", "ySim", "log_lik")
 if (log_lik == FALSE){
   monitor = monitor[-(length(monitor))]
 }

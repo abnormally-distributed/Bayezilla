@@ -39,8 +39,7 @@ Defaults to two cores.}
 a runjags object
 }
 \description{
-The Bayesian LASSO of Park & Casella (2008), but with the allowance for a set of covariates 
-but with the allowance for a set of covariates that are not penalized. 
+The Bayesian LASSO of Park & Casella (2008), but with the allowance for a set of covariates that are not penalized. 
 For example, you may wish to include variables such as age and gender in all models so that 
 the coefficients for the other variables are penalized while controlling for these. This
 is a common need in research. \cr

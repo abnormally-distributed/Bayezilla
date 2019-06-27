@@ -21,7 +21,7 @@
 #' local_lambda_i ~ half-cauchy(0, 1) \cr
 #' eta_i <- 1 / (global_lambda^2 * local_lambda_i^2) # Prior Precision  \cr
 #' beta ~ normal(0, eta_i) \cr
-#' design_beta_i ~ normal(0, .0625) \cr
+#' design_beta_i ~ normal(0, 1e-200) \cr
 #' \cr
 #'
 #' @references
@@ -70,12 +70,11 @@ for (i in 1:P){
   local_lambda[i] ~ dt(0, 1, 1) T(0, )
   eta[i] <-  1 / (pow(global_lambda , 2) * pow(local_lambda[i], 2))
   beta[i] ~ dnorm(0, eta[i])
-  delta[i] <- 1 - ( 1 / (1 + pow(local_lambda[i], 2))) 
 }
 
 # Design Variable Coefficients
 for (f in 1:FP){
-    design_beta[f] ~ dnorm(0, 0.0625)
+    design_beta[f] ~ dnorm(0, 1e-200)
 }
   
 # Likelihood Function
@@ -101,7 +100,7 @@ inits = lapply(1:chains, function(z) list("beta" = rep(0, ncol(X)),
                                           "tau" = 1,
                                           .RNG.name= "lecuyer::RngStream",
                                           .RNG.seed= sample(1:10000, 1)))
-monitor = c("Intercept", "beta", "design_beta", "sigma", "Deviance", "global_lambda", "delta", "local_lambda", "ySim", "log_lik")
+monitor = c("Intercept", "beta", "design_beta", "sigma", "Deviance", "global_lambda","local_lambda", "ySim", "log_lik")
 
 if (log_lik == FALSE){
   monitor = monitor[-(length(monitor))]

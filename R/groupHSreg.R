@@ -1,15 +1,11 @@
-#' Regularized Horseshoe
+#' Group Regularized Horseshoe
 #'
-#' @description This is the horseshoe model described by Piironen & Vehtari (2017). This tends to run very quickly
-#' even for larger data sets or larger numbers of predictors and in my experience is faster and more stable (at least
-#' on the tested data sets!) than the same model implemetned in Stan. If the horseshoe+ is analagous to the 
-#' extended Bayesian LASSO, then this could be compared to the Bayesian Elastic Net in that it imposes a combination
-#' of different shrinkage penalties (the elastic net being a combination of L1 and L2, and the regularized horseshoe being
-#' a combination of sub-L1 and student-t penalties). \cr
+#' @description This is the horseshoe model described by Piironen & Vehtari (2017) 
+#' adapted for group selection, akin to the group Bayesian LASSO.
+#' \cr
 #' \cr
 #' Model Specification: \cr 
 #' \cr
-#' 
 #' \if{html}{\figure{regularizedHorseshoe.png}{}}
 #' \if{latex}{\figure{regularizedHorseshoe.png}{}}
 #'
@@ -21,7 +17,7 @@
 #'
 #' @param formula the model formula
 #' @param data a data frame.
-#' @param phi your prior guess on the inclusion probability. Defaults to .50. Best way to come up with a figure is a prior guess on how many coefficients are non-zero out of the total number of predictors.
+#' @param phi your prior guess on the inclusion probability. Defaults to .50. Best way to come up with a figure is a prior guess on how many groups are non-zero out of the total number of groups.
 #' @param slab_scale the standard deviation of the "slab". Defaults to 2.
 #' @param slab_df the degrees of freedom fo the slab. Higher degrees of freedom give increased L2-like regularization. Defaults to 3.
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
@@ -39,15 +35,12 @@
 #' @export
 #'
 #' @examples
-#' HSreg()
+#' groupHSreg()
 #'
-HSreg = function(formula, data, phi = .50, slab_scale = 2, slab_df = 3, log_lik = FALSE, 
+groupHSreg = function(X, y, idx, phi = .50, slab_scale = 2, slab_df = 3, log_lik = FALSE, 
                  iter = 10000, warmup = 4000, adapt = 5000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
   
-  X = model.matrix(formula, data)[,-1]
-  y = model.frame(formula, data)[,1]
-  
-  horseshoe = "model{
+horseshoe = "model{
 
 # tau is the precision, inverse of variance.
 tau ~ dgamma(.01, .01) 
@@ -61,13 +54,17 @@ lambda ~ dt(0, 1/lambda0sqrd, 1) T(0, )
 c2_inv ~ dgamma(df / 2, (df*prior_variance)/2) 
 c2 <- 1 / c2_inv
 
+# Group Penalties
+for (g in 1:nG){
+  eta[g] ~ dt(0,1,1) T(0, ) 
+  eta_tilde[g] <- (pow(eta[g], 2)*c2) / (c2+(pow(lambda,2)*pow(eta[g], 2)))
+  eta_inv[g] <- 1 / (eta_tilde[g] * lambda)
+}
+
 # Coefficients
 Intercept ~ dnorm(0, 1)
 for (i in 1:P){
-  eta[i] ~ dt(0,1,1) T(0, ) 
-  eta_tilde[i] <- (pow(eta[i], 2)*c2) / (c2+(pow(lambda,2)*pow(eta[i], 2)))
-  eta_inv[i] <- 1 / (eta_tilde[i] * lambda)
-  beta[i] ~ dnorm(0, eta_inv[i])
+  beta[i] ~ dnorm(0, eta_inv[idx[i]])
 }
 
 # Likelihood Function
@@ -77,14 +74,21 @@ for (i in 1:N){
   log_lik[i] <- logdensity.norm(y[i], Intercept + sum(beta[1:P] * X[i,1:P]), tau)
 }
 Deviance <- -2 * sum(log_lik[1:N])
-
 }"
 
 write_lines(horseshoe, "horseshoe.txt")
-jagsdata = list("y" = y, "X" = X, "N" = nrow(X), "P" = ncol(X), "phi" = phi, "df" = slab_df, "prior_variance" = square(slab_scale))
+jagsdata = list("y" = y, 
+                "X" = X, 
+                "N" = nrow(X), 
+                "idx" = idx, 
+                "nG" = max(idx),
+                "P" = ncol(X), 
+                "phi" = phi, 
+                "df" = slab_df, 
+                "prior_variance" = square(slab_scale))
 inits = lapply(1:chains, function(z) list("beta" = rep(0, ncol(X)), 
                                           "Intercept" = 0, 
-                                          "eta" =  rep(1, ncol(X)),
+                                          "eta" =  rep(1, max(idx)),
                                           "c2_inv" = 1/slab_df, 
                                           "lambda"= 10, 
                                           "tau" = 1,

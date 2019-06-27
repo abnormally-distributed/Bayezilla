@@ -72,7 +72,7 @@ SpikeDC <- function(formula, design.formula, data, family = "gaussian", log_lik 
               }
               
               for (f in 1:FP){
-                design_beta[f] ~ dnorm(0, .0625)
+                design_beta[f] ~ dnorm(0, 1e-200)
               }
 
               Intercept ~ dnorm(0, 1)

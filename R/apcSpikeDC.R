@@ -105,7 +105,7 @@ apcSpikeDC = function(formula, design.formula, data, family = "gaussian", lambda
               
               # Design Variable Coefficients
                   for (f in 1:FP){
-                  design_beta[f] ~ dnorm(0, 0.0625)
+                  design_beta[f] ~ dnorm(0, 1e-200)
               }
               
               

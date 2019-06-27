@@ -1,7 +1,6 @@
 #' Bayesian Lasso with unpenalized design covariates
 #'
-#' The Bayesian LASSO of Park & Casella (2008), but with the allowance for a set of covariates 
-#' but with the allowance for a set of covariates that are not penalized. 
+#' The Bayesian LASSO of Park & Casella (2008), but with the allowance for a set of covariates that are not penalized. 
 #' For example, you may wish to include variables such as age and gender in all models so that 
 #' the coefficients for the other variables are penalized while controlling for these. This
 #' is a common need in research. \cr
@@ -52,7 +51,7 @@ blassoDC = function(formula, design.formula, data, log_lik = FALSE, iter=10000, 
   }
   
   for (f in 1:FP){
-    design_beta[f] ~ dnorm(0, 0.0625)
+    design_beta[f] ~ dnorm(0, 1e-200)
   }
   
   Intercept ~ dnorm(0, 1)
@@ -74,7 +73,14 @@ blassoDC = function(formula, design.formula, data, log_lik = FALSE, iter=10000, 
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
-  inits <- lapply(1:chains, function(z) list("Intercept" = 0, "beta" = rep(0, P), "design_beta" = rep(0, FP), "eta" = rep(1, P), "lambda" = 2, "tau" = 1, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
+  inits <- lapply(1:chains, function(z) list("Intercept" = 0, 
+                                             "beta" = rep(0, P), 
+                                             "design_beta" = rep(0, FP), 
+                                             "eta" = rep(1, P), 
+                                             "lambda" = 2, 
+                                             "tau" = 1, 
+                                             .RNG.name= "lecuyer::RngStream", 
+                                             .RNG.seed= sample(1:10000, 1)))
   
   out = run.jags(model = "jags_blasso.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
   file.remove("jags_blasso.txt")

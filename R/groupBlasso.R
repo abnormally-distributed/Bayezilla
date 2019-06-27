@@ -56,7 +56,6 @@ groupBlasso = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=1000, adap
   }
   
   for (p in 1:P){
-    # Beta Precision
     beta[p] ~ dnorm(0, omega[idx[p]])
   }
   
@@ -78,7 +77,14 @@ groupBlasso = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=1000, adap
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
-  inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "beta" = rep(0, P), "eta" = rep(1, max(idx)), "lambda" = 2, "tau" = 1))
+  inits <- lapply(1:chains, function(z) list("Intercept" = 0,
+                                             "beta" = rep(0, P), 
+                                             "eta" = rep(1, max(idx)), 
+                                             "lambda" = 2, 
+                                             "tau" = 1, 
+                                             .RNG.name= "lecuyer::RngStream", 
+                                             .RNG.seed= sample(1:10000, 1)
+                                             ))
   
   out = run.jags(model = "jags_blasso.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
   file.remove("jags_blasso.txt")

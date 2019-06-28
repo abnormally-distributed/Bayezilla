@@ -11,16 +11,10 @@
 #' 12 or 30.
 #' \cr
 #' \cr
-#' # Top level parameters \cr
-#' tau ~ gamma(0.01, 0.01) # only for Gaussian outcome \cr
-#' phi ~ beta(1/2, 1/2) \cr
-#' Intercept ~ normal(0, 1) \cr
+#' Model Specification:
 #' \cr
-#' # Independent priors for each coefficient \cr
-#' delta_i ~ dbern(phi) \cr
-#' omega_i ~ dgamma(df / 2, df / 2) \cr
-#' theta_i ~ dnorm(0, omega_i) \cr
-#' beta_i <- delta_i*theta_i \cr
+#' \if{html}{\figure{IAt.png}{}}
+#' \if{latex}{\figure{IAt.png}{}}
 #'   
 #' @references 
 #  Knürr, T., E. Läärä, and M. J. Sillanpää (2011) Genetic analysis of complex traits via Bayesian variable selection: the utility of a mixture of uniform priors. Genetics Research 93: 303-318. doi:10.1017/S0016672311000164

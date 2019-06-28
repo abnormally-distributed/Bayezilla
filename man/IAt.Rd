@@ -49,16 +49,10 @@ this. However if there is a large amount of collinearity in your data you may wa
 12 or 30.
 \cr
 \cr
-# Top level parameters \cr
-tau ~ gamma(0.01, 0.01) # only for Gaussian outcome \cr
-phi ~ beta(1/2, 1/2) \cr
-Intercept ~ normal(0, 1) \cr
+Model Specification:
 \cr
-# Independent priors for each coefficient \cr
-delta_i ~ dbern(phi) \cr
-omega_i ~ dgamma(df / 2, df / 2) \cr
-theta_i ~ dnorm(0, omega_i) \cr
-beta_i <- delta_i*theta_i \cr
+\if{html}{\figure{IAt.png}{}}
+\if{latex}{\figure{IAt.png}{}}
 }
 \examples{
 IAt()

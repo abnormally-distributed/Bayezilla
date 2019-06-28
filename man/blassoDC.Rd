@@ -46,6 +46,11 @@ is a common need in research. \cr
 \cr
 Note only the Gaussian likelihood is provided because the Bayesian LASSO requires conditioning
 on the error variance, which GLM-families do not have. \cr
+\cr
+Model Specification:
+\cr
+\if{html}{\figure{blassoDC.png}{}}
+\if{latex}{\figure{blassoDC.png}{}}
 }
 \examples{
 blassoDC()

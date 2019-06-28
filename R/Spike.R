@@ -11,7 +11,7 @@
 #' \cr
 #' This is the most basic type of Bayesian variable selection. This is inspired by the method presented by Kuo and Mallick (1998), 
 #' with some improvements. This models the regression coefficients as coming from either a null distribution represented
-#' by a probability mass of 100% at zero (the "spike") or from a normal distribution. The probability that a coefficient 
+#' by a probability mass of 100% at zero (the "spike") or unpenalized. The probability that a coefficient 
 #' comes from the null-spike is controlled by a hyperparameter "phi" which estimates the overall probability of inclusion, 
 #' i.e., the proportion of the P-number of predictors that are non-zero. This hyperparameter is given a Jeffrey's prior, 
 #' beta(1/2, 1/2) which is non-informative and objective. The specification of the prior is pictured below. \cr
@@ -66,7 +66,7 @@ Spike <- function(formula, data, family = "gaussian", log_lik = FALSE, iter = 10
               phi ~ dbeta(.5, .5) 
               
               for (p in 1:P){
-                theta[p] ~ dnorm(0, 0.5)
+                theta[p] ~ dnorm(0, 1e-200)
                 delta[p] ~ dbern(phi)
                 beta[p] <- delta[p] * theta[p]
               }

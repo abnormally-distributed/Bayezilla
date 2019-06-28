@@ -82,7 +82,7 @@ apcDC = function(formula, design.formula, data, family = "gaussian", lambda = -1
               
               # Design Variable Coefficients
                   for (f in 1:FP){
-                  design_beta[f] ~ dnorm(0, 0.0625)
+                  design_beta[f] ~ dnorm(0, 1e-200)
               }
               
               omega <- inverse(cov) 
@@ -125,7 +125,7 @@ apcDC = function(formula, design.formula, data, family = "gaussian", lambda = -1
               
               # Design Variable Coefficients
                   for (f in 1:FP){
-                  design_beta[f] ~ dnorm(0, 0.0625)
+                  design_beta[f] ~ dnorm(0, 1e-200)
               }
               
               omega <- inverse(cov) 
@@ -167,7 +167,7 @@ apcDC = function(formula, design.formula, data, family = "gaussian", lambda = -1
 
               # Design Variable Coefficients
                   for (f in 1:FP){
-                  design_beta[f] ~ dnorm(0, 0.0625)
+                  design_beta[f] ~ dnorm(0, 1e-200)
               }
               
               omega <- inverse(cov) 

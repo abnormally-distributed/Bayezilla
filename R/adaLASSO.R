@@ -2,7 +2,9 @@
 #'
 #' @description The Bayesian LASSO of Leng, Tran and David Nott (2018). Basically just the Bayesian Lasso of Park & Casella (2008) but with
 #' individual lambdas on each parameter defined by a gamma(sh, ra) distribution, where sh and ra are shape and rate hyperparameters. 
-#' Here sh and ra are given independent gamma(0.25, .5) and gamma(1e-06, 1e-03) priors respectively. For alternatives 
+#' Here sh and ra are given independent gamma(4, 8) and gamma(0.0016, 0.1600) priors respectively. This places the expected
+#' values for the shape and rate parameters at 0.50 and 0.01 respectively, which is consistent with the gamma(0.50, 0.01) prior on lambda
+#' used for most other shrinkage models in this package. For alternatives 
 #' see \code{\link[Bayezilla]{negLASSO}} (which is extremely similar) or \code{\link[Bayezilla]{extLASSO}}.
 #' \cr
 #' \cr 
@@ -50,8 +52,8 @@ adaLASSO = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, ada
 
   jags_blasso = "model{
   tau ~ dgamma(.01, .01)
-  sh ~ dgamma(0.25, .5)
-  ra ~ dgamma(1e-06, 1e-03)
+  sh ~ dgamma(4, 8)
+  ra ~ dgamma(0.0016, 0.1600)
     
   for (p in 1:P){
     lambda[p] ~ dgamma(sh , ra)

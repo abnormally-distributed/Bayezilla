@@ -47,8 +47,8 @@ do not have.
 The model structure is given below: \cr
 \cr
 \cr
-\if{html}{\figure{elasticNet.png}{}}
-\if{latex}{\figure{elasticNet.png}{}}
+\if{html}{\figure{elasticNetDC.png}{}}
+\if{latex}{\figure{elasticNetDC.png}{}}
 \cr
 }
 \examples{

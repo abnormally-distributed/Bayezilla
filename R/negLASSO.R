@@ -60,7 +60,7 @@ negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
 
               tau ~ dgamma(.01, .01)
 
-              lambda ~ dgamma(0.5 , 0.001)
+              lambda ~ dgamma(0.5 , 0.01)
 
               Intercept ~ dnorm(0, 1)
 
@@ -93,7 +93,7 @@ negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
 
     jags_neg_LASSO = "model{
 
-              lambda ~ dgamma(0.5 , 0.001)
+              lambda ~ dgamma(0.5 , 0.01)
 
               Intercept ~ dnorm(0, 1)
 
@@ -126,7 +126,7 @@ negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
 
     jags_neg_LASSO = "model{
 
-              lambda ~ dgamma(0.5 , 0.001)
+              lambda ~ dgamma(0.5 , 0.01)
 
               Intercept ~ dnorm(0, 1)
 

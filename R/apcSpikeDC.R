@@ -24,6 +24,10 @@
 #' The probability that a coefficient comes from the null-spike is controlled by a hyperparameter "phi" which estimates the overall probability of inclusion, i.e., the proportion of the P-number of predictors that are non-zero. 
 #' This hyperparameter is given a Jeffrey's prior, beta(1/2, 1/2) which is non-informative and objective.
 #' \cr
+#' Model Specification:
+#' \cr
+#' \if{html}{\figure{apcSpike.png}{}}
+#' \if{latex}{\figure{apcSpike.png}{}}
 #' @references 
 #' Krishna, A., Bondell, H. D., & Ghosh, S. K. (2009). Bayesian variable selection using an adaptive powered correlation prior. Journal of statistical planning and inference, 139(8), 2665–2674. doi:10.1016/j.jspi.2008.12.004 \cr
 #' \cr

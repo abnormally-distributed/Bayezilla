@@ -112,7 +112,7 @@ Li, Z.,and Sillanpää, M. J. (2012) Overview of LASSO-related penalized regress
 Yuan, Ming; Lin, Yi (2006). "Model Selection and Estimation in Regression with Grouped Variables". Journal of the Royal Statistical Society. Series B (statistical Methodology). Wiley. 68 (1): 49–67. doi:10.1111/j.1467-9868.2005.00532.x
 }
 \seealso{
-\code{\link[Bayezilla]{groupBlasso}}
+\code{\link[Bayezilla]{groupBLASSO}}
 \code{\link[Bayezilla]{blassoDC}}
 \code{\link[Bayezilla]{negLASSO}} 
 \code{\link[Bayezilla]{extLASSO}}

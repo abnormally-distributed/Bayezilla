@@ -10,8 +10,8 @@
 #' The model structure is given below: \cr
 #' \cr
 #' \cr
-#' \if{html}{\figure{elasticNet.png}{}}
-#' \if{latex}{\figure{elasticNet.png}{}}
+#' \if{html}{\figure{elasticNetDC.png}{}}
+#' \if{latex}{\figure{elasticNetDC.png}{}}
 #' \cr
 #'
 #' @param formula the model formula
@@ -44,8 +44,8 @@ bayesEnetDC  = function(formula, design.formula, data, log_lik = FALSE, iter=100
 
               tau ~ dgamma(.01, .01)
               sigma <- sqrt(1/tau)
-              lambdaL1 ~ dgamma(0.5 , 0.001)
-              lambdaL2 ~ dgamma(0.5 , 0.001)
+              lambdaL1 ~ dgamma(0.25 , 0.01)
+              lambdaL2 ~ dgamma(0.25 , 0.01)
 
               Intercept ~ dnorm(0, 1)
 

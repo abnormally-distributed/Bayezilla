@@ -39,7 +39,10 @@ A run.jags object
 }
 \description{
 The Bayesian elastic net described by Li and Lin (2010) modified for use as a group selection model,
-akin to the Group LASSO. Note only the Gaussian likelihood is 
+akin to the Group Bayesian LASSO described by Kyung et al. (2010). Group selection is a method
+described first by Yuan & Lin (2006) for applying shrinkage penalties to coefficients that have some natural grouping,
+such as refelcting dummy variables of a single factor, or coefficients corresponding to related variables (for example, predictors
+derived from a single brain region). Note only the Gaussian likelihood is 
 provided because the Bayesian elastic net requires conditioning on the error variance, which GLM-families
 do not have.
 
@@ -56,5 +59,10 @@ groupEnet()
 
 }
 \references{
+Yuan, Ming; Lin, Yi (2006). Model Selection and Estimation in Regression with Grouped Variables. Journal of the Royal Statistical Society. Series B (statistical Methodology). Wiley. 68 (1): 49–67. doi:10.1111/j.1467-9868.2005.00532.x \cr
+\cr
+Kyung, M., Gill, J., Ghosh, M., and Casella, G. (2010). Penalized regression, standard errors, and bayesian lassos. Bayesian Analysis, 5(2):369–411. \cr
+\cr
 Li, Qing; Lin, Nan. The Bayesian elastic net. Bayesian Anal. 5 (2010), no. 1, 151--170. doi:10.1214/10-BA506. https://projecteuclid.org/euclid.ba/1340369796
+\cr
 }

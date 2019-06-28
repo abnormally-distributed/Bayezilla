@@ -87,7 +87,7 @@
 #' groupExtLASSO
 #' 
 #' @seealso 
-#' \code{\link[Bayezilla]{groupBlasso}}
+#' \code{\link[Bayezilla]{groupBLASSO}}
 #' \code{\link[Bayezilla]{blassoDC}}
 #' \code{\link[Bayezilla]{negLASSO}} 
 #' \code{\link[Bayezilla]{extLASSO}}
@@ -111,7 +111,7 @@ groupExtLASSO <- function(X, y, idx, family = "gaussian", eta_prior = "classic",
               tau ~ dgamma(.01, .01)
 
               # Shrinkage top-level-hyperparameter
-              Omega ~ dgamma(.5, .001)
+              Omega ~ dgamma(.5, .01)
 
               Intercept ~ dnorm(0, 1)
 
@@ -209,7 +209,7 @@ groupExtLASSO <- function(X, y, idx, family = "gaussian", eta_prior = "classic",
       jags_grp_extended_LASSO <- "model{
 
               # Shrinkage top-level-hyperparameter
-              Omega ~ dgamma(.5, .001)
+              Omega ~ dgamma(.5, .01)
 
               Intercept ~ dnorm(0, 1)
               
@@ -304,7 +304,7 @@ groupExtLASSO <- function(X, y, idx, family = "gaussian", eta_prior = "classic",
       jags_grp_extended_LASSO <- "model{
 
               # Shrinkage top-level-hyperparameter
-              Omega ~ dgamma(.5, .001)
+              Omega ~ dgamma(.5, .01)
 
               Intercept ~ dnorm(0, 1)
 

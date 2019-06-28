@@ -58,7 +58,7 @@ blasso()
 Park, T., & Casella, G. (2008). The Bayesian Lasso. Journal of the American Statistical Association, 103(482), 681-686. Retrieved from http://www.jstor.org/stable/27640090 \cr
 }
 \seealso{
-\code{\link[Bayezilla]{groupBlasso}} 
+\code{\link[Bayezilla]{groupBLASSO}} 
 \code{\link[Bayezilla]{blassoDC}} 
 \code{\link[Bayezilla]{adaLASSO}}
 \code{\link[Bayezilla]{negLASSO}} 

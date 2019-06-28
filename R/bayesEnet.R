@@ -41,8 +41,8 @@ bayesEnet  = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, a
 
               tau ~ dgamma(.01, .01)
               sigma <- sqrt(1/tau)
-              lambdaL1 ~ dgamma(0.5 , 0.001)
-              lambdaL2 ~ dgamma(0.5 , 0.001)
+              lambdaL1 ~ dgamma(0.25 , 0.01)
+              lambdaL2 ~ dgamma(0.25 , 0.01)
 
               Intercept ~ dnorm(0, 1)
 
@@ -57,7 +57,6 @@ bayesEnet  = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, a
                  log_lik[i] <- logdensity.norm(y[i], Intercept + sum(beta[1:P] * X[i,1:P]), tau)
                  ySim[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
               }
-
               Deviance <- -2 * sum(log_lik[1:N])
           }"
 

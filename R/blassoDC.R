@@ -7,6 +7,11 @@
 #' \cr
 #' Note only the Gaussian likelihood is provided because the Bayesian LASSO requires conditioning
 #' on the error variance, which GLM-families do not have. \cr
+#' \cr
+#' Model Specification:
+#' \cr
+#' \if{html}{\figure{blassoDC.png}{}}
+#' \if{latex}{\figure{blassoDC.png}{}}
 #'
 #' @param formula the model formula.
 #' @param design.formula formula for the design covariates.

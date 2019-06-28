@@ -10,8 +10,8 @@
 #' Model Specification: \cr 
 #' \cr
 #' 
-#' \if{html}{\figure{HorseshoePlus.png}{}}
-#' \if{latex}{\figure{HorseshoePlus.png}{}}
+#' \if{html}{\figure{groupHorseshoePlus.png}{}}
+#' \if{latex}{\figure{groupHorseshoePlus.png}{}}
 #'
 #'
 #' @references

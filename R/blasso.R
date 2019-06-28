@@ -35,7 +35,7 @@
 #' @export
 #' 
 #' @seealso 
-#' \code{\link[Bayezilla]{groupBlasso}} 
+#' \code{\link[Bayezilla]{groupBLASSO}} 
 #' \code{\link[Bayezilla]{blassoDC}} 
 #' \code{\link[Bayezilla]{adaLASSO}}
 #' \code{\link[Bayezilla]{negLASSO}} 
@@ -54,7 +54,7 @@ blasso = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, adapt
   jags_blasso = "model{
   tau ~ dgamma(.01, .01) 
   sigma2 <- 1/tau
-  lambda ~ dgamma(0.5 , 0.001)
+  lambda ~ dgamma(0.5 , 0.01)
   
   for (p in 1:P){
     eta[p] ~ dexp(lambda^2 / 2)

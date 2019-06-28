@@ -57,7 +57,7 @@ and rate parameters (alpha and zeta, respectively) each with independent gamma(0
 have an expected value of 1 and a standard deviation of 1.25. An expected value of 1 is justified by the fact that
 for most circumstances alpha=zeta=1 is ideal.
 
-To quote directly from Armagan, Dunson, & Lee (2013): 
+To quote directly from Armagan, Dunson, & Lee (2013): \cr
 \cr 
 \cr
 \emph{As α grows, the density becomes lighter tailed, more peaked and the variance becomes
@@ -69,7 +69,8 @@ at the same rate, the variance remains constant but the tails become lighter, co
 Laplace density in the limit. This leads to over-shrinking of coefficients that are away from
 zero. As a typical default specification for the hyperparameters, one can take α = ζ = 1. This
 choice leads to Cauchy-like tail behavior, which is well-known to have desirable Bayesian
-robustness properties.}
+robustness properties.} \cr
+\cr
 \cr
 The reason for not just fixing the values at 1 is that I have observed that this does not always result
 in much, if any, shrinkage, and that using hyperpriors results in much better sampling (better chain mixing

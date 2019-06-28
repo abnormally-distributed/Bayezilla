@@ -43,13 +43,13 @@ an rjags object
 }
 \description{
 This is the horseshoe model described by Piironen & Vehtari (2017) 
-adapted for group selection, akin to the group Bayesian LASSO.
+adapted for group selection, in the spirit of the group LASSO.
 \cr
 \cr
 Model Specification: \cr 
 \cr
-\if{html}{\figure{regularizedHorseshoe.png}{}}
-\if{latex}{\figure{regularizedHorseshoe.png}{}}
+\if{html}{\figure{groupregularizedHorseshoe.png}{}}
+\if{latex}{\figure{groupregularizedHorseshoe.png}{}}
 
 \cr
 }

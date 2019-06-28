@@ -48,8 +48,8 @@ be clustered into groups that themselves have fairly large numbers (at least 5-6
 Model Specification: \cr 
 \cr
 
-\if{html}{\figure{HorseshoePlus.png}{}}
-\if{latex}{\figure{HorseshoePlus.png}{}}
+\if{html}{\figure{groupHorseshoePlus.png}{}}
+\if{latex}{\figure{groupHorseshoePlus.png}{}}
 }
 \examples{
 groupHSplus()

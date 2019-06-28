@@ -46,7 +46,7 @@ If you do not scale and center your numeric predictors, this will likely not giv
 \cr
 This is the most basic type of Bayesian variable selection. This is inspired by the method presented by Kuo and Mallick (1998), 
 with some improvements. This models the regression coefficients as coming from either a null distribution represented
-by a probability mass of 100% at zero (the "spike") or from a normal distribution. The probability that a coefficient 
+by a probability mass of 100% at zero (the "spike") or unpenalized. The probability that a coefficient 
 comes from the null-spike is controlled by a hyperparameter "phi" which estimates the overall probability of inclusion, 
 i.e., the proportion of the P-number of predictors that are non-zero. This hyperparameter is given a Jeffrey's prior, 
 beta(1/2, 1/2) which is non-informative and objective. The specification of the prior is pictured below. \cr

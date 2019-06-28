@@ -68,6 +68,8 @@ at the \code{\link[Bayezilla]{extLASSO}} or \code{\link[Bayezilla]{bayesEnet}} f
 The model specification is given below. Note that the model formulae have been adjusted to reflect the fact that JAGS
 parameterizes the normal and multivariate normal distributions by their precision, rater than (co)variance. 
 \cr
+Model Specification:
+\cr
 \cr
 \if{html}{\figure{apcSpike.png}{}}
 \if{latex}{\figure{apcSpike.png}{}}

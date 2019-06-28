@@ -1,15 +1,16 @@
 #' Group Bayesian Lasso 
 #'
 #' Group selection was introduced in the group LASSO by Yuan and Lin (2006) in
-#' the context of the classical "frequentist" LASSO. The concept is adapted here to the Bayesian LASSO of Park & Casella (2008). Note only the Gaussian likelihood
+#' the context of the classical "frequentist" LASSO. The concept is adapted here to the Bayesian LASSO 
+#' following the example of Kyung et al. (2010). Note only the Gaussian likelihood
 #' is provided because the Bayesian LASSO requires conditioning on the error variance, which GLM-families
 #' do not have. \cr
 #'
 #' \cr
 #' Model Specification:
 #' \cr
-#' \if{html}{\figure{groupBlasso.png}{}}
-#' \if{latex}{\figure{groupBlasso.png}{}}
+#' \if{html}{\figure{groupBLASSO.png}{}}
+#' \if{latex}{\figure{groupBLASSO.png}{}}
 #'
 #' @param X the model matrix. Construct this manually with model.matrix()[,-1]
 #' @param y the outcome variable
@@ -30,7 +31,9 @@
 #' Yuan, Ming; Lin, Yi (2006). Model Selection and Estimation in Regression with Grouped Variables. Journal of the Royal Statistical Society. Series B (statistical Methodology). Wiley. 68 (1): 49–67. doi:10.1111/j.1467-9868.2005.00532.x \cr
 #' \cr
 #' Park, T., & Casella, G. (2008). The Bayesian Lasso. Journal of the American Statistical Association, 103(482), 681-686. Retrieved from http://www.jstor.org/stable/27640090 \cr
-#'
+#' \cr
+#' Kyung, M., Gill, J., Ghosh, M., and Casella, G. (2010). Penalized regression, standard errors, and bayesian lassos. Bayesian Analysis, 5(2):369–411.
+#' 
 #' @return
 #' a runjags object
 #' 
@@ -44,20 +47,20 @@
 #' \code{\link[Bayezilla]{HSreg}}
 #'
 #' @examples
-#' groupBlasso()
+#' groupBLASSO()
 #' 
 #' @export
-groupBlasso = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
+groupBLASSO = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
   
 
   jags_blasso = "model{
   tau ~ dgamma(.01, .01) 
   sigma2 <- 1/tau
-  lambda ~ dexp(0.002)
+  lambda ~ dexp(0.02)
 
   # Group Level shrinkage
   for (g in 1:nG){
-    eta[g] ~ dgamma( (m[g] + 1) * 0.50 , pow(lambda, 2) * 0.50)
+    eta[g] ~ dgamma( (k[g] + 1) * 0.50 , pow(lambda, 2) * 0.50)
     omega[g] <- 1 / (sigma2 * eta[g])
   }
   
@@ -78,7 +81,7 @@ groupBlasso = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=1000, adap
   
   P <- ncol(X)
   write_lines(jags_blasso, "jags_blasso.txt")
-  jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), idx = idx, nG = max(idx), m = as.vector(table(idx)))
+  jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), idx = idx, nG = max(idx), k = as.vector(table(idx)))
   monitor <- c("Intercept", "beta", "sigma", "Deviance", "lambda", "eta", "ySim", "log_lik")
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]

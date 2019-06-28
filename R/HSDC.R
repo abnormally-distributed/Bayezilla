@@ -9,20 +9,11 @@
 #' numbers of predictors and in my experience is faster and more stable (at least
 #' on the tested data sets!) than the same model implemetned in Stan. \cr
 #' \cr
-#' The model specification:
+#' Model Specification: \cr 
 #' \cr
-#' \cr
-#' # Top level parameters \cr
-#' tau ~ gamma(.01, .01) # Precision \cr
-#' global_lambda ~ half-cauchy(0, tau) # the same as half-cauchy(0, sigma) but JAGS uses the precision. \cr
-#' Intercept ~ normal(0, 1) \cr
-#' \cr
-#' # Coefficient Specific Parameters \cr
-#' local_lambda_i ~ half-cauchy(0, 1) \cr
-#' eta_i <- 1 / (global_lambda^2 * local_lambda_i^2) # Prior Precision  \cr
-#' beta ~ normal(0, eta_i) \cr
-#' design_beta_i ~ normal(0, 1e-200) \cr
-#' \cr
+#' 
+#' \if{html}{\figure{HorseshoeDC.png}{}}
+#' \if{latex}{\figure{HorseshoeDC.png}{}}
 #'
 #' @references
 #' Carvalho, C. M., Polson, N. G., and Scott, J. G. (2010). The horseshoe estimator for sparse signals. Biometrika, 97(2):465–480.

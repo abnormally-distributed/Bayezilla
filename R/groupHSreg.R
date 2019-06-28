@@ -1,13 +1,13 @@
 #' Group Regularized Horseshoe
 #'
 #' @description This is the horseshoe model described by Piironen & Vehtari (2017) 
-#' adapted for group selection, akin to the group Bayesian LASSO.
+#' adapted for group selection, in the spirit of the group LASSO.
 #' \cr
 #' \cr
 #' Model Specification: \cr 
 #' \cr
-#' \if{html}{\figure{regularizedHorseshoe.png}{}}
-#' \if{latex}{\figure{regularizedHorseshoe.png}{}}
+#' \if{html}{\figure{groupregularizedHorseshoe.png}{}}
+#' \if{latex}{\figure{groupregularizedHorseshoe.png}{}}
 #'
 #' \cr
 #' @references
@@ -50,14 +50,13 @@ sigma <- sqrt(1/tau)
 lambda0sqrd <- pow((phi / (1-phi)) * (sigma/sqrt(N)), 2)
 lambda ~ dt(0, 1/lambda0sqrd, 1) T(0, )
 
-# control parameter
-c2_inv ~ dgamma(df / 2, (df*prior_variance)/2) 
-c2 <- 1 / c2_inv
-
 # Group Penalties
 for (g in 1:nG){
+  # control parameter
+  c2_inv[g] ~ dgamma(df / 2, (df*prior_variance)/2) 
+  c2[g] <- 1 / c2_inv
   eta[g] ~ dt(0,1,1) T(0, ) 
-  eta_tilde[g] <- (pow(eta[g], 2)*c2) / (c2+(pow(lambda,2)*pow(eta[g], 2)))
+  eta_tilde[g] <- (pow(eta[g], 2)*c2[g]) / (c2[g]+(pow(lambda,2)*pow(eta[g], 2)))
   eta_inv[g] <- 1 / (eta_tilde[g] * lambda)
 }
 
@@ -89,7 +88,7 @@ jagsdata = list("y" = y,
 inits = lapply(1:chains, function(z) list("beta" = rep(0, ncol(X)), 
                                           "Intercept" = 0, 
                                           "eta" =  rep(1, max(idx)),
-                                          "c2_inv" = 1/slab_df, 
+                                          "c2_inv" = rep(1/slab_df, max(idx)),
                                           "lambda"= 10, 
                                           "tau" = 1,
                                           .RNG.name= "lecuyer::RngStream",

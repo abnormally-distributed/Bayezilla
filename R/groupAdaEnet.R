@@ -58,12 +58,12 @@ groupAdaEnet  = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=5000, ad
               Intercept ~ dnorm(0, 1)
 
               for (g in 1:nG){
-                  lambdaL2[g] ~ dgamma(.25, .001)
+                  lambdaL2[g] ~ dgamma(.25, .01)
               }
               
               for (p in 1:P){
-                lambdaL1[p] ~ dgamma(.25, .001)
-                eta[p] ~ dgamma(.5, (8 * lambdaL2[idx[p]] * pow(sigma,2)) / pow(lambdaL1[p], 2)) T(1,)
+                lambdaL1[p] ~ dgamma(.25, .01)
+                eta[p] ~ dgamma(k[idx[p]] *.5, (8 * lambdaL2[idx[p]] * pow(sigma,2)) / pow(lambdaL1[p], 2)) T(1,)
                 beta_prec[p] <- (lambdaL2[idx[p]]/pow(sigma,2)) * (eta[p]/(eta[p]-1))
                 beta[p] ~ dnorm(0, beta_prec[p])
               }
@@ -79,7 +79,7 @@ groupAdaEnet  = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=5000, ad
   
   P <- ncol(X)
   write_lines(jags_adaptive_elastic_net, "jags_adaptive_elastic_net.txt")
-  jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), idx = idx, nG = max(idx))
+  jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), idx = idx, nG = max(idx), k = as.vector(table(idx)))
   monitor <- c("Intercept", "beta", "sigma", "lambdaL1", "lambdaL2", "Deviance", "eta", "ySim", "log_lik")
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]

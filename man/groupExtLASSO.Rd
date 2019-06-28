@@ -2,10 +2,10 @@
 % Please edit documentation in R/groupExtLASSO.R
 \name{groupExtLASSO}
 \alias{groupExtLASSO}
-\title{Extended Group Bayesian LASSO}
+\title{Group+Within Group Selection with Extended Group Bayesian LASSO}
 \usage{
 groupExtLASSO(X, y, idx, family = "gaussian", eta_prior = "classic",
-  local_u = 2, top_u = 10000, log_lik = FALSE, iter = 10000,
+  local_u = 2, top_u = 10, log_lik = FALSE, iter = 10000,
   warmup = 5000, adapt = 15000, chains = 4, thin = 1,
   method = "parallel", cl = makeCluster(2), ...)
 }
@@ -23,7 +23,7 @@ for each covariate. Please ensure that you start numbering with 1, and not 0.}
 
 \item{local_u}{This must be assigned a value. Default is 2.}
 
-\item{top_u}{If using eta_prior = "classic" this must be assigned a value. Default is 10000.}
+\item{top_u}{If using eta_prior = "classic" this must be assigned a value. Default is 10.}
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 

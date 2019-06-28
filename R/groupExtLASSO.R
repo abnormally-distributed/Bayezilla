@@ -1,4 +1,4 @@
-#' Extended Group Bayesian LASSO
+#' Group+Within Group Selection with Extended Group Bayesian LASSO
 #'
 #' @description Group selection was introduced in the group LASSO by Yuan and Lin (2006) in
 #' the context of the classical "frequentist" LASSO. The concept is adapted here to the extended Bayesian LASSO 
@@ -68,7 +68,7 @@
 #' @param family one of "gaussian", "binomial", or "poisson".
 #' @param eta_prior one of "classic" (default), or "gamma".
 #' @param local_u This must be assigned a value. Default is 2. 
-#' @param top_u If using eta_prior = "classic" this must be assigned a value. Default is 10000. 
+#' @param top_u If using eta_prior = "classic" this must be assigned a value. Default is 10. 
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 10000.
 #' @param warmup How many warmup samples? Defaults to 10000.
@@ -97,7 +97,7 @@
 #' \code{\link[Bayezilla]{HSplus}}
 #' \code{\link[Bayezilla]{HSreg}}
 #' 
-groupExtLASSO <- function(X, y, idx, family = "gaussian", eta_prior = "classic", local_u = 2, top_u = 10000, log_lik = FALSE, iter = 10000, warmup = 5000, adapt = 15000, chains = 4, thin =1, method = "parallel", cl = makeCluster(2), ...) {
+groupExtLASSO <- function(X, y, idx, family = "gaussian", eta_prior = "classic", local_u = 2, top_u = 10, log_lik = FALSE, iter = 10000, warmup = 5000, adapt = 15000, chains = 4, thin =1, method = "parallel", cl = makeCluster(2), ...) {
   
 
   if (family == "gaussian" || family == "normal") {
@@ -110,21 +110,19 @@ groupExtLASSO <- function(X, y, idx, family = "gaussian", eta_prior = "classic",
               # Precision
               tau ~ dgamma(.01, .01)
 
-              # Shrinkage top-level-hyperparameter
-              Omega ~ dgamma(.5, .01)
-
               Intercept ~ dnorm(0, 1)
 
               for (g in 1:nG){
-                # Group Level shrinkage hyperparameter
-                eta[g] ~ dunif(0, local_u)
-                lambda[g] <- Omega * eta[g]
-                w[g]<- pow(lambda[g],2)/2
+                 # Group Level shrinkage hyperparameter
+                 Omega[g] ~ dgamma(.5, .01)
               }
 
               for (p in 1:P){
                 # Beta Precision
-                beta_var[p] ~ dexp(w[idx[p]])
+                eta[p] ~ dunif(0, local_u)
+                lambda[p] <- Omega[idx[p]] * eta[p]
+                w[p] <- pow(lambda[p],2)/2
+                beta_var[p] ~ dgamma((k[idx[p]] + 1) * 0.50 , w[p])
                 beta_prec[p] <- 1 / beta_var[p]
                 # Indicator Function
                 delta[p] <- step(1-eta[idx[p]])
@@ -144,8 +142,8 @@ groupExtLASSO <- function(X, y, idx, family = "gaussian", eta_prior = "classic",
       monitor <- c("Intercept", "beta", "sigma", "Omega", "Deviance", "eta", "lambda", "delta", "ySim", "log_lik")
       P <- ncol(X)
       nG <- length(unique(idx))
-      jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u, idx = idx, nG = nG)
-      inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 1, "beta" = rnorm(P, 0, 1), "eta" = rep(1, nG), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
+      jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u, idx = idx, nG = nG, k = as.vector(table(idx)))
+      inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = rep(1 , max(idx)), "beta" = rnorm(P, 0, 1), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
       write_lines(jags_grp_extended_LASSO, "jags_grp_extended_LASSO.txt")
     }
 
@@ -158,20 +156,19 @@ groupExtLASSO <- function(X, y, idx, family = "gaussian", eta_prior = "classic",
               # Precision
               tau ~ dgamma(.01, .01)
 
-              # Shrinkage top-level-hyperparameter
-              Omega ~ dunif(0, top_u)
-
               Intercept ~ dnorm(0, 1)
+              
               for (g in 1:nG){
                 # Group Level shrinkage hyperparameter
-                eta[g] ~ dunif(0, local_u)
-                lambda[g] <- Omega * eta[g]
-                w[g]<- pow(lambda[g],2)/2
+                Omega[g] ~ dunif(0, top_u)
               }
 
               for (p in 1:P){
                 # Beta Precision
-                beta_var[p] ~ dexp(w[idx[p]])
+                eta[p] ~ dunif(0, local_u)
+                lambda[p] <- Omega[idx[p]] * eta[p]
+                w[p] <- pow(lambda[p],2)/2
+                beta_var[p] ~ dgamma((k[idx[p]] + 1) * 0.50 , w[p])
                 beta_prec[p] <- 1 / beta_var[p]
                 # Indicator Function
                 delta[p] <- step(1-eta[idx[p]])
@@ -195,8 +192,8 @@ groupExtLASSO <- function(X, y, idx, family = "gaussian", eta_prior = "classic",
       }
       P <- ncol(X)
       nG <- length(unique(idx))
-      jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u, top_u = top_u, idx = idx, nG = nG)
-      inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1),"ySim" = y, "Omega" = 1, "beta" = rnorm(P, 0, 1), "eta" = rep(1, nG), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
+      jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u, top_u = top_u, idx = idx, nG = nG, k = as.vector(table(idx)))
+      inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1),"ySim" = y, "Omega" = rep(1 , max(idx)), "beta" = rnorm(P, 0, 1), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
       write_lines(jags_grp_extended_LASSO, "jags_grp_extended_LASSO.txt")
     }
   }
@@ -214,21 +211,23 @@ groupExtLASSO <- function(X, y, idx, family = "gaussian", eta_prior = "classic",
               Intercept ~ dnorm(0, 1)
               
               for (g in 1:nG){
-                # Group Level shrinkage hyperparameter
-                eta[g] ~ dunif(0, local_u)
-                lambda[g] <- Omega * eta[g]
-                w[g]<- pow(lambda[g],2)/2
+                 # Group Level shrinkage hyperparameter
+                 Omega[g] ~ dgamma(.5, .01)
               }
 
               for (p in 1:P){
                 # Beta Precision
-                beta_var[p] ~ dexp(w[idx[p]])
+                eta[p] ~ dunif(0, local_u)
+                lambda[p] <- Omega[idx[p]] * eta[p]
+                w[p] <- pow(lambda[p],2)/2
+                beta_var[p] ~ dgamma((k[idx[p]] + 1) * 0.50 , w[p])
                 beta_prec[p] <- 1 / beta_var[p]
                 # Indicator Function
                 delta[p] <- step(1-eta[idx[p]])
                 # Coefficient
                 beta[p] ~ dnorm(0, beta_prec[p])
               }
+
 
               for (i in 1:N){
                  logit(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P])
@@ -244,8 +243,8 @@ groupExtLASSO <- function(X, y, idx, family = "gaussian", eta_prior = "classic",
       if (log_lik == FALSE) {
         monitor <- monitor[-(length(monitor))]
       }
-      jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u, idx = idx, nG = max(idx))
-      inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1),"ySim" = y, "Omega" = 1, "beta" = jitter(rep(0, P), amount = .25), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
+      jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u, idx = idx, nG = max(idx), k = as.vector(table(idx)))
+      inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1),"ySim" = y, "Omega" = rep(1 , max(idx)), "beta" = jitter(rep(0, P), amount = .25), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
       write_lines(jags_grp_extended_LASSO, "jags_grp_extended_LASSO.txt")
     }
 
@@ -254,21 +253,19 @@ groupExtLASSO <- function(X, y, idx, family = "gaussian", eta_prior = "classic",
       if (is.na(top_u)) stop("Please select an upper limit for the uniform prior on Omega.")
       jags_grp_extended_LASSO <- "model{
 
-              # Shrinkage top-level-hyperparameter
-              Omega ~ dunif(0, top_u)
-
               Intercept ~ dnorm(0, 1)
 
               for (g in 1:nG){
                 # Group Level shrinkage hyperparameter
-                eta[g] ~ dunif(0, local_u)
-                lambda[g] <- Omega * eta[g]
-                w[g]<- pow(lambda[g],2)/2
+                Omega[g] ~ dunif(0, top_u)
               }
 
               for (p in 1:P){
                 # Beta Precision
-                beta_var[p] ~ dexp(w[idx[p]])
+                eta[p] ~ dunif(0, local_u)
+                lambda[p] <- Omega[idx[p]] * eta[p]
+                w[p] <- pow(lambda[p],2)/2
+                beta_var[p] ~ dgamma((k[idx[p]] + 1) * 0.50 , w[p])
                 beta_prec[p] <- 1 / beta_var[p]
                 # Indicator Function
                 delta[p] <- step(1-eta[idx[p]])
@@ -290,8 +287,8 @@ groupExtLASSO <- function(X, y, idx, family = "gaussian", eta_prior = "classic",
       if (log_lik == FALSE) {
         monitor <- monitor[-(length(monitor))]
       }
-      jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u, top_u = top_u, idx = idx, nG = max(idx))
-      inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1),"ySim" = y, "Omega" = 1, "beta" = jitter(rep(0, P), amount = .25), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
+      jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u, top_u = top_u, idx = idx, nG = max(idx), k = as.vector(table(idx)))
+      inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1),"ySim" = y, "Omega" = rep(1 , max(idx)), "beta" = jitter(rep(0, P), amount = .25), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
       write_lines(jags_grp_extended_LASSO, "jags_grp_extended_LASSO.txt")
     }
   }
@@ -303,27 +300,26 @@ groupExtLASSO <- function(X, y, idx, family = "gaussian", eta_prior = "classic",
 
       jags_grp_extended_LASSO <- "model{
 
-              # Shrinkage top-level-hyperparameter
-              Omega ~ dgamma(.5, .01)
-
               Intercept ~ dnorm(0, 1)
 
               for (g in 1:nG){
-                # Group Level shrinkage hyperparameter
-                eta[g] ~ dunif(0, local_u)
-                lambda[g] <- Omega * eta[g]
-                w[g]<- pow(lambda[g],2)/2
+                 # Group Level shrinkage hyperparameter
+                 Omega[g] ~ dgamma(.5, .01)
               }
 
               for (p in 1:P){
                 # Beta Precision
-                beta_var[p] ~ dexp(w[idx[p]])
+                eta[p] ~ dunif(0, local_u)
+                lambda[p] <- Omega[idx[p]] * eta[p]
+                w[p] <- pow(lambda[p],2)/2
+                beta_var[p] ~ dgamma((k[idx[p]] + 1) * 0.50 , w[p])
                 beta_prec[p] <- 1 / beta_var[p]
                 # Indicator Function
                 delta[p] <- step(1-eta[idx[p]])
                 # Coefficient
                 beta[p] ~ dnorm(0, beta_prec[p])
               }
+
               
               for (i in 1:N){
                  log(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P])
@@ -339,8 +335,8 @@ groupExtLASSO <- function(X, y, idx, family = "gaussian", eta_prior = "classic",
       if (log_lik == FALSE) {
         monitor <- monitor[-(length(monitor))]
       }
-      jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u, idx = idx, nG = max(idx))
-      inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 1, "beta" = rep(0, P), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
+      jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u, idx = idx, nG = max(idx), k = as.vector(table(idx)))
+      inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = rep(1 , max(idx)), "beta" = rep(0, P), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
       write_lines(jags_grp_extended_LASSO, "jags_grp_extended_LASSO.txt")
     }
 
@@ -356,14 +352,15 @@ groupExtLASSO <- function(X, y, idx, family = "gaussian", eta_prior = "classic",
 
               for (g in 1:nG){
                 # Group Level shrinkage hyperparameter
-                eta[g] ~ dunif(0, local_u)
-                lambda[g] <- Omega * eta[g]
-                w[g]<- pow(lambda[g],2)/2
+                Omega[g] ~ dunif(0, top_u)
               }
 
               for (p in 1:P){
                 # Beta Precision
-                beta_var[p] ~ dexp(w[idx[p]])
+                eta[p] ~ dunif(0, local_u)
+                lambda[p] <- Omega[idx[p]] * eta[p]
+                w[p] <- pow(lambda[p],2)/2
+                beta_var[p] ~ dgamma((k[idx[p]] + 1) * 0.50 , w[p])
                 beta_prec[p] <- 1 / beta_var[p]
                 # Indicator Function
                 delta[p] <- step(1-eta[idx[p]])
@@ -385,8 +382,8 @@ groupExtLASSO <- function(X, y, idx, family = "gaussian", eta_prior = "classic",
       if (log_lik == FALSE) {
         monitor <- monitor[-(length(monitor))]
       }
-      jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u, top_u = top_u, idx = idx, nG = max(idx))
-      inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "Omega" = 1, "beta" = rep(0, P), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
+      jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u, top_u = top_u, idx = idx, nG = max(idx), k = as.vector(table(idx)))
+      inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "Omega" = rep(1 , max(idx)), "beta" = rep(0, P), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
       write_lines(jags_grp_extended_LASSO, "jags_grp_extended_LASSO.txt")
     }
   }

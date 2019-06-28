@@ -66,7 +66,7 @@ Spike <- function(formula, data, family = "gaussian", log_lik = FALSE, iter = 10
               phi ~ dbeta(.5, .5) 
               
               for (p in 1:P){
-                theta[p] ~ dnorm(0, 1e-200)
+                theta[p] ~ dnorm(0, 0.01)
                 delta[p] ~ dbern(phi)
                 beta[p] <- delta[p] * theta[p]
               }
@@ -99,7 +99,7 @@ Spike <- function(formula, data, family = "gaussian", log_lik = FALSE, iter = 10
               phi ~ dbeta(.5, .5) 
               
               for (p in 1:P){
-                theta[p] ~ dlogis(0, 0.5)
+                theta[p] ~ dlogis(0, 0.01)
                 delta[p] ~ dbern(phi)
                 beta[p] <- delta[p] * theta[p]
               }
@@ -133,7 +133,7 @@ Spike <- function(formula, data, family = "gaussian", log_lik = FALSE, iter = 10
               phi ~ dbeta(.5, .5) 
               
               for (p in 1:P){
-                theta[p] ~ dnorm(0, 0.5)
+                theta[p] ~ dnorm(0, 0.01)
                 delta[p] ~ dbern(phi)
                 beta[p] <- delta[p] * theta[p]
               }

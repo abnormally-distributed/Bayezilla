@@ -11,6 +11,12 @@
 #  This variant of the Bernoulli-Normal mixture prior models the selection of parameters as groups, akin to the group LASSO.
 #' The model is very similar to the \code{\link[Bayezilla]{Spike}} model. Each group receives its own inclusion 
 #' probability prior "phi", which is in turn controlled by an overall inclusion probability given a Jeffrey's prior.
+#' \cr
+#' Model Specification: \cr
+#' \cr
+#' \if{html}{\figure{spike.png}{}}
+#' \if{latex}{\figure{spike.png}{}}
+#' \cr
 #'
 #' @param X the model matrix. Construct this manually with model.matrix()[,-1]
 #' @param y the outcome variable
@@ -54,7 +60,7 @@ groupSpike  = function(X, y, family = "gaussian", phi_prior = c(1, 4), log_lik =
 
               # Coefficients
               for (p in 1:P){
-                theta[p] ~ dnorm(0, .5)
+                theta[p] ~ dnorm(0, .01)
                 beta[p] <- delta[idx[p]] * theta[p]
               }
 
@@ -96,7 +102,7 @@ groupSpike  = function(X, y, family = "gaussian", phi_prior = c(1, 4), log_lik =
 
               # Coefficients
               for (p in 1:P){
-                theta[p] ~ dnorm(0, .5)
+                theta[p] ~ dnorm(0, .01)
                 beta[p] <- delta[idx[p]] * theta[p]
               }
 
@@ -136,7 +142,7 @@ groupSpike  = function(X, y, family = "gaussian", phi_prior = c(1, 4), log_lik =
 
               # Coefficients
               for (p in 1:P){
-                theta[p] ~ dnorm(0, .5)
+                theta[p] ~ dnorm(0, .01)
                 beta[p] <- delta[idx[p]] * theta[p]
               }
 

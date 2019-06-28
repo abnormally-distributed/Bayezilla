@@ -72,13 +72,13 @@ SpikeDC <- function(formula, design.formula, data, family = "gaussian", log_lik 
               phi ~ dbeta(.5, .5) 
               
               for (p in 1:P){
-                theta[p] ~ dnorm(0, 1e-200)
+                theta[p] ~ dnorm(0, 0.01)
                 delta[p] ~ dbern(phi)
                 beta[p] <- delta[p] * theta[p]
               }
               
               for (f in 1:FP){
-                design_beta[f] ~ dnorm(0, 1e-200)
+                design_beta[f] ~ dnorm(0, 1e-4)
               }
 
               Intercept ~ dnorm(0, 1)
@@ -114,13 +114,13 @@ SpikeDC <- function(formula, design.formula, data, family = "gaussian", log_lik 
               phi ~ dbeta(.5, .5) 
               
               for (p in 1:P){
-                theta[p] ~ dlogis(0, 1e-200)
+                theta[p] ~ dlogis(0, 0.01)
                 delta[p] ~ dbern(phi)
                 beta[p] <- delta[p] * theta[p]
               }
               
               for (f in 1:FP){
-                design_beta[f] ~ dlogis(0, 1e-200)
+                design_beta[f] ~ dlogis(0, 1e-4)
               }
               
               Intercept ~ dnorm(0, 1)
@@ -154,13 +154,13 @@ SpikeDC <- function(formula, design.formula, data, family = "gaussian", log_lik 
               phi ~ dbeta(.5, .5) 
               
               for (p in 1:P){
-                theta[p] ~ dnorm(0, 1e-200)
+                theta[p] ~ dnorm(0, 0.01)
                 delta[p] ~ dbern(phi)
                 beta[p] <- delta[p] * theta[p]
               }
               
               for (f in 1:FP){
-                design_beta[f] ~ dnorm(0, 1e-200)
+                design_beta[f] ~ dnorm(0, 1e-4)
               }
               
               Intercept ~ dnorm(0, 1)

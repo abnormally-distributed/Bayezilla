@@ -49,6 +49,12 @@ If you do not scale and center your numeric predictors, this will likely not giv
 
 The model is very similar to the \code{\link[Bayezilla]{Spike}} model. Each group receives its own inclusion 
 probability prior "phi", which is in turn controlled by an overall inclusion probability given a Jeffrey's prior.
+\cr
+Model Specification: \cr
+\cr
+\if{html}{\figure{spike.png}{}}
+\if{latex}{\figure{spike.png}{}}
+\cr
 }
 \examples{
 groupSpike()

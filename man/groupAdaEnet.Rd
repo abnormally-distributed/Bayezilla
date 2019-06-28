@@ -4,8 +4,8 @@
 \alias{groupAdaEnet}
 \title{Group+Within Group Selection with Bayesian Adaptive Elastic Net}
 \usage{
-groupAdaEnet(X, y, idx, log_lik = FALSE, iter = 10000, warmup = 2000,
-  adapt = 5000, chains = 4, thin = 1, method = "parallel",
+groupAdaEnet(X, y, idx, log_lik = FALSE, iter = 10000, warmup = 5000,
+  adapt = 5000, chains = 4, thin = 2, method = "parallel",
   cl = makeCluster(2), ...)
 }
 \arguments{
@@ -20,13 +20,13 @@ for each covariate. Please ensure that you start numbering with 1, and not 0.}
 
 \item{iter}{How many post-warmup samples? Defaults to 10000.}
 
-\item{warmup}{How many warmup samples? Defaults to 2000.}
+\item{warmup}{How many warmup samples? Defaults to 5000.}
 
 \item{adapt}{How many adaptation steps? Defaults to 5000.}
 
 \item{chains}{How many chains? Defaults to 4.}
 
-\item{thin}{Thinning interval. Defaults to 1.}
+\item{thin}{Thinning interval. Defaults to 2.}
 
 \item{method}{Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).}
 
@@ -38,8 +38,9 @@ for each covariate. Please ensure that you start numbering with 1, and not 0.}
 A run.jags object
 }
 \description{
-This is an adaptation of the frequentist adaptive elastic net of Zou & Zhang (2009) to the Bayesian paradigm through a modification of the Bayesian elastic
-net (Li & Lin, 2010). It is further adapted such that coefficients can be assigned groups. Each group receives an independent
+This is an adaptation of the frequentist adaptive elastic net of Ghosh (2007, 2011) and Zou & Zhang (2009) to the Bayesian paradigm through a modification of the Bayesian elastic
+net (Li & Lin, 2010). It is further adapted such that coefficients can be assigned groups in the 
+spirit of the Group LASSO (Yuan & Lin, 2006). Each group receives an independent
 L2 norm penalty, followed by coefficient specific L1 norm penalities. 
 
 Note only the Gaussian likelihood is 
@@ -50,8 +51,8 @@ do not have.
 The model structure is given below: \cr
 \cr
 \cr
-\if{html}{\figure{adaElasticNet.png}{}}
-\if{latex}{\figure{adaElasticNet.png}{}}
+\if{html}{\figure{groupadaptiveelasticNet.png}{}}
+\if{latex}{\figure{groupadaptiveelasticNet.png}{}}
 \cr
 }
 \examples{
@@ -59,7 +60,13 @@ groupAdaEnet()
 
 }
 \references{
-Li, Qing; Lin, Nan. The Bayesian elastic net. Bayesian Anal. 5 (2010), no. 1, 151--170. doi:10.1214/10-BA506. https://projecteuclid.org/euclid.ba/1340369796 \cr
+Ghosh, S. (2007) Adaptive Elastic Net: A Doubly Regularized method for variable selection to Achieve Oracle Properties. Tech. Rep. pr07-01, available at http://www.math.iupui.edu/research/preprints.php, IUPUI  \cr
+\cr
+Ghosh, S. (2011) On the grouped selection and model complexity of the adaptive elastic net. Statistics and Computing 21, no. 3, 451. https://doi.org/10.1007/s11222-010-9181-4 \cr
+\cr
+Li, Qing; Lin, Nan. (2010) The Bayesian elastic net. Bayesian Anal. 5, no. 1, 151--170. doi:10.1214/10-BA506. https://projecteuclid.org/euclid.ba/1340369796 \cr
+\cr
+Yuan, Ming; Lin, Yi (2006) Model Selection and Estimation in Regression with Grouped Variables. Journal of the Royal Statistical Society. Series B (statistical Methodology). Wiley. 68 (1): 49–67. doi:10.1111/j.1467-9868.2005.00532.x \cr
 \cr
 Zou, H.; Zhang, H. (2009) On the adaptive elastic-net with a diverging number of parameters, Ann. Statist. 37 , no. 4, 1733–1751, DOI 10.1214/08-AOS625. MR2533470 (2010j:62210) \cr
 \cr

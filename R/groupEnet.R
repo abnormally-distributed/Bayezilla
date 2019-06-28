@@ -9,8 +9,8 @@
 #' The model structure is given below: \cr
 #' \cr
 #' \cr
-#' \if{html}{\figure{elasticNet.png}{}}
-#' \if{latex}{\figure{elasticNet.png}{}}
+#' \if{html}{\figure{groupelasticNet.png}{}}
+#' \if{latex}{\figure{groupelasticNet.png}{}}
 #' \cr
 #'
 #' @param X the model matrix. Construct this manually with model.matrix()[,-1]
@@ -41,8 +41,8 @@ groupEnet  = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=1000, adapt
 
               tau ~ dgamma(.01, .01)
               sigma <- sqrt(1/tau)
-              lambdaL1 ~ dgamma(0.5 , 0.001)
-              lambdaL2 ~ dgamma(0.5 , 0.001)
+              lambdaL1 ~ dgamma(.25, .001)
+              lambdaL2 ~ dgamma(.25, .001)
 
               Intercept ~ dnorm(0, 1)
 

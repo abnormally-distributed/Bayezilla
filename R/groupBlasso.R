@@ -5,6 +5,12 @@
 #' is provided because the Bayesian LASSO requires conditioning on the error variance, which GLM-families
 #' do not have. \cr
 #'
+#' \cr
+#' Model Specification:
+#' \cr
+#' \if{html}{\figure{groupBlasso.png}{}}
+#' \if{latex}{\figure{groupBlasso.png}{}}
+#'
 #' @param X the model matrix. Construct this manually with model.matrix()[,-1]
 #' @param y the outcome variable
 #' @param idx the group labels. Should be of length = to ncol(model.matrix()[,-1]) with the group assignments
@@ -47,11 +53,11 @@ groupBlasso = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=1000, adap
   jags_blasso = "model{
   tau ~ dgamma(.01, .01) 
   sigma2 <- 1/tau
-  lambda ~ dgamma(0.5 , 0.001)
- 
+  lambda ~ dexp(0.002)
+
   # Group Level shrinkage
   for (g in 1:nG){
-    eta[g] ~ dexp(lambda^2 / 2)
+    eta[g] ~ dgamma( (m[g] + 1) * 0.50 , pow(lambda, 2) * 0.50)
     omega[g] <- 1 / (sigma2 * eta[g])
   }
   
@@ -72,14 +78,14 @@ groupBlasso = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=1000, adap
   
   P <- ncol(X)
   write_lines(jags_blasso, "jags_blasso.txt")
-  jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), idx = idx, nG = max(idx))
-  monitor <- c("Intercept", "beta", "sigma", "lambda", "Deviance", "eta", "ySim", "log_lik")
+  jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), idx = idx, nG = max(idx), m = as.vector(table(idx)))
+  monitor <- c("Intercept", "beta", "sigma", "Deviance", "lambda", "eta", "ySim", "log_lik")
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
   inits <- lapply(1:chains, function(z) list("Intercept" = 0,
                                              "beta" = rep(0, P), 
-                                             "eta" = rep(1, max(idx)), 
+                                             "eta" = rep(2, max(idx)), 
                                              "lambda" = 2, 
                                              "tau" = 1, 
                                              .RNG.name= "lecuyer::RngStream", 

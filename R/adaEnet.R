@@ -1,6 +1,6 @@
 #' Bayesian Adaptive Elastic Net for Gaussian Likelihood
 #'
-#' @description This is an adaptation of the frequentist adaptive elastic net of Zou & Zhang (2009) to the Bayesian paradigm through a modification of the Bayesian elastic
+#' @description This is an adaptation of the frequentist adaptive elastic net of Ghosh (2007, 2011) and Zou & Zhang (2009) to the Bayesian paradigm through a modification of the Bayesian elastic
 #' net (Li & Lin, 2010). 
 #' 
 #' 
@@ -29,6 +29,10 @@
 #' @param ... Other arguments to run.jags.
 #'
 #' @references 
+#' Ghosh, S. (2007) Adaptive Elastic Net: A Doubly Regularized method for variable selection to Achieve Oracle Properties. Tech. Rep. pr07-01, available at http://www.math.iupui.edu/research/preprints.php, IUPUI  \cr
+#' \cr
+#' Ghosh, S. (2011) On the grouped selection and model complexity of the adaptive elastic net. Statistics and Computing 21, no. 3, 451. https://doi.org/10.1007/s11222-010-9181-4 \cr
+#' \cr
 #' Li, Qing; Lin, Nan. The Bayesian elastic net. Bayesian Anal. 5 (2010), no. 1, 151--170. doi:10.1214/10-BA506. https://projecteuclid.org/euclid.ba/1340369796 \cr
 #' \cr
 #' Zou, H.; Zhang, H. (2009) On the adaptive elastic-net with a diverging number of parameters, Ann. Statist. 37 , no. 4, 1733–1751, DOI 10.1214/08-AOS625. MR2533470 (2010j:62210) \cr

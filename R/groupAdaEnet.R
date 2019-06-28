@@ -1,7 +1,8 @@
 #' Group+Within Group Selection with Bayesian Adaptive Elastic Net
 #'
-#' @description This is an adaptation of the frequentist adaptive elastic net of Zou & Zhang (2009) to the Bayesian paradigm through a modification of the Bayesian elastic
-#' net (Li & Lin, 2010). It is further adapted such that coefficients can be assigned groups. Each group receives an independent
+#' @description This is an adaptation of the frequentist adaptive elastic net of Ghosh (2007, 2011) and Zou & Zhang (2009) to the Bayesian paradigm through a modification of the Bayesian elastic
+#' net (Li & Lin, 2010). It is further adapted such that coefficients can be assigned groups in the 
+#' spirit of the Group LASSO (Yuan & Lin, 2006). Each group receives an independent
 #' L2 norm penalty, followed by coefficient specific L1 norm penalities. 
 #' 
 #' Note only the Gaussian likelihood is 
@@ -12,8 +13,8 @@
 #' The model structure is given below: \cr
 #' \cr
 #' \cr
-#' \if{html}{\figure{adaElasticNet.png}{}}
-#' \if{latex}{\figure{adaElasticNet.png}{}}
+#' \if{html}{\figure{groupadaptiveelasticNet.png}{}}
+#' \if{latex}{\figure{groupadaptiveelasticNet.png}{}}
 #' \cr
 #'
 #' @param X the model matrix. Construct this manually with model.matrix()[,-1]
@@ -22,16 +23,22 @@
 #' for each covariate. Please ensure that you start numbering with 1, and not 0.
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 10000.
-#' @param warmup How many warmup samples? Defaults to 2000.
+#' @param warmup How many warmup samples? Defaults to 5000.
 #' @param adapt How many adaptation steps? Defaults to 5000.
 #' @param chains How many chains? Defaults to 4.
-#' @param thin Thinning interval. Defaults to 1.
+#' @param thin Thinning interval. Defaults to 2.
 #' @param method Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).
 #' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.
 #' @param ... Other arguments to run.jags.
 #'
 #' @references 
-#' Li, Qing; Lin, Nan. The Bayesian elastic net. Bayesian Anal. 5 (2010), no. 1, 151--170. doi:10.1214/10-BA506. https://projecteuclid.org/euclid.ba/1340369796 \cr
+#' Ghosh, S. (2007) Adaptive Elastic Net: A Doubly Regularized method for variable selection to Achieve Oracle Properties. Tech. Rep. pr07-01, available at http://www.math.iupui.edu/research/preprints.php, IUPUI  \cr
+#' \cr
+#' Ghosh, S. (2011) On the grouped selection and model complexity of the adaptive elastic net. Statistics and Computing 21, no. 3, 451. https://doi.org/10.1007/s11222-010-9181-4 \cr
+#' \cr
+#' Li, Qing; Lin, Nan. (2010) The Bayesian elastic net. Bayesian Anal. 5, no. 1, 151--170. doi:10.1214/10-BA506. https://projecteuclid.org/euclid.ba/1340369796 \cr
+#' \cr
+#' Yuan, Ming; Lin, Yi (2006) Model Selection and Estimation in Regression with Grouped Variables. Journal of the Royal Statistical Society. Series B (statistical Methodology). Wiley. 68 (1): 49–67. doi:10.1111/j.1467-9868.2005.00532.x \cr
 #' \cr
 #' Zou, H.; Zhang, H. (2009) On the adaptive elastic-net with a diverging number of parameters, Ann. Statist. 37 , no. 4, 1733–1751, DOI 10.1214/08-AOS625. MR2533470 (2010j:62210) \cr
 #' \cr
@@ -41,7 +48,7 @@
 #' @examples
 #' groupAdaEnet()
 #'
-groupAdaEnet  = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=2000, adapt=5000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
+groupAdaEnet  = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=5000, adapt=5000, chains=4, thin=2, method = "parallel", cl = makeCluster(2), ...){
 
   jags_adaptive_elastic_net = "model{
 
@@ -51,11 +58,11 @@ groupAdaEnet  = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=2000, ad
               Intercept ~ dnorm(0, 1)
 
               for (g in 1:nG){
-                  lambdaL2[g] ~ dgamma(0.5 , 0.001)
+                  lambdaL2[g] ~ dgamma(.25, .001)
               }
               
               for (p in 1:P){
-                lambdaL1[p] ~ dgamma(0.5 , 0.001)
+                lambdaL1[p] ~ dgamma(.25, .001)
                 eta[p] ~ dgamma(.5, (8 * lambdaL2[idx[p]] * pow(sigma,2)) / pow(lambdaL1[p], 2)) T(1,)
                 beta_prec[p] <- (lambdaL2[idx[p]]/pow(sigma,2)) * (eta[p]/(eta[p]-1))
                 beta[p] ~ dnorm(0, beta_prec[p])

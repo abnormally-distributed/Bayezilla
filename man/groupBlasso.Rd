@@ -43,6 +43,13 @@ the context of the classical "frequentist" LASSO. The concept is adapted here to
 is provided because the Bayesian LASSO requires conditioning on the error variance, which GLM-families
 do not have. \cr
 }
+\details{
+\cr
+Model Specification:
+\cr
+\if{html}{\figure{groupBlasso.png}{}}
+\if{latex}{\figure{groupBlasso.png}{}}
+}
 \examples{
 groupBlasso()
 

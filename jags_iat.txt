@@ -1,0 +1,21 @@
+model{
+  
+  tau ~ dgamma(.01, .01)
+  Intercept ~ dnorm(0, 1)
+  phi ~ dbeta(.5, .5)
+
+  for (p in 1:P){
+    beta[p] <- delta[p]*theta[p]
+    theta[p] ~ dnorm(0, omega[p])
+    omega[p] ~ dgamma(df / 2, df / 2)
+    delta[p] ~ dbern(phi)
+  }
+  
+  for (i in 1:N){
+    y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
+    ySim[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
+    log_lik[i] <- logdensity.norm(y[i], Intercept + sum(beta[1:P] * X[i,1:P]), tau)
+  }
+  sigma <- sqrt(1/tau)
+  Deviance <- -2 * sum(log_lik[1:N])
+}

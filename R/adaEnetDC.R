@@ -51,7 +51,7 @@ adaEnetDC  = function(formula, design.formula, data, log_lik = FALSE, iter=10000
               tau ~ dgamma(.01, .01)
               sigma <- sqrt(1/tau)
               lambdaL2 ~ dgamma(0.5 , 0.001)
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
 
               for (p in 1:P){
                 lambdaL1[p] ~ dgamma(0.5 , 0.001)

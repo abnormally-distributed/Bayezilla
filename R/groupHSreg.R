@@ -1,8 +1,12 @@
 #' Group Regularized Horseshoe
 #'
 #' @description This is the horseshoe model described by Piironen & Vehtari (2017) 
-#' adapted for group selection, in the spirit of the group LASSO.
+#' adapted for group selection, in the spirit of the group LASSO. \cr
 #' \cr
+#' Note that this is a novel implementation of the horseshoe. 
+#' While this does seem to work well in tests, it is not a canonical model so to speak.
+#' Nevertheless results from tests seem to indicate the horseshoe family of models benefits
+#' from group structure just as the LASSO family of models does. \cr
 #' \cr
 #' Model Specification: \cr 
 #' \cr
@@ -14,7 +18,9 @@
 #' Piironen, Juho; Vehtari, Aki. Sparsity information and regularization in the horseshoe and other shrinkage priors. Electron. J. Statist. 11 (2017), no. 2, 5018--5051. doi:10.1214/17-EJS1337SI. https://projecteuclid.org/euclid.ejs/1513306866 \cr
 #' \cr
 #' Carvalho, C. M., Polson, N. G., and Scott, J. G. (2010). The horseshoe estimator for sparse signals. Biometrika, 97(2):465–480. \cr
-#'
+#' \cr
+#' Yuan, Ming; Lin, Yi (2006). Model Selection and Estimation in Regression with Grouped Variables. Journal of the Royal Statistical Society. Series B (statistical Methodology). Wiley. 68 (1): 49–67. doi:10.1111/j.1467-9868.2005.00532.x \cr
+#' 
 #' @param formula the model formula
 #' @param data a data frame.
 #' @param phi your prior guess on the inclusion probability. Defaults to .50. Best way to come up with a figure is a prior guess on how many groups are non-zero out of the total number of groups.
@@ -61,10 +67,11 @@ for (g in 1:nG){
 }
 
 # Coefficients
-Intercept ~ dnorm(0, 1)
+Intercept ~ dnorm(0, 1e-10)
 for (i in 1:P){
   beta[i] ~ dnorm(0, eta_inv[idx[i]])
 }
+
 
 # Likelihood Function
 for (i in 1:N){

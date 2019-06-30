@@ -60,8 +60,8 @@
 #' @param zeta default is 1
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 10000.
-#' @param warmup How many warmup samples? Defaults to 1000.
-#' @param adapt How many adaptation steps? Defaults to 2000.
+#' @param warmup How many warmup samples? Defaults to 2500.
+#' @param adapt How many adaptation steps? Defaults to 5000.
 #' @param chains How many chains? Defaults to 4.
 #' @param thin Thinning interval. Defaults to 1.
 #' @param method Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).
@@ -94,8 +94,8 @@ gdp = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, adapt=20
   
   tau ~ dgamma(.01, .01) 
   sigma2 <- 1/tau
-  alpha ~ dgamma(0.64 , 0.64)
-  zeta ~ dgamma(0.64 , 0.64)
+  alpha ~ dgamma(4, 8)
+  zeta ~ dgamma(4, 8)
   for (p in 1:P){
     lambda[p] ~ dgamma(alpha , zeta)
     eta[p] ~ dexp(lambda[p]^2 / 2)
@@ -103,7 +103,7 @@ gdp = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, adapt=20
     beta[p] ~ dnorm(0, omega[p])
   }
   
-  Intercept ~ dnorm(0, 1)
+  Intercept ~ dnorm(0, 1e-10)
   
   for (i in 1:N){
     y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
@@ -122,7 +122,15 @@ gdp = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, adapt=20
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
-  inits <- lapply(1:chains, function(z) list("Intercept" = 0, "beta" = rep(0, P), "alpha" = 1, "zeta" = 1, "eta" = rep(1, P), "lambda" = rep(1, P), "tau" = 1, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
+  inits <- lapply(1:chains, function(z) list("Intercept" = lmSolve(formula, data)[1], 
+                                             "beta" = lmSolve(formula, data)[-1], 
+                                             "alpha" = 1, 
+                                             "zeta" = 1, 
+                                             "eta" = rep(1, P), 
+                                             "lambda" = rep(1, P), 
+                                             "tau" = 1, 
+                                             .RNG.name= "lecuyer::RngStream", 
+                                             .RNG.seed= sample(1:10000, 1)))
   
   out = run.jags(model = "jags_gdp.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
   file.remove("jags_gdp.txt")

@@ -47,7 +47,7 @@ blassoDC = function(formula, design.formula, data, log_lik = FALSE, iter=10000, 
   jags_blasso = "model{
   tau ~ dgamma(0.01, 0.01)
   sigma2 <- 1/tau
-  lambda ~ dgamma(0.5 , 0.001)
+  lambda ~ dgamma(0.25 , 0.01)
   
   for (p in 1:P){
     eta[p] ~ dexp(lambda^2 / 2)
@@ -59,7 +59,7 @@ blassoDC = function(formula, design.formula, data, log_lik = FALSE, iter=10000, 
     design_beta[f] ~ dnorm(0, 1e-200)
   }
   
-  Intercept ~ dnorm(0, 1)
+  Intercept ~ dnorm(0, 1e-10)
   
   for (i in 1:N){
     y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]) + sum(design_beta[1:FP] * FX[i,1:FP]) , tau) 
@@ -78,9 +78,9 @@ blassoDC = function(formula, design.formula, data, log_lik = FALSE, iter=10000, 
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
-  inits <- lapply(1:chains, function(z) list("Intercept" = 0, 
-                                             "beta" = rep(0, P), 
-                                             "design_beta" = rep(0, FP), 
+  inits <- lapply(1:chains, function(z) list("Intercept" = lmSolve(formula, data)[1], 
+                                             "beta" = lmSolve(formula, data)[-1], 
+                                             "design_beta" = lmSolve(design.formula, data)[-1], 
                                              "eta" = rep(1, P), 
                                              "lambda" = 2, 
                                              "tau" = 1, 

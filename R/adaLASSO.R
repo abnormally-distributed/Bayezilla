@@ -61,7 +61,7 @@ adaLASSO = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, ada
     omega[p] <- 1 / ( (1 / tau) * eta[p])
     beta[p] ~ dnorm(0, omega[p])
   }
-  Intercept ~ dnorm(0, 1)
+  Intercept ~ dnorm(0, 1e-10)
   for (i in 1:N){
     y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
     log_lik[i] <- logdensity.norm(y[i], Intercept + sum(beta[1:P] * X[i,1:P]), tau)

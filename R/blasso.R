@@ -62,7 +62,7 @@ blasso = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, adapt
     beta[p] ~ dnorm(0, omega[p])
   }
   
-  Intercept ~ dnorm(0, 1)
+  Intercept ~ dnorm(0, 1e-10)
   
   for (i in 1:N){
     y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
@@ -79,7 +79,14 @@ blasso = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, adapt
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }
-      inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "beta" = rep(0, P), "eta" = rep(1, P), "lambda" = 2, "tau" = 1))
+      inits <- lapply(1:chains, function(z) list("Intercept" = lmSolve(formula, data)[1], 
+                                                 "beta" = lmSolve(formula, data)[-1], 
+                                                 "eta" = rep(1, P), 
+                                                 "lambda" = 2, 
+                                                 "tau" = 1, 
+                                                 "ySim" = y, 
+                                                 .RNG.name= "lecuyer::RngStream", 
+                                                 .RNG.seed= sample(1:10000, 1)))
       
   out = run.jags(model = "jags_blasso.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
   file.remove("jags_blasso.txt")

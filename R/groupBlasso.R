@@ -68,7 +68,7 @@ groupBLASSO = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=1000, adap
     beta[p] ~ dnorm(0, omega[idx[p]])
   }
   
-  Intercept ~ dnorm(0, 1)
+  Intercept ~ dnorm(0, 1e-10)
   
   for (i in 1:N){
     y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)

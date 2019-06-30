@@ -52,7 +52,7 @@ groupEnet  = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=1000, adapt
               lambdaL1 ~ dgamma(.25, .01)
               lambdaL2 ~ dgamma(.25, .01)
 
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
 
               for (g in 1:nG){
                 eta[g] ~ dgamma(k[g] * .5, (8 * lambdaL2 * pow(sigma,2)) / pow(lambdaL1, 2)) T(1,)

@@ -3,7 +3,7 @@
 #' @description This implements the normal-exponential-gamma "hyperlasso" of Griffin & Brown (2011). This model has independent normal priors
 #' on each coefficient, whose precision is modeled by independent, predictor specific, exponential distributions. The exponential
 #' distributions in turn have their respective rate parameters modeled through independent gamma(.5, 1 / lambda^2) distributions.
-#' Lambda is a single top-level hyperparameter here given a gamma(0.5 , 0.001) prior. \cr 
+#' Lambda is a single top-level hyperparameter here given a gamma(0.25 , 0.01) prior. \cr 
 #' \cr
 #' The model specification is given below: \cr
 #' \cr
@@ -60,9 +60,9 @@ negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
 
               tau ~ dgamma(.01, .01)
 
-              lambda ~ dgamma(0.5 , 0.01)
+              lambda ~ dgamma(0.25 , 0.01)
 
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
 
               for (p in 1:P){
                 eta[p] ~ dgamma(.5, 1 / pow(lambda,2))
@@ -93,12 +93,12 @@ negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
 
     jags_neg_LASSO = "model{
 
-              lambda ~ dgamma(0.5 , 0.01)
+              lambda ~ dgamma(0.25 , 0.01)
 
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
 
               for (p in 1:P){
-                eta[p] ~ dgamma(.5, 1 / lambda^2)
+                eta[p] ~ dgamma(.5, 1 / pow(lambda,2))
                 psi[p] ~ dexp(eta[p])
                 beta[p] ~ dnorm(0, 1 / psi[p])
               }
@@ -126,12 +126,12 @@ negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
 
     jags_neg_LASSO = "model{
 
-              lambda ~ dgamma(0.5 , 0.01)
+              lambda ~ dgamma(0.25 , 0.01)
 
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
 
               for (p in 1:P){
-                eta[p] ~ dgamma(.5, 1 / lambda^2)
+                eta[p] ~ dgamma(.5, 1 / pow(lambda,2))
                 psi[p] ~ dexp(eta[p])
                 beta[p] ~ dnorm(0, 1 / psi[p])
               }

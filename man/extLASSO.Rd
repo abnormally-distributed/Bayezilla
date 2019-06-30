@@ -107,7 +107,6 @@ Mutshinda, C. M., and M. J. Sillanpää (2012) A decision rule for quantitative 
 Li, Z.,and Sillanpää, M. J. (2012) Overview of LASSO-related penalized regression methods for quantitative trait mapping and genomic selection. Theoretical and Applied Genetics 125: 419-435. \cr
 }
 \seealso{
-\code{\link[Bayezilla]{groupExtLASSO}} 
 \code{\link[Bayezilla]{adaLASSO}}
 \code{\link[Bayezilla]{negLASSO}} 
 \code{\link[Bayezilla]{blasso}}

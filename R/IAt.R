@@ -5,9 +5,12 @@
 #' model discussed by Knürr, Läärä, and Sillanpää (2011). 
 #' \cr
 #' \cr
-#' The prior probability for the inclusion rate ("phi") is given a non-informative Jeffrey's prior. The degrees of freedom
-#' for the thetas (raw coefficients) requires user input. The default is set to 3. It is doubtful that you would need to change
-#' this. However if there is a large amount of collinearity in your data you may want to set it to a higher number such as
+#' The prior probability for the inclusion rate ("phi") is given a weakly 
+#' informative beta(1.5, 1.5) prior distribution. The degrees of freedom
+#' for the thetas (raw coefficients) requires user input. 
+#' The default is set to 3. It is doubtful that you would need to change
+#' this. However if there is a large amount of collinearity 
+#' in your data you may want to set it to a higher number such as
 #' 12 or 30.
 #' \cr
 #' \cr
@@ -24,11 +27,11 @@
 #' @param family one of "gaussian", "binomial", or "poisson".
 #' @param df degrees of freedom on the prior thetas 
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
-#' @param iter How many post-warmup samples? Defaults to 10000.
+#' @param iter How many post-warmup samples? Defaults to 5000.
 #' @param warmup How many warmup samples? Defaults to 5000.
-#' @param adapt How many adaptation steps? Defaults to 15000.
+#' @param adapt How many adaptation steps? Defaults to 10000.
 #' @param chains How many chains? Defaults to 4.
-#' @param thin Thinning interval. Defaults to 3.
+#' @param thin Thinning interval. Defaults to 2.
 #' @param method Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).
 #' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.
 #' @param ... Other arguments to run.jags.
@@ -43,7 +46,7 @@
 #' \code{\link[Bayezilla]{apcSpike}} 
 #' \code{\link[Bayezilla]{Spike}} 
 #'
-IAt = function(formula, data, family = "gaussian", df = 3, log_lik = FALSE, iter= 10000, warmup = 5000, adapt=10000, chains=4, thin = 3, method = "parallel", cl = makeCluster(2), ...){
+IAt = function(formula, data, family = "gaussian", df = 3, log_lik = FALSE, iter= 10000, warmup = 5000, adapt = 5000, chains=4, thin = 2, method = "parallel", cl = makeCluster(2), ...){
   
   X = model.matrix(formula, data)[,-1]
   y = model.frame(formula, data)[,1]
@@ -52,8 +55,8 @@ if (family == "gaussian"){
   jags_iat = "model{
   
   tau ~ dgamma(.01, .01)
-  Intercept ~ dnorm(0, 1)
-  phi ~ dbeta(.5, .5)
+  Intercept ~ dnorm(0, 1e-10)
+  phi ~ dbeta(1.5, 1.5)
 
   for (p in 1:P){
     beta[p] <- delta[p]*theta[p]
@@ -84,8 +87,8 @@ if (family == "gaussian"){
 if (family == "binomial"){
   jags_iat = "model{
   
-  Intercept ~ dnorm(0, 1)
-  phi ~ dbeta(.5, .5)
+  Intercept ~ dnorm(0, 1e-10)
+  phi ~ dbeta(1.5, 1.5)
 
   for (p in 1:P){
     beta[p] <- delta[p]*theta[p]
@@ -116,8 +119,8 @@ if (family == "binomial"){
 if (family == "poisson"){
   jags_iat = "model{
   
-  Intercept ~ dnorm(0, 1)
-  phi ~ dbeta(.5, .5)
+  Intercept ~ dnorm(0, 1e-10)
+  phi ~ dbeta(1.5, 1.5)
 
   for (p in 1:P){
     beta[p] <- delta[p]*theta[p]

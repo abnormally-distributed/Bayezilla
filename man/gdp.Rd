@@ -17,9 +17,9 @@ gdp(formula, data, log_lik = FALSE, iter = 10000, warmup = 1000,
 
 \item{iter}{How many post-warmup samples? Defaults to 10000.}
 
-\item{warmup}{How many warmup samples? Defaults to 1000.}
+\item{warmup}{How many warmup samples? Defaults to 2500.}
 
-\item{adapt}{How many adaptation steps? Defaults to 2000.}
+\item{adapt}{How many adaptation steps? Defaults to 5000.}
 
 \item{chains}{How many chains? Defaults to 4.}
 

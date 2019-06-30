@@ -56,7 +56,7 @@ global_lambda ~ dt(0, tau, 1) T(0, )
 
 
 # Coefficients
-Intercept ~ dnorm(0, 1)
+Intercept ~ dnorm(0, 1e-10)
 for (i in 1:P){
   local_lambda[i] ~ dt(0, 1, 1) T(0, )
   eta[i] <-  1 / (pow(global_lambda , 2) * pow(local_lambda[i], 2))

@@ -64,7 +64,7 @@ groupSpike  = function(X, y, family = "gaussian", phi_prior = c(1, 4), log_lik =
                 beta[p] <- delta[idx[p]] * theta[p]
               }
 
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
 
               for (i in 1:N){
                  y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
@@ -106,7 +106,7 @@ groupSpike  = function(X, y, family = "gaussian", phi_prior = c(1, 4), log_lik =
                 beta[p] <- delta[idx[p]] * theta[p]
               }
 
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
               for (i in 1:N){
                  logit(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P])
                  y[i] ~ dbern(psi[i])
@@ -146,7 +146,7 @@ groupSpike  = function(X, y, family = "gaussian", phi_prior = c(1, 4), log_lik =
                 beta[p] <- delta[idx[p]] * theta[p]
               }
 
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
 
               for (i in 1:N){
                  log(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P])

@@ -5,8 +5,8 @@
 \title{Bayesian UN-regularized GLMs}
 \usage{
 glmFlat(formula, data, family = "gaussian", log_lik = FALSE,
-  iter = 10000, warmup = 2500, adapt = 2500, chains = 4,
-  thin = 2, method = "parallel", cl = makeCluster(2), ...)
+  iter = 10000, warmup = 1000, adapt = 1000, chains = 4,
+  thin = 1, method = "parallel", cl = makeCluster(2), ...)
 }
 \arguments{
 \item{formula}{the model formula}
@@ -19,9 +19,9 @@ glmFlat(formula, data, family = "gaussian", log_lik = FALSE,
 
 \item{iter}{How many post-warmup samples? Defaults to 10000.}
 
-\item{warmup}{How many warmup samples? Defaults to 2500.}
+\item{warmup}{How many warmup samples? Defaults to 1000.}
 
-\item{adapt}{How many adaptation steps? Defaults to 2500.}
+\item{adapt}{How many adaptation steps? Defaults to 1000.}
 
 \item{chains}{How many chains? Defaults to 4.}
 
@@ -40,22 +40,28 @@ A run.jags object
 This model utilizes extremely vague uniform priors on all parameters. 
 These are essentially, for practical purposes, improper flat priors. While JAGS 
 does not support an improper prior over the whole real line, the coefficients 
-have normal(0, 1e-200) priors (precision of 1e-200 is equivalent to a standard 
-deviation of 1e100) and the precision has a uniform(0, 1e200) prior for
-the Gaussian likelihood. No data that 
-would ever be observed would be anywhere near this scale, so this can be used 
+have normal(0, 1e-200) priors. A precision of 1e-200 is equivalent to a standard 
+deviation of 1e100, or a googol.  No data that would ever be observed would be 
+anywhere near this scale, so this can be used 
 with scaled or unscaled data with equal validity, though I still recommend 
 standardizing because MCMC samplers work better with data all on the same scale. 
 The results from this should be equivalent to using lm() or glm()
-in R.
+in R but with the benefit of being able to make probability statements from the
+marginal posterior ditributions. \cr
+\cr
 
-
-Standard gaussian, binomial, and poisson likelihood functions are available.
+Standard gaussian, binomial, and poisson likelihood functions are available. \cr
+\cr
+Model Specification:
+\cr
+\if{html}{\figure{flat.png}{}}
+\if{latex}{\figure{flat.png}{}}
 }
 \examples{
-glmBayes()
+glmFlat()
 
 }
 \seealso{
 \code{\link[Bayezilla]{apcGlm}}
+\code{\link[Bayezilla]{glmBayes}}
 }

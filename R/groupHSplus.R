@@ -3,8 +3,12 @@
 #' @description This is the horseshoe+ model described by Bhadra et al (2017) adapted to the problem of group selection, and is
 #' akin to the group Bayesian LASSO. The resulting model has three levels of shrinkage: a global shrinkage level, group level shrinkage,
 #' and finally, coefficient level shrinkage. This is probably best applied when there are a rather large number of variables that can
-#' be clustered into groups that themselves have fairly large numbers (at least 5-6 variables each). 
-#' 
+#' be clustered into groups that themselves have fairly large numbers (at least 5-6 variables each). \cr
+#' \cr
+#' Note that this is a novel implementation of the horseshoe. 
+#' While this does seem to work well in tests, it is not a canonical model so to speak.
+#' Nevertheless results from tests seem to indicate the horseshoe family of models benefits
+#' from group structure just as the LASSO family of models does. 
 #' \cr
 #' \cr
 #' Model Specification: \cr 
@@ -18,6 +22,10 @@
 #' Bhadra, Anindya; Datta, Jyotishka; Polson, Nicholas G.; Willard, Brandon. The Horseshoe+ Estimator of Ultra-Sparse Signals. Bayesian Anal. 12 (2017), no. 4, 1105--1131. doi:10.1214/16-BA1028. https://projecteuclid.org/euclid.ba/1474572263 \cr
 #' \cr
 #' Carvalho, C. M., Polson, N. G., and Scott, J. G. (2010). The horseshoe estimator for sparse signals. Biometrika, 97(2):465–480. \cr
+#' \cr
+#' Yuan, Ming; Lin, Yi (2006). Model Selection and Estimation in Regression with Grouped Variables. Journal of the Royal Statistical Society. Series B (statistical Methodology). Wiley. 68 (1): 49–67. doi:10.1111/j.1467-9868.2005.00532.x \cr
+#' 
+#'
 #'
 #' @param X the model matrix. Construct this manually with model.matrix()[,-1]
 #' @param y the outcome variable
@@ -56,7 +64,7 @@ for (g in 1:nG){
 }
 
 # Coefficients
-Intercept ~ dnorm(0, 1)
+Intercept ~ dnorm(0, 1e-10)
 for (i in 1:P){
   local_lambda[i] ~ dt(0, global_lambda * group_lambda[idx[i]], 1) T(0, )
   eta[i] <- 1 / pow(local_lambda[i], 2)

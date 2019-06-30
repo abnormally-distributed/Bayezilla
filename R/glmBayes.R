@@ -57,16 +57,15 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
   if (family == "gaussian"){
 
     jags_glm = "model{
-              tau ~ dgamma(.01, .01)
-              
-              df ~ dgamma(.01, .01)
-              omega ~ dgamma(.5 * df,  .5 * df)
+              tau ~ dgamma(.01, .01) T(1, )
+              df ~ dgamma(.01, .01) 
+              omega ~ dgamma(.5 * df, .5 * df)
 
               for (p in 1:P){
                 beta[p] ~ dnorm(0, omega)
               }
 
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
 
               for (i in 1:N){
                  y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
@@ -84,21 +83,28 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = jitter(rep(0, P), amount = 1), "df" = 3, "tau" = 1, "omega" = 1, "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1)))
+    inits = lapply(1:chains, function(z) list("Intercept" = 0, 
+                                              "beta" = jitter(rep(0, P), amount = 1), 
+                                              "df" = 3, 
+                                              "tau" = 1, 
+                                              "omega" = 1, 
+                                              "ySim" = y, 
+                                              .RNG.name= "lecuyer::RngStream", 
+                                              .RNG.seed = sample(1:10000, 1)))
   }
 
   if (family == "binomial" || family == "logistic"){
 
     jags_glm = "model{
 
-              df ~ dgamma(.01, .01)
-              omega ~ dgamma(.5 * df,  .5 * df)
+              df ~ dgamma(.01, .01) T(1, )
+              omega ~ dgamma(.5 * df,  .5 * df) 
 
               for (p in 1:P){
                 beta[p] ~ dnorm(0, omega)
               }
 
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
 
               for (i in 1:N){
                  logit(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P])
@@ -116,21 +122,27 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = jitter(rep(0, P), amount = 1),"df" = 3, "omega" = 1, "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
+    inits = lapply(1:chains, function(z) list("Intercept" = 0, 
+                                              "beta" = jitter(rep(0, P), amount = 1),
+                                              "df" = 3, 
+                                              "omega" = 1, 
+                                              "ySim" = y, 
+                                              .RNG.name= "lecuyer::RngStream", 
+                                              .RNG.seed= sample(1:10000, 1)))
   }
 
   if (family == "poisson"){
 
     jags_glm = "model{
 
-              df ~ dgamma(.01, .01)
+              df ~ dgamma(.01, .01) T(1, )
               omega ~ dgamma(.5 * df,  .5 * df)
 
               for (p in 1:P){
                   beta[p] ~ dnorm(0, omega)
               }
 
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
 
               for (i in 1:N){
                  log(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P])
@@ -149,7 +161,13 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = 0, "omega" = 1, "df" = 3, "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1),"beta" = jitter(rep(0, P), amount = 1)))
+    inits = lapply(1:chains, function(z) list("Intercept" = 0, 
+                                              "omega" = 1, 
+                                              "df" = 3, 
+                                              "ySim" = y,
+                                              "beta" = jitter(rep(0, P), amount = 1), 
+                                              .RNG.name= "lecuyer::RngStream", 
+                                              .RNG.seed= sample(1:10000, 1)))
   }
 
   out = run.jags(model = "jags_glm.txt", modules = c("glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)

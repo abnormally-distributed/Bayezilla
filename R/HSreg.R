@@ -62,7 +62,7 @@ c2_inv ~ dgamma(df / 2, (df*prior_variance)/2)
 c2 <- 1 / c2_inv
 
 # Coefficients
-Intercept ~ dnorm(0, 1)
+Intercept ~ dnorm(0, 1e-10)
 for (i in 1:P){
   eta[i] ~ dt(0,1,1) T(0, ) 
   eta_tilde[i] <- (pow(eta[i], 2)*c2) / (c2+(pow(lambda,2)*pow(eta[i], 2)))

@@ -92,7 +92,7 @@ apcGlm = function(formula, data, family = "gaussian", lambda = -1, log_lik = FAL
               
               omega <- inverse(cov) 
               beta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ 
               for (i in 1:N){
                  y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
                  log_lik[i] <- logdensity.norm(y[i], Intercept + sum(beta[1:P] * X[i,1:P]), tau)
@@ -159,7 +159,7 @@ apcGlm = function(formula, data, family = "gaussian", lambda = -1, log_lik = FAL
                 }
               }
               omega <- inverse(cov) 
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ 
               beta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
               for (i in 1:N){
                  log(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P])

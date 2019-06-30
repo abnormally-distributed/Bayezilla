@@ -43,8 +43,12 @@ an rjags object
 }
 \description{
 This is the horseshoe model described by Piironen & Vehtari (2017) 
-adapted for group selection, in the spirit of the group LASSO.
+adapted for group selection, in the spirit of the group LASSO. \cr
 \cr
+Note that this is a novel implementation of the horseshoe. 
+While this does seem to work well in tests, it is not a canonical model so to speak.
+Nevertheless results from tests seem to indicate the horseshoe family of models benefits
+from group structure just as the LASSO family of models does. \cr
 \cr
 Model Specification: \cr 
 \cr
@@ -61,4 +65,6 @@ groupHSreg()
 Piironen, Juho; Vehtari, Aki. Sparsity information and regularization in the horseshoe and other shrinkage priors. Electron. J. Statist. 11 (2017), no. 2, 5018--5051. doi:10.1214/17-EJS1337SI. https://projecteuclid.org/euclid.ejs/1513306866 \cr
 \cr
 Carvalho, C. M., Polson, N. G., and Scott, J. G. (2010). The horseshoe estimator for sparse signals. Biometrika, 97(2):465–480. \cr
+\cr
+Yuan, Ming; Lin, Yi (2006). Model Selection and Estimation in Regression with Grouped Variables. Journal of the Royal Statistical Society. Series B (statistical Methodology). Wiley. 68 (1): 49–67. doi:10.1111/j.1467-9868.2005.00532.x \cr
 }

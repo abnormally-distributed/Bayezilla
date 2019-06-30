@@ -55,7 +55,7 @@ groupAdaEnet  = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=5000, ad
               tau ~ dgamma(.01, .01)
               sigma <- sqrt(1/tau)
               
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
 
               for (g in 1:nG){
                   lambdaL2[g] ~ dgamma(.25, .01)
@@ -81,20 +81,34 @@ groupAdaEnet  = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=5000, ad
   write_lines(jags_adaptive_elastic_net, "jags_adaptive_elastic_net.txt")
   jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), idx = idx, nG = max(idx), k = as.vector(table(idx)))
   monitor <- c("Intercept", "beta", "sigma", "lambdaL1", "lambdaL2", "Deviance", "eta", "ySim", "log_lik")
+  
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
+  
   inits <- lapply(1:chains, function(z) list("Intercept" = 0, 
                                              "beta" = rep(0, P), 
                                              "eta" = 1 + abs(jitter(rep(1, P), amount = .25)), 
-                                             "lambdaL1" = rep(10, P), 
-                                             "lambdaL2" = rep(20, max(idx),  
+                                             "lambdaL1" = rep(5, P), 
+                                             "lambdaL2" = rep(15, max(idx)),  
                                              "tau" = 1,
-                                             .RNG.name= "lecuyer::RngStream", 
-                                             .RNG.seed= sample(1:10000, 1) 
-                                             )))
+                                             .RNG.name = "lecuyer::RngStream", 
+                                             .RNG.seed = sample(1:1000, 1) 
+                                             ))
   
-  out = run.jags(model = "jags_adaptive_elastic_net.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+  out = run.jags(model = "jags_adaptive_elastic_net.txt", 
+                 modules = c("bugs on", "glm on", "dic off"), 
+                 monitor = monitor, 
+                 data = jagsdata, 
+                 inits = inits, 
+                 burnin = warmup, 
+                 sample = iter, 
+                 thin = thin, 
+                 adapt = adapt, 
+                 method = method, 
+                 cl = cl, 
+                 summarise = FALSE, 
+                 ...)
   file.remove("jags_adaptive_elastic_net.txt")
   if (!is.null(cl)) {
     parallel::stopCluster(cl = cl)

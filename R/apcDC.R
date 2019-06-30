@@ -87,7 +87,7 @@ apcDC = function(formula, design.formula, data, family = "gaussian", lambda = -1
               
               omega <- inverse(cov) 
               beta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
        
               for (i in 1:N){
                  y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]) + sum(design_beta[1:FP] * FX[i,1:FP]) , tau)
@@ -130,7 +130,7 @@ apcDC = function(formula, design.formula, data, family = "gaussian", lambda = -1
               
               omega <- inverse(cov) 
               beta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
-              Intercept ~ dlogis(0, 1)
+              Intercept ~ dlogis(0, 1e-10)
               for (i in 1:N){
                  logit(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P]) + sum(design_beta[1:FP] * FX[i,1:FP]) 
                  y[i] ~ dbern(psi[i])
@@ -171,7 +171,7 @@ apcDC = function(formula, design.formula, data, family = "gaussian", lambda = -1
               }
               
               omega <- inverse(cov) 
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
               beta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
             
               for (i in 1:N){

@@ -107,7 +107,7 @@ apcSpike = function(formula, data, lambda = -1, family = "gaussian",  log_lik = 
                 beta[i] <- delta[i] * theta[i]
               }
               
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
               
               for (i in 1:N){
                  y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
@@ -143,7 +143,7 @@ apcSpike = function(formula, data, lambda = -1, family = "gaussian",  log_lik = 
               
               omega <- inverse(cov) 
               
-              Intercept ~ dlogis(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
               
               theta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
               for (i in 1:P){
@@ -186,7 +186,7 @@ apcSpike = function(formula, data, lambda = -1, family = "gaussian",  log_lik = 
               
               omega <- inverse(cov) 
               
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
               
               theta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
               for (i in 1:P){

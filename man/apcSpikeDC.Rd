@@ -70,8 +70,8 @@ This hyperparameter is given a Jeffrey's prior, beta(1/2, 1/2) which is non-info
 \cr
 Model Specification:
 \cr
-\if{html}{\figure{apcSpike.png}{}}
-\if{latex}{\figure{apcSpike.png}{}}
+\if{html}{\figure{apcSpikeDC.png}{}}
+\if{latex}{\figure{apcSpikeDC.png}{}}
 }
 \examples{
 apcSpikeDC()

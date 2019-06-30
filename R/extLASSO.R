@@ -78,7 +78,6 @@
 #' @export
 #'
 #' @seealso
-#' \code{\link[Bayezilla]{groupExtLASSO}} 
 #' \code{\link[Bayezilla]{adaLASSO}}
 #' \code{\link[Bayezilla]{negLASSO}} 
 #' \code{\link[Bayezilla]{blasso}}
@@ -108,7 +107,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "classic", lo
               # Shrinkage top-level-hyperparameter
               Omega ~ dgamma(0.5 , 0.01)
 
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
 
               for (p in 1:P){
 
@@ -143,7 +142,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "classic", lo
         monitor = monitor[-(length(monitor))]
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u)
-      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = jitter(rep(0, P), amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
+      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = y, "Omega" = 50, "beta" = lmSolve(formula, data)[-1], "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
       write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
     }
 
@@ -160,7 +159,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "classic", lo
               # Shrinkage top-level-hyperparameter
               Omega ~ dunif(0, top_u)
 
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
 
               for (p in 1:P){
 
@@ -213,7 +212,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "classic", lo
               # Shrinkage top-level-hyperparameter
               Omega ~ dgamma(0.5 , 0.01)
 
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
 
               for (p in 1:P){
 
@@ -261,7 +260,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "classic", lo
               # Shrinkage top-level-hyperparameter
               Omega ~ dunif(0, top_u)
 
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
 
               for (p in 1:P){
 
@@ -314,7 +313,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "classic", lo
               # Shrinkage top-level-hyperparameter
               Omega ~ dgamma(0.5 , 0.01)
 
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
 
               for (p in 1:P){
 
@@ -362,7 +361,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "classic", lo
               # Shrinkage top-level-hyperparameter
               Omega ~ dunif(0, top_u)
 
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
 
               for (p in 1:P){
 

@@ -52,11 +52,11 @@ adaEnet  = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, ada
 
               tau ~ dgamma(.01, .01)
               sigma <- sqrt(1/tau)
-              lambdaL2 ~ dgamma(0.5 , 0.001)
-              Intercept ~ dnorm(0, 1)
+              lambdaL2 ~ dgamma(0.25 , 0.01)
+              Intercept ~ dnorm(0, 1e-10)
 
               for (p in 1:P){
-                lambdaL1[p] ~ dgamma(0.5 , 0.001)
+                lambdaL1[p] ~ dgamma(0.25 , 0.01)
                 eta[p] ~ dgamma(.5, (8 * lambdaL2 * pow(sigma,2)) / pow(lambdaL1[p], 2)) T(1,)
                 beta_prec[p] <- (lambdaL2/pow(sigma,2)) * (eta[p]/(eta[p]-1))
                 beta[p] ~ dnorm(0, beta_prec[p])
@@ -81,7 +81,7 @@ adaEnet  = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, ada
   inits <- lapply(1:chains, function(z) list("Intercept" = 0, 
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1), 
-                                             "beta" = rep(0, P), 
+                                             "beta" = lmSolve(formula, data)[-1], 
                                              "eta" = 1 + abs(jitter(rep(1, P), amount = .25)), 
                                              "lambdaL1" = rep(10, P), 
                                              "lambdaL2" = 20, 

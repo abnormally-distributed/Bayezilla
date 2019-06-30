@@ -81,7 +81,7 @@ SpikeDC <- function(formula, design.formula, data, family = "gaussian", log_lik 
                 design_beta[f] ~ dnorm(0, 1e-4)
               }
 
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
 
               for (i in 1:N){
                  y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]) + sum(design_beta[1:FP] * FX[i,1:FP]), tau)
@@ -123,7 +123,7 @@ SpikeDC <- function(formula, design.formula, data, family = "gaussian", log_lik 
                 design_beta[f] ~ dlogis(0, 1e-4)
               }
               
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
               for (i in 1:N){
                  logit(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P]) + sum(design_beta[1:FP] * FX[i,1:FP])
                  y[i] ~ dbern(psi[i])
@@ -163,7 +163,7 @@ SpikeDC <- function(formula, design.formula, data, family = "gaussian", log_lik 
                 design_beta[f] ~ dnorm(0, 1e-4)
               }
               
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
               for (i in 1:N){
                  log(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P]) + sum(design_beta[1:FP] * FX[i,1:FP])
                  y[i] ~ dpois(psi[i])

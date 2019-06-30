@@ -44,7 +44,7 @@ bayesEnet  = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, a
               lambdaL1 ~ dgamma(0.25 , 0.01)
               lambdaL2 ~ dgamma(0.25 , 0.01)
 
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
 
               for (p in 1:P){
                 eta[p] ~ dgamma(.5, (8 * lambdaL2 * pow(sigma,2)) / pow(lambdaL1, 2)) T(1,)
@@ -68,10 +68,10 @@ bayesEnet  = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, a
       monitor = monitor[-(length(monitor))]
     }
   inits <- lapply(1:chains, function(z) list("Intercept" = 0, 
-                                             "beta" = rep(0, P), 
+                                             "beta" = lmSolve(formula, data)[-1], 
                                              "eta" = 1 + abs(jitter(rep(1, P), amount = .25)), 
-                                             "lambdaL1" = 20, 
-                                             "lambdaL2" = 5, 
+                                             "lambdaL1" = 5, 
+                                             "lambdaL2" = 15, 
                                              "tau" = 1, 
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))

@@ -71,7 +71,7 @@ Spike <- function(formula, data, family = "gaussian", log_lik = FALSE, iter = 10
                 beta[p] <- delta[p] * theta[p]
               }
 
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
 
               for (i in 1:N){
                  y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
@@ -104,7 +104,7 @@ Spike <- function(formula, data, family = "gaussian", log_lik = FALSE, iter = 10
                 beta[p] <- delta[p] * theta[p]
               }
               
-              Intercept ~ dlogis(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
               
               for (i in 1:N){
                  logit(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P])
@@ -138,7 +138,7 @@ Spike <- function(formula, data, family = "gaussian", log_lik = FALSE, iter = 10
                 beta[p] <- delta[p] * theta[p]
               }
               
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
               
               for (i in 1:N){
                  log(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P])

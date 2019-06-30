@@ -48,7 +48,7 @@ tau ~ dgamma(.01, .01)
 # lambda squared, the global penalty
 global_lambda ~ dt(0, tau, 1) T(0, )
 # Coefficients
-Intercept ~ dnorm(0, 1)
+Intercept ~ dnorm(0, 1e-10)
 for (i in 1:P){
   local_lambda_A[i] ~ dt(0, 1, 1) T(0, )
   local_lambda_B[i] ~ dt(0, global_lambda * local_lambda_A[i], 1) T(0, )

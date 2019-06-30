@@ -46,7 +46,7 @@ if (family == "gaussian"){
   
   jags_gamlss = "model{
               
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
               
               for (p in 1:P){
                 beta[p] ~ dnorm(0, .0625)
@@ -84,7 +84,7 @@ if (family == "gaussian"){
     
     jags_gamlss = "model{
               
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
               
               for (p in 1:P){
                 beta[p] ~ dnorm(0, .0625)

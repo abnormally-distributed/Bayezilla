@@ -39,19 +39,24 @@ an rjags object
 }
 \description{
 This is the horseshoe model described by Carvalho et al. (2010) adapted for group selection, akin to the
-group Bayesian LASSO.
+group Bayesian LASSO. Note that this is a novel implementation of the horseshoe. 
+While this does seem to work well in tests, it is not a canonical model so to speak.
+Nevertheless results from tests seem to indicate the horseshoe family of models benefits
+from group structure just as the LASSO family of models does. 
 \cr
 \cr
 Model Specification: \cr 
 \cr
 
-\if{html}{\figure{Horseshoe.png}{}}
-\if{latex}{\figure{Horseshoe.png}{}}
+\if{html}{\figure{groupHorseshoe.png}{}}
+\if{latex}{\figure{groupHorseshoe.png}{}}
 }
 \examples{
 groupHS()
 
 }
 \references{
-Carvalho, C. M., Polson, N. G., and Scott, J. G. (2010). The horseshoe estimator for sparse signals. Biometrika, 97(2):465–480.
+Carvalho, C. M., Polson, N. G., and Scott, J. G. (2010). The horseshoe estimator for sparse signals. Biometrika, 97(2):465–480. \cr
+\cr
+Yuan, Ming; Lin, Yi (2006). Model Selection and Estimation in Regression with Grouped Variables. Journal of the Royal Statistical Society. Series B (statistical Methodology). Wiley. 68 (1): 49–67. doi:10.1111/j.1467-9868.2005.00532.x \cr
 }

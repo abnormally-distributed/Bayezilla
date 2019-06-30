@@ -47,7 +47,7 @@ bayesEnetDC  = function(formula, design.formula, data, log_lik = FALSE, iter=100
               lambdaL1 ~ dgamma(0.25 , 0.01)
               lambdaL2 ~ dgamma(0.25 , 0.01)
 
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
 
               for (p in 1:P){
                 eta[p] ~ dgamma(.5, (8 * lambdaL2 * pow(sigma,2)) / pow(lambdaL1, 2)) T(1,)

@@ -5,8 +5,8 @@
 \title{Stochastic Search Variable Selection (Indicator Variable and Adaptive Student-t model)}
 \usage{
 IAt(formula, data, family = "gaussian", df = 3, log_lik = FALSE,
-  iter = 10000, warmup = 5000, adapt = 10000, chains = 4,
-  thin = 3, method = "parallel", cl = makeCluster(2), ...)
+  iter = 10000, warmup = 5000, adapt = 5000, chains = 4,
+  thin = 2, method = "parallel", cl = makeCluster(2), ...)
 }
 \arguments{
 \item{formula}{the model formula}
@@ -19,15 +19,15 @@ IAt(formula, data, family = "gaussian", df = 3, log_lik = FALSE,
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 
-\item{iter}{How many post-warmup samples? Defaults to 10000.}
+\item{iter}{How many post-warmup samples? Defaults to 5000.}
 
 \item{warmup}{How many warmup samples? Defaults to 5000.}
 
-\item{adapt}{How many adaptation steps? Defaults to 15000.}
+\item{adapt}{How many adaptation steps? Defaults to 10000.}
 
 \item{chains}{How many chains? Defaults to 4.}
 
-\item{thin}{Thinning interval. Defaults to 3.}
+\item{thin}{Thinning interval. Defaults to 2.}
 
 \item{method}{Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).}
 
@@ -43,9 +43,12 @@ This is the \strong{I}ndicator variables and \strong{A}daptive Student’s \stro
 model discussed by Knürr, Läärä, and Sillanpää (2011). 
 \cr
 \cr
-The prior probability for the inclusion rate ("phi") is given a non-informative Jeffrey's prior. The degrees of freedom
-for the thetas (raw coefficients) requires user input. The default is set to 3. It is doubtful that you would need to change
-this. However if there is a large amount of collinearity in your data you may want to set it to a higher number such as
+The prior probability for the inclusion rate ("phi") is given a weakly 
+informative beta(1.5, 1.5) prior distribution. The degrees of freedom
+for the thetas (raw coefficients) requires user input. 
+The default is set to 3. It is doubtful that you would need to change
+this. However if there is a large amount of collinearity 
+in your data you may want to set it to a higher number such as
 12 or 30.
 \cr
 \cr

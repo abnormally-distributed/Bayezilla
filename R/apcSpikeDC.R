@@ -26,8 +26,8 @@
 #' \cr
 #' Model Specification:
 #' \cr
-#' \if{html}{\figure{apcSpike.png}{}}
-#' \if{latex}{\figure{apcSpike.png}{}}
+#' \if{html}{\figure{apcSpikeDC.png}{}}
+#' \if{latex}{\figure{apcSpikeDC.png}{}}
 #' @references 
 #' Krishna, A., Bondell, H. D., & Ghosh, S. K. (2009). Bayesian variable selection using an adaptive powered correlation prior. Journal of statistical planning and inference, 139(8), 2665–2674. doi:10.1016/j.jspi.2008.12.004 \cr
 #' \cr
@@ -113,7 +113,7 @@ apcSpikeDC = function(formula, design.formula, data, family = "gaussian", lambda
               }
               
               
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
               
               for (i in 1:N){
                  y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]) + sum(design_beta[1:FP] * FX[i,1:FP]) , tau)
@@ -161,7 +161,7 @@ apcSpikeDC = function(formula, design.formula, data, family = "gaussian", lambda
               
                # Design Variable Coefficients
               for (f in 1:FP){
-                  design_beta[f] ~ dnorm(0, 0.0625)
+                  design_beta[f] ~ dnorm(0, 1e-200)
               }
               
               for (i in 1:N){
@@ -201,7 +201,7 @@ apcSpikeDC = function(formula, design.formula, data, family = "gaussian", lambda
               
               omega <- inverse(cov) 
               
-              Intercept ~ dnorm(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
               
               theta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
               for (i in 1:P){
@@ -211,7 +211,7 @@ apcSpikeDC = function(formula, design.formula, data, family = "gaussian", lambda
              
              # Design Variable Coefficients
                   for (f in 1:FP){
-                  design_beta[f] ~ dnorm(0, 0.0625)
+                  design_beta[f] ~ dnorm(0, 1e-200)
               }
               
               for (i in 1:N){

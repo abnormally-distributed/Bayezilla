@@ -125,7 +125,7 @@ apcSpike = function(formula, data, lambda = -1, family = "gaussian",  log_lik = 
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }
-      inits = lapply(1:chains, function(z) list("Intercept"= 0, "phi" = .2 , "delta" = rep(0, P), "theta" = jitter(rep(0, P), amount = 1), "tau" = 1, "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1)))
+      inits = lapply(1:chains, function(z) list("Intercept"= lmSolve(formula, data)[1], "phi" = .2 , "delta" = rep(0, P), "theta" = lmSolve(formula, data)[-1], "tau" = 1, "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1)))
     }
     
     if (family == "binomial" || family == "logistic"){
@@ -168,7 +168,7 @@ apcSpike = function(formula, data, lambda = -1, family = "gaussian",  log_lik = 
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }
-      inits = lapply(1:chains, function(z) list("Intercept" = 0, "phi" = .2 , "delta" = rep(0, P), "theta" = jitter(rep(0, P), amount = 1), "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
+      inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "binomial")))[1], "phi" = .2 , "delta" = rep(0, P), "theta" = as.vector(coef(glm(formula, data, family = "binomial")))[-1], "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
     }
     
     if (family == "poisson"){
@@ -215,7 +215,7 @@ apcSpike = function(formula, data, lambda = -1, family = "gaussian",  log_lik = 
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }
-      inits = lapply(1:chains, function(z) list("Intercept" = 0, "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1),"phi" = .2 , "delta" = rep(0, P), "theta" = jitter(rep(0, P), amount = 1)))
+      inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "poisson")))[1], "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1),"phi" = .2 , "delta" = rep(0, P), "theta" = as.vector(coef(glm(formula, data, family = "poisson")))[-1]))
     }
   
   

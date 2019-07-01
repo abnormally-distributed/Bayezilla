@@ -90,8 +90,8 @@ groupAdaEnet  = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=5000, ad
     monitor = monitor[-(length(monitor))]
   }
   
-  inits <- lapply(1:chains, function(z) list("Intercept" = 0, 
-                                             "beta" = rep(0, P), 
+  inits <- lapply(1:chains, function(z) list("Intercept" = lmSolve(y ~ ., data = data.frame(y = y, X))[1], 
+                                             "beta" = lmSolve(y ~ ., data = data.frame(y = y, X))[-1], 
                                              "eta" = 1 + abs(jitter(rep(1, P), amount = .25)), 
                                              "lambdaL1" = rep(2, max(idx)), 
                                              "lambdaL2" = 3,  

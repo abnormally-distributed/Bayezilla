@@ -74,8 +74,8 @@ horseshoe = "model{
 
 write_lines(horseshoe, "horseshoe.txt")
 jagsdata = list("y" = y, "X" = X, "N" = nrow(X), "P" = ncol(X), "idx" = idx, "nG" = max(idx))
-inits = lapply(1:chains, function(z) list("beta" = rep(0, ncol(X)), 
-                                          "Intercept" = 0, 
+inits = lapply(1:chains, function(z) list("beta" = lmSolve(y ~ ., data = data.frame(y = y, X))[-1], 
+                                          "Intercept" = lmSolve(y ~ ., data = data.frame(y = y, X))[1], 
                                           "group_lambda" =  rep(1, max(idx)),
                                           "global_lambda"= 1, 
                                           "tau" = 1,

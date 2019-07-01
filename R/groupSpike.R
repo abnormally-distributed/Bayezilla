@@ -84,7 +84,7 @@ groupSpike  = function(X, y, family = "gaussian", phi_prior = c(1, 4), log_lik =
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name= "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1), "ySim" = y, "delta"=rep(1, nG), "phi" = rep(.2, nG), "theta" = jitter(rep(0, P), amount = .25), "tau" = 1))
+    inits = lapply(1:chains, function(z) list("Intercept" = lmSolve(y ~ ., data = data.frame(y = y, X))[1], .RNG.name= "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1), "ySim" = y, "delta"=rep(1, nG), "phi" = rep(.2, nG), "theta" = lmSolve(y ~ ., data = data.frame(y = y, X))[-1], "tau" = 1))
     out = run.jags(model = "jags_group_glm_spike.txt", modules = c("glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)
     return(out)
   }

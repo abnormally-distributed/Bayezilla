@@ -89,8 +89,8 @@ groupNegLASSO = function(X, y, idx, family = "gaussian", log_lik = FALSE, iter=1
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits <- lapply(1:chains, function(z) list("Intercept" = 0, 
-                                               "beta" = rep(0, P), 
+    inits <- lapply(1:chains, function(z) list("Intercept" = lmSolve(y ~ ., data = data.frame(y = y, X))[1], 
+                                               "beta" = lmSolve(y ~ ., data = data.frame(y = y, X))[-1], 
                                                "eta" = abs(jitter(rep(1, max(idx)), amount = 1)), 
                                                "psi" = abs(jitter(rep(1, max(idx)), amount = 1)), 
                                                "lambda" = 2, 

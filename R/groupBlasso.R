@@ -86,8 +86,9 @@ groupBLASSO = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=1000, adap
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
-  inits <- lapply(1:chains, function(z) list("Intercept" = 0,
-                                             "beta" = rep(0, P), 
+  
+  inits <- lapply(1:chains, function(z) list("Intercept" = lmSolve(y ~ ., data = data.frame(y = y, X))[1],
+                                             "beta" = lmSolve(y ~ ., data = data.frame(y = y, X))[-1], 
                                              "eta" = rep(2, max(idx)), 
                                              "lambda" = 2, 
                                              "tau" = 1, 

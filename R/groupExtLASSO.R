@@ -150,10 +150,10 @@ groupExtLASSO  = function(X, y, idx, data, family = "gaussian", eta_prior = "cla
         monitor = monitor[-(length(monitor))]
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u, idx = idx, nG = max(idx), k = as.vector(table(idx)))
-      inits = lapply(1:chains, function(z) list("Intercept" = 0, 
+      inits = lapply(1:chains, function(z) list("Intercept" = lmSolve(y ~ ., data = data.frame(y = y, X))[1], 
                                                 "ySim" = y, 
                                                 "Omega" = 2, 
-                                                "beta" = rep(0, P), 
+                                                "beta" = lmSolve(y ~ ., data = data.frame(y = y, X))[-1], 
                                                 "eta" = rep(1, nG), 
                                                 "beta_var" = abs(jitter(rep(.5, nG), amount = .25)), 
                                                 "tau" = 1, 
@@ -217,10 +217,10 @@ groupExtLASSO  = function(X, y, idx, data, family = "gaussian", eta_prior = "cla
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u, top_u = top_u, idx = idx, nG = max(idx), k = as.vector(table(idx)))
       
-      inits = lapply(1:chains, function(z) list("Intercept" = 0, 
+      inits = lapply(1:chains, function(z) list("Intercept" = lmSolve(y ~ ., data = data.frame(y = y, X))[1], 
                                                 "ySim" = y, 
                                                 "Omega" = 2, 
-                                                "beta" = rep(0, P), 
+                                                "beta" = lmSolve(y ~ ., data = data.frame(y = y, X))[-1], 
                                                 "eta" = rep(1, nG), 
                                                 "beta_var" = abs(jitter(rep(.5, nG), amount = .25)), 
                                                 "tau" = 1, 

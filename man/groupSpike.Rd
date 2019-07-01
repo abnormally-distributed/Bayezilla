@@ -4,7 +4,7 @@
 \alias{groupSpike}
 \title{Stochastic Search Variable Selection (Bernoulli-Normal Mixture) with group selection}
 \usage{
-groupSpike(X, y, family = "gaussian", phi_prior = c(1, 4),
+groupSpike(X, y, idx, family = "gaussian", phi_prior = c(1, 4),
   log_lik = FALSE, iter = 10000, warmup = 1000, adapt = 2000,
   chains = 4, thin = 1, method = "parallel", cl = makeCluster(2),
   ...)
@@ -13,6 +13,9 @@ groupSpike(X, y, family = "gaussian", phi_prior = c(1, 4),
 \item{X}{the model matrix. Construct this manually with model.matrix()[,-1]}
 
 \item{y}{the outcome variable}
+
+\item{idx}{the group labels. Should be of length = to ncol(model.matrix()[,-1]) with the group assignments
+for each covariate. Please ensure that you start numbering with 1, and not 0.}
 
 \item{family}{one of "gaussian", "binomial", or "poisson".}
 
@@ -33,9 +36,6 @@ groupSpike(X, y, family = "gaussian", phi_prior = c(1, 4),
 \item{cl}{Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.}
 
 \item{...}{Other arguments to run.jags.}
-
-\item{idx}{the group labels. Should be of length = to ncol(model.matrix()[,-1]) with the group assignments
-for each covariate. Please ensure that you start numbering with 1, and not 0.}
 }
 \value{
 A run.jags object

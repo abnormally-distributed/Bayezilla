@@ -100,12 +100,14 @@ plotPips = function(model, col_labs = NULL){
   }
 
   data = rownames_to_column(as.data.frame(colMeans(x)))
+  
+  
   colnames(data) = c("variable", "pip")
-  ggplot(data = data, aes(x = variable, y = pip, color = ifelse(pip < .50, "Fail", "Pass"), fill = ifelse(pip < .50, "Fail", "Pass"))) +
+  ggplot(data = data, aes(x = variable, y = pip, color = ifelse(pip < .50, "Fail", ifelse(pip <= .60 & pip > .50, "Borderline", "Pass")), fill = ifelse(pip < .50, "Fail", ifelse(pip <= .60 & pip > .50, "Borderline", "Pass")))) +
     geom_segment( aes(x=variable, xend=variable , y=0, yend= pip - .001), size = 1.125, alpha = .60, linetype = "dotted") +
     geom_point(size = 5, alpha = .80, shape = 21) +
-    scale_fill_manual(values =  c("red", "green"), aesthetics = "fill") +
-    scale_color_manual(values =  c("darkred", "darkgreen"), aesthetics = "color") +
+    scale_fill_manual(values =  c( "#709e61", "red", "#51fa51"), aesthetics = "fill") +
+    scale_color_manual(values =  c("#788b74", "darkred", "#05a905"), aesthetics = "color") +
     theme(legend.position="none") +
     coord_cartesian(ylim = c(0, 1)) +
     geom_hline(yintercept = .50, colour="#990000", linetype="dashed")

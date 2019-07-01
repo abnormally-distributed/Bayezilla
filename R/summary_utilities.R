@@ -240,26 +240,26 @@ cred_interval = function (object, cred.level = .90, method="QI")
 
 #' Extract Point Estimate of Correlation Matrix 
 #'
-#' @param fit the stanfit or runjags object. Must contain only variables with the name "Rho[,]".
-#'
+#' @param fit the stanfit or runjags object.
+#' @param type either "Rho" or "parRho"  which extracts columns labeled "Rho" or "parRho" respectively. 
 #' @return
 #' a matrix
 #' @export
 #'
 #' @examples
 #' extractCormat(out)
-extractCormat = function (fit) 
+extractCormat = function (fit, type = "Rho") 
 {
   stan <- inherits(fit, "stanfit")
   if (stan == TRUE) {
-    post <- as.matrix(fit)
+    post <- extractPost(fit, keeppars = type)
   }
   else if (class(fit) == "runjags"){
-    post <- combine.mcmc(fit, collapse.chains = TRUE)
-    post <- as.matrix(post)
+    post <- extractPost(fit, keeppars = type)
   }
   P = sqrt(ncol(post))
   estimates = colMeans(post)
   post = matrix(estimates, P, P)
+  diag(post) <- 1
   return(post)
 }

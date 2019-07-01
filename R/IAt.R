@@ -72,10 +72,11 @@ if (family == "gaussian"){
   }
   sigma <- sqrt(1/tau)
   Deviance <- -2 * sum(log_lik[1:N])
+  BIC <- (log(N) * sum(delta[1:P])) + Deviance
 }"
   
   P = ncol(X)
-  monitor = c("Intercept", "beta", "sigma", "Deviance", "omega", "delta", "ySim", "log_lik")
+  monitor = c("Intercept", "beta", "sigma", "BIC", "Deviance", "omega", "delta", "ySim", "log_lik")
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
@@ -104,10 +105,11 @@ if (family == "binomial"){
     ySim[i] ~ dbern(psi[i])
    }
    Deviance <- -2 * sum(log_lik[1:N])
+   BIC <- (log(N) * sum(delta[1:P])) + Deviance
 }"
   
   P = ncol(X)
-  monitor = c("Intercept", "beta", "Deviance", "omega",  "delta", "ySim" ,"log_lik")
+  monitor = c("Intercept", "beta", "BIC",  "Deviance", "omega",  "delta", "ySim" ,"log_lik")
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
@@ -136,10 +138,11 @@ if (family == "poisson"){
     ySim[i] ~ dpois(psi[i])
    }
    Deviance <- -2 * sum(log_lik[1:N])
+   BIC <- (log(N) * sum(delta[1:P])) + Deviance
 }"
   
   P = ncol(X)
-  monitor = c("Intercept", "beta", "Deviance", "omega", "delta", "ySim" ,"log_lik")
+  monitor = c("Intercept", "beta", "BIC",  "Deviance", "omega", "delta", "ySim" ,"log_lik")
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }

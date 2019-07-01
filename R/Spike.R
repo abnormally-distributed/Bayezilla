@@ -13,8 +13,8 @@
 #' with some improvements. This models the regression coefficients as coming from either a null distribution represented
 #' by a probability mass of 100% at zero (the "spike") or unpenalized. The probability that a coefficient 
 #' comes from the null-spike is controlled by a hyperparameter "phi" which estimates the overall probability of inclusion, 
-#' i.e., the proportion of the P-number of predictors that are non-zero. This hyperparameter is given a Jeffrey's prior, 
-#' beta(1/2, 1/2) which is non-informative and objective. The specification of the prior is pictured below. \cr
+#' i.e., the proportion of the P-number of predictors that are non-zero. This hyperparameter is given uniform beta(1, 1) prior.
+#'  The specification of the prior is pictured below. \cr
 #' \cr
 #' \if{html}{\figure{spike.png}{}}
 #' \if{latex}{\figure{spike.png}{}}
@@ -63,10 +63,10 @@ Spike <- function(formula, data, family = "gaussian", log_lik = FALSE, iter = 10
     
     jags_glm_spike <- "model{
               tau ~ dgamma(.01, .01)
-              phi ~ dbeta(.5, .5) 
+              phi ~ dbeta(1, 1) 
               
               for (p in 1:P){
-                theta[p] ~ dnorm(0, 0.01)
+                theta[p] ~ dnorm(0, 1e-200)
                 delta[p] ~ dbern(phi)
                 beta[p] <- delta[p] * theta[p]
               }
@@ -80,12 +80,13 @@ Spike <- function(formula, data, family = "gaussian", log_lik = FALSE, iter = 10
               }
               sigma <- sqrt(1/tau)
               Deviance <- -2 * sum(log_lik[1:N])
+              BIC <- (log(N) * sum(delta[1:P])) + Deviance
           }"
 
     P <- ncol(X)
     write_lines(jags_glm_spike, "jags_glm_spike.txt")
     jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X))
-    monitor <- c("Intercept", "beta", "sigma", "phi", "Deviance",  "delta", "theta" ,"ySim", "log_lik")
+    monitor <- c("Intercept", "beta", "sigma", "phi", "BIC", "Deviance",  "delta", "theta" ,"ySim", "log_lik")
     if (log_lik == FALSE) {
       monitor <- monitor[-(length(monitor))]
     }
@@ -96,10 +97,10 @@ Spike <- function(formula, data, family = "gaussian", log_lik = FALSE, iter = 10
   
   if (family == "binomial" || family == "logistic") {
     jags_glm_spike <- "model{
-              phi ~ dbeta(.5, .5) 
+              phi ~ dbeta(1, 1) 
               
               for (p in 1:P){
-                theta[p] ~ dlogis(0, 0.01)
+                theta[p] ~ dnorm(0, 1e-200)
                 delta[p] ~ dbern(phi)
                 beta[p] <- delta[p] * theta[p]
               }
@@ -113,13 +114,14 @@ Spike <- function(formula, data, family = "gaussian", log_lik = FALSE, iter = 10
                  ySim[i] ~ dbern(psi[i])
               }
              Deviance <- -2 * sum(log_lik[1:N])
+             BIC <- (log(N) * sum(delta[1:P])) + Deviance
           }"
 
     P <- ncol(X)
     write_lines(jags_glm_spike, "jags_glm_spike.txt")
     y <- as.numeric(as.factor(y)) - 1
     jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X))
-    monitor <- c("Intercept", "beta", "phi", "Deviance", "delta",  "theta" , "ySim", "log_lik")
+    monitor <- c("Intercept", "beta", "phi", "BIC", "Deviance", "delta",  "theta" , "ySim", "log_lik")
     if (log_lik == FALSE) {
       monitor <- monitor[-(length(monitor))]
     }
@@ -130,10 +132,10 @@ Spike <- function(formula, data, family = "gaussian", log_lik = FALSE, iter = 10
 
   if (family == "poisson") {
     jags_glm_spike <- "model{
-              phi ~ dbeta(.5, .5) 
+              phi ~ dbeta(1, 1) 
               
               for (p in 1:P){
-                theta[p] ~ dnorm(0, 0.01)
+                theta[p] ~ dnorm(0, 1e-200)
                 delta[p] ~ dbern(phi)
                 beta[p] <- delta[p] * theta[p]
               }
@@ -147,12 +149,13 @@ Spike <- function(formula, data, family = "gaussian", log_lik = FALSE, iter = 10
                  ySim[i] ~ dpois(psi[i])
               }
               Deviance <- -2 * sum(log_lik[1:N])
+              BIC <- (log(N) * sum(delta[1:P])) + Deviance
           }"
 
     write_lines(jags_glm_spike, "jags_glm_spike.txt")
     P <- ncol(X)
     jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X))
-    monitor <- c("Intercept", "beta", "phi", "Deviance", "delta",  "theta" , "ySim", "log_lik")
+    monitor <- c("Intercept", "beta", "phi", "BIC", "Deviance", "delta",  "theta" , "ySim", "log_lik")
     if (log_lik == FALSE) {
       monitor <- monitor[-(length(monitor))]
     }

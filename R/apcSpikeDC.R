@@ -22,7 +22,7 @@
 #' \cr
 #' \cr
 #' The probability that a coefficient comes from the null-spike is controlled by a hyperparameter "phi" which estimates the overall probability of inclusion, i.e., the proportion of the P-number of predictors that are non-zero. 
-#' This hyperparameter is given a Jeffrey's prior, beta(1/2, 1/2) which is non-informative and objective.
+#' This hyperparameter is given a uniform beta(1, 1) prior which is non-informative and objective.
 #' \cr
 #' Model Specification:
 #' \cr
@@ -88,7 +88,7 @@ apcSpikeDC = function(formula, design.formula, data, family = "gaussian", lambda
     
     jags_apc = "model{
               
-              phi ~ dbeta(0.5, 0.5)
+              phi ~ dbeta(1, 1)
               tau ~ dgamma(.01, .01)
               g_inv ~ dgamma(.5, N * .5)
               g <- 1 / g_inv
@@ -121,13 +121,14 @@ apcSpikeDC = function(formula, design.formula, data, family = "gaussian", lambda
                  ySim[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]) + sum(design_beta[1:FP] * FX[i,1:FP]) , tau)
               }
               Deviance <- -2 * sum(log_lik[1:N])
+              BIC <- (log(N) * (sum(delta[1:P]) + FP)) + Deviance
           }"
     
     P = ncol(X)
     FP <- ncol(FX)
     write_lines(jags_apc, "jags_apc.txt")
     jagsdata = list(X = X, y = y,  N = length(y), P = ncol(X), prior_cov = prior_cov, FP = FP, FX = FX)
-    monitor = c("Intercept", "beta", "design_beta",  "sigma", "g", "Deviance", "phi", "delta", "ySim" ,"log_lik")
+    monitor = c("Intercept", "beta", "design_beta", "sigma", "g", "BIC", "Deviance", "phi", "delta", "ySim" ,"log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
@@ -138,7 +139,7 @@ apcSpikeDC = function(formula, design.formula, data, family = "gaussian", lambda
     
     jags_apc = "model{
     
-              phi ~ dbeta(0.5, 0.5)
+              phi ~ dbeta(1, 1)
               g_inv ~ dgamma(.5, N * .5)
               g <- 1 / g_inv
               
@@ -171,13 +172,14 @@ apcSpikeDC = function(formula, design.formula, data, family = "gaussian", lambda
                  ySim[i] ~ dbern(psi[i])
               }
              Deviance <- -2 * sum(log_lik[1:N])
+             BIC <- (log(N) * (sum(delta[1:P]) + FP)) + Deviance
           }"
     
     P = ncol(X)
     FP <- ncol(FX)
     write_lines(jags_apc, "jags_apc.txt")
     jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), prior_cov = prior_cov, FP = FP, FX = FX)
-    monitor = c("Intercept", "beta", "design_beta",  "g", "Deviance", "phi", "delta","ySim", "log_lik")
+    monitor = c("Intercept", "beta", "design_beta",  "g", "BIC", "Deviance", "phi", "delta","ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
@@ -188,7 +190,7 @@ apcSpikeDC = function(formula, design.formula, data, family = "gaussian", lambda
     
     jags_apc = "model{
     
-              phi ~ dbeta(0.5, 0.5)
+              phi ~ dbeta(1, 1)
 
               g_inv ~ dgamma(.5, N * .5)
               g <- 1 / g_inv
@@ -222,13 +224,14 @@ apcSpikeDC = function(formula, design.formula, data, family = "gaussian", lambda
               }
               
               Deviance <- -2 * sum(log_lik[1:N])
+              BIC <- (log(N) * (sum(delta[1:P]) + FP)) + Deviance
           }"
     
     write_lines(jags_apc, "jags_apc.txt")
     P = ncol(X)
     FP <- ncol(FX)
     jagsdata = list(X = X, y = y, N = length(y),  P = ncol(X), prior_cov = prior_cov, FP = FP, FX = FX)
-    monitor = c("Intercept", "beta", "design_beta",  "g", "Deviance", "phi", "delta", "ySim", "log_lik")
+    monitor = c("Intercept", "beta", "design_beta", "g", "BIC", "Deviance", "phi", "delta", "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }

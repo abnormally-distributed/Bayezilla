@@ -10,7 +10,7 @@
 #'
 #  This variant of the Bernoulli-Normal mixture prior models the selection of parameters as groups, akin to the group LASSO.
 #' The model is very similar to the \code{\link[Bayezilla]{Spike}} model. Each group receives its own inclusion 
-#' probability prior "phi", which is in turn controlled by an overall inclusion probability given a Jeffrey's prior.
+#' probability prior "phi", which is in turn controlled by an overall inclusion probability given a uniform beta(1, 1) prior.
 #' \cr
 #' Model Specification: \cr
 #' \cr
@@ -54,13 +54,13 @@ groupSpike  = function(X, y, idx, family = "gaussian", phi_prior = c(1, 4), log_
 
               # Indicator Variables For Groups
               for (r in 1:nG){
-                 phi[r] ~ dbeta(.5, .5)
+                 phi[r] ~ dbeta(1, 1)
                  delta[r] ~ dbern(phi[r])
               }
 
               # Coefficients
               for (p in 1:P){
-                theta[p] ~ dnorm(0, .01)
+                theta[p] ~ dnorm(0, 1e-200)
                 beta[p] <- delta[idx[p]] * theta[p]
               }
 
@@ -74,13 +74,14 @@ groupSpike  = function(X, y, idx, family = "gaussian", phi_prior = c(1, 4), log_
 
               sigma <- sqrt(1/tau)
               Deviance <- -2 * sum(log_lik[1:N])
+              BIC <- (log(N) * sum(delta[1:P])) + Deviance
           }"
 
     P = ncol(X)
     nG <- length(unique(idx))
     write_lines(jags_group_glm_spike, "jags_group_glm_spike.txt")
     jagsdata = list(X = X, y = y, N = length(y), P = ncol(X),  idx = idx, nG = nG)
-    monitor = c("Intercept", "beta", "sigma", "Deviance",  "phi", "delta",  "theta" , "ySim" , "log_lik")
+    monitor = c("Intercept", "beta", "sigma", "BIC" , "Deviance",  "phi", "delta",  "theta" , "ySim" , "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
@@ -96,13 +97,13 @@ groupSpike  = function(X, y, idx, family = "gaussian", phi_prior = c(1, 4), log_
 
               # Indicator Variables For Groups
               for (r in 1:nG){
-                 phi[r] ~ dbeta(.5, .5)
+                 phi[r] ~ dbeta(1, 1)
                  delta[r] ~ dbern(phi[r])
               }
 
               # Coefficients
               for (p in 1:P){
-                theta[p] ~ dnorm(0, .01)
+                theta[p] ~ dnorm(0, 1e-200)
                 beta[p] <- delta[idx[p]] * theta[p]
               }
 
@@ -114,6 +115,7 @@ groupSpike  = function(X, y, idx, family = "gaussian", phi_prior = c(1, 4), log_
                  ySim[i] ~ dbern(psi[i])
               }
              Deviance <- -2 * sum(log_lik[1:N])
+             BIC <- (log(N) * sum(delta[1:P])) + Deviance
           }"
 
     P = ncol(X)
@@ -121,7 +123,7 @@ groupSpike  = function(X, y, idx, family = "gaussian", phi_prior = c(1, 4), log_
     y = as.numeric(as.factor(y)) - 1
     nG <- length(unique(idx))
     jagsdata = list(X = X, y = y, N = length(y), P = ncol(X),  idx = idx, nG = nG)
-    monitor = c("Intercept", "beta", "Deviance", "phi", "delta",  "theta" , "ySim" , "log_lik")
+    monitor = c("Intercept", "beta", "BIC" , "Deviance", "phi", "delta",  "theta" , "ySim" , "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
@@ -136,13 +138,13 @@ groupSpike  = function(X, y, idx, family = "gaussian", phi_prior = c(1, 4), log_
 
               # Indicator Variables For Groups
               for (r in 1:nG){
-                 phi[r] ~ dbeta(.5, .5)
+                 phi[r] ~ dbeta(1, 1)
                  delta[r] ~ dbern(phi[r])
               }
 
               # Coefficients
               for (p in 1:P){
-                theta[p] ~ dnorm(0, .01)
+                theta[p] ~ dnorm(0, 1e-200)
                 beta[p] <- delta[idx[p]] * theta[p]
               }
 
@@ -155,13 +157,14 @@ groupSpike  = function(X, y, idx, family = "gaussian", phi_prior = c(1, 4), log_
                  ySim[i] ~ dpois(psi[i])
               }
               Deviance <- -2 * sum(log_lik[1:N])
+              BIC <- (log(N) * sum(delta[1:P])) + Deviance
           }"
 
     write_lines(jags_group_glm_spike, "jags_group_glm_spike.txt")
     P = ncol(X)
     nG <- length(unique(idx))
     jagsdata = list(X = X, y = y, N = length(y),  P = ncol(X),  idx = idx, nG = nG)
-    monitor = c("Intercept", "beta", "Deviance", "phi", "delta",  "theta" , "ySim" , "log_lik")
+    monitor = c("Intercept", "beta",  "BIC" , "Deviance", "phi", "delta",  "theta" , "ySim" , "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }

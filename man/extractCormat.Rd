@@ -4,10 +4,12 @@
 \alias{extractCormat}
 \title{Extract Point Estimate of Correlation Matrix}
 \usage{
-extractCormat(fit)
+extractCormat(fit, type = "Rho")
 }
 \arguments{
-\item{fit}{the stanfit or runjags object. Must contain only variables with the name "Rho[,]".}
+\item{fit}{the stanfit or runjags object.}
+
+\item{type}{either "Rho" or "parRho"  which extracts columns labeled "Rho" or "parRho" respectively.}
 }
 \value{
 a matrix

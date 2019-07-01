@@ -1,0 +1,30 @@
+model{
+    
+              phi ~ dbeta(0.5, 0.5)
+              g_inv ~ dgamma(.5, N * .5)
+              g <- 1 / g_inv
+              
+              for (j in 1:P){
+                for (k in 1:P){
+                  cov[j,k] = g * 1.0 * prior_cov[j,k]
+                }
+              }
+              
+              omega <- inverse(cov) 
+              
+              Intercept ~ dnorm(0, 1e-10)
+              
+              theta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
+              for (i in 1:P){
+                delta[i] ~ dbern(phi)
+                beta[i] <- delta[i] * theta[i]
+              }
+              for (i in 1:N){
+                 logit(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P])
+                 y[i] ~ dbern(psi[i])
+                 log_lik[i] <- logdensity.bern(y[i], psi[i])
+                 ySim[i] ~ dbern(psi[i])
+              }
+             Deviance <- -2 * sum(log_lik[1:N])
+             BIC <- (log(N) * sum(delta[1:P])) + Deviance
+          }

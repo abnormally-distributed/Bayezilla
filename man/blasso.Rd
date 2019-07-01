@@ -38,7 +38,8 @@ a runjags object
 The Bayesian LASSO of Park & Casella (2008). Note that the extended lasso and negative-exponential-gamma
 lasso will probably give better shrinkage but this is provided here for the curious. Note only the Gaussian likelihood
 is provided because the Bayesian LASSO requires conditioning on the error variance, which GLM-families
-do not have. \cr
+do not have. If you need to use the LASSO for a poisson or binomial regression, I suggest taking 
+a look at \code{\link[Bayezilla]{extLASSO}}\cr
 The Bayesian Lasso is equivalent to using independent double exponential (Laplace distribution) priors on the 
 coefficients with a scale of sigma / lambda. However, doing this directly results in slow convergence and poor mixing.
 The Laplace distribution can be expressed as a scale mixture of normals with an exponential distribution as the scale 

@@ -47,7 +47,7 @@
 #'
 adaLASSO = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
 
-  X = model.matrix(formula, data)[,-1]
+  X = as.matrix(model.matrix(formula, data)[,-1])
   y = model.frame(formula, data)[,1]
 
   jags_blasso = "model{

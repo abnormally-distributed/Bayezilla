@@ -57,7 +57,7 @@ apcGlm = function(formula, data, family = "gaussian", lambda = -1, log_lik = FAL
 {
   data <- as.data.frame(data)
   y <- as.numeric(model.frame(formula, data)[, 1])
-  X <- model.matrix(formula, data)[, -1]
+  X <- as.matrix(model.matrix(formula, data)[,-1])
   # Eigendecomposition
   cormat = cov2cor(fBasics::makePositiveDefinite(cor(X)))
   L = eigen(cormat)$vectors
@@ -92,7 +92,7 @@ apcGlm = function(formula, data, family = "gaussian", lambda = -1, log_lik = FAL
               
               omega <- inverse(cov) 
               beta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
-              Intercept ~ 
+              Intercept ~ dnorm(0, 1e-10)
               for (i in 1:N){
                  y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
                  log_lik[i] <- logdensity.norm(y[i], Intercept + sum(beta[1:P] * X[i,1:P]), tau)
@@ -126,7 +126,7 @@ apcGlm = function(formula, data, family = "gaussian", lambda = -1, log_lik = FAL
               
               omega <- inverse(cov) 
               beta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
-              Intercept ~ dlogis(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
               for (i in 1:N){
                  logit(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P])
                  y[i] ~ dbern(psi[i])
@@ -159,7 +159,7 @@ apcGlm = function(formula, data, family = "gaussian", lambda = -1, log_lik = FAL
                 }
               }
               omega <- inverse(cov) 
-              Intercept ~ 
+              Intercept ~ dnorm(1e-10)
               beta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
               for (i in 1:N){
                  log(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P])

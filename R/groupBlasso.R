@@ -4,7 +4,8 @@
 #' the context of the classical "frequentist" LASSO. The concept is adapted here to the Bayesian LASSO 
 #' following the example of Kyung et al. (2010). Note only the Gaussian likelihood
 #' is provided because the Bayesian LASSO requires conditioning on the error variance, which GLM-families
-#' do not have. \cr
+#' do not have. \cr If you need to use the LASSO for a poisson or binomial regression, I suggest taking 
+#' a look at \code{\link[Bayezilla]{groupExtLASSO}}
 #'
 #' \cr
 #' Model Specification:
@@ -54,10 +55,9 @@ groupBLASSO = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=1000, adap
   
 
   jags_blasso = "model{
-  tau ~ dgamma(.01, .01) 
+  tau ~ dgamma(0.01, 0.01) 
   sigma2 <- 1/tau
-  lambda ~ dexp(0.02)
-
+  lambda ~ dgamma(0.50, 0.01)
   # Group Level shrinkage
   for (g in 1:nG){
     eta[g] ~ dgamma( (k[g] + 1) * 0.50 , pow(lambda, 2) * 0.50)

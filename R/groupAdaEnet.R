@@ -2,9 +2,10 @@
 #'
 #' @description This is an adaptation of the frequentist adaptive elastic net of Ghosh (2007, 2011) and Zou & Zhang (2009) to the Bayesian paradigm through a modification of the Bayesian elastic
 #' net (Li & Lin, 2010). It is further adapted such that coefficients can be assigned groups in the 
-#' spirit of the Group LASSO (Yuan & Lin, 2006). Each group receives an independent
-#' L2 norm penalty, followed by coefficient specific L1 norm penalities. 
-#' 
+#' spirit of the Group LASSO (Yuan & Lin, 2006) and Group Bayesian LASSO (Kyung et al., 2010). Each group receives an 
+#' independent L1 norm penalty, which is combined with the top level L2 penalty on a coefficient specific basis via
+#' the truncated gamma priors. 
+#'  
 #' Note only the Gaussian likelihood is 
 #' provided because the Bayesian elastic net requires conditioning on the error variance, which GLM-families
 #' do not have.
@@ -26,7 +27,7 @@
 #' @param warmup How many warmup samples? Defaults to 5000.
 #' @param adapt How many adaptation steps? Defaults to 5000.
 #' @param chains How many chains? Defaults to 4.
-#' @param thin Thinning interval. Defaults to 2.
+#' @param thin Thinning interval. Defaults to 3.
 #' @param method Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).
 #' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.
 #' @param ... Other arguments to run.jags.
@@ -35,6 +36,8 @@
 #' Ghosh, S. (2007) Adaptive Elastic Net: A Doubly Regularized method for variable selection to Achieve Oracle Properties. Tech. Rep. pr07-01, available at http://www.math.iupui.edu/research/preprints.php, IUPUI  \cr
 #' \cr
 #' Ghosh, S. (2011) On the grouped selection and model complexity of the adaptive elastic net. Statistics and Computing 21, no. 3, 451. https://doi.org/10.1007/s11222-010-9181-4 \cr
+#' \cr
+#' Kyung, M., Gill, J., Ghosh, M., and Casella, G. (2010). Penalized regression, standard errors, and bayesian lassos. Bayesian Analysis, 5(2):369–411. \cr
 #' \cr
 #' Li, Qing; Lin, Nan. (2010) The Bayesian elastic net. Bayesian Anal. 5, no. 1, 151--170. doi:10.1214/10-BA506. https://projecteuclid.org/euclid.ba/1340369796 \cr
 #' \cr
@@ -48,7 +51,7 @@
 #' @examples
 #' groupAdaEnet()
 #'
-groupAdaEnet  = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=5000, adapt=5000, chains=4, thin=2, method = "parallel", cl = makeCluster(2), ...){
+groupAdaEnet  = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=5000, adapt=5000, chains=4, thin=3, method = "parallel", cl = makeCluster(2), ...){
 
   jags_adaptive_elastic_net = "model{
 
@@ -56,15 +59,16 @@ groupAdaEnet  = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=5000, ad
               sigma <- sqrt(1/tau)
               
               Intercept ~ dnorm(0, 1e-10)
-
+              lambdaL2 ~ dgamma(.25, .01)
+              
               for (g in 1:nG){
-                  lambdaL2[g] ~ dgamma(.25, .01)
+                  lambdaL1[g] ~ dgamma(.25, .01)
               }
               
               for (p in 1:P){
-                lambdaL1[p] ~ dgamma(.25, .01)
-                eta[p] ~ dgamma(k[idx[p]] *.5, (8 * lambdaL2[idx[p]] * pow(sigma,2)) / pow(lambdaL1[p], 2)) T(1,)
-                beta_prec[p] <- (lambdaL2[idx[p]]/pow(sigma,2)) * (eta[p]/(eta[p]-1))
+          
+                eta[p] ~ dgamma(k[idx[p]] *.5, (8 * lambdaL2 * pow(sigma,2)) / pow(lambdaL1[idx[p]], 2)) T(1,)
+                beta_prec[p] <- (lambdaL2/pow(sigma,2)) * (eta[p]/(eta[p]-1))
                 beta[p] ~ dnorm(0, beta_prec[p])
               }
 
@@ -89,8 +93,8 @@ groupAdaEnet  = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=5000, ad
   inits <- lapply(1:chains, function(z) list("Intercept" = 0, 
                                              "beta" = rep(0, P), 
                                              "eta" = 1 + abs(jitter(rep(1, P), amount = .25)), 
-                                             "lambdaL1" = rep(5, P), 
-                                             "lambdaL2" = rep(15, max(idx)),  
+                                             "lambdaL1" = rep(2, max(idx)), 
+                                             "lambdaL2" = 3,  
                                              "tau" = 1,
                                              .RNG.name = "lecuyer::RngStream", 
                                              .RNG.seed = sample(1:1000, 1) 

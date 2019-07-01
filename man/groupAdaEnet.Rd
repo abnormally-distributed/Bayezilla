@@ -5,7 +5,7 @@
 \title{Group+Within Group Selection with Bayesian Adaptive Elastic Net}
 \usage{
 groupAdaEnet(X, y, idx, log_lik = FALSE, iter = 10000, warmup = 5000,
-  adapt = 5000, chains = 4, thin = 2, method = "parallel",
+  adapt = 5000, chains = 4, thin = 3, method = "parallel",
   cl = makeCluster(2), ...)
 }
 \arguments{
@@ -26,7 +26,7 @@ for each covariate. Please ensure that you start numbering with 1, and not 0.}
 
 \item{chains}{How many chains? Defaults to 4.}
 
-\item{thin}{Thinning interval. Defaults to 2.}
+\item{thin}{Thinning interval. Defaults to 3.}
 
 \item{method}{Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).}
 
@@ -40,9 +40,10 @@ A run.jags object
 \description{
 This is an adaptation of the frequentist adaptive elastic net of Ghosh (2007, 2011) and Zou & Zhang (2009) to the Bayesian paradigm through a modification of the Bayesian elastic
 net (Li & Lin, 2010). It is further adapted such that coefficients can be assigned groups in the 
-spirit of the Group LASSO (Yuan & Lin, 2006). Each group receives an independent
-L2 norm penalty, followed by coefficient specific L1 norm penalities. 
-
+spirit of the Group LASSO (Yuan & Lin, 2006) and Group Bayesian LASSO (Kyung et al., 2010). Each group receives an 
+independent L1 norm penalty, which is combined with the top level L2 penalty on a coefficient specific basis via
+the truncated gamma priors. 
+ 
 Note only the Gaussian likelihood is 
 provided because the Bayesian elastic net requires conditioning on the error variance, which GLM-families
 do not have.
@@ -63,6 +64,8 @@ groupAdaEnet()
 Ghosh, S. (2007) Adaptive Elastic Net: A Doubly Regularized method for variable selection to Achieve Oracle Properties. Tech. Rep. pr07-01, available at http://www.math.iupui.edu/research/preprints.php, IUPUI  \cr
 \cr
 Ghosh, S. (2011) On the grouped selection and model complexity of the adaptive elastic net. Statistics and Computing 21, no. 3, 451. https://doi.org/10.1007/s11222-010-9181-4 \cr
+\cr
+Kyung, M., Gill, J., Ghosh, M., and Casella, G. (2010). Penalized regression, standard errors, and bayesian lassos. Bayesian Analysis, 5(2):369–411. \cr
 \cr
 Li, Qing; Lin, Nan. (2010) The Bayesian elastic net. Bayesian Anal. 5, no. 1, 151--170. doi:10.1214/10-BA506. https://projecteuclid.org/euclid.ba/1340369796 \cr
 \cr

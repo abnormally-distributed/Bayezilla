@@ -6,7 +6,8 @@
 #' is a common need in research. \cr
 #' \cr
 #' Note only the Gaussian likelihood is provided because the Bayesian LASSO requires conditioning
-#' on the error variance, which GLM-families do not have. \cr
+#' on the error variance, which GLM-families do not have. If you need to use the LASSO for a poisson or binomial regression, I suggest taking 
+#' a look at \code{\link[Bayezilla]{extLASSODC}}\cr
 #' \cr
 #' Model Specification:
 #' \cr
@@ -42,7 +43,7 @@ blassoDC = function(formula, design.formula, data, log_lik = FALSE, iter=10000, 
   
   X = model.matrix(formula, data)[,-1]
   y = model.frame(formula, data)[,1]
-  FX <- model.matrix(design.formula, data)[, -1]
+  FX <- as.matrix(model.matrix(design.formula, data)[, -1])
   
   jags_blasso = "model{
   tau ~ dgamma(0.01, 0.01)
@@ -78,9 +79,9 @@ blassoDC = function(formula, design.formula, data, log_lik = FALSE, iter=10000, 
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
-  inits <- lapply(1:chains, function(z) list("Intercept" = lmSolve(formula, data)[1], 
+  inits <- lapply(1:chains, function(z) list("Intercept" = lmSolve(design.formula, data)[1], 
                                              "beta" = lmSolve(formula, data)[-1], 
-                                             "design_beta" = lmSolve(design.formula, data)[-1], 
+                                             "design_beta" =  lmSolve(design.formula, data)[-1], 
                                              "eta" = rep(1, P), 
                                              "lambda" = 2, 
                                              "tau" = 1, 

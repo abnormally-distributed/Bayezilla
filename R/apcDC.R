@@ -45,9 +45,9 @@
 apcDC = function(formula, design.formula, data, family = "gaussian", lambda = -1, log_lik = FALSE, iter=10000, warmup=1000, adapt=5000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...)
 {
   data <- as.data.frame(data)
-  FX <- model.matrix(design.formula, data)[, -1]
+  FX <- as.matrix(model.matrix(design.formula, data)[, -1])
   y <- as.numeric(model.frame(formula, data)[, 1])
-  X <- model.matrix(formula, data)[, -1]
+  X <- as.matrix(model.matrix(formula, data)[,-1])
   # Eigendecomposition
   cormat = cov2cor(fBasics::makePositiveDefinite(cor(X)))
   L = eigen(cormat)$vectors

@@ -49,9 +49,9 @@ groupEnet  = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=1000, adapt
 
               tau ~ dgamma(.01, .01)
               sigma <- sqrt(1/tau)
-              lambdaL1 ~ dgamma(.25, .01)
-              lambdaL2 ~ dgamma(.25, .01)
-
+              lambdaL1 ~ dgamma(.5, .01)
+              lambdaL2 ~ dgamma(.5, .01)
+              
               Intercept ~ dnorm(0, 1e-10)
 
               for (g in 1:nG){
@@ -82,7 +82,7 @@ groupEnet  = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=1000, adapt
   inits <- lapply(1:chains, function(z) list("Intercept" = 0, 
                                              "beta" = rep(0, P), 
                                              "eta" = 1 + abs(jitter(rep(1, max(idx)), amount = .25)), 
-                                             "lambdaL1" = 20, 
+                                             "lambdaL1" = 2, 
                                              "lambdaL2" = 5, 
                                              "tau" = 1,
                                              .RNG.name= "lecuyer::RngStream", 

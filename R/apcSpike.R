@@ -66,7 +66,7 @@ apcSpike = function(formula, data, lambda = -1, family = "gaussian",  log_lik = 
   
   data = as.data.frame(data)
   y <- as.numeric(model.frame(formula, data)[, 1])
-  X <- model.matrix(formula, data)[, -1]
+  X <- as.matrix(model.matrix(formula, data)[,-1])
   # Eigendecomposition
   cormat = cov2cor(fBasics::makePositiveDefinite(cor(X)))
   L = eigen(cormat)$vectors

@@ -40,7 +40,7 @@ A run.jags object
 This is an adaptation of the frequentist adaptive elastic net of Zou & Zhang (2009) to the Bayesian paradigm through a modification of the Bayesian elastic
 net (Li & Lin, 2010). This function has the further allowance for a set of covariates that are not penalized. 
 For example, you may wish to include variables such as age and gender so that  the coefficients for the other variables are 
-penalized while controlling for these. This is a common need in research. 
+penalized while controlling for these. This is a common need in research.
 
 Note only the Gaussian likelihood is 
 provided because the Bayesian elastic net requires conditioning on the error variance, which GLM-families
@@ -50,8 +50,8 @@ do not have.
 The model structure is given below: \cr
 \cr
 \cr
-\if{html}{\figure{adaElasticNet.png}{}}
-\if{latex}{\figure{adaElasticNet.png}{}}
+\if{html}{\figure{adaElasticNetDC.png}{}}
+\if{latex}{\figure{adaElasticNetDC.png}{}}
 \cr
 }
 \examples{

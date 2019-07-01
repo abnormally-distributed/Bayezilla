@@ -1,0 +1,47 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+out1 = blasso(prog ~ . , diabetes, iter = 6000, warmup = 2500, adapt = 4000, cl = makeCluster(4), method = "rjparallel")
+out2 = negLASSO(prog ~ . , diabetes, iter = 6000, warmup = 2500, adapt = 4000, cl = makeCluster(4), method = "rjparallel")
+out3 = adaLASSO(prog ~ . , diabetes, iter = 6000, warmup = 2500, adapt = 4000, cl = makeCluster(4), method = "rjparallel")
+out4 = extLASSO(prog ~ . , diabetes, iter = 6000, warmup = 2500, adapt = 4000, cl = makeCluster(4), method = "rjparallel", top_u = 100)
+out5 =  bayesEnet(prog ~ . , diabetes, iter = 6000, warmup = 2500, adapt = 4000, cl = makeCluster(4), method = "rjparallel")
+out6 = adaEnet(prog ~ . , diabetes, iter = 6000, warmup = 2500, adapt = 4000, cl = makeCluster(4), method = "rjparallel")
+out7 = gdp(prog ~ . , diabetes, iter = 6000, warmup = 2500, adapt = 4000, cl = makeCluster(4), method = "rjparallel")
+out8 = HS(prog ~ . , diabetes, iter = 6000, warmup = 2500, adapt = 4000, cl = makeCluster(4), method = "rjparallel")
+out9 = HSplus(prog ~ . , diabetes, iter = 6000, warmup = 2500, adapt = 4000, cl = makeCluster(4), method = "rjparallel")
+out10 = HSreg(prog ~ . , diabetes, iter = 6000, warmup = 2500, adapt = 4000, cl = makeCluster(4), method = "rjparallel")
+```
+
+Here are the posterior medians for the various continuous shrinkage models.
+
+```{r}
+estimates = data.frame(
+term = post_summary(out1, keeppars = c("Intercept", "beta"))$term, 
+BLASSO = post_summary(out1, keeppars = c("Intercept", "beta"))$median,
+negLASSO = post_summary(out2, keeppars = c("Intercept", "beta"))$median,
+adaLASSO = post_summary(out3, keeppars = c("Intercept", "beta"))$median,
+extLASSO = post_summary(out4, keeppars = c("Intercept", "beta"))$median,
+bENET = post_summary(out5, keeppars = c("Intercept", "beta"))$median,
+adaENET = post_summary(out6, keeppars = c("Intercept", "beta"))$median,
+GDP = post_summary(out7, keeppars = c("Intercept", "beta"))$median,
+HS = post_summary(out8, keeppars = c("Intercept", "beta"))$median,
+HSplus = post_summary(out9, keeppars = c("Intercept", "beta"))$median,
+HSreg = post_summary(out10, keeppars = c("Intercept", "beta"))$median)
+
+knitr::kable(estimates)
+```
+
+```{r}
+out11 = blassoDC(prog ~ . - sex, design.formula = ~ sex, data = diabetes, iter = 6000, warmup = 2500, adapt = 4000, cl = makeCluster(4), method = "rjparallel")
+out12 = bayesEnetDC(prog ~ . - sex, design.formula = ~ sex, data = diabetes, iter = 6000, warmup = 2500, adapt = 4000, cl = makeCluster(4), method = "rjparallel")
+out13 = adaEnetDC(prog ~ . - sex, design.formula = ~ sex, data = diabetes, iter = 6000, warmup = 2500, adapt = 4000, cl = makeCluster(4), method = "rjparallel")
+```
+
+
+$$
+\hat{y} = \mathcal{Intercept} + \sum_{n = 1}^i \beta_i X_i + \sum_{n = 1}^d \beta^D_d X^D_d
+$$

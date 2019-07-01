@@ -3,7 +3,6 @@
 #' @description This is an adaptation of the frequentist adaptive elastic net of Ghosh (2007, 2011) and Zou & Zhang (2009) to the Bayesian paradigm through a modification of the Bayesian elastic
 #' net (Li & Lin, 2010). 
 #' 
-#' 
 #' Note only the Gaussian likelihood is 
 #' provided because the Bayesian elastic net requires conditioning on the error variance, which GLM-families
 #' do not have.
@@ -45,7 +44,7 @@
 #'
 adaEnet  = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
   
-  X = model.matrix(formula, data)[,-1]
+  X = as.matrix(model.matrix(formula, data)[,-1])
   y = model.frame(formula, data)[,1]
   
   jags_adaptive_elastic_net = "model{

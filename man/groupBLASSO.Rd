@@ -42,7 +42,8 @@ Group selection was introduced in the group LASSO by Yuan and Lin (2006) in
 the context of the classical "frequentist" LASSO. The concept is adapted here to the Bayesian LASSO 
 following the example of Kyung et al. (2010). Note only the Gaussian likelihood
 is provided because the Bayesian LASSO requires conditioning on the error variance, which GLM-families
-do not have. \cr
+do not have. \cr If you need to use the LASSO for a poisson or binomial regression, I suggest taking 
+a look at \code{\link[Bayezilla]{groupExtLASSO}}
 }
 \details{
 \cr

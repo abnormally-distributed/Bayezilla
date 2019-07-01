@@ -3,7 +3,7 @@
 #' @description This is an adaptation of the frequentist adaptive elastic net of Zou & Zhang (2009) to the Bayesian paradigm through a modification of the Bayesian elastic
 #' net (Li & Lin, 2010). This function has the further allowance for a set of covariates that are not penalized. 
 #' For example, you may wish to include variables such as age and gender so that  the coefficients for the other variables are 
-#' penalized while controlling for these. This is a common need in research. 
+#' penalized while controlling for these. This is a common need in research.
 #' 
 #' Note only the Gaussian likelihood is 
 #' provided because the Bayesian elastic net requires conditioning on the error variance, which GLM-families
@@ -13,8 +13,8 @@
 #' The model structure is given below: \cr
 #' \cr
 #' \cr
-#' \if{html}{\figure{adaElasticNet.png}{}}
-#' \if{latex}{\figure{adaElasticNet.png}{}}
+#' \if{html}{\figure{adaElasticNetDC.png}{}}
+#' \if{latex}{\figure{adaElasticNetDC.png}{}}
 #' \cr
 #'
 #' @param formula the model formula
@@ -43,18 +43,18 @@
 #'
 adaEnetDC  = function(formula, design.formula, data, log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
   
-  X = model.matrix(formula, data)[,-1]
+  X = as.matrix(model.matrix(formula, data)[,-1])
   y = model.frame(formula, data)[,1]
-  FX <- model.matrix(design.formula, data)[, -1]
+  FX <- as.matrix(model.matrix(design.formula, data)[, -1])
   jags_adaptive_elastic_net = "model{
 
               tau ~ dgamma(.01, .01)
               sigma <- sqrt(1/tau)
-              lambdaL2 ~ dgamma(0.5 , 0.001)
+              lambdaL2 ~ dgamma(0.125 , 0.01)
               Intercept ~ dnorm(0, 1e-10)
 
               for (p in 1:P){
-                lambdaL1[p] ~ dgamma(0.5 , 0.001)
+                lambdaL1[p] ~ dgamma(0.125 , 0.01)
                 eta[p] ~ dgamma(.5, (8 * lambdaL2 * pow(sigma,2)) / pow(lambdaL1[p], 2)) T(1,)
                 beta_prec[p] <- (lambdaL2/pow(sigma,2)) * (eta[p]/(eta[p]-1))
                 beta[p] ~ dnorm(0, beta_prec[p])

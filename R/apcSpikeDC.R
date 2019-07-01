@@ -64,8 +64,8 @@ apcSpikeDC = function(formula, design.formula, data, family = "gaussian", lambda
   
   data <- as.data.frame(data)
   y <- as.numeric(model.frame(formula, data)[, 1])
-  X <- model.matrix(formula, data)[, -1]
-  FX <- model.matrix(design.formula, data)[, -1]
+  X <- as.matrix(model.matrix(formula, data)[,-1])
+  FX <- as.matrix(model.matrix(design.formula, data)[, -1])
   # Eigendecomposition
   cormat = cov2cor(fBasics::makePositiveDefinite(cor(X)))
   L = eigen(cormat)$vectors
@@ -150,7 +150,7 @@ apcSpikeDC = function(formula, design.formula, data, family = "gaussian", lambda
               
               omega <- inverse(cov) 
               
-              Intercept ~ dlogis(0, 1)
+              Intercept ~ dnorm(0, 1e-10)
               
               theta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
               for (i in 1:P){

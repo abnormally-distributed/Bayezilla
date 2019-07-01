@@ -45,7 +45,8 @@ the coefficients for the other variables are penalized while controlling for the
 is a common need in research. \cr
 \cr
 Note only the Gaussian likelihood is provided because the Bayesian LASSO requires conditioning
-on the error variance, which GLM-families do not have. \cr
+on the error variance, which GLM-families do not have. If you need to use the LASSO for a poisson or binomial regression, I suggest taking 
+a look at \code{\link[Bayezilla]{extLASSODC}}\cr
 \cr
 Model Specification:
 \cr

@@ -39,7 +39,7 @@ bayesEnetDC  = function(formula, design.formula, data, log_lik = FALSE, iter=100
   
   X = model.matrix(formula, data)[,-1]
   y = model.frame(formula, data)[,1]
-  FX <- model.matrix(design.formula, data)[, -1]
+  FX <- as.matrix(model.matrix(design.formula, data)[, -1])
   jags_elastic_net = "model{
 
               tau ~ dgamma(.01, .01)
@@ -69,6 +69,7 @@ bayesEnetDC  = function(formula, design.formula, data, log_lik = FALSE, iter=100
           }"
   
   P <- ncol(X)
+  FP <- ncol(FX)
   write_lines(jags_elastic_net, "jags_elastic_net.txt")
   jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), FP = FP, FX = FX)
   monitor <- c("Intercept", "beta", "design_beta", "sigma", "lambdaL1", "lambdaL2", "Deviance", "eta", "ySim", "log_lik")

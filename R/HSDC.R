@@ -43,7 +43,7 @@ HSDC = function(formula, design.formula, data, log_lik = FALSE, iter = 4000, war
   
   X = model.matrix(formula, data)[,-1]
   y = model.frame(formula, data)[,1]
-  FX <- model.matrix(design.formula, data)[, -1]
+  FX <- as.matrix(model.matrix(design.formula, data)[, -1])
   
 horseshoe = 
 

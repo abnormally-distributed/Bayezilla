@@ -1,8 +1,11 @@
-#' Generalized double pareto shrinkage prior
+#' Generalized double pareto shrinkage prior with unpenalized design covariates
 #'
 #' @description The generalized double pareto shrinkage prior of Armagan, Dunson, & Lee (2013). Note only the Gaussian 
 #' likelihood is provided because the model requires conditioning on the error variance, which GLM-families
-#' do not have. \cr
+#' do not have. This variant grants the allowance for a set of covariates that are not penalized. 
+#' For example, you may wish to include variables such as age and gender in all models so that 
+#' the coefficients for the other variables are penalized while controlling for these. This
+#' is a common need in research. \cr\cr
 #' \cr
 #' This model is parameterized extremely similarly to the Bayesian LASSO of Park & Casella (2008), Normal-Exponential-Gamma prior of
 #' Griffin, J. E. and Brown, P. J. (2011), and adaptive Bayesian LASSO of Leng, Tran and David Nott (2018).
@@ -40,8 +43,8 @@
 #' Model Specification:
 #' \cr
 #' \cr
-#' \if{html}{\figure{gdp.png}{}}
-#' \if{latex}{\figure{gdp.png}{}}
+#' \if{html}{\figure{gdpDC.png}{}}
+#' \if{latex}{\figure{gdpDC.png}{}}
 #' \cr
 #' \cr
 #' The marginal probability density function for the coefficients is of the form \cr
@@ -54,6 +57,7 @@
 #' \cr 
 #'
 #' @param formula the model formula
+#' @param design.formula formula for the design covariates.
 #' @param data a data frame.
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 10000.
@@ -70,22 +74,15 @@
 #' @return
 #' a runjags object
 #' @export
-#' 
-#' @seealso 
-#' \code{\link[Bayezilla]{adaLASSO}}
-#' \code{\link[Bayezilla]{negLASSO}} 
-#' \code{\link[Bayezilla]{extLASSO}} 
-#' \code{\link[Bayezilla]{HS}}
-#' \code{\link[Bayezilla]{HSplus}}
-#' \code{\link[Bayezilla]{HSreg}}
 #'
 #' @examples
-#' gdp()
+#' gdpDC()
 #' 
-gdp = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
+gdpDC = function(formula, design.formula, data, log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
   
   X = model.matrix(formula, data)[,-1]
   y = model.frame(formula, data)[,1]
+  FX <- as.matrix(model.matrix(design.formula, data)[, -1])
   
   jags_gdp = "model{
   
@@ -102,10 +99,14 @@ gdp = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, adapt=20
   
   Intercept ~ dnorm(0, 1e-10)
   
+  for (f in 1:FP){
+    design_beta[f] ~ dnorm(0, 1e-200)
+  }
+  
   for (i in 1:N){
-    y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
-    log_lik[i] <- logdensity.norm(y[i], Intercept + sum(beta[1:P] * X[i,1:P]), tau)
-    ySim[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
+    y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]) + sum(design_beta[1:FP] * FX[i,1:FP]), tau)
+    log_lik[i] <- logdensity.norm(y[i], Intercept + sum(beta[1:P] * X[i,1:P]) + sum(design_beta[1:FP] * FX[i,1:FP]), tau)
+    ySim[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]) + sum(design_beta[1:FP] * FX[i,1:FP]), tau)
   }
   
   sigma <- sqrt(1/tau)
@@ -113,14 +114,16 @@ gdp = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, adapt=20
 }"
   
   P <- ncol(X)
+  FP <- ncol(FX)
   write_lines(jags_gdp, "jags_gdp.txt")
-  jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X))
-  monitor <- c("Intercept", "beta", "sigma", "Deviance", "alpha", "zeta", "lambda", "eta", "ySim", "log_lik")
+  jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), FP = FP, FX = FX)
+  monitor <- c("Intercept", "beta", "design_beta", "sigma", "Deviance", "alpha", "zeta", "lambda", "eta", "ySim", "log_lik")
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
   inits <- lapply(1:chains, function(z) list("Intercept" = lmSolve(formula, data)[1], 
                                              "beta" = lmSolve(formula, data)[-1], 
+                                             "design_beta" = lmSolve(design.formula, data)[-1], 
                                              "alpha" = 1, 
                                              "zeta" = 1, 
                                              "eta" = rep(1, P), 

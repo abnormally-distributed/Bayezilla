@@ -36,12 +36,21 @@ A run.jags object
 }
 \description{
 Just a modification of the \code{\link[Bayezilla]{glmFlat}} 
-function to model heteroskedasticity. If the variance of the response variable
+function to model heteroskedasticity. Since each
+variable is represented by both a coefficient and sigma-coefficient the 
+number of parameters is doubled and hence can be more computationally 
+difficult. Hence, this uses weakly informative
+priors, and assumes that your data are standardized. The priors are not
+informative enough to bias the inferences in any appreciable amount, so
+long as the data are standardized, but stabilize the sampling. 
+
+
+If the variance of the response variable
 increases or decreases as a function of the predictor variable(s) then use this
-function.
+function. Only applies to Gaussian likelihoods.
 
 \cr
-Model Specification:
+Model Specification: \cr
 \cr
 \if{html}{\figure{hetLm.png}{}}
 \if{latex}{\figure{hetLm.png}{}}

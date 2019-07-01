@@ -52,7 +52,7 @@ marginal posterior ditributions. \cr
 
 Standard gaussian, binomial, and poisson likelihood functions are available. \cr
 \cr
-Model Specification:
+Model Specification:\cr
 \cr
 \if{html}{\figure{flat.png}{}}
 \if{latex}{\figure{flat.png}{}}

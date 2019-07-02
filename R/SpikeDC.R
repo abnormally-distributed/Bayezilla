@@ -101,7 +101,7 @@ SpikeDC <- function(formula, design.formula, data, family = "gaussian", log_lik 
     if (log_lik == FALSE) {
       monitor <- monitor[-(length(monitor))]
     }
-    inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name = "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1),   "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = jitter(rep(0, P), amount = .25), "design_beta" = jitter(rep(0, FP), amount = .25), "tau" = 1))
+    inits <- lapply(1:chains, function(z) list("Intercept" = lmSolve(formula, data)[1], .RNG.name = "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1),   "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = lmSolve(formula, data)[-1], "design_beta" = lmSolve(design.formula, data)[-1], "tau" = 1))
     out <- run.jags(model = "jags_glm_spike.txt", modules = c("glm on", "bugs on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl,summarise = FALSE, ...)
     file.remove("jags_glm_spike.txt")
     if (!is.null(cl)) {
@@ -115,7 +115,7 @@ SpikeDC <- function(formula, design.formula, data, family = "gaussian", log_lik 
               phi ~ dbeta(1, 1) 
               
               for (p in 1:P){
-                theta[p] ~ dlogis(0, 0.01)
+                theta[p] ~ dnorm(0, 1e-200)
                 delta[p] ~ dbern(phi)
                 beta[p] <- delta[p] * theta[p]
               }
@@ -142,7 +142,7 @@ SpikeDC <- function(formula, design.formula, data, family = "gaussian", log_lik 
     if (log_lik == FALSE) {
       monitor <- monitor[-(length(monitor))]
     }
-    inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name = "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1),   "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = jitter(rep(0, P), amount = .25), "design_beta" = jitter(rep(0, FP), amount = .25)))
+    inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(design.formula, data, family = "binomial")))[1], .RNG.name = "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1),   "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = as.vector(coef(glm(formula, data, family = "binomial")))[-1], "design_beta" = as.vector(coef(glm(design.formula, data, family = "binomial")))[-1]))
     out <- run.jags(model = "jags_glm_spike.txt", modules = c("glm on", "bugs on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)
     file.remove("jags_glm_spike.txt")
     if (!is.null(cl)) {
@@ -184,7 +184,7 @@ SpikeDC <- function(formula, design.formula, data, family = "gaussian", log_lik 
     if (log_lik == FALSE) {
       monitor <- monitor[-(length(monitor))]
     }
-    inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name = "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1),   "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = jitter(rep(0, P), amount = .25), "design_beta" = jitter(rep(0, FP), amount = .25)))
+    inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "poisson")))[1], .RNG.name = "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1),   "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = as.vector(coef(glm(formula, data, family = "poisson")))[-1], "design_beta" = as.vector(coef(glm(design.formula, data, family = "poisson")))[-1]))
     out <- run.jags(model = "jags_glm_spike.txt", modules = c("glm on", "bugs on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
     file.remove("jags_glm_spike.txt")
     if (!is.null(cl)) {

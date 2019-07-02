@@ -132,7 +132,7 @@ apcSpikeDC = function(formula, design.formula, data, family = "gaussian", lambda
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept"= as.vector(coef(lm(formula, data)))[1], "design_beta" = rep(0, FP), "phi" = .2 , "delta" = rep(0, P), "theta" = lmSolve(formula, data)[-1], "tau" = 1, "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1)))
+    inits = lapply(1:chains, function(z) list("Intercept"= as.vector(coef(lm(formula, data)))[1], "design_beta" = as.vector(coef(lm(design.formula, data)))[-1], "phi" = .2 , "delta" = rep(0, P), "theta" = lmSolve(formula, data)[-1], "tau" = 1, "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1)))
   }
   
   if (family == "binomial" || family == "logistic"){

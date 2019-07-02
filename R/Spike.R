@@ -86,11 +86,11 @@ Spike <- function(formula, data, family = "gaussian", log_lik = FALSE, iter = 10
     P <- ncol(X)
     write_lines(jags_glm_spike, "jags_glm_spike.txt")
     jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X))
-    monitor <- c("Intercept", "beta", "sigma", "phi", "BIC", "Deviance",  "delta", "theta" ,"ySim", "log_lik")
+    monitor <- c("Intercept", "beta", "sigma", "BIC", "Deviance", "phi", "delta", "theta" ,"ySim", "log_lik")
     if (log_lik == FALSE) {
       monitor <- monitor[-(length(monitor))]
     }
-    inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name = "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1),   "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = jitter(rep(0, P), amount = .25), "tau" = 1))
+    inits <- lapply(1:chains, function(z) list("Intercept" = lmSolve(formula, data)[1], .RNG.name = "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1),   "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = lmSolve(formula, data)[-1], "tau" = 1))
     out <- run.jags(model = "jags_glm_spike.txt", modules = c("glm on", "bugs on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl,summarise = FALSE, ...)
     return(out)
   }
@@ -121,11 +121,11 @@ Spike <- function(formula, data, family = "gaussian", log_lik = FALSE, iter = 10
     write_lines(jags_glm_spike, "jags_glm_spike.txt")
     y <- as.numeric(as.factor(y)) - 1
     jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X))
-    monitor <- c("Intercept", "beta", "phi", "BIC", "Deviance", "delta",  "theta" , "ySim", "log_lik")
+    monitor <- c("Intercept", "beta", "BIC", "Deviance", "phi",  "delta",  "theta" , "ySim", "log_lik")
     if (log_lik == FALSE) {
       monitor <- monitor[-(length(monitor))]
     }
-    inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name = "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1),   "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = jitter(rep(0, P), amount = .25)))
+    inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "binomial")))[1], .RNG.name = "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1), "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = as.vector(coef(glm(formula, data, family = "binomial")))[-1]))
     out <- run.jags(model = "jags_glm_spike.txt", modules = c("glm on", "bugs on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)
     return(out)
   }
@@ -155,11 +155,11 @@ Spike <- function(formula, data, family = "gaussian", log_lik = FALSE, iter = 10
     write_lines(jags_glm_spike, "jags_glm_spike.txt")
     P <- ncol(X)
     jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X))
-    monitor <- c("Intercept", "beta", "phi", "BIC", "Deviance", "delta",  "theta" , "ySim", "log_lik")
+    monitor <- c("Intercept", "beta", "BIC", "Deviance", "phi", "delta",  "theta" , "ySim", "log_lik")
     if (log_lik == FALSE) {
       monitor <- monitor[-(length(monitor))]
     }
-    inits <- lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name = "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1), "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = jitter(rep(0, P), amount = .25)))
+    inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "poisson")))[1], .RNG.name = "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1), "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = as.vector(coef(glm(formula, data, family = "poisson")))[-1]))
     out <- run.jags(model = "jags_glm_spike.txt", modules = c("glm on", "bugs on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
     file.remove("jags_glm_spike.txt")
     if (!is.null(cl)) {

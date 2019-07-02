@@ -67,7 +67,5 @@ The model structure is given below: \cr
 \examples{
 glmBayes()
 
-}
-\seealso{
-\code{\link[Bayezilla]{apcGlm}}
+
 }

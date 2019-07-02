@@ -46,7 +46,6 @@
 #' @examples
 #' glmBayes()
 #'
-#' @seealso \code{\link[Bayezilla]{apcGlm}}
 #' 
 glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
 
@@ -57,8 +56,8 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
   if (family == "gaussian"){
 
     jags_glm = "model{
-              tau ~ dgamma(.01, .01) T(1, )
-              df ~ dgamma(.01, .01) 
+              tau ~ dgamma(.01, .01) 
+              df ~ dgamma(.36, .12) 
               omega ~ dgamma(.5 * df, .5 * df)
 
               for (p in 1:P){
@@ -97,7 +96,7 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
 
     jags_glm = "model{
 
-              df ~ dgamma(.01, .01) T(1, )
+              df ~ dgamma(.36, .12) 
               omega ~ dgamma(.5 * df,  .5 * df) 
 
               for (p in 1:P){
@@ -135,7 +134,7 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
 
     jags_glm = "model{
 
-              df ~ dgamma(.01, .01) T(1, )
+              df ~ dgamma(.36, .12) 
               omega ~ dgamma(.5 * df,  .5 * df)
 
               for (p in 1:P){

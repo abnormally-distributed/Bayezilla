@@ -16,12 +16,17 @@
 #' \cr
 #' \cr
 #' The model specification is given below. Note that the model formulae have been adjusted to reflect the fact that JAGS
-#' parameterizes the normal and multivariate normal distributions by their precision, rater than (co)variance. 
+#' parameterizes the normal and multivariate normal distributions by their precision, rater than (co)variance. For generalized linear models plug-in pseudovariances are used. 
 #' \cr
 #' \cr
 #' \if{html}{\figure{apc.png}{}}
 #' \if{latex}{\figure{apc.png}{}}
 #' \cr
+#' \cr
+#' Plugin Pseudo-Variances: \cr
+#' \if{html}{\figure{pseudovar.png}{}}
+#' \if{latex}{\figure{pseudovar.png}{}}
+#'
 #' @references 
 #' Zellner, A. & Siow S. (1980). Posterior odds ratio for selected regression hypotheses. In Bayesian statistics. Proc. 1st int. meeting (eds J. M. Bernardo, M. H. DeGroot, D. V. Lindley & A. F. M. Smith), 585–603. University Press, Valencia. \cr 
 #' \cr
@@ -120,7 +125,7 @@ apcGlm = function(formula, data, family = "gaussian", lambda = -1, log_lik = FAL
               
               for (j in 1:P){
                 for (k in 1:P){
-                  cov[j,k] = g * 1.0 * prior_cov[j,k]
+                  cov[j,k] = g * sigma2 * prior_cov[j,k]
                 }
               }
               
@@ -138,7 +143,7 @@ apcGlm = function(formula, data, family = "gaussian", lambda = -1, log_lik = FAL
     
     P = ncol(X)
     write_lines(jags_apc, "jags_apc.txt")
-    jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), prior_cov = prior_cov)
+    jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), prior_cov = prior_cov, sigma2 = pow(mean(y), -1) * pow(1 - mean(y), -1), prior_cov = XtXinv(X))
     monitor = c("Intercept", "beta", "g", "Deviance", "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
@@ -155,7 +160,7 @@ apcGlm = function(formula, data, family = "gaussian", lambda = -1, log_lik = FAL
               
               for (j in 1:P){
                 for (k in 1:P){
-                  cov[j,k] = g * 1.0 * prior_cov[j,k]
+                  cov[j,k] = g * sigma2 * prior_cov[j,k]
                 }
               }
               omega <- inverse(cov) 
@@ -172,7 +177,7 @@ apcGlm = function(formula, data, family = "gaussian", lambda = -1, log_lik = FAL
     
     write_lines(jags_apc, "jags_apc.txt")
     P = ncol(X)
-    jagsdata = list(X = X, y = y, N = length(y),  P = ncol(X), prior_cov = prior_cov)
+    jagsdata = list(X = X, y = y, N = length(y),  P = ncol(X), prior_cov = prior_cov, sigma2 = pow(mean(y) , -1))
     monitor = c("Intercept", "beta", "g", "Deviance", "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]

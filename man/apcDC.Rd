@@ -58,8 +58,15 @@ to -1 is just the Zellner-Siow cauchy g-prior. This is designed to deal with col
 by allowing the analyst to use model comparison techniques to choose an optimal value of lambda, and then using the best model for inference.
 Note, however, that this prior is designed to deal with collinearity but not necessarily P > N scenarios. For that you may wish to take a look
 at the \code{\link[Bayezilla]{glmBayes}} function, which does not utilize the crossproduct matrix in setting prior scales (rather they are
-fully estimated in the model). 
+fully estimated in the model). For generalized linear models plug-in pseudovariances are used.
 \cr
+\if{html}{\figure{apcDC.png}{}}
+\if{latex}{\figure{apcDC.png}{}}
+\cr
+\cr
+Plugin Pseudo-Variances: \cr
+\if{html}{\figure{pseudovar.png}{}}
+\if{latex}{\figure{pseudovar.png}{}}
 }
 \examples{
 apcDC()

@@ -66,12 +66,17 @@ An analysts beliefs about which type of selection is preferred, or the goals of 
 \cr
 \cr
 The probability that a coefficient comes from the null-spike is controlled by a hyperparameter "phi" which estimates the overall probability of inclusion, i.e., the proportion of the P-number of predictors that are non-zero. 
-This hyperparameter is given a uniform beta(1, 1) prior which is non-informative and objective.
+This hyperparameter is given a uniform beta(1, 1) prior which is non-informative and objective. For generalized linear models plug-in pseudovariances are used.
 \cr
 Model Specification:
 \cr
 \if{html}{\figure{apcSpikeDC.png}{}}
 \if{latex}{\figure{apcSpikeDC.png}{}}
+\cr
+\cr
+Plugin Pseudo-Variances: \cr
+\if{html}{\figure{pseudovar.png}{}}
+\if{latex}{\figure{pseudovar.png}{}}
 }
 \examples{
 apcSpikeDC()

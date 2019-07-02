@@ -15,8 +15,17 @@
 #' by allowing the analyst to use model comparison techniques to choose an optimal value of lambda, and then using the best model for inference.
 #' Note, however, that this prior is designed to deal with collinearity but not necessarily P > N scenarios. For that you may wish to take a look
 #' at the \code{\link[Bayezilla]{glmBayes}} function, which does not utilize the crossproduct matrix in setting prior scales (rather they are
-#' fully estimated in the model). 
+#' fully estimated in the model). For generalized linear models plug-in pseudovariances are used.
 #' \cr
+#' \if{html}{\figure{apcDC.png}{}}
+#' \if{latex}{\figure{apcDC.png}{}}
+#' \cr
+#' \cr
+#' Plugin Pseudo-Variances: \cr
+#' \if{html}{\figure{pseudovar.png}{}}
+#' \if{latex}{\figure{pseudovar.png}{}}
+#'
+#' 
 #' @references Krishna, A., Bondell, H. D., & Ghosh, S. K. (2009). Bayesian variable selection using an adaptive powered correlation prior. Journal of statistical planning and inference, 139(8), 2665–2674. doi:10.1016/j.jspi.2008.12.004
 #' 
 #' @param formula the model formula
@@ -119,7 +128,7 @@ apcDC = function(formula, design.formula, data, family = "gaussian", lambda = -1
               
               for (j in 1:P){
                 for (k in 1:P){
-                  cov[j,k] = g * 1.0 * prior_cov[j,k]
+                  cov[j,k] = g * sigma2 * prior_cov[j,k]
                 }
               }
               
@@ -143,7 +152,7 @@ apcDC = function(formula, design.formula, data, family = "gaussian", lambda = -1
     write_lines(jags_apc, "jags_apc.txt")
     P = ncol(X)
     FP <- ncol(FX)
-    jagsdata = list(X = X, y = y, N = length(y),  P = ncol(X), prior_cov = prior_cov, FP = FP, FX = FX)
+    jagsdata = list(X = X, y = y, N = length(y),  P = ncol(X), prior_cov = prior_cov, FP = FP, FX = FX, sigma2 = pow(mean(y), -1) * pow(1 - mean(y), -1))
     monitor = c("Intercept", "beta", "design_beta", "g", "Deviance", "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
@@ -161,7 +170,7 @@ apcDC = function(formula, design.formula, data, family = "gaussian", lambda = -1
               
               for (j in 1:P){
                 for (k in 1:P){
-                  cov[j,k] = g * 1.0 * prior_cov[j,k]
+                  cov[j,k] = g * sigma2 * prior_cov[j,k]
                 }
               }
 
@@ -187,7 +196,7 @@ apcDC = function(formula, design.formula, data, family = "gaussian", lambda = -1
     write_lines(jags_apc, "jags_apc.txt")
     P = ncol(X)
     FP <- ncol(FX)
-    jagsdata = list(X = X, y = y, N = length(y),  P = ncol(X), prior_cov = prior_cov, FP = FP, FX = FX)
+    jagsdata = list(X = X, y = y, N = length(y),  P = ncol(X), prior_cov = prior_cov, FP = FP, FX = FX, sigma2 = pow(mean(y) , -1))
     monitor = c("Intercept", "beta", "design_beta", "g", "Deviance", "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]

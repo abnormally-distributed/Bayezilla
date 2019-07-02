@@ -66,13 +66,18 @@ Note, however, that this prior is designed to deal with collinearity but not nec
 at the \code{\link[Bayezilla]{extLASSO}} or \code{\link[Bayezilla]{bayesEnet}} functions. 
 \cr
 The model specification is given below. Note that the model formulae have been adjusted to reflect the fact that JAGS
-parameterizes the normal and multivariate normal distributions by their precision, rater than (co)variance. 
+parameterizes the normal and multivariate normal distributions by their precision, rater than (co)variance. For generalized linear models plug-in pseudovariances are used.
 \cr
 Model Specification:
 \cr
 \cr
 \if{html}{\figure{apcSpike.png}{}}
 \if{latex}{\figure{apcSpike.png}{}}
+\cr
+\cr
+Plugin Pseudo-Variances: \cr
+\if{html}{\figure{pseudovar.png}{}}
+\if{latex}{\figure{pseudovar.png}{}}
 }
 \examples{
 apcSpike()

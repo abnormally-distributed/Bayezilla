@@ -5,7 +5,9 @@
 #' following the example of Kyung et al. (2010). Note only the Gaussian likelihood
 #' is provided because the Bayesian LASSO requires conditioning on the error variance, which GLM-families
 #' do not have. \cr If you need to use the LASSO for a poisson or binomial regression, I suggest taking 
-#' a look at \code{\link[Bayezilla]{groupExtLASSO}}
+#' a look at \code{\link[Bayezilla]{groupExtLASSO}}. Alternatively, utilizing \code{\link[Bayezilla]{groupBridge}} with kappa = 1
+#' yields the New Group Bayesian LASSO, which is a re-parameterization of the Group Bayesian LASSO utilizing a scale mixture of
+#' uniform distributions to obtain the Laplacian priors (Mallick & Yi, 2014).  \cr
 #'
 #' \cr
 #' Model Specification:
@@ -33,19 +35,13 @@
 #' \cr
 #' Park, T., & Casella, G. (2008). The Bayesian Lasso. Journal of the American Statistical Association, 103(482), 681-686. Retrieved from http://www.jstor.org/stable/27640090 \cr
 #' \cr
-#' Kyung, M., Gill, J., Ghosh, M., and Casella, G. (2010). Penalized regression, standard errors, and bayesian lassos. Bayesian Analysis, 5(2):369–411.
+#' Kyung, M., Gill, J., Ghosh, M., and Casella, G. (2010). Penalized regression, standard errors, and bayesian lassos. Bayesian Analysis, 5(2):369–411. \cr
+#' \cr
+#' Mallick, H., & Yi, N. (2014). A New Bayesian Lasso. Statistics and its interface, 7(4), 571–582. doi:10.4310/SII.2014.v7.n4.a12 \cr
 #' 
 #' @return
 #' a runjags object
 #' 
-#' @seealso 
-#' \code{\link[Bayezilla]{blassoDC}} 
-#' \code{\link[Bayezilla]{adaLASSO}}
-#' \code{\link[Bayezilla]{negLASSO}} 
-#' \code{\link[Bayezilla]{blasso}}
-#' \code{\link[Bayezilla]{HS}}
-#' \code{\link[Bayezilla]{HSplus}}
-#' \code{\link[Bayezilla]{HSreg}}
 #'
 #' @examples
 #' groupBLASSO()

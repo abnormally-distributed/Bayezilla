@@ -57,12 +57,16 @@ fully estimated in the model).
 \cr
 \cr
 The model specification is given below. Note that the model formulae have been adjusted to reflect the fact that JAGS
-parameterizes the normal and multivariate normal distributions by their precision, rater than (co)variance. 
+parameterizes the normal and multivariate normal distributions by their precision, rater than (co)variance. For generalized linear models plug-in pseudovariances are used. 
 \cr
 \cr
 \if{html}{\figure{apc.png}{}}
 \if{latex}{\figure{apc.png}{}}
 \cr
+\cr
+Plugin Pseudo-Variances: \cr
+\if{html}{\figure{pseudovar.png}{}}
+\if{latex}{\figure{pseudovar.png}{}}
 }
 \examples{
 apcGlm()

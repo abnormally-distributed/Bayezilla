@@ -22,12 +22,19 @@
 #' \cr
 #' \cr
 #' The probability that a coefficient comes from the null-spike is controlled by a hyperparameter "phi" which estimates the overall probability of inclusion, i.e., the proportion of the P-number of predictors that are non-zero. 
-#' This hyperparameter is given a uniform beta(1, 1) prior which is non-informative and objective.
+#' This hyperparameter is given a uniform beta(1, 1) prior which is non-informative and objective. For generalized linear models plug-in pseudovariances are used.
 #' \cr
 #' Model Specification:
 #' \cr
 #' \if{html}{\figure{apcSpikeDC.png}{}}
 #' \if{latex}{\figure{apcSpikeDC.png}{}}
+#' \cr
+#' \cr
+#' Plugin Pseudo-Variances: \cr
+#' \if{html}{\figure{pseudovar.png}{}}
+#' \if{latex}{\figure{pseudovar.png}{}}
+#' 
+#' 
 #' @references 
 #' Krishna, A., Bondell, H. D., & Ghosh, S. K. (2009). Bayesian variable selection using an adaptive powered correlation prior. Journal of statistical planning and inference, 139(8), 2665–2674. doi:10.1016/j.jspi.2008.12.004 \cr
 #' \cr
@@ -145,7 +152,7 @@ apcSpikeDC = function(formula, design.formula, data, family = "gaussian", lambda
               
               for (j in 1:P){
                 for (k in 1:P){
-                  cov[j,k] = g * 1.0 * prior_cov[j,k]
+                  cov[j,k] = g * sigma2 * prior_cov[j,k]
                 }
               }
               
@@ -178,7 +185,7 @@ apcSpikeDC = function(formula, design.formula, data, family = "gaussian", lambda
     P = ncol(X)
     FP <- ncol(FX)
     write_lines(jags_apc, "jags_apc.txt")
-    jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), prior_cov = prior_cov, FP = FP, FX = FX)
+    jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), prior_cov = prior_cov, FP = FP, FX = FX, sigma2 = pow(mean(y), -1) * pow(1 - mean(y), -1))
     monitor = c("Intercept", "beta", "design_beta",  "g", "BIC", "Deviance", "phi", "delta","ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
@@ -197,7 +204,7 @@ apcSpikeDC = function(formula, design.formula, data, family = "gaussian", lambda
               
               for (j in 1:P){
                 for (k in 1:P){
-                  cov[j,k] = g * 1.0 * prior_cov[j,k]
+                  cov[j,k] = g * sigma2 * prior_cov[j,k]
                 }
               }
               
@@ -230,7 +237,7 @@ apcSpikeDC = function(formula, design.formula, data, family = "gaussian", lambda
     write_lines(jags_apc, "jags_apc.txt")
     P = ncol(X)
     FP <- ncol(FX)
-    jagsdata = list(X = X, y = y, N = length(y),  P = ncol(X), prior_cov = prior_cov, FP = FP, FX = FX)
+    jagsdata = list(X = X, y = y, N = length(y),  P = ncol(X), prior_cov = prior_cov, FP = FP, FX = FX, sigma2 = pow(mean(y) , -1))
     monitor = c("Intercept", "beta", "design_beta", "g", "BIC", "Deviance", "phi", "delta", "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]

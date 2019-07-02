@@ -39,7 +39,10 @@ The Bayesian LASSO of Park & Casella (2008). Note that the extended lasso and ne
 lasso will probably give better shrinkage but this is provided here for the curious. Note only the Gaussian likelihood
 is provided because the Bayesian LASSO requires conditioning on the error variance, which GLM-families
 do not have. If you need to use the LASSO for a poisson or binomial regression, I suggest taking 
-a look at \code{\link[Bayezilla]{extLASSO}}\cr
+a look at \code{\link[Bayezilla]{extLASSO}}. Alternatively, utilizing \code{\link[Bayezilla]{Bridge}} with kappa = 1
+yields the New Bayesian LASSO, which is a re-parameterization of the Bayesian LASSO utilizing a scale mixture of
+uniform distributions to obtain the Laplacian priors (Mallick & Yi, 2014).  \cr
+
 The Bayesian Lasso is equivalent to using independent double exponential (Laplace distribution) priors on the 
 coefficients with a scale of sigma / lambda. However, doing this directly results in slow convergence and poor mixing.
 The Laplace distribution can be expressed as a scale mixture of normals with an exponential distribution as the scale 
@@ -57,6 +60,8 @@ blasso()
 }
 \references{
 Park, T., & Casella, G. (2008). The Bayesian Lasso. Journal of the American Statistical Association, 103(482), 681-686. Retrieved from http://www.jstor.org/stable/27640090 \cr
+\cr
+Mallick, H., & Yi, N. (2014). A New Bayesian Lasso. Statistics and its interface, 7(4), 571–582. doi:10.4310/SII.2014.v7.n4.a12 \cr
 }
 \seealso{
 \code{\link[Bayezilla]{groupBLASSO}} 

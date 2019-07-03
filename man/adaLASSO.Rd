@@ -37,7 +37,7 @@ adaLASSO(formula, data, family = "gaussian", log_lik = FALSE,
 a runjags object
 }
 \description{
-The Bayesian LASSO of Leng, Tran and David Nott (2018). Basically just the Bayesian Lasso of Park & Casella (2008) but with
+The Adaptive Bayesian LASSO of Leng, Tran and David Nott (2018). Basically just the Bayesian Lasso of Park & Casella (2008) but with
 individual lambdas on each parameter defined by a gamma(sh, ra) distribution, where sh and ra are shape and rate hyperparameters. 
 Here sh and ra are given independent gamma(4, 8) and gamma(1, 10) priors respectively. This places the expected
 values for the shape and rate parameters at 0.50 and 0.10 respectively, which is consistent with the gamma(0.50, 0.10) prior on lambda
@@ -48,10 +48,15 @@ For alternatives
 see \code{\link[Bayezilla]{negLASSO}} (which is extremely similar) or \code{\link[Bayezilla]{extLASSO}}.
 \cr
 \cr 
-Model Specification:
+Model Specification: \cr
 \cr
 \if{html}{\figure{adaLASSO.png}{}}
 \if{latex}{\figure{adaLASSO.png}{}}
+\cr
+\cr
+Plugin Pseudo-Variances: \cr
+\if{html}{\figure{pseudovar.png}{}}
+\if{latex}{\figure{pseudovar.png}{}}
 }
 \examples{
 adaLASSO()

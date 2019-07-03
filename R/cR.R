@@ -78,7 +78,7 @@ cR  = function(formula, data, delta = NULL, family = "gaussian",log_lik = FALSE,
               sigma <- sqrt(1/tau)
     
               for (j in 1:P){
-                theta[j] ~ dt(0, 1, 1)
+                theta[j] ~ dnorm(0, 1e-200)
                 beta[j] <- theta[j]*delta[j]
               }
               
@@ -113,7 +113,7 @@ cR  = function(formula, data, delta = NULL, family = "gaussian",log_lik = FALSE,
     jags_glm = "model{
       
               for (p in 1:P){
-                theta[p] ~ dt(0, 1, 1)
+                theta[p] ~ dnorm(0, 1e-200)
                 beta[p] <- theta[p]*delta[p]
               }
 
@@ -147,7 +147,7 @@ cR  = function(formula, data, delta = NULL, family = "gaussian",log_lik = FALSE,
     jags_glm = "model{
 
               for (p in 1:P){
-                theta[p] ~ dt(0, 1, 1)
+                theta[p] ~ dnorm(0, 1e-200)
                 beta[p] <- theta[p]*delta[p]
               }
 

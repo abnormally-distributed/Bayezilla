@@ -4,14 +4,16 @@
 \alias{adaLASSO}
 \title{Adaptive Bayesian Lasso}
 \usage{
-adaLASSO(formula, data, log_lik = FALSE, iter = 10000, warmup = 1000,
-  adapt = 2000, chains = 4, thin = 1, method = "parallel",
-  cl = makeCluster(2), ...)
+adaLASSO(formula, data, family = "gaussian", log_lik = FALSE,
+  iter = 10000, warmup = 1000, adapt = 2000, chains = 4,
+  thin = 1, method = "parallel", cl = makeCluster(2), ...)
 }
 \arguments{
 \item{formula}{the model formula}
 
 \item{data}{a data frame.}
+
+\item{family}{one of "gaussian", "binomial", or "poisson".}
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 
@@ -37,9 +39,12 @@ a runjags object
 \description{
 The Bayesian LASSO of Leng, Tran and David Nott (2018). Basically just the Bayesian Lasso of Park & Casella (2008) but with
 individual lambdas on each parameter defined by a gamma(sh, ra) distribution, where sh and ra are shape and rate hyperparameters. 
-Here sh and ra are given independent gamma(4, 8) and gamma(0.0016, 0.1600) priors respectively. This places the expected
-values for the shape and rate parameters at 0.50 and 0.01 respectively, which is consistent with the gamma(0.50, 0.01) prior on lambda
-used for most other shrinkage models in this package. For alternatives 
+Here sh and ra are given independent gamma(4, 8) and gamma(1, 10) priors respectively. This places the expected
+values for the shape and rate parameters at 0.50 and 0.10 respectively, which is consistent with the gamma(0.50, 0.10) prior on lambda
+used for most other shrinkage models in this package. For the binomial and poisson likelihood functions the uniform-gamma scale mixture for the
+variant of the Bayesian LASSO is adapted for use here. 
+
+For alternatives 
 see \code{\link[Bayezilla]{negLASSO}} (which is extremely similar) or \code{\link[Bayezilla]{extLASSO}}.
 \cr
 \cr 
@@ -55,13 +60,7 @@ adaLASSO()
 \references{
 Park, T., & Casella, G. (2008). The Bayesian Lasso. Journal of the American Statistical Association, 103(482), 681-686. Retrieved from http://www.jstor.org/stable/27640090 \cr 
 \cr
+Mallick, H., & Yi, N. (2014). A New Bayesian Lasso. Statistics and its interface, 7(4), 571–582. doi:10.4310/SII.2014.v7.n4.a12 \cr
+\cr
 Leng, C., Tran, M.N., & Nott, D.J. (2014). Bayesian adaptive Lasso. arXiv:1009.2300 \cr
-}
-\seealso{
-\code{\link[Bayezilla]{negLASSO}} 
-\code{\link[Bayezilla]{extLASSO}}
-\code{\link[Bayezilla]{blasso}}
-\code{\link[Bayezilla]{HS}}
-\code{\link[Bayezilla]{HSplus}}
-\code{\link[Bayezilla]{HSreg}}
 }

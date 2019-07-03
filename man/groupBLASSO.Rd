@@ -4,9 +4,9 @@
 \alias{groupBLASSO}
 \title{Group Bayesian Lasso}
 \usage{
-groupBLASSO(X, y, idx, log_lik = FALSE, iter = 10000, warmup = 1000,
-  adapt = 2000, chains = 4, thin = 1, method = "parallel",
-  cl = makeCluster(2), ...)
+groupBLASSO(X, y, idx, family = "gaussian", log_lik = FALSE,
+  iter = 10000, warmup = 1000, adapt = 2000, chains = 4,
+  thin = 1, method = "parallel", cl = makeCluster(2), ...)
 }
 \arguments{
 \item{X}{the model matrix. Construct this manually with model.matrix()[,-1]}
@@ -15,6 +15,8 @@ groupBLASSO(X, y, idx, log_lik = FALSE, iter = 10000, warmup = 1000,
 
 \item{idx}{the group labels. Should be of length = to ncol(model.matrix()[,-1]) with the group assignments
 for each covariate. Please ensure that you start numbering with 1, and not 0.}
+
+\item{family}{one of "gaussian", "binomial", or "poisson".}
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 
@@ -40,19 +42,26 @@ a runjags object
 \description{
 Group selection was introduced in the group LASSO by Yuan and Lin (2006) in
 the context of the classical "frequentist" LASSO. The concept is adapted here to the Bayesian LASSO 
-following the example of Kyung et al. (2010). Note only the Gaussian likelihood
-is provided because the Bayesian LASSO requires conditioning on the error variance, which GLM-families
-do not have. \cr If you need to use the LASSO for a poisson or binomial regression, I suggest taking 
-a look at \code{\link[Bayezilla]{groupExtLASSO}}. Alternatively, utilizing \code{\link[Bayezilla]{groupBridge}} with kappa = 1
-yields the New Group Bayesian LASSO, which is a re-parameterization of the Group Bayesian LASSO utilizing a scale mixture of
-uniform distributions to obtain the Laplacian priors (Mallick & Yi, 2014).  \cr
+following the example of Kyung et al. (2010)
 }
 \details{
+Note that for the binomial and poisson likelihood functions 
+the New Bayesian LASSO is adapted for use here, which utilizes a scale mixture of
+uniform distributions to obtain the Laplacian priors (Mallick & Yi, 2014). I have found that this parameterization
+simply samples faster for the binomial and poisson models, but is logically equivalent to the normal-exponential
+mixture parameterization. Plug-in pseudovariances are used for these.
+
 \cr
-Model Specification:
+Model Specification: \cr
 \cr
 \if{html}{\figure{groupBLASSO.png}{}}
 \if{latex}{\figure{groupBLASSO.png}{}}
+\cr
+\cr
+Plugin Pseudo-Variances: \cr
+\cr
+\if{html}{\figure{pseudovar.png}{}}
+\if{latex}{\figure{pseudovar.png}{}}
 }
 \examples{
 groupBLASSO()

@@ -1,30 +1,24 @@
 #' Conditional Bias Corrected Re-Estimation of Selected Variables
 #'
-#' @description At times the bias induced by continuous shrinkage prior methods such as the Bayesian LASSO may be too great to be
-#' ignored and gains in predictive and inferential accuracy can be made by performing conditional re-estimation.  The simplest 
-#' form of this is the OLS-LASSO / MLE-LASSO hybrid of Efron et al (2004), where the LASSO-selected variables are re-estimated 
-#' using maximum likelihood. However, this ignores selection effects. Alternatives are the Relaxed LASSO procedure of Meinshausen N (2007)
-#' which performs a second LASSO on the variables selected by the first LASSO. The second pass of the LASSO will select a smaller 
-#' penalty due to the reduced variable set, hence providing estimates closer to the MLEs while retaining some small shrinkage to attenuate
-#' optimistic selection effects. A general frequentist re-estimation procedure has been put forth by Taylor & Tibsharini (2015) that
-#' is general enough to be used with various variable selection methods. Similarly, Sillanpää &  Mutshinda (2011) provided a means
-#' of conditional re-estimation in their discussion of post-selection inference using the shape adaptive shrinkage prior (offered here
-#' in the \code{\link[Bayezilla]{sasp}} function). The benefits of 
-#' such two-stage estimation procedures are discussed by Belloni & Chernozhukov (2013). Belloni & Chernozhukov demonstrate that such
-#' re-estimation dominates the naive MLE-LASSO (or MLE-your-favorite-variable-selection-method-here) procedure. \cr
+#' @description Some argue that LASSO-type variable selections should have the selected variables re-estimated with unpenalized estimators.  
+#' The simplest form of this is the LASSO-OLS two step procedure of Efron et al (2004), where the LASSO-selected variables are re-estimated using maximum likelihood.  
+#' Similarly, Sillanpää &  Mutshinda (2011) provided a means
+#' of conditional re-estimation in their discussion of post-selection inference using the shape adaptive shrinkage prior (offered here in the \code{\link[Bayezilla]{sasp}}
+#' function). The benefits of such two-stage estimation procedures are discussed by Belloni & Chernozhukov (2013). \cr
 #' 
 #' \cr
-#' The method of Sillanpää &  Mutshinda is adapted here. Their conditional re-estimation procedure involves supplying the full model
-#' matrix that was passed to the LASSO or other selection procedure, along with a vector of indicator variables that take values of [0, 1]
-#' to indicate the elimination or inclusion of the variable. They then estimate the raw coefficients using vague normal priors and multiply
-#' these by the indicator variables. Here cauchy priors are used. This is done to account for the eliminated variables for purposes of avoiding selection bias, while
-#' also only obtaining non-zero estimates for the selected variables.  
+#' The method of Sillanpää &  Mutshinda is adapted here. Their conditional re-estimation procedure involves supplying the full model 
+#' matrix that was passed to the LASSO or other selection procedure, along with a vector of indicator variables that take values of [0, 1] to indicate 
+#' the elimination or inclusion of the variable. They then estimate the raw coefficients using vague normal priors and multiply these by the indicator variables. 
 #' 
+#' \cr This procedure can be used following any variable selection process, Bayesian or not. All you need to do is provide the full model formula and a vector of 
+#' inclusion indicators to utilize this. This function assumes the variables are 
+#' standardized just as the selection models require. \cr Personally I am not sure how I feel about this type of procedure. 
+#' From a Bayesian perspective, the LASSO (or other similar model) estimates are the best parameter evidence, conditioned on the model and data. 
+#' To re-estimate the model seems an awful lot like using the data twice. In the frequentist paradigm the confidence
+#' intervals on the re-estimated model are adjusted, as in Taylor & Tibshirani (2015) to account for selection effects but I do
+#' not see how this would be straightforward or justified in a Bayesian paradigm. \cr
 #' \cr
-#' 
-#' This procedure can be used following any variable selection process, Bayesian or not. All you need to do is provide the full model
-#' formula and a vector of inclusion indicators to utilize this. This function assumes the variables are 
-#' standardized just as the selection models require. \cr 
 #' 
 #' Standard gaussian, binomial, and poisson likelihood functions are available. \cr
 #' \cr
@@ -80,7 +74,7 @@ cR  = function(formula, data, delta = NULL, family = "gaussian",log_lik = FALSE,
     
     jags_glm = "model{
     
-              tau ~ dgamma(0.01, 0.01)
+              tau ~ dunif(0, 1e200)
               sigma <- sqrt(1/tau)
     
               for (j in 1:P){

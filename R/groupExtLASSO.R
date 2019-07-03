@@ -107,7 +107,7 @@ groupExtLASSO  = function(X, y, idx, data, family = "gaussian", eta_prior = "cla
               tau ~ dgamma(.01, .01)
 
               # Shrinkage top-level-hyperparameter
-              Omega ~ dgamma(0.5 , 0.01)
+              Omega ~ dgamma(0.5 , 0.10)
 
               Intercept ~ dnorm(0, 1e-10)
 
@@ -241,7 +241,7 @@ groupExtLASSO  = function(X, y, idx, data, family = "gaussian", eta_prior = "cla
       jags_group_extended_LASSO = "model{
 
               # Shrinkage top-level-hyperparameter
-              Omega ~ dgamma(0.50 , 0.01)
+              Omega ~ dgamma(0.50 , 0.10)
 
               Intercept ~ dnorm(0, 1e-10)
 
@@ -365,7 +365,7 @@ groupExtLASSO  = function(X, y, idx, data, family = "gaussian", eta_prior = "cla
       jags_group_extended_LASSO = "model{
 
               # Shrinkage top-level-hyperparameter
-              Omega ~ dgamma(0.50 , 0.01)
+              Omega ~ dgamma(0.50 , 0.10)
 
               Intercept ~ dnorm(0, 1e-10)
 

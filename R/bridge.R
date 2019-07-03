@@ -58,7 +58,7 @@ Bridge = function(formula, data, family = "gaussian", kappa = 1.4, log_lik = FAL
   
   tau ~ dgamma(.01, .01) 
   sigma <- sqrt(1/tau)
-  lambda ~ dgamma(.5, 0.01)
+  lambda ~ dgamma(.5, 0.1)
 
   for (i in 1:P){
     u[i] ~ dgamma( (1/kappa) + 1  , lambda )
@@ -105,7 +105,7 @@ Bridge = function(formula, data, family = "gaussian", kappa = 1.4, log_lik = FAL
     jags_bridge = "model{
 
 
-  lambda ~ dgamma(.5, 0.01)
+  lambda ~ dgamma(.5, 0.1)
   
   for (i in 1:P){
     u[i] ~ dgamma( (1/kappa) + 1  , lambda )
@@ -153,7 +153,7 @@ Bridge = function(formula, data, family = "gaussian", kappa = 1.4, log_lik = FAL
     jags_bridge = "model{
 
 
-  lambda ~ dgamma(.5, 0.01)
+  lambda ~ dgamma(.5, 0.1)
   
   for (i in 1:P){
     u[i] ~ dgamma( (1/kappa) + 1  , lambda )

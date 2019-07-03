@@ -105,7 +105,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "classic", lo
               tau ~ dgamma(.01, .01)
 
               # Shrinkage top-level-hyperparameter
-              Omega ~ dgamma(0.25 , 0.01)
+              Omega ~ dgamma(0.50 , 0.10)
 
               Intercept ~ dnorm(0, 1e-10)
 
@@ -210,7 +210,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "classic", lo
       jags_extended_LASSO = "model{
 
               # Shrinkage top-level-hyperparameter
-              Omega ~ dgamma(0.25 , 0.01)
+              Omega ~ dgamma(0.50 , 0.10)
 
               Intercept ~ dnorm(0, 1e-10)
 
@@ -311,7 +311,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "classic", lo
       jags_extended_LASSO = "model{
 
               # Shrinkage top-level-hyperparameter
-              Omega ~ dgamma(0.25 , 0.01)
+              Omega ~ dgamma(0.50 , 0.10)
 
               Intercept ~ dnorm(0, 1e-10)
 

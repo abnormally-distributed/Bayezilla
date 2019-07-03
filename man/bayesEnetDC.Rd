@@ -2,11 +2,12 @@
 % Please edit documentation in R/bayesEnetDC.R
 \name{bayesEnetDC}
 \alias{bayesEnetDC}
-\title{Bayesian Elastic Net for Gaussian Likelihood with additional unpenalized design covariates}
+\title{Bayesian Elastic Net with additional unpenalized design covariates}
 \usage{
-bayesEnetDC(formula, design.formula, data, log_lik = FALSE,
-  iter = 10000, warmup = 1000, adapt = 2000, chains = 4,
-  thin = 1, method = "parallel", cl = makeCluster(2), ...)
+bayesEnetDC(formula, design.formula, data, family = "gaussian",
+  log_lik = FALSE, iter = 10000, warmup = 1000, adapt = 2000,
+  chains = 4, thin = 1, method = "parallel", cl = makeCluster(2),
+  ...)
 }
 \arguments{
 \item{formula}{the model formula}
@@ -14,6 +15,8 @@ bayesEnetDC(formula, design.formula, data, log_lik = FALSE,
 \item{design.formula}{formula for the design covariates.}
 
 \item{data}{a data frame.}
+
+\item{family}{one of "gaussian", "binomial", or "poisson".}
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 
@@ -39,9 +42,9 @@ A run.jags object
 \description{
 The Bayesian elastic net described by Li and Lin (2010). This function has the further allowance for a set of covariates that are not penalized. 
 For example, you may wish to include variables such as age and gender so that  the coefficients for the other variables are 
-penalized while controlling for these. This is a common need in research.  Note only the Gaussian likelihood is 
-provided because the Bayesian elastic net requires conditioning on the error variance, which GLM-families
-do not have.
+penalized while controlling for these. This is a common need in research.  For the binomial and poisson likelihoods
+plug-in pseudo-variances are used. 
+
 
 \cr
 The model structure is given below: \cr
@@ -49,6 +52,12 @@ The model structure is given below: \cr
 \cr
 \if{html}{\figure{elasticNetDC.png}{}}
 \if{latex}{\figure{elasticNetDC.png}{}}
+\cr
+\cr
+\cr
+Plugin Pseudo-Variances: \cr
+\if{html}{\figure{pseudovar.png}{}}
+\if{latex}{\figure{pseudovar.png}{}}
 \cr
 }
 \examples{

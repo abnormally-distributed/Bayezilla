@@ -49,8 +49,8 @@ groupEnet  = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=1000, adapt
 
               tau ~ dgamma(.01, .01)
               sigma <- sqrt(1/tau)
-              lambdaL1 ~ dgamma(.5, .01)
-              lambdaL2 ~ dgamma(.5, .01)
+              lambdaL1 ~ dgamma(.50, .10)
+              lambdaL2 ~ dgamma(.50, .10)
               
               Intercept ~ dnorm(0, 1e-10)
 

@@ -49,9 +49,9 @@ Norms of 1 and 2 give the Laplace and Gaussian distributions respectively (corre
 Norms smaller than 1 are very difficult to estimate directly, but have very tall modes at zero and very long, cauchy like tails. 
 Values greater than 2 become increasingly platykurtic, with the uniform distribution arising as it approaches infinity. \cr 
 \cr
-Using kappa = 1 yields the New Bayesian Group LASSO, which is a re-parameterization of the Bayesian Group LASSO utilizing a scale mixture of
-uniform distributions to obtain the Laplacian priors (Mallick & Yi, 2014). The key difference the Bayesian Group Bridge or New Bayesian Group LASSO
-has from the Group LASSO presented in Kyung et al. (2010) is that each group is here given its own lambda, faithful to the Mallick & Yi (2018) model.\cr
+Using kappa = 1 yields a Bayesian Group LASSO. The key difference from the Bayesian Group LASSO is that 
+each group is here given its own lambda, faithful to the Mallick & Yi (2018) model. Hence, using this Bayesian Group Bridge with kappa = 1
+can provide a more adaptive Bayesian Group LASSO. \cr
 \cr
 JAGS has no built in power exponential distribution, so the distribution is parameterized as a uniform-gamma mixture just as in Mallick & Yi (2018). 
 The parameterization is given below. For generalized linear models plug-in pseudovariances are used. \cr

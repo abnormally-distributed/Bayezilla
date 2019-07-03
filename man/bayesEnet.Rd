@@ -2,16 +2,18 @@
 % Please edit documentation in R/bayesEnet.R
 \name{bayesEnet}
 \alias{bayesEnet}
-\title{Bayesian Elastic Net for Gaussian Likelihood}
+\title{Bayesian Elastic Net}
 \usage{
-bayesEnet(formula, data, log_lik = FALSE, iter = 10000,
-  warmup = 1000, adapt = 2000, chains = 4, thin = 1,
-  method = "parallel", cl = makeCluster(2), ...)
+bayesEnet(formula, data, family = "gaussian", log_lik = FALSE,
+  iter = 10000, warmup = 1000, adapt = 2000, chains = 4,
+  thin = 1, method = "parallel", cl = makeCluster(2), ...)
 }
 \arguments{
 \item{formula}{the model formula}
 
 \item{data}{a data frame.}
+
+\item{family}{one of "gaussian", "binomial", or "poisson".}
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 
@@ -35,9 +37,8 @@ bayesEnet(formula, data, log_lik = FALSE, iter = 10000,
 A run.jags object
 }
 \description{
-The Bayesian elastic net described by Li and Lin (2010). Note only the Gaussian likelihood is 
-provided because the Bayesian elastic net requires conditioning on the error variance, which GLM-families
-do not have.
+The Bayesian elastic net described by Li and Lin (2010). For the binomial and poisson likelihoods
+plug-in pseudo-variances are used. 
 
 \cr
 The model structure is given below: \cr
@@ -45,6 +46,11 @@ The model structure is given below: \cr
 \cr
 \if{html}{\figure{elasticNet.png}{}}
 \if{latex}{\figure{elasticNet.png}{}}
+\cr
+\cr
+Plugin Pseudo-Variances: \cr
+\if{html}{\figure{pseudovar.png}{}}
+\if{latex}{\figure{pseudovar.png}{}}
 \cr
 }
 \examples{

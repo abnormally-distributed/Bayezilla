@@ -50,10 +50,12 @@ blassoDC = function(formula, design.formula, data, log_lik = FALSE, iter=10000, 
   y = model.frame(formula, data)[,1]
   FX <- as.matrix(model.matrix(design.formula, data)[, -1])
   
+  if (family == "gaussian"){
+    
   jags_blasso = "model{
   tau ~ dgamma(0.01, 0.01)
   sigma2 <- 1/tau
-  lambda ~ dgamma(0.25 , 0.01)
+  lambda ~ dgamma(0.25 , 0.10)
   
   for (p in 1:P){
     eta[p] ~ dexp(lambda^2 / 2)
@@ -101,3 +103,115 @@ blassoDC = function(formula, design.formula, data, log_lik = FALSE, iter=10000, 
   return(out)
 }
 
+
+if (family == "binomial" || family == "logistic"){
+  
+  jags_blasso = "model{
+    
+  lambda ~ dgamma(0.25 , 0.10)
+  
+  for (i in 1:P){
+    u[i] ~ dgamma( 2  , lambda )
+    beta[i] ~ dunif(-1 * (sigma * u[i]), sigma * u[i])
+  }
+  
+  Intercept ~ dnorm(0, 1e-10)
+  
+    
+  for (f in 1:FP){
+    design_beta[f] ~ dnorm(0, 1e-200)
+  }
+  
+  
+  for (i in 1:N){
+      logit(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P]) + sum(design_beta[1:FP] * FX[i,1:FP]) 
+      y[i] ~ dbern(psi[i])
+      log_lik[i] <- logdensity.bern(y[i], psi[i])
+      ySim[i] ~ dbern(psi[i])
+    }
+  
+  Deviance <- -2 * sum(log_lik[1:N])
+}"
+  
+  FP <- ncol(FX)
+  P <- ncol(X)
+  write_lines(jags_blasso, "jags_blasso.txt")
+  jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), sigma = sqrt(pow(mean(y), -1) * pow(1 - mean(y), -1)), FP = FP, FX = FX)
+  monitor <- c("Intercept", "beta", "lambda", "Deviance", "ySim", "log_lik")
+  if (log_lik == FALSE){
+    monitor = monitor[-(length(monitor))]
+  }
+  inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "binomial", lambda = 0.025, alpha = 0, standardize = FALSE))[1,1]), 
+                                             "beta" = rep(0, P), 
+                                             "design_beta" = as.vector(coef(glmnet::glmnet(x = FX, y = y, family = "binomial", lambda = 0, alpha = 0, standardize = FALSE))[-1,1]),
+                                             "u" = rgamma(P, 2, 1), 
+                                             "lambda" = 1, 
+                                             "ySim" = y, 
+                                             .RNG.name= "lecuyer::RngStream", 
+                                             .RNG.seed= sample(1:10000, 1)))
+  
+  out = run.jags(model = "jags_blasso.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+  file.remove("jags_blasso.txt")
+  if (!is.null(cl)) {
+    parallel::stopCluster(cl = cl)
+  }
+  return(out)
+}
+
+
+if (family == "poisson"){
+  
+  jags_blasso = "model{
+    
+  lambda ~ dgamma(0.25 , 0.10)
+  
+  for (i in 1:P){
+    u[i] ~ dgamma( 2 , lambda )
+    beta[i] ~ dunif(-1 * (sigma * u[i]), sigma * u[i])
+  }
+  
+  Intercept ~ dnorm(0, 1e-10)
+  
+    
+  for (f in 1:FP){
+    design_beta[f] ~ dnorm(0, 1e-200)
+  }
+  
+  for (i in 1:N){
+    log(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P]) + sum(design_beta[1:FP] * FX[i,1:FP]) 
+    y[i] ~ dpois(psi[i])
+    log_lik[i] <- logdensity.pois(y[i], psi[i])
+    ySim[i] ~ dpois(psi[i])
+}
+              
+  Deviance <- -2 * sum(log_lik[1:N])
+}"
+  
+FP <- ncol(FX)
+P <- ncol(X)
+write_lines(jags_blasso, "jags_blasso.txt")
+jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), sigma = sqrt(pow(mean(y) , -1)), FP = FP, FX = FX)
+monitor <- c("Intercept", "beta", "lambda", "Deviance", "ySim", "log_lik")
+
+if (log_lik == FALSE){
+  monitor = monitor[-(length(monitor))]
+}
+
+inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "poisson", lambda = 0.025, alpha = 0, standardize = FALSE))[1,1]),
+                                           "design_beta" = as.vector(coef(glmnet::glmnet(x = FX, y = y, family = "poisson", lambda = 0, alpha = 0, standardize = FALSE))[-1,1]),
+                                           "beta" = rep(0, P), 
+                                           "u" = rgamma(P, 2, 1), 
+                                           "lambda" = 1, 
+                                           "ySim" = y, 
+                                           .RNG.name= "lecuyer::RngStream", 
+                                           .RNG.seed= sample(1:10000, 1)))
+
+out = run.jags(model = "jags_blasso.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+file.remove("jags_blasso.txt")
+if (!is.null(cl)) {
+  parallel::stopCluster(cl = cl)
+}
+return(out)
+}
+
+}

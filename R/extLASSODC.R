@@ -101,7 +101,7 @@ extLASSODC  = function(formula, design.formula, data, family = "gaussian", eta_p
               tau ~ dgamma(.01, .01)
 
               # Shrinkage top-level-hyperparameter
-              Omega ~ dgamma(0.125 , 0.01)
+              Omega ~ dgamma(0.25 , 0.1)
 
               Intercept ~ dnorm(0, 1e-10)
 
@@ -236,7 +236,7 @@ extLASSODC  = function(formula, design.formula, data, family = "gaussian", eta_p
       jags_extended_LASSO = "model{
 
               # Shrinkage top-level-hyperparameter
-              Omega ~ dgamma(0.125 , 0.01)
+              Omega ~ dgamma(0.25 , 0.1)
 
               Intercept ~ dnorm(0, 1e-10)
 
@@ -366,7 +366,7 @@ extLASSODC  = function(formula, design.formula, data, family = "gaussian", eta_p
       jags_extended_LASSO = "model{
 
               # Shrinkage top-level-hyperparameter
-              Omega ~ dgamma(0.125 , 0.01)
+              Omega ~ dgamma(0.25 , 0.1)
 
               Intercept ~ dnorm(0, 1e-10)
 

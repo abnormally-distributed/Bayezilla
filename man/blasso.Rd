@@ -4,14 +4,16 @@
 \alias{blasso}
 \title{Bayesian Lasso}
 \usage{
-blasso(formula, data, log_lik = FALSE, iter = 10000, warmup = 1000,
-  adapt = 2000, chains = 4, thin = 1, method = "parallel",
-  cl = makeCluster(2), ...)
+blasso(formula, data, family = "gaussian", log_lik = FALSE,
+  iter = 10000, warmup = 1000, adapt = 2000, chains = 4,
+  thin = 1, method = "parallel", cl = makeCluster(2), ...)
 }
 \arguments{
 \item{formula}{the model formula}
 
 \item{data}{a data frame.}
+
+\item{family}{one of "gaussian", "binomial", or "poisson".}
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 
@@ -35,25 +37,28 @@ blasso(formula, data, log_lik = FALSE, iter = 10000, warmup = 1000,
 a runjags object
 }
 \description{
-The Bayesian LASSO of Park & Casella (2008). Note that the extended lasso and negative-exponential-gamma
-lasso will probably give better shrinkage but this is provided here for the curious. Note only the Gaussian likelihood
-is provided because the Bayesian LASSO requires conditioning on the error variance, which GLM-families
-do not have. If you need to use the LASSO for a poisson or binomial regression, I suggest taking 
-a look at \code{\link[Bayezilla]{extLASSO}}. Alternatively, utilizing \code{\link[Bayezilla]{Bridge}} with kappa = 1
-yields the New Bayesian LASSO, which is a re-parameterization of the Bayesian LASSO utilizing a scale mixture of
-uniform distributions to obtain the Laplacian priors (Mallick & Yi, 2014).  \cr
-
-The Bayesian Lasso is equivalent to using independent double exponential (Laplace distribution) priors on the 
+The Bayesian LASSO of Park & Casella (2008).  The Bayesian Lasso is equivalent to using independent double exponential 
+(Laplace distribution) priors on the 
 coefficients with a scale of sigma / lambda. However, doing this directly results in slow convergence and poor mixing.
 The Laplace distribution can be expressed as a scale mixture of normals with an exponential distribution as the scale 
 parameter. This is the method that Park & Casella (2008) utilize and the method that is utilized here. The hierarchical 
 structure of the prior distribution is given below. \cr
-
+\cr
+Note that for the binomial and poisson likelihood functions 
+the New Bayesian LASSO is used, which is a re-parameterization of the Bayesian LASSO utilizing a scale mixture of
+uniform distributions to obtain the Laplacian priors (Mallick & Yi, 2014). I have found that this variant simply 
+samples faster for the binomial and poisson models. Plug-in pseudovariances are used for these. 
 \cr
 Model Specification:
 \cr
 \if{html}{\figure{blasso.png}{}}
 \if{latex}{\figure{blasso.png}{}}
+\cr
+\cr
+Plugin Pseudo-Variances: \cr
+\cr
+\if{html}{\figure{pseudovar.png}{}}
+\if{latex}{\figure{pseudovar.png}{}}
 }
 \examples{
 blasso()
@@ -62,14 +67,4 @@ blasso()
 Park, T., & Casella, G. (2008). The Bayesian Lasso. Journal of the American Statistical Association, 103(482), 681-686. Retrieved from http://www.jstor.org/stable/27640090 \cr
 \cr
 Mallick, H., & Yi, N. (2014). A New Bayesian Lasso. Statistics and its interface, 7(4), 571–582. doi:10.4310/SII.2014.v7.n4.a12 \cr
-}
-\seealso{
-\code{\link[Bayezilla]{groupBLASSO}} 
-\code{\link[Bayezilla]{blassoDC}} 
-\code{\link[Bayezilla]{adaLASSO}}
-\code{\link[Bayezilla]{negLASSO}} 
-\code{\link[Bayezilla]{extLASSO}} 
-\code{\link[Bayezilla]{HS}}
-\code{\link[Bayezilla]{HSplus}}
-\code{\link[Bayezilla]{HSreg}}
 }

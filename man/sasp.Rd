@@ -63,13 +63,3 @@ Mallick, H. & Yi, N. (2018) Bayesian bridge regression, Journal of Applied Stati
 Sillanpää, S., &  Mutshinda, C., (2011) Bayesian shrinkage analysis of QTLs under shape-adaptive shrinkage priors, and accurate re-estimation of genetic effects. Heredity volume 107, pages 405–412. doi: 10.1038/hdy.2011.37 \cr
 \cr
 }
-\seealso{
-\code{\link[Bayezilla]{groupbridge}} 
-\code{\link[Bayezilla]{bridgeDC}} 
-\code{\link[Bayezilla]{adaLASSO}}
-\code{\link[Bayezilla]{negLASSO}} 
-\code{\link[Bayezilla]{extLASSO}} 
-\code{\link[Bayezilla]{HS}}
-\code{\link[Bayezilla]{HSplus}}
-\code{\link[Bayezilla]{HSreg}}
-}

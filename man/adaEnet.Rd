@@ -2,16 +2,18 @@
 % Please edit documentation in R/adaEnet.R
 \name{adaEnet}
 \alias{adaEnet}
-\title{Bayesian Adaptive Elastic Net for Gaussian Likelihood}
+\title{Bayesian Adaptive Elastic Net}
 \usage{
-adaEnet(formula, data, log_lik = FALSE, iter = 10000, warmup = 1000,
-  adapt = 2000, chains = 4, thin = 1, method = "parallel",
-  cl = makeCluster(2), ...)
+adaEnet(formula, data, family = "gaussian", log_lik = FALSE,
+  iter = 10000, warmup = 1000, adapt = 2000, chains = 4,
+  thin = 1, method = "parallel", cl = makeCluster(2), ...)
 }
 \arguments{
 \item{formula}{the model formula}
 
 \item{data}{a data frame.}
+
+\item{family}{one of "gaussian", "binomial", or "poisson".}
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 
@@ -35,19 +37,22 @@ adaEnet(formula, data, log_lik = FALSE, iter = 10000, warmup = 1000,
 A run.jags object
 }
 \description{
-This is an adaptation of the frequentist adaptive elastic net of Ghosh (2007, 2011) and Zou & Zhang (2009) to the Bayesian paradigm through a modification of the Bayesian elastic
-net (Li & Lin, 2010). 
-
-Note only the Gaussian likelihood is 
-provided because the Bayesian elastic net requires conditioning on the error variance, which GLM-families
-do not have.
-
+This is an adaptation of the frequentist adaptive elastic net of Ghosh (2007, 2011) and Zou & Zhang (2009) 
+to the Bayesian paradigm through a modification of the Bayesian elastic
+net (Li & Lin, 2010). For the binomial and poisson likelihoods
+plug-in pseudo-variances are used. 
 \cr
 The model structure is given below: \cr
 \cr
 \cr
 \if{html}{\figure{adaElasticNet.png}{}}
 \if{latex}{\figure{adaElasticNet.png}{}}
+\cr
+\cr
+\cr
+Plugin Pseudo-Variances: \cr
+\if{html}{\figure{pseudovar.png}{}}
+\if{latex}{\figure{pseudovar.png}{}}
 \cr
 }
 \examples{

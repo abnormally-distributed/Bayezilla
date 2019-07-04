@@ -1,0 +1,24 @@
+model{
+  
+              tau ~ dunif(0, 1e200)
+              
+              Omega ~ dwishart(omega, P)
+              
+              theta[1:P] ~ dmnorm(rep(0, P), Omega[1:P, 1:P])
+              df ~ dgamma(1, 1)
+              for (i in 1:P) {
+                S[i] ~ dgamma(df/2, df/2)
+                beta[i] <- (theta[i]/sqrt(S[i])) * delta[i]
+              }
+      
+              Intercept ~ dnorm(0, 1e-200)
+
+              for (i in 1:N){
+                 y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
+                 log_lik[i] <- logdensity.norm(y[i], Intercept + sum(beta[1:P] * X[i,1:P]), tau)
+                 ySim[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
+              }
+              
+              sigma <- sqrt(1/tau)
+              Deviance <- -2 * sum(log_lik[1:N])
+          }

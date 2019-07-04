@@ -131,7 +131,7 @@ Bridge = function(formula, data, family = "gaussian", kappa = 1.4, log_lik = FAL
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "binomial", lambda = 0.025, alpha = 0, standardize = FALSE))[1,1]), 
+    inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "binomial", lambda = runif(1, .05, .15), alpha = runif(1, .05, .15), standardize = FALSE))[1,1]), 
                                                "beta" = rep(0, P), 
                                                "u" = rgamma(P, (1 / kappa) + 1, 1), 
                                                "lambda" = 1, 
@@ -179,7 +179,7 @@ Bridge = function(formula, data, family = "gaussian", kappa = 1.4, log_lik = FAL
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
-  inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "poisson", lambda = 0.025, alpha = 0, standardize = FALSE))[1,1]), 
+  inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "poisson", lambda = runif(1, .05, .15), alpha = runif(1, .05, .15), standardize = FALSE))[1,1]), 
                                              "beta" = rep(0, P), 
                                              "u" = rgamma(P, (1 / kappa) + 1, 1), 
                                              "lambda" = 1, 

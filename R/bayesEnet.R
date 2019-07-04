@@ -129,8 +129,8 @@ bayesEnet  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=
       monitor = monitor[-(length(monitor))]
     }
     
-    inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "binomial", lambda = 0.025, alpha = 0, standardize = FALSE))[1,1]), 
-                                               "beta" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "binomial", lambda = 0.025, alpha = 0, standardize = FALSE))[-1,1]), 
+    inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "binomial", lambda = runif(1, .01, .15), alpha = runif(1, .01, .5), standardize = FALSE))[1,1]), 
+                                               "beta" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "binomial", lambda = runif(1, .01, .15), alpha = runif(1, .01, .5), standardize = FALSE))[-1,1]), 
                                                "eta" = 1 + abs(jitter(rep(1, P), amount = .25)), 
                                                "lambdaL1" = 5, 
                                                "lambdaL2" = 15, 
@@ -180,8 +180,8 @@ bayesEnet  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "poisson", lambda = 0.025, alpha = 0, standardize = FALSE))[1,1]), 
-                                               "beta" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "poisson", lambda = 0.025, alpha = 0, standardize = FALSE))[-1,1]), 
+    inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "poisson", lambda = runif(1, .01, .15), alpha = runif(1, .01, .5), standardize = FALSE))[1,1]), 
+                                               "beta" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "poisson", lambda = runif(1, .01, .15), alpha = runif(1, .01, .5), standardize = FALSE))[-1,1]), 
                                                "eta" = 1 + abs(jitter(rep(1, P), amount = .25)), 
                                                "lambdaL1" = 5, 
                                                "lambdaL2" = 15, 

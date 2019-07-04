@@ -2,6 +2,7 @@
 
 export(Bridge)
 export(BridgeDC)
+export(GRR)
 export(HS)
 export(HSDC)
 export(HSplus)

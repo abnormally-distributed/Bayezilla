@@ -11,6 +11,8 @@
 #  This variant of the Bernoulli-Normal mixture prior models the selection of parameters as groups, akin to the group LASSO.
 #' The model is very similar to the \code{\link[Bayezilla]{Spike}} model. Each group receives its own inclusion 
 #' probability prior "phi", which is in turn controlled by an overall inclusion probability given a uniform beta(1, 1) prior.
+#' The marginal posterior means give the Bayesian Model Averaged estimates, which are the expected values of each parameter averaged over all 
+#' possible (or all sampled) models (Hoeting et al., 1999).\cr
 #' \cr
 #' Model Specification: \cr
 #' \cr
@@ -43,6 +45,8 @@
 #' Kuo, L., & Mallick, B. (1998). Variable Selection for Regression Models. Sankhyā: The Indian Journal of Statistics, Series B, 60(1), 65-81. \cr
 #' \cr
 #' Yuan, Ming; Lin, Yi (2006). Model Selection and Estimation in Regression with Grouped Variables. Journal of the Royal Statistical Society. Series B (statistical Methodology). Wiley. 68 (1): 49–67. doi:10.1111/j.1467-9868.2005.00532.x \cr
+#' \cr
+#' Hoeting, J. , Madigan, D., Raftery, A. & Volinsky, C. (1999). Bayesian model averaging: a tutorial. Statistical Science 14 382–417. \cr
 #'
 groupSpike  = function(X, y, idx, family = "gaussian", phi_prior = c(1, 4), log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
 

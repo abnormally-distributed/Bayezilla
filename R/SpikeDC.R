@@ -19,6 +19,8 @@
 #' by a probability mass of 100% at zero (the "spike") or unpenalized. The probability that a coefficient 
 #' comes from the null-spike is controlled by a hyperparameter "phi" which estimates the overall probability of inclusion, 
 #' i.e., the proportion of the P-number of predictors that are non-zero. This hyperparameter is given a uniform beta(1, 1) prior. \cr
+#' The marginal posterior means give the Bayesian Model Averaged estimates, which are the expected values of each parameter averaged over all 
+#' possible (or all sampled) models (Hoeting et al., 1999).\cr
 #' \cr 
 #' Standard gaussian, binomial, and poisson likelihood functions are available. \cr \cr 
 #' Model Specification: \cr 
@@ -30,8 +32,9 @@
 #' \cr 
 #'
 #' @references  
-#' Kuo, L., & Mallick, B. (1998). Variable Selection for Regression Models. Sankhyā: The Indian Journal of Statistics, Series B, 60(1), 65-81.
-#'
+#' Kuo, L., & Mallick, B. (1998). Variable Selection for Regression Models. Sankhyā: The Indian Journal of Statistics, Series B, 60(1), 65-81. \cr
+#' \cr
+#' Hoeting, J. , Madigan, D., Raftery, A. & Volinsky, C. (1999). Bayesian model averaging: a tutorial. Statistical Science 14 382–417. \cr
 #'
 #' @param formula the model formula.
 #' @param design.formula formula for the design covariates.

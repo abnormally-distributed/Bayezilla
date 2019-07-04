@@ -79,7 +79,7 @@ if (family == "gaussian"){
       P <- ncol(X)
       write_lines(jags_blasso, "jags_blasso.txt")
       jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X))
-      monitor <- c("Intercept", "beta", "sigma", "lambda", "Deviance", "eta", "ySim", "log_lik")
+      monitor <- c("Intercept", "beta", "sigma", "lambda", "Deviance", "ySim", "log_lik")
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }

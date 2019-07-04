@@ -97,11 +97,11 @@ adaLASSODC = function(formula, design.formula, data, family = "gaussian", log_li
       monitor = monitor[-(length(monitor))]
     }
     
-    inits <- lapply(1:chains, function(z) list("Intercept" = lmSolve(formula ~ ., data)[1], 
+    inits <- lapply(1:chains, function(z) list("Intercept" = lmSolve(formula, data)[1], 
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1), 
-                                               "design_beta" = coef(lm(design.formula ~ ., data))[-1],
-                                               "beta" = lmSolve(formula ~ ., data)[-1], 
+                                               "design_beta" = coef(lm(design.formula, data))[-1],
+                                               "beta" = lmSolve(formula, data)[-1], 
                                                "eta" = rep(1, P), 
                                                "sh" = .5, 
                                                "ra" = .1, 
@@ -157,7 +157,7 @@ adaLASSODC = function(formula, design.formula, data, family = "gaussian", log_li
     }
     inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "binomial", lambda = 0.025, alpha = .5, standardize = FALSE))[1,1]), 
                                                "beta" = rep(0, P), 
-                                               "design_beta" = as.vector(coef(glm(design.formula ~ data, family = "binomial")))[-1],
+                                               "design_beta" = as.vector(coef(glm(design.formula, data, family = "binomial")))[-1],
                                                "sh" = .5, 
                                                "ra" = .10, 
                                                "u" = rgamma(P, 2, 1), 
@@ -215,7 +215,7 @@ adaLASSODC = function(formula, design.formula, data, family = "gaussian", log_li
   
   inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "poisson", lambda = 0.025, alpha = 0, standardize = FALSE))[1,1]), 
                                              "beta" = rep(0, P), 
-                                             "design_beta" = as.vector(coef(glm(design.formula ~ data, family = "poisson")))[-1],
+                                             "design_beta" = as.vector(coef(glm(design.formula, data, family = "poisson")))[-1],
                                              "sh" = .5, 
                                              "ra" = .10, 
                                              "u" = rgamma(P, 2, 1), 

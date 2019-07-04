@@ -4,15 +4,17 @@
 \alias{HSreg}
 \title{Regularized Horseshoe}
 \usage{
-HSreg(formula, data, phi = 0.5, slab_scale = 2, slab_df = 3,
-  log_lik = FALSE, iter = 10000, warmup = 4000, adapt = 5000,
-  chains = 4, thin = 1, method = "parallel", cl = makeCluster(2),
-  ...)
+HSreg(formula, data, family = "gaussian", phi = 0.5, slab_scale = 2,
+  slab_df = 3, log_lik = FALSE, iter = 10000, warmup = 4000,
+  adapt = 5000, chains = 4, thin = 1, method = "parallel",
+  cl = makeCluster(2), ...)
 }
 \arguments{
 \item{formula}{the model formula}
 
 \item{data}{a data frame.}
+
+\item{family}{one of "gaussian", "binomial", or "poisson".}
 
 \item{phi}{your prior guess on the inclusion probability. Defaults to .50. Best way to come up with a figure is a prior guess on how many coefficients are non-zero out of the total number of predictors.}
 
@@ -45,7 +47,7 @@ an rjags object
 This is the horseshoe model described by Piironen & Vehtari (2017). This tends to run very quickly
 even for larger data sets or larger numbers of predictors and in my experience is faster and more stable (at least
 on the tested data sets!) than the same model implemetned in Stan. If the horseshoe+ is analagous to the 
-extended Bayesian LASSO, then this could be compared to the Bayesian Elastic Net in that it imposes a combination
+adaptive Bayesian LASSO, then this could be compared to the Bayesian Elastic Net in that it imposes a combination
 of different shrinkage penalties (the elastic net being a combination of L1 and L2, and the regularized horseshoe being
 a combination of sub-L1 and student-t penalties). \cr
 \cr
@@ -54,7 +56,12 @@ Model Specification: \cr
 
 \if{html}{\figure{regularizedHorseshoe.png}{}}
 \if{latex}{\figure{regularizedHorseshoe.png}{}}
-
+\cr
+\cr
+Plugin Pseudo-Variances: \cr
+\cr
+\if{html}{\figure{pseudovar.png}{}}
+\if{latex}{\figure{pseudovar.png}{}}
 \cr
 }
 \examples{

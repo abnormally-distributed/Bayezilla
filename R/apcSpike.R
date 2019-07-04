@@ -16,7 +16,9 @@
 #' \cr
 #' \cr
 #' The probability that a coefficient comes from the null-spike is controlled by a hyperparameter "phi" which estimates the overall probability of inclusion, i.e., the proportion of the P-number of predictors that are non-zero. 
-#' This hyperparameter is given a uniform beta(1, 1) prior which is non-informative and objective.
+#' This hyperparameter is given a uniform beta(1, 1) prior which is non-informative and objective. The marginal posterior means give the Bayesian
+#' Model Averaged estimates, which are the expected values of each parameter averaged over all 
+#' possible (or all sampled) models (Hoeting et al., 1999).\cr
 #' \cr
 #' \cr
 #' Note, however, that this prior is designed to deal with collinearity but not necessarily P > N scenarios. For that you may wish to take a look
@@ -40,6 +42,8 @@
 #' Krishna, A., Bondell, H. D., & Ghosh, S. K. (2009). Bayesian variable selection using an adaptive powered correlation prior. Journal of statistical planning and inference, 139(8), 2665–2674. doi:10.1016/j.jspi.2008.12.004 \cr
 #' \cr
 #' Kuo, L., & Mallick, B. (1998). Variable Selection for Regression Models. Sankhyā: The Indian Journal of Statistics, Series B, 60(1), 65-81. \cr
+#' \cr
+#' Hoeting, J. , Madigan, D., Raftery, A. & Volinsky, C. (1999). Bayesian model averaging: a tutorial. Statistical Science 14 382–417. \cr
 #'
 #' @param formula the model formula
 #' @param data a data frame

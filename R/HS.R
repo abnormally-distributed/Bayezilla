@@ -10,13 +10,21 @@
 #' 
 #' \if{html}{\figure{Horseshoe.png}{}}
 #' \if{latex}{\figure{Horseshoe.png}{}}
-#' 
+#' \cr
+#' \cr
+#' Plugin Pseudo-Variances: \cr
+#' \cr
+#' \if{html}{\figure{pseudovar.png}{}}
+#' \if{latex}{\figure{pseudovar.png}{}}
+#' \cr
+#'
 #'
 #' @references
 #' Carvalho, C. M., Polson, N. G., and Scott, J. G. (2010). The horseshoe estimator for sparse signals. Biometrika, 97(2):465–480.
 #'
 #' @param formula the model formula
 #' @param data a data frame.
+#' @param family one of "gaussian", "binomial", or "poisson".
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 10000.
 #' @param warmup How many warmup samples? Defaults to 1000.
@@ -34,7 +42,7 @@
 #' @examples
 #' HS()
 #'
-HS = function(formula, data, log_lik = FALSE, iter = 4000, warmup=3000, adapt=3000, chains=4, thin=2, method = "rjparallel", cl = makeCluster(2), ...){
+HS = function(formula, data, family = "gaussian", log_lik = FALSE, iter = 4000, warmup=3000, adapt=3000, chains=4, thin=2, method = "rjparallel", cl = makeCluster(2), ...){
   
   X = model.matrix(formula, data)[,-1]
   y = model.frame(formula, data)[,1]

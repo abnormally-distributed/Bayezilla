@@ -49,7 +49,10 @@ with some improvements. This models the regression coefficients as coming from e
 by a probability mass of 100% at zero (the "spike") or unpenalized. The probability that a coefficient 
 comes from the null-spike is controlled by a hyperparameter "phi" which estimates the overall probability of inclusion, 
 i.e., the proportion of the P-number of predictors that are non-zero. This hyperparameter is given uniform beta(1, 1) prior.
- The specification of the prior is pictured below. \cr
+The marginal posterior means give the Bayesian Model Averaged estimates, which are the expected values of each parameter averaged over all 
+possible (or all sampled) models (Hoeting et al., 1999).\cr
+\cr
+The specification of the prior is pictured below. \cr
 \cr
 \if{html}{\figure{spike.png}{}}
 \if{latex}{\figure{spike.png}{}}
@@ -61,15 +64,11 @@ functions. This package also implements several variants of the Bayesian LASSO.
 \cr
 }
 \examples{
-glmSpike()
+Spike()
 
 }
 \references{
-Kuo, L., & Mallick, B. (1998). Variable Selection for Regression Models. Sankhyā: The Indian Journal of Statistics, Series B, 60(1), 65-81.
-}
-\seealso{
-\code{\link[Bayezilla]{apcSpike}} 
-\code{\link[Bayezilla]{extLASSO}}
-\code{\link[Bayezilla]{negLASSO}}
-\code{\link[Bayezilla]{bayesEnet}}
+Kuo, L., & Mallick, B. (1998). Variable Selection for Regression Models. Sankhyā: The Indian Journal of Statistics, Series B, 60(1), 65-81. \cr
+\cr
+Hoeting, J. , Madigan, D., Raftery, A. & Volinsky, C. (1999). Bayesian model averaging: a tutorial. Statistical Science 14 382–417. \cr
 }

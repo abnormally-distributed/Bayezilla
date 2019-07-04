@@ -76,7 +76,7 @@ negLASSODC  = function(formula, design.formula, data, family = "gaussian", log_l
     P <- ncol(X)
     write_lines(jags_neg_LASSO, "jags_neg_LASSO.txt")
     jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), FP = FP, FX = FX)
-    monitor <- c("Intercept", "beta", "design_beta", "sigma", "lambda", "eta", "Deviance", "psi", "ySim", "log_lik")
+    monitor <- c("Intercept", "beta", "design_beta", "sigma", "lambda", "Deviance", "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
@@ -111,19 +111,18 @@ negLASSODC  = function(formula, design.formula, data, family = "gaussian", log_l
               }
 
               for (i in 1:N){
-                 logit(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P])  + sum(design_beta[1:FP] * FX[i,1:FP])
-                 y[i] ~ dbern(psi[i])
-                 log_lik[i] <- logdensity.bern(y[i], psi[i])
-                 ySim[i] ~ dbern(psi[i])
+                 logit(phi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P])  + sum(design_beta[1:FP] * FX[i,1:FP])
+                 y[i] ~ dbern(phi[i])
+                 log_lik[i] <- logdensity.bern(y[i], phi[i])
+                 ySim[i] ~ dbern(phi[i])
               }
-              sigma <- sqrt(1/tau)
               Deviance <- -2 * sum(log_lik[1:N])
           }"
     
     P = ncol(X)
     write_lines(jags_neg_LASSO, "jags_neg_LASSO.txt")
     jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), FP = FP, FX = FX)
-    monitor = c("Intercept", "beta", "design_beta", "lambda", "eta",  "Deviance", "psi", "ySim", "log_lik")
+    monitor = c("Intercept", "beta", "design_beta", "lambda", "Deviance", "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
@@ -155,23 +154,22 @@ negLASSODC  = function(formula, design.formula, data, family = "gaussian", log_l
                 design_beta[f] ~ dnorm(0, 1e-200)
               }
               for (i in 1:N){
-                 log(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P])  + sum(design_beta[1:FP] * FX[i,1:FP])
-                 y[i] ~ dpois(psi[i])
-                 log_lik[i] <- logdensity.pois(y[i], psi[i])
-                 ySim[i] ~ dpois(psi[i])
+                 log(phi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P])  + sum(design_beta[1:FP] * FX[i,1:FP])
+                 y[i] ~ dpois(phi[i])
+                 log_lik[i] <- logdensity.pois(y[i], phi[i])
+                 ySim[i] ~ dpois(phi[i])
               }
-              sigma <- sqrt(1/tau)
               Deviance <- -2 * sum(log_lik[1:N])
           }"
     
     P = ncol(X)
     write_lines(jags_neg_LASSO, "jags_neg_LASSO.txt")
     jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), FP = FP, FX = FX)
-    monitor = c("Intercept", "beta", "design_beta", "lambda", "eta",  "Deviance", "psi", "ySim", "log_lik")
+    monitor = c("Intercept", "beta", "design_beta", "lambda", "Deviance", "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(design.formula, data, family = "poisson")))[1],, 
+    inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(design.formula, data, family = "poisson")))[1], 
                                               "beta" = rep(0, P), 
                                               "design_beta" = as.vector(coef(glm(design.formula, data, family = "poisson")))[-1],
                                               "eta" = abs(jitter(rep(1, P), amount = 1)), 

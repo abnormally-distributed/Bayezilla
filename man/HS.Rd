@@ -4,14 +4,16 @@
 \alias{HS}
 \title{Horseshoe}
 \usage{
-HS(formula, data, log_lik = FALSE, iter = 4000, warmup = 3000,
-  adapt = 3000, chains = 4, thin = 2, method = "rjparallel",
-  cl = makeCluster(2), ...)
+HS(formula, data, family = "gaussian", log_lik = FALSE, iter = 4000,
+  warmup = 3000, adapt = 3000, chains = 4, thin = 2,
+  method = "rjparallel", cl = makeCluster(2), ...)
 }
 \arguments{
 \item{formula}{the model formula}
 
 \item{data}{a data frame.}
+
+\item{family}{one of "gaussian", "binomial", or "poisson".}
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 
@@ -45,6 +47,13 @@ Model Specification: \cr
 
 \if{html}{\figure{Horseshoe.png}{}}
 \if{latex}{\figure{Horseshoe.png}{}}
+\cr
+\cr
+Plugin Pseudo-Variances: \cr
+\cr
+\if{html}{\figure{pseudovar.png}{}}
+\if{latex}{\figure{pseudovar.png}{}}
+\cr
 }
 \examples{
 HS()

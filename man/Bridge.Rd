@@ -58,6 +58,7 @@ Model Specification:
 
 \cr
 Plugin Pseudo-Variances: \cr
+\cr
 \if{html}{\figure{pseudovar.png}{}}
 \if{latex}{\figure{pseudovar.png}{}}
 }

@@ -53,6 +53,13 @@ Model Specification: \cr
 
 \if{html}{\figure{HorseshoeDC.png}{}}
 \if{latex}{\figure{HorseshoeDC.png}{}}
+\cr
+\cr
+Plugin Pseudo-Variances: \cr
+\cr
+\if{html}{\figure{pseudovar.png}{}}
+\if{latex}{\figure{pseudovar.png}{}}
+\cr
 }
 \examples{
 HSDC()

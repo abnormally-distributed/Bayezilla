@@ -308,7 +308,7 @@ hist.default <- function (x, breaks = "dhist", freq = FALSE, probability = !freq
 #' @references L. Denby and C. Mallows. Variations on the histogram. Journal
 #'   of Computational and Graphical Statistics, 18 (1):21-31, 2009.
 #'   URL \url{http://pubs.amstat.org/doi/abs/10.1198/jcgs.2009.0002.}
-#' @param b slope. See paper for details. Defaults to 2.
+#' @param b slope. See paper for details. Defaults to 1.5.
 #' @param nbins number of bins. See Denby & Mallows (2009).
 #' @param rx range of data, if not taken from data.
 #' @return A function that takes a single parameter, a numeric x specifying
@@ -317,7 +317,7 @@ hist.default <- function (x, breaks = "dhist", freq = FALSE, probability = !freq
 #' @examples 
 #' nclass.dhist()
 #' 
-nclass.dhist = function(x, b = 2, rx = range(x)) {
+nclass.dhist = function(x, b = 1.5, rx = range(x)) {
   
   n.bins <-function(x){
     x<-x[!is.na(x)]

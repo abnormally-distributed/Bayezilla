@@ -4,10 +4,10 @@
 \alias{nclass.dhist}
 \title{Density-based adaptive width histogram bins}
 \usage{
-nclass.dhist(x, b = 2, rx = range(x))
+nclass.dhist(x, b = 1.5, rx = range(x))
 }
 \arguments{
-\item{b}{slope. See paper for details. Defaults to 2.}
+\item{b}{slope. See paper for details. Defaults to 1.5.}
 
 \item{rx}{range of data, if not taken from data.}
 

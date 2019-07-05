@@ -47,7 +47,7 @@ RR = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, w
   tau ~ dgamma(.01, .01) 
   sigma2 <- 1/tau
 
-  lambda ~ dgamma(0.25 , 0.10)
+  lambda ~ dgamma(0.25 , 0.20)
 
   for (p in 1:P){
     omega[p] <- 1 / (sigma2 / lambda)
@@ -96,7 +96,7 @@ RR = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, w
     
     jags_grr = "model{
     
-  lambda ~ dgamma(0.25 , 0.10)
+  lambda ~ dgamma(0.25 , 0.20)
 
   for (p in 1:P){
     omega[p] <- 1 / (sigma2 / lambda)
@@ -144,7 +144,7 @@ RR = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, w
     
     jags_grr = "model{
     
-  lambda ~ dgamma(0.25 , 0.10)
+  lambda ~ dgamma(0.25 , 0.20)
 
   for (p in 1:P){
     omega[p] <- 1 / (sigma2 / lambda)

@@ -57,7 +57,7 @@ GRR = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, 
   sigma2 <- 1/tau
 
   for (p in 1:P){
-    lambda[p] ~ dgamma(0.25 , 0.10)
+    lambda[p] ~ dgamma(0.25 , 0.20)
     omega[p] <- 1 / (sigma2 / lambda[p])
     beta[p] ~ dnorm(0, omega[p])
   }
@@ -104,7 +104,7 @@ GRR = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, 
     jags_grr = "model{
     
   for (p in 1:P){
-    lambda[p] ~ dgamma(0.25 , 0.10)
+    lambda[p] ~ dgamma(0.25 , 0.20)
     omega[p] <- 1 / (sigma2 / lambda[p])
     beta[p] ~ dnorm(0, omega[p])
   }
@@ -151,7 +151,7 @@ GRR = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, 
     jags_grr = "model{
     
   for (p in 1:P){
-    lambda[p] ~ dgamma(0.25 , 0.10)
+    lambda[p] ~ dgamma(0.25 , 0.20)
     omega[p] <- 1 / (sigma2 / lambda[p])
     beta[p] ~ dnorm(0, omega[p])
   }

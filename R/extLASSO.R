@@ -16,7 +16,7 @@
 #' \if{latex}{\figure{extLASSO.png}{}}
 #' \cr
 #' \cr
-#' The second version is the "gamma" prior. This places a gamma(0.25 , 0.01) prior on the
+#' The second version is the "gamma" prior. This places a gamma(0.50 , 0.20) prior on the
 #' top level shrinkage hyperparameter. The individual shrinkage parameters are still given independent uniform(0, local_u) 
 #' priors just as in the classic version. 
 #' \cr
@@ -105,7 +105,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "classic", lo
               tau ~ dgamma(.01, .01)
 
               # Shrinkage top-level-hyperparameter
-              Omega ~ dgamma(0.50 , 0.10)
+              Omega ~ dgamma(0.50 , 0.20)
 
               Intercept ~ dnorm(0, 1e-10)
 
@@ -210,7 +210,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "classic", lo
       jags_extended_LASSO = "model{
 
               # Shrinkage top-level-hyperparameter
-              Omega ~ dgamma(0.50 , 0.10)
+              Omega ~ dgamma(0.50 , 0.20)
 
               Intercept ~ dnorm(0, 1e-10)
 
@@ -311,7 +311,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "classic", lo
       jags_extended_LASSO = "model{
 
               # Shrinkage top-level-hyperparameter
-              Omega ~ dgamma(0.50 , 0.10)
+              Omega ~ dgamma(0.50 , 0.20)
 
               Intercept ~ dnorm(0, 1e-10)
 

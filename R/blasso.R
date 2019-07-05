@@ -58,7 +58,7 @@ if (family == "gaussian"){
   jags_blasso = "model{
   tau ~ dgamma(.01, .01) 
   sigma2 <- 1/tau
-  lambda ~ dgamma(0.5 , 0.10)
+  lambda ~ dgamma(0.5 , 0.20)
   
   for (p in 1:P){
     eta[p] ~ dexp(lambda^2 / 2)
@@ -106,7 +106,7 @@ if (family == "gaussian"){
     
     jags_bridge = "model{
     
-  lambda ~ dgamma(0.5 , 0.10)
+  lambda ~ dgamma(0.5 , 0.20)
   
   for (i in 1:P){
     u[i] ~ dgamma( 2  , lambda )
@@ -153,7 +153,7 @@ if (family == "gaussian"){
     
     jags_bridge = "model{
     
-  lambda ~ dgamma(0.5 , 0.10)
+  lambda ~ dgamma(0.5 , 0.20)
   
   for (i in 1:P){
     u[i] ~ dgamma( 2 , lambda )

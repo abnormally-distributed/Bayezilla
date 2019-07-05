@@ -59,10 +59,10 @@ groupAdaEnet  = function(X, y, idx, log_lik = FALSE, iter=10000, warmup=5000, ad
               sigma <- sqrt(1/tau)
               
               Intercept ~ dnorm(0, 1e-10)
-              lambdaL2 ~ dgamma(.25, .10)
+              lambdaL2 ~ dgamma(0.25 , 0.20)
               
               for (g in 1:nG){
-                  lambdaL1[g] ~ dgamma(.25, .10)
+                  lambdaL1[g] ~ dgamma(0.25 , 0.20)
               }
               
               for (p in 1:P){

@@ -64,7 +64,7 @@ if (family == "gaussian"){
   
   tau ~ dgamma(0.01, 0.01) 
   sigma2 <- 1/tau
-  lambda ~ dgamma(0.50, 0.1)
+  lambda ~ dgamma(0.50 , 0.20)
   
   # Group Level shrinkage
   
@@ -120,7 +120,7 @@ if (family == "binomial" || family == "logistic"){
   
   jags_group_blasso = "model{
   
-  lambda ~ dgamma(0.50, 0.1)
+  lambda ~ dgamma(0.50 , 0.20)
   
   for (i in 1:nG){
     u[g] ~ dgamma( k[g] + 1  , lambda)
@@ -171,7 +171,7 @@ if (family == "poisson"){
   
   jags_group_blasso = "model{
   
-  lambda ~ dgamma(0.50, 0.1)
+  lambda ~ dgamma(0.50 , 0.20)
   
   for (i in 1:nG){
     u[g] ~ dgamma( k[g] + 1  , lambda)

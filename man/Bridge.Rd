@@ -40,16 +40,20 @@ Bridge(formula, data, family = "gaussian", kappa = 1.4,
 a runjags object
 }
 \description{
-The Bayesian Bridge model of Mallick & Yi (2018). Bridge regression allows you to utilize different Lp norms for the shape 
-of the prior through the shape parameter kappa of the power exponential distribution (also known as generalized Gaussian). 
-Norms of 1 and 2 give the Laplace and Gaussian distributions respectively (corresponding to the LASSO and Ridge Regression). 
-Norms smaller than 1 are very difficult to estimate directly, but have very tall modes at zero and very long, cauchy like tails. 
-Values greater than 2 become increasingly platykurtic, with the uniform distribution arising as it approaches infinity. \cr 
-Using kappa = 1 yields the New Bayesian LASSO, which is a re-parameterization of the Bayesian LASSO utilizing a scale mixture of
-uniform distributions to obtain the Laplacian priors (Mallick & Yi, 2014).  \cr
+The Bayesian Bridge model of Mallick & Yi (2018). Bridge regression allows 
+you to utilize different Lp norms for the shape of the prior through the shape parameter 
+kappa of the power exponential distribution (also known as generalized Gaussian). 
+Norms of 1 and 2 give the Laplace and Gaussian distributions respectively (corresponding to 
+the LASSO and Ridge Regression). Norms smaller than 1 are very difficult to estimate,
+but have very tall modes at zero and very long, cauchy like tails. Values greater than 2 
+become increasingly platykurtic, with the uniform distribution arising as it approaches infinity. \cr 
+Using kappa = 1 yields the New Bayesian LASSO, which is a re-parameterization of the 
+Bayesian LASSO utilizing a scale mixture of uniform distributions to obtain the Laplacian 
+priors (Mallick & Yi, 2014).  \cr
 \cr
-JAGS has no built in power exponential distribution, so the distribution is parameterized as a uniform-gamma mixture just as in Mallick & Yi (2018). 
-The parameterization is given below. For generalized linear models plug-in pseudovariances are used. \cr
+JAGS has no built in power exponential distribution, so the distribution is parameterized 
+as a uniform-gamma mixture just as in Mallick & Yi (2018). For generalized linear models 
+plug-in pseudovariances are used. \cr
 \cr
 Model Specification:
 \cr

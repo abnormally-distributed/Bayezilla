@@ -1,19 +1,20 @@
 #' Plot a large number of variable values as vertical lines
 #'
 #' @param x the model
-#' @param estimate "mean" (the default) or "median"
+#' @param estimate "median" (the default) or "mean"
 #' @param keeppars The list of specific variables to keep if passing an runjags object. Defaults to "beta"
 #' @param droppars list of parameters to exclude
 #' @param main.title defaults to "parameters"
 #' @param lwd line width. defaults to 2.5
 #' @param cex.axis axis text size. defaults to .85.
+#' @param mar adjustable margins if needed. Defaults to c(4.25, 4.25, 2.25, 1)
 #' @return
 #' a plot
 #' @export
 #'
 #' @examples
 #' spikePlot()
-spikePlot <- function(x, estimate = "mean", keeppars = "beta", droppars = c("ySim", "log_lik", "lp__"), main.title = "parameters", lwd = 2.5, cex.axis = .85){
+spikePlot <- function(x, estimate = "median", keeppars = "beta", droppars = c("ySim", "log_lik", "lp__"), main.title = "Parameters", lwd = 2.5, cex.axis = .85, mar = c(4.25, 4.25, 2.25, 1)){
 
   stan <- inherits(x, "stanfit")
   if (stan == TRUE) {
@@ -80,12 +81,13 @@ spikePlot <- function(x, estimate = "mean", keeppars = "beta", droppars = c("ySi
     
     cols = color.assign(paramSamples)
     
-    par(mar = c(3, 3, 3, 1))
+    par(mar = mar)
     plot(paramSamples, type = "h", 
          lwd = lwd, 
          col = cols, 
          yaxt="n", 
          xlab="Index",
+         ylab = "Value",
          main= main.title, 
          cex.lab=1.12,
          bty="n", 

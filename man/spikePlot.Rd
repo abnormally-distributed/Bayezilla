@@ -4,14 +4,14 @@
 \alias{spikePlot}
 \title{Plot a large number of variable values as vertical lines}
 \usage{
-spikePlot(x, estimate = "mean", keeppars = "beta",
-  droppars = c("ySim", "log_lik", "lp__"), main.title = "parameters",
-  lwd = 2.5, cex.axis = 0.85)
+spikePlot(x, estimate = "median", keeppars = "beta",
+  droppars = c("ySim", "log_lik", "lp__"), main.title = "Parameters",
+  lwd = 2.5, cex.axis = 0.85, mar = c(4.25, 4.25, 2.25, 1))
 }
 \arguments{
 \item{x}{the model}
 
-\item{estimate}{"mean" (the default) or "median"}
+\item{estimate}{"median" (the default) or "mean"}
 
 \item{keeppars}{The list of specific variables to keep if passing an runjags object. Defaults to "beta"}
 
@@ -22,6 +22,8 @@ spikePlot(x, estimate = "mean", keeppars = "beta",
 \item{lwd}{line width. defaults to 2.5}
 
 \item{cex.axis}{axis text size. defaults to .85.}
+
+\item{mar}{adjustable margins if needed. Defaults to c(4.25, 4.25, 2.25, 1)}
 }
 \value{
 a plot

@@ -54,7 +54,7 @@ sasp = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000,
   
   tau ~ dgamma(.01, .01) 
   sigma <- sqrt(1/tau)
-  lambda ~ dgamma(.5, 0.1)
+  lambda ~ dgamma(.5, 0.2)
   kappa ~ dgamma(3.0625, 2.1875)
   
   for (i in 1:P){
@@ -104,7 +104,7 @@ sasp = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000,
     jags_bridge = "model{
 
 
-  lambda ~ dgamma(.5, 0.1)
+  lambda ~ dgamma(.5, 0.2)
   kappa ~ dgamma(3.0625, 2.1875)
   
   for (i in 1:P){
@@ -154,7 +154,7 @@ sasp = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000,
     jags_bridge = "model{
 
 
-  lambda ~ dgamma(.5, 0.1)
+  lambda ~ dgamma(.5, 0.2)
   kappa ~ dgamma(3.0625, 2.1875)
   
   for (i in 1:P){

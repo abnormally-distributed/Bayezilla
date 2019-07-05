@@ -62,7 +62,7 @@ Model Specification:
 \if{latex}{\figure{extLASSODC.png}{}}
 \cr
 \cr
-The second version is the "gamma" prior. This places a gamma(0.125 , 0.01) prior on the
+The second version is the "gamma" prior. This places a gamma(0.25 , 0.20) prior on the
 top level shrinkage hyperparameter. The individual shrinkage parameters are still given independent uniform(0, local_u) 
 priors just as in the classic version. 
 \cr

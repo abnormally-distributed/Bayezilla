@@ -2,7 +2,7 @@
 % Please edit documentation in R/glmFlat.R
 \name{glmFlat}
 \alias{glmFlat}
-\title{Bayesian UN-regularized GLMs}
+\title{Bayesian unregularized GLMs}
 \usage{
 glmFlat(formula, data, family = "gaussian", log_lik = FALSE,
   iter = 10000, warmup = 1000, adapt = 1000, chains = 4,
@@ -42,15 +42,14 @@ These are essentially, for practical purposes, improper flat priors. While JAGS
 does not support an improper prior over the whole real line, the coefficients 
 have normal(0, 1e-200) priors. A precision of 1e-200 is equivalent to a standard 
 deviation of 1e100, or a googol.  No data that would ever be observed would be 
-anywhere near this scale, so this can be used 
-with scaled or unscaled data with equal validity, though I still recommend 
-standardizing because MCMC samplers work better with data all on the same scale. 
-The results from this should be equivalent to using lm() or glm()
-in R but with the benefit of being able to make probability statements from the
-marginal posterior ditributions. \cr
+anywhere near this scale, so this can be used  with scaled or unscaled data with 
+equal validity, though I still recommend  standardizing because MCMC samplers work 
+better with data all on the same scale. The results from this should be equivalent 
+to using lm() or glm() in R but with the benefit of being able to make probability 
+statements from the marginal posterior ditributions. \cr
 \cr
 
-Standard gaussian, binomial, and poisson likelihood functions are available. \cr
+Standard gaussian, laplacian, binomial, and poisson likelihood functions are available. \cr
 \cr
 Model Specification:\cr
 \cr
@@ -60,8 +59,5 @@ Model Specification:\cr
 \examples{
 glmFlat()
 
-}
-\seealso{
-\code{\link[Bayezilla]{apcGlm}}
-\code{\link[Bayezilla]{glmBayes}}
+
 }

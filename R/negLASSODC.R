@@ -50,7 +50,7 @@ negLASSODC  = function(formula, design.formula, data, family = "gaussian", log_l
 
               tau ~ dgamma(.01, .01)
 
-              lambda ~ dgamma(0.25 , 0.10)
+              lambda ~ dgamma(0.25 , 0.20)
 
               Intercept ~ dnorm(0, 1e-10)
 
@@ -97,7 +97,7 @@ negLASSODC  = function(formula, design.formula, data, family = "gaussian", log_l
     
     jags_neg_LASSO = "model{
 
-              lambda ~ dgamma(0.25 , 0.10)
+              lambda ~ dgamma(0.25 , 0.20)
 
               Intercept ~ dnorm(0, 1e-10)
 
@@ -141,7 +141,7 @@ negLASSODC  = function(formula, design.formula, data, family = "gaussian", log_l
     
     jags_neg_LASSO = "model{
 
-              lambda ~ dgamma(0.25 , 0.10)
+              lambda ~ dgamma(0.25 , 0.20)
 
               Intercept ~ dnorm(0, 1e-10)
 

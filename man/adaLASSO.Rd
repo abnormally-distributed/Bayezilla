@@ -39,8 +39,8 @@ a runjags object
 \description{
 The Adaptive Bayesian LASSO of Leng, Tran and David Nott (2018). Basically just the Bayesian Lasso of Park & Casella (2008) but with
 individual lambdas on each parameter defined by a gamma(sh, ra) distribution, where sh and ra are shape and rate hyperparameters. 
-Here sh and ra are given independent gamma(4, 8) and gamma(1, 10) priors respectively. This places the expected
-values for the shape and rate parameters at 0.50 and 0.10 respectively, which is consistent with the gamma(0.50, 0.10) prior on lambda
+Here sh and ra are given independent gamma(4, 8) and gamma(1, 5) priors respectively. This places the expected
+values for the shape and rate parameters at 0.50 and 0.20 respectively, which is consistent with the gamma(0.50, 0.20) prior on lambda
 used for most other shrinkage models in this package. For the binomial and poisson likelihood functions the uniform-gamma scale mixture for the
 variant of the Bayesian LASSO is adapted for use here. 
 

@@ -55,7 +55,7 @@ blassoDC = function(formula, design.formula, data, log_lik = FALSE, iter=10000, 
   jags_blasso = "model{
   tau ~ dgamma(0.01, 0.01)
   sigma2 <- 1/tau
-  lambda ~ dgamma(0.25 , 0.10)
+  lambda ~ dgamma(0.25 , 0.20)
   
   for (p in 1:P){
     eta[p] ~ dexp(lambda^2 / 2)
@@ -108,7 +108,7 @@ if (family == "binomial" || family == "logistic"){
   
   jags_blasso = "model{
     
-  lambda ~ dgamma(0.25 , 0.10)
+  lambda ~ dgamma(0.25 , 0.20)
   
   for (i in 1:P){
     u[i] ~ dgamma( 2  , lambda )
@@ -163,7 +163,7 @@ if (family == "poisson"){
   
   jags_blasso = "model{
     
-  lambda ~ dgamma(0.25 , 0.10)
+  lambda ~ dgamma(0.25 , 0.20)
   
   for (i in 1:P){
     u[i] ~ dgamma( 2 , lambda )

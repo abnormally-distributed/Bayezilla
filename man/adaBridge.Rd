@@ -40,21 +40,28 @@ adaBridge(formula, data, family = "gaussian", kappa = 1.4,
 a runjags object
 }
 \description{
-The Bayesian Bridge model of Mallick & Yi (2018) combined with the Adaptive Bayesian LASSO of Leng, Tran and David Nott (2018). 
+The Bayesian Bridge model of Mallick & Yi (2018) combined 
+with the Adaptive Bayesian LASSO of Leng, Tran and David Nott (2018). 
 Bridge regression allows you to utilize different Lp norms for the shape 
-of the prior through the shape parameter kappa of the power exponential distribution (also known as generalized Gaussian). 
-Norms of 1 and 2 give the Laplace and Gaussian distributions respectively (corresponding to the LASSO and Ridge Regression). 
-Norms smaller than 1 are very difficult to estimate directly, but have very tall modes at zero and very long, cauchy like tails. 
-Values greater than 2 become increasingly platykurtic, with the uniform distribution arising as it approaches infinity. \cr 
+of the prior through the shape parameter kappa of the power exponential distribution 
+(also known as generalized Gaussian). Norms of 1 and 2 give the Laplace and Gaussian 
+distributions respectively  (corresponding to the LASSO and Ridge Regression). 
+Norms smaller than 1 are very difficult to estimate directly, but have 
+very tall modes at zero and very long, cauchy like tails. 
+Values greater than 2 become increasingly platykurtic, with the uniform 
+distribution arising as it approaches infinity. \cr 
 \cr
 The individual lambdas on each parameter defined by a gamma(sh, ra) distribution,
-where sh and ra are shape and rate hyperparameters. 
-Here sh and ra are given independent gamma(4, 8) and gamma(1, 10) priors respectively. This places the expected
-values for the shape and rate parameters at 0.50 and 0.10 respectively, which is consistent with the gamma(0.50, 0.10) prior on lambda
+where sh and ra are shape and rate hyperparameters.  Here sh and ra are given
+gamma(4, 8) and gamma(1, 5) priors respectively. This places the expected
+values for the shape and rate parameters at 0.50 and 0.20 respectively, 
+which is consistent with the gamma(0.50, 0.20) prior on lambda
 used for most other shrinkage models in this package \cr
 \cr
-JAGS has no built in power exponential distribution, so the distribution is parameterized as a uniform-gamma mixture just as in Mallick & Yi (2018). 
-The parameterization is given below. For generalized linear models plug-in pseudovariances are used. \cr
+JAGS has no built in power exponential distribution, so the distribution is 
+parameterized as a uniform-gamma mixture just as in Mallick & Yi (2018). 
+The parameterization is given below. For generalized linear models plug-in 
+pseudovariances are used. \cr
 \cr
 Model Specification: \cr
 \cr

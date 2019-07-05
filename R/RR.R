@@ -1,8 +1,6 @@
 #' Generalized Ridge Regression 
 #'
-#' @description The Bayesian implementation of the generalized ridge regression estimators discussed by
-#' Ishwaran & Rao (2014) and Yuzbacsi et al. (2017). This is similar to the adaptive Bayesian LASSO
-#' in that it utilizes coefficient-specific shrinkage parameters. Plug-in pseudovariances are used for 
+#' @description The Bayesian implementation of ridge regression plug-in pseudovariances are used for 
 #' the binomial and poisson likelihood functions. 
 #' \cr
 #' \cr
@@ -31,20 +29,13 @@
 #' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.
 #' @param ... Other arguments to run.jags.
 #'
-#' @references 
-#' 
-#' Ishwaran, H. & Rao, J. (2014) Geometry and properties of generalized ridge regression in high dimensions. Contemporary Mathematics , 622. doi: 10.1090/conm/622 \cr
-#' \cr
-#' Yuzbacsi, B., Arashi, M., & Ahmed, S.E. (2017). Shrinkage Estimation Strategies in Generalized Ridge Regression Models Under Low/High-Dimension Regime (preprint). https://arxiv.org/abs/1707.02331v1 \cr
-#' \cr
-#' 
 #' @return
 #' a runjags object
 #' @export
 
 #' @examples
-#' GRR()
-GRR = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
+#' RR()
+RR = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
   
   X = model.matrix(formula, data)[,-1]
   y = model.frame(formula, data)[,1]
@@ -56,9 +47,10 @@ GRR = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, 
   tau ~ dgamma(.01, .01) 
   sigma2 <- 1/tau
 
+  lambda ~ dgamma(0.25 , 0.10)
+
   for (p in 1:P){
-    lambda[p] ~ dgamma(0.25 , 0.10)
-    omega[p] <- 1 / (sigma2 / lambda[p])
+    omega[p] <- 1 / (sigma2 / lambda)
     beta[p] ~ dnorm(0, omega[p])
   }
   
@@ -83,7 +75,7 @@ GRR = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, 
     }
     inits <- lapply(1:chains, function(z) list("Intercept" = lmSolve(formula, data)[1], 
                                                "beta" = lmSolve(formula, data)[-1], 
-                                               "lambda" = rep(1, P), 
+                                               "lambda" = 2, 
                                                "tau" = 1, 
                                                "ySim" = y, 
                                                .RNG.name= "lecuyer::RngStream", 
@@ -98,14 +90,16 @@ GRR = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, 
     
   }  
   
+
   
   if (family == "binomial" || family == "logistic"){
     
     jags_grr = "model{
     
+  lambda ~ dgamma(0.25 , 0.10)
+
   for (p in 1:P){
-    lambda[p] ~ dgamma(0.25 , 0.10)
-    omega[p] <- 1 / (sigma2 / lambda[p])
+    omega[p] <- 1 / (sigma2 / lambda)
     beta[p] ~ dnorm(0, omega[p])
   }
   
@@ -132,7 +126,7 @@ GRR = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, 
     
     inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "binomial", lambda = 0.025, alpha = 0, standardize = FALSE))[1,1]), 
                                                "beta" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "binomial", lambda = 0.025, alpha = 0, standardize = FALSE))[-1,1]), 
-                                               "lambda" = rgamma(P, 2, 1), 
+                                               "lambda" = 2, 
                                                "ySim" = y, 
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
@@ -150,9 +144,10 @@ GRR = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, 
     
     jags_grr = "model{
     
+  lambda ~ dgamma(0.25 , 0.10)
+
   for (p in 1:P){
-    lambda[p] ~ dgamma(0.25 , 0.10)
-    omega[p] <- 1 / (sigma2 / lambda[p])
+    omega[p] <- 1 / (sigma2 / lambda)
     beta[p] ~ dnorm(0, omega[p])
   }
   
@@ -179,7 +174,7 @@ GRR = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, 
   
   inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "poisson", lambda = 0.025, alpha = 0, standardize = FALSE))[1,1]), 
                                              "beta" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "poisson", lambda = 0.025, alpha = 0, standardize = FALSE))[-1,1]), 
-                                             "lambda" = rgamma(P, 2, 1), 
+                                             "lambda" = 2, 
                                              "ySim" = y, 
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))

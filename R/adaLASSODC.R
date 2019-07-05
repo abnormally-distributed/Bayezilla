@@ -4,8 +4,8 @@
 #' For example, you may wish to include variables such as age and gender so that  the coefficients for the other variables are 
 #' penalized while controlling for these. This is a common need in research. Basically just the Bayesian LASSO of Park & Casella (2008) but with
 #' individual lambdas on each parameter defined by a gamma(sh, ra) distribution, where sh and ra are shape and rate hyperparameters. 
-#' Here sh and ra are given independent gamma(4, 16) and gamma(1, 10) priors respectively. This places the expected
-#' values for the shape and rate parameters at 0.25 and 0.10 respectively, which is consistent with the gamma(0.25, 0.10) prior on lambda
+#' Here sh and ra are given independent gamma(4, 16) and gamma(1, 5) priors respectively. This places the expected
+#' values for the shape and rate parameters at 0.25 and 0.20 respectively, which is consistent with the gamma(0.25, 0.20) prior on lambda
 #' used for most other shrinkage models with additional design covariates in this package. 
 #' For the binomial and poisson likelihood functions the uniform-gamma scale mixture for the
 #' variant of the Bayesian LASSO is adapted for use here. 
@@ -63,7 +63,7 @@ adaLASSODC = function(formula, design.formula, data, family = "gaussian", log_li
     
   tau ~ dgamma(.01, .01)
   sh ~ dgamma(4, 16)
-  ra ~ dgamma(1, 10)
+  ra ~ dgamma(1, 5)
     
   for (p in 1:P){
     lambda[p] ~ dgamma(sh , ra)
@@ -122,7 +122,7 @@ adaLASSODC = function(formula, design.formula, data, family = "gaussian", log_li
     jags_bridge = "model{
 
   sh ~ dgamma(4, 16)
-  ra ~ dgamma(1, 10)
+  ra ~ dgamma(1, 5)
   
   for (i in 1:P){
     lambda[i] ~ dgamma(sh , ra)
@@ -179,7 +179,7 @@ adaLASSODC = function(formula, design.formula, data, family = "gaussian", log_li
     jags_bridge = "model{
 
   sh ~ dgamma(4, 16)
-  ra ~ dgamma(1, 10)
+  ra ~ dgamma(1, 5)
 
   for (i in 1:P){
     lambda[i] ~ dgamma(sh , ra)

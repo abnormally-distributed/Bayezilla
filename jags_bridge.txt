@@ -3,8 +3,7 @@ model{
   tau ~ dgamma(.01, .01) 
   sigma <- sqrt(1/tau)
   lambda ~ dgamma(.5, 0.1)
-  kappa ~ dgamma(3.0625, 2.1875)
-  
+
   for (i in 1:P){
     u[i] ~ dgamma( (1/kappa) + 1  , lambda )
     beta[i] ~ dunif(-1 * pow(sigma * u[i], 1/kappa), pow(sigma * u[i], 1/kappa))

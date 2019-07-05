@@ -65,7 +65,7 @@ groupBridge = function(X, y, idx, family = "gaussian",  kappa = 1.4, log_lik = F
   sigma <- sqrt(1/tau)
   
   for (i in 1:nG){
-    lambda[g] ~ dgamma(.25, 0.1)
+    lambda[g] ~ dgamma(.25, 0.2)
     u[g] ~ dgamma( (k[g]/kappa) + 1  , lambda[g])
   }
   
@@ -114,7 +114,7 @@ groupBridge = function(X, y, idx, family = "gaussian",  kappa = 1.4, log_lik = F
     jags_bridge = "model{
 
   for (i in 1:nG){
-    lambda[g] ~ dgamma(.25, 0.1)
+    lambda[g] ~ dgamma(.25, 0.2)
     u[g] ~ dgamma( (k[g]/kappa) + 1  , lambda[g])
   }
   
@@ -164,7 +164,7 @@ groupBridge = function(X, y, idx, family = "gaussian",  kappa = 1.4, log_lik = F
     jags_bridge = "model{
 
   for (i in 1:nG){
-    lambda[g] ~ dgamma(.25, 0.1)
+    lambda[g] ~ dgamma(.25, 0.2)
     u[g] ~ dgamma( (k[g]/kappa) + 1  , lambda[g])
   }
   

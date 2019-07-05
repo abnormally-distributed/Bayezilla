@@ -12,3 +12,7 @@
   ggplot2::theme_set(Bayezilla:::theme_min())
   invisible()
 }
+
+.onAttach<- function(libname, pkgname){
+  suppressMessages(suppressWarnings(assignInNamespace("hist.default", Bayezilla:::hist.default, "Bayezilla")))
+}

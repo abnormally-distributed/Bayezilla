@@ -5,9 +5,8 @@
 \title{Plot Multiple Posterior Distributions}
 \usage{
 facetPost(fit, keeppars = NULL, droppars = c("ySim", "log_lik",
-  "lp__"), col = "blue", nrow = 4, ncol = 2, bins = 20,
-  type = "irregular", method = "QI", showMedian = FALSE,
-  cred.level = 0.9)
+  "lp__"), col = "blue", nrow = 4, ncol = 2, breaks = "dhist",
+  method = "QI", showMedian = FALSE, cred.level = 0.9)
 }
 \arguments{
 \item{fit}{a stanfit or runjags object. This can be used as an alternative to paramSampleVec,
@@ -24,9 +23,7 @@ fit = "yourmodel" so that the function knows it is not intended to be a vector.}
 
 \item{ncol}{number of columns in the layout}
 
-\item{bins}{Adjust the number of bins in the histogram.}
-
-\item{type}{Either "irregular" (default) which uses uneven sized bins proportional to probability density or "equal" for even sized bins.}
+\item{breaks}{a number, function name, or function.}
 
 \item{method}{Quantile Intervals "QI" (the default) or highest density intervals "HDI"}
 
@@ -42,25 +39,7 @@ A plot
 \description{
 This lets you plot several different posterior histograms at once in a faceted plot. 
 The number of columns, rows, and several other features can be customized. It is also easy to drop
-or keep certain parameters so you can view only the ones of interest. \cr 
-\cr
-\cr
-A unique feature of this function is that by default irregular sized bins are used. Why? Although
-this may appear unsightly to you at first, it actually provides more information. There are two general
-classes of histogram binning: equal-width and equal-area histograms. The former oversmooths in
-regions of high density, and is poor at identifying sharp peaks and multimodality. By contrast, the latter variety
-oversmooths in regions of low density and can mask outliers and the heavy tails of more
-leptokurtotic distributions (such as the Student-t and Laplacian distributions). The irregular
-binned histogram on the other hand lacks these faults, and is better at showing structure of 
-the plotted distribution. For plotting posterior distributions I find that this can aid interpretation
-of the posterior. Furthermore, regions of high density have not only taller bins (as is usual) but 
-more narrow bins as well. Regions of lower denisty have not only shorter, but wider bins. This
-makes the probability density much more immediately obvious, and captures interesting features of
-heavy tails and skew with greater efficacy. While you can turn off this feature with type = "equal",
-I urge you to give the irregular binning method a chance before dismissing it as unaesthetically
-appealing. For more information, see Denby & Mallows (2009). \cr 
-\cr
-See the details section at the end for an example of the output of this function.
+or keep certain parameters so you can view only the ones of interest. \cr
 }
 \details{
 An example of output: \cr
@@ -71,7 +50,4 @@ An example of output: \cr
 \examples{
 facetPost()
 
-}
-\references{
-Denby, L., & Mallows, C. (2009). Variations on the Histogram. Journal of Computational and Graphical Statistics, 18(1), 21–31. doi:10.1198/jcgs.2009.0002 \cr
 }

@@ -6,8 +6,7 @@
 \usage{
 plotPost(paramSampleVec, fit = NULL, param = NULL, xlab = NULL,
   col = "blue", ROPE = NULL, cred.level = 0.9, method = "QI",
-  CItextPlace = 0.7, type = "irregular", bins = 20,
-  showMedian = FALSE, ...)
+  CItextPlace = 0.7, breaks = "dhist", showMedian = FALSE, ...)
 }
 \arguments{
 \item{paramSampleVec}{a vector containing the posterior distribution}
@@ -33,9 +32,7 @@ comparison value, the second being the lower limit of the ROPE and the third bei
 
 \item{CItextPlace}{Adjust the position of the credible interval text if needed.}
 
-\item{type}{Either "irregular" (default) which uses uneven sized bins proportional to probability density or "equal" for even sized bins.}
-
-\item{bins}{Adjust the number of bins in the histogram. Default is 20.}
+\item{breaks}{a number, function name, or function.}
 
 \item{showMedian}{Should the median be used instead of the mean?}
 
@@ -49,34 +46,7 @@ This is a heavy modification of John Kruchke's function of the same name in the 
 package. This however makes many aesthetic changes and has some different features from the
 original function.
 \cr
-\cr
-A unique feature of this function is that by default irregular sized bins are used. Why? Although
-this may appear unsightly to you at first, it actually provides more information. There are two general
-classes of histogram binning: equal-width and equal-area histograms. The former oversmooths in
-regions of high density, and is poor at identifying sharp peaks and multimodality. 
-By contrast, the latter variety
-oversmooths in regions of low density and can mask outliers and the heavy tails of more
-leptokurtotic distributions (such as the Student-t and Laplacian distributions). The irregular
-binned histogram on the other hand lacks these faults, and is better at showing structure of 
-the plotted distribution. For plotting posterior distributions I find that this can aid interpretation
-of the posterior. Furthermore, regions of high density have not only taller bins (as is usual) but 
-more narrow bins as well. Regions of lower denisty have not only shorter, but wider bins. This
-makes the probability density much more immediately obvious, and captures interesting features of
-heavy tails and skew with greater efficacy. While you can turn off this feature with type = "equal",
-I urge you to give the irregular binning method a chance before dismissing it as unaesthetically
-appealing. For more information, see Denby & Mallows (2009). \cr
-\cr
-See the details section at the end for an example of the output of this function.
-}
-\details{
-An example of output: \cr
-\cr
-\if{html}{\figure{plotPost.png}{}}
-\if{latex}{\figure{plotPost.png}{}}
 }
 \examples{
 plotPost()
-}
-\references{
-Denby, L., & Mallows, C. (2009). Variations on the Histogram. Journal of Computational and Graphical Statistics, 18(1), 21–31. doi:10.1198/jcgs.2009.0002 \cr
 }

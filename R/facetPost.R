@@ -14,7 +14,7 @@
 #' @param nrow number of rows in the layout
 #' @param col the color scheme. One of "blue", "green" "red", or "purple".
 #' @param cred.level The credibility level. Defaults to 90\% (.90).
-#' @param method Quantile Intervals "QI" (the default) or highest density intervals "HDI"
+#' @param method Quantile intervals "QI" (the default), or highest density intervals "HDI"
 #' @param showMedian Should the median be used instead of the mean?
 #' @param comparison value, the second being the lower limit of the ROPE and the third being the upper limit of the ROPE.
 #' 

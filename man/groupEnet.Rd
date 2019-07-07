@@ -4,9 +4,9 @@
 \alias{groupEnet}
 \title{Group Elastic Net for Gaussian Likelihood}
 \usage{
-groupEnet(X, y, idx, log_lik = FALSE, iter = 10000, warmup = 1000,
-  adapt = 2000, chains = 4, thin = 1, method = "parallel",
-  cl = makeCluster(2), ...)
+groupEnet(X, y, idx, family = "gaussian", log_lik = FALSE,
+  iter = 10000, warmup = 1000, adapt = 2000, chains = 4,
+  thin = 1, method = "parallel", cl = makeCluster(2), ...)
 }
 \arguments{
 \item{X}{the model matrix. Construct this manually with model.matrix()[,-1]}
@@ -15,6 +15,8 @@ groupEnet(X, y, idx, log_lik = FALSE, iter = 10000, warmup = 1000,
 
 \item{idx}{the group labels. Should be of length = to ncol(model.matrix()[,-1]) with the group assignments
 for each covariate. Please ensure that you start numbering with 1, and not 0.}
+
+\item{family}{one of "gaussian" (default), "binomial", or "poisson"}
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 
@@ -42,10 +44,7 @@ The Bayesian elastic net described by Li and Lin (2010) modified for use as a gr
 akin to the Group Bayesian LASSO described by Kyung et al. (2010). Group selection is a method
 described first by Yuan & Lin (2006) for applying shrinkage penalties to coefficients that have some natural grouping,
 such as refelcting dummy variables of a single factor, or coefficients corresponding to related variables (for example, predictors
-derived from a single brain region). Note only the Gaussian likelihood is 
-provided because the Bayesian elastic net requires conditioning on the error variance, which GLM-families
-do not have.
-
+derived from a single brain region). \cr
 \cr
 The model structure is given below: \cr
 \cr

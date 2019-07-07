@@ -1,11 +1,13 @@
 model{
               tau ~ dgamma(.01, .01)
               phi ~ dbeta(1, 1) 
-              
+              lambda ~ dgamma(0.5 , 0.20)
+              sigma2 <- 1 / tau
               for (p in 1:P){
-                theta[p] ~ dnorm(0, 1e-200)
-                delta[p] ~ dbern(phi)
-                beta[p] <- delta[p] * theta[p]
+                    omega[p] <- 1 / (sigma2 / lambda)
+                    theta[p] ~ dnorm(0, omega[p])
+                    delta[p] ~ dbern(phi)
+                    beta[p] <- delta[p] * theta[p]
               }
 
               Intercept ~ dnorm(0, 1e-10)

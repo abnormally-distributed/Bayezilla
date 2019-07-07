@@ -4,7 +4,7 @@
 #' @param keeppars variables to keep
 #' @param droppars  variables to drop. defaults to c("ySim", "log_lik", "lp__")
 #' @param cred.level Confidence level. Defaults to .90.
-#' @param method credible interval methods. Defaults to QI (quantile intervals).
+#' @param method credible interval methods. Defaults to QI (quantile intervals) but HDI (highest density intervals)  is also available.
 #' @param H0 the null hypothesis. defaults to 0.
 #' @param SEbars Defaults to FALSE. If TRUE, superimposes 68.2 percent intervals over wider ones.
 #' @param ROPE If you would like, ROPE limits added to the plot.

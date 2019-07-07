@@ -2,7 +2,7 @@
 % Please edit documentation in R/summary_utilities.R
 \name{cred_interval}
 \alias{cred_interval}
-\title{Calculate Equal Tailed or Highest Density Interval}
+\title{Calculate Equal Tailed Quantile Intervals or Highest Density Intervals}
 \usage{
 cred_interval(object, cred.level = 0.9, method = "QI")
 }
@@ -11,10 +11,10 @@ cred_interval(object, cred.level = 0.9, method = "QI")
 
 \item{cred.level}{the confidence level. defaults to  .90}
 
-\item{method}{type of credible interval. One of "QI" or default "HDI".}
+\item{method}{type of credible interval. One of  "HDI", or default "QI".}
 }
 \description{
-Calculate Equal Tailed or Highest Density Interval
+Calculate Equal Tailed Quantile Intervals or Highest Density Intervals
 }
 \examples{
 cred_interval()

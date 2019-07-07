@@ -1,0 +1,256 @@
+---
+title: "A Comparison of Ordinary Least Squares Regression to Various Bayesian Regression Models"
+output: html_notebook
+---
+
+
+```{r include=FALSE}
+library(Bayezilla)
+```
+
+
+This features a comparison of ordinary least squares linear regression to several Bayesian models. All four data sets
+were randomly generated from specified coefficients. The aim of this simulation study was to assess how accurately different models can estimate the true coefficients after noise is added to simulate estimation and sampling error. Rather than focusing on prediction error of the outcome
+variables, the focus is on the coefficients to assess the suitability of
+various models for estimating the effects of variables on an outcome for scientific analysis. 
+
+The first two data sets are sparse cases, where some of the true effects are exactly zero. The last two data sets are 
+generated from non-sparse coefficient vectors. Tables of the point estimates are presented for each data set, along with
+a summary of the sum of absolute errors and sum of squared errors for the point estimates from the known true coefficients. Point estimates for the Bayesian models are the median values of the
+marginal posterior distributions. 
+
+The first and third data sets contain 30 observations and 15 predictors. The second and fourth
+data sets contain 60 observations and 11 predictors. These dimensions were chosen to assess the performance of 
+least squares regression in sample sizes typical of many scientific studies, with an emphasis on a relatively 
+large number of predictors. Nevertheless, all data sets are full rank and positive definite. These conditions are typical for when least squares performs less than desirably, hence it is expected that the regularized Bayesian models will perform better. The question to be answered here is how much better. 
+
+Models Compared:
+
+Ordinary Least squares
+
+glmBayes - Bayesian model with studen-t priors on the coefficients and adaptive degrees of freedom estimated from the data.
+
+RR - Bayesian Ridge Regression
+
+GRR - Adaptive Bayesian Ridge Regression
+
+blasso - Bayesian LASSO 
+
+extLASSO - Extended Bayesian LASSO
+
+negLASSO - Normal-Exponential-Gamma Bayesian LASSO (also known as hyperlasso)
+
+adaLASSO - Adaptive Bayesian LASSO
+
+bayesEnet - Bayesian Elastic Net
+
+adaEnet - Bayesian Adaptive Elastic Net
+
+gdp - Generalized Double Pareto Prior
+
+## Sparse Example 1
+
+```{r eval=FALSE, include=FALSE}
+data("demo.dat")
+```
+
+```{r echo=FALSE}
+lmcoefs = round(coef(lm(y ~ ., demo.dat)), 3)
+```
+
+```{r echo = FALSE, message=FALSE, warning=FALSE}
+out1 = glmBayes(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out2 = RR(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out3 = GRR(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out4 = blasso(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out5 = extLASSO(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out6 = negLASSO(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out7 = adaLASSO(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out8 = bayesEnet(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out9 = adaEnet(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out10 = gdp(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+```
+
+
+```{r echo=FALSE}
+ests = data.frame(true = round(attr(demo.dat, "true.betas"), 2), 
+           lm = round(lmcoefs, 2), 
+           glmBayes = post_summary(out1, keeppars = c("Intercept", "beta"))$median,
+           RR = post_summary(out2, keeppars = c("Intercept", "beta"))$median,
+           GRR = post_summary(out3, keeppars = c("Intercept", "beta"))$median,
+           blasso = post_summary(out4, keeppars = c("Intercept", "beta"))$median,
+           extLASSO = post_summary(out5, keeppars = c("Intercept", "beta"))$median,
+           negLASSO = post_summary(out6, keeppars = c("Intercept", "beta"))$median,
+           adaLASSO = post_summary(out7, keeppars = c("Intercept", "beta"))$median,
+           bayesEnet = post_summary(out8, keeppars = c("Intercept", "beta"))$median,
+           adaEnet = post_summary(out9, keeppars = c("Intercept", "beta"))$median,
+           gdp = post_summary(out10, keeppars = c("Intercept", "beta"))$median)
+
+knitr::kable(ests, "markdown")
+
+model.errs = as.data.frame(cbind(Errors = c("SSE", "SAE"),  rbind(
+  sapply(2:ncol(ests), function(x) sum((ests[,1] - ests[,x])^2)),
+  sapply(2:ncol(ests), function(x) sum(abs(ests[,1] - ests[,x])))
+)))
+colnames(model.errs) = c("Errors", colnames(ests)[-1])
+
+knitr::kable(model.errs, "markdown")
+```
+
+Winner: Adaptive Elastic Net, with Adaptive LASSO and Extended LASSO essentially tied.
+
+## Sparse Example 2
+
+```{r eval=FALSE, include=FALSE}
+data("demo.dat3")
+```
+
+
+```{r echo=FALSE}
+lmcoefs = round(coef(lm(y ~ ., demo.dat3)), 3)
+```
+
+
+```{r echo = FALSE, message=FALSE, warning=FALSE}
+out1 = glmBayes(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out2 = RR(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out3 = GRR(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out4 = blasso(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out5 = extLASSO(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out6 = negLASSO(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out7 = adaLASSO(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out8 = bayesEnet(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out9 = adaEnet(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out10 = gdp(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+```
+
+
+```{r echo=FALSE}
+ests = data.frame(true = round(attr(demo.dat3, "true.betas"), 2), 
+           lm = round(lmcoefs, 2), 
+           glmBayes = post_summary(out1, keeppars = c("Intercept", "beta"))$median,
+           RR = post_summary(out2, keeppars = c("Intercept", "beta"))$median,
+           GRR = post_summary(out3, keeppars = c("Intercept", "beta"))$median,
+           blasso = post_summary(out4, keeppars = c("Intercept", "beta"))$median,
+           extLASSO = post_summary(out5, keeppars = c("Intercept", "beta"))$median,
+           negLASSO = post_summary(out6, keeppars = c("Intercept", "beta"))$median,
+           adaLASSO = post_summary(out7, keeppars = c("Intercept", "beta"))$median,
+           bayesEnet = post_summary(out8, keeppars = c("Intercept", "beta"))$median,
+           adaEnet = post_summary(out9, keeppars = c("Intercept", "beta"))$median,
+           gdp = post_summary(out10, keeppars = c("Intercept", "beta"))$median)
+
+knitr::kable(ests, "markdown")
+
+model.errs = as.data.frame(cbind(Errors = c("SSE", "SAE"),  rbind(
+  sapply(2:ncol(ests), function(x) sum((ests[,1] - ests[,x])^2)),
+  sapply(2:ncol(ests), function(x) sum(abs(ests[,1] - ests[,x])))
+)))
+colnames(model.errs) = c("Errors", colnames(ests)[-1])
+
+knitr::kable(model.errs, "markdown")
+```
+
+Winner: Generalized Double Pareto prior, but several other models very
+similar in performance.
+
+## Non-Sparse Example 1
+
+```{r eval=FALSE, include=FALSE}
+data("demo.dat2")
+```
+
+```{r echo=FALSE}
+lmcoefs = round(coef(lm(y ~ ., demo.dat2)), 3)
+```
+ 
+```{r echo = FALSE, message=FALSE, warning=FALSE}
+out1 = glmBayes(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out2 = RR(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out3 = GRR(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out4 = blasso(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out5 = extLASSO(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out6 = negLASSO(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out7 = adaLASSO(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out8 = bayesEnet(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out9 = adaEnet(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out10 = gdp(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+```
+
+
+```{r echo=FALSE}
+ests = data.frame(true = round(attr(demo.dat2, "true.betas"), 2), 
+           lm = round(lmcoefs, 2), 
+           glmBayes = post_summary(out1, keeppars = c("Intercept", "beta"))$median,
+           RR = post_summary(out2, keeppars = c("Intercept", "beta"))$median,
+           GRR = post_summary(out3, keeppars = c("Intercept", "beta"))$median,
+           blasso = post_summary(out4, keeppars = c("Intercept", "beta"))$median,
+           extLASSO = post_summary(out5, keeppars = c("Intercept", "beta"))$median,
+           negLASSO = post_summary(out6, keeppars = c("Intercept", "beta"))$median,
+           adaLASSO = post_summary(out7, keeppars = c("Intercept", "beta"))$median,
+           bayesEnet = post_summary(out8, keeppars = c("Intercept", "beta"))$median,
+           adaEnet = post_summary(out9, keeppars = c("Intercept", "beta"))$median,
+           gdp = post_summary(out10, keeppars = c("Intercept", "beta"))$median)
+
+knitr::kable(ests, "markdown")
+
+model.errs = as.data.frame(cbind(Errors = c("SSE", "SAE"),  rbind(
+  sapply(2:ncol(ests), function(x) sum((ests[,1] - ests[,x])^2)),
+  sapply(2:ncol(ests), function(x) sum(abs(ests[,1] - ests[,x])))
+)))
+colnames(model.errs) = c("Errors", colnames(ests)[-1])
+
+knitr::kable(model.errs, "markdown")
+```
+
+Winner: Adaptive LASSO, with a few nearly tied.
+
+## Non-Sparse Example 2
+
+```{r eval=FALSE, include=FALSE}
+data("demo.dat4")
+```
+
+```{r echo=FALSE}
+lmcoefs = round(coef(lm(y ~ ., demo.dat4)), 3)
+```
+ 
+```{r echo = FALSE, message=FALSE, warning=FALSE}
+out1 = glmBayes(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out2 = RR(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out3 = GRR(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out4 = blasso(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out5 = extLASSO(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out6 = negLASSO(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out7 = adaLASSO(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out8 = bayesEnet(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out9 = adaEnet(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out10 = gdp(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+```
+
+
+```{r echo=FALSE}
+ests = data.frame(true = round(attr(demo.dat4, "true.betas"), 2), 
+           lm = round(lmcoefs, 2), 
+           glmBayes = post_summary(out1, keeppars = c("Intercept", "beta"))$median,
+           RR = post_summary(out2, keeppars = c("Intercept", "beta"))$median,
+           GRR = post_summary(out3, keeppars = c("Intercept", "beta"))$median,
+           blasso = post_summary(out4, keeppars = c("Intercept", "beta"))$median,
+           extLASSO = post_summary(out5, keeppars = c("Intercept", "beta"))$median,
+           negLASSO = post_summary(out6, keeppars = c("Intercept", "beta"))$median,
+           adaLASSO = post_summary(out7, keeppars = c("Intercept", "beta"))$median,
+           bayesEnet = post_summary(out8, keeppars = c("Intercept", "beta"))$median,
+           adaEnet = post_summary(out9, keeppars = c("Intercept", "beta"))$median,
+           gdp = post_summary(out10, keeppars = c("Intercept", "beta"))$median)
+
+knitr::kable(ests, "markdown")
+
+model.errs = as.data.frame(cbind(Errors = c("SSE", "SAE"),  rbind(
+  sapply(2:ncol(ests), function(x) sum((ests[,1] - ests[,x])^2)),
+  sapply(2:ncol(ests), function(x) sum(abs(ests[,1] - ests[,x])))
+)))
+colnames(model.errs) = c("Errors", colnames(ests)[-1])
+
+knitr::kable(model.errs, "markdown")
+```
+
+Winner: Adaptive Elastic Net

@@ -83,7 +83,7 @@
 #' @examples
 #' tTest(len ~ supp, ToothGrowth)
 #' 
-tTest = function(formula = NULL, data, like.func = "normal", compval = 0, model = "is", iter=10000, warmup=2500, adapt=2500, chains=4, thin=3, method = "parallel", cl = makeCluster(2), ...){
+tTest = function(formula = NULL, data, compval = 0, model = "is", iter=10000, warmup=2500, adapt=2500, chains=4, thin=3, method = "parallel", cl = makeCluster(2), ...){
  
     if (model == "is"){
       

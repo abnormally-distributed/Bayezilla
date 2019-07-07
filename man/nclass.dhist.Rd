@@ -4,12 +4,14 @@
 \alias{nclass.dhist}
 \title{Density-based adaptive width histogram bins}
 \usage{
-nclass.dhist(x, b = 1.5, rx = range(x))
+nclass.dhist(x, b = 1.5, rx = range(x), min.bins = 9)
 }
 \arguments{
 \item{b}{slope. See paper for details. Defaults to 1.5.}
 
 \item{rx}{range of data, if not taken from data.}
+
+\item{min.bins}{the minimum number of bins.}
 
 \item{nbins}{number of bins. See Denby & Mallows (2009).}
 }

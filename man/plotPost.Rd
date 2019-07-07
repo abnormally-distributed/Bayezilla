@@ -28,7 +28,7 @@ comparison value, the second being the lower limit of the ROPE and the third bei
 
 \item{cred.level}{The credibility level. Defaults to 90\% (.90).}
 
-\item{method}{Quantile Intervals "QI" (the default) or highest density intervals "HDI"}
+\item{method}{Quantile intervals "QI" (the default), or highest density intervals "HDI"}
 
 \item{CItextPlace}{Adjust the position of the credible interval text if needed.}
 

@@ -16,7 +16,7 @@
 #' the parameter name, but you can override that. If paramSampleVec is supplied without a custom
 #' label here, the x-axis will display the Greek theta symbol by default.
 #' @param cred.level The credibility level. Defaults to 90\% (.90).
-#' @param method Quantile Intervals "QI" (the default) or highest density intervals "HDI"
+#' @param method Quantile intervals "QI" (the default), or highest density intervals "HDI"
 #' @param CItextPlace Adjust the position of the credible interval text if needed.
 #' @param showMedian Should the median be used instead of the mean?
 #' @param ROPE If you would like to display a ROPE, enter vector of three numbers, the first being the
@@ -137,11 +137,10 @@ plotPost <- function(paramSampleVec, fit = NULL, param = NULL, xlab = NULL, col 
     lines(SE, c(0,0), lwd=5.45, lend='butt', col = ColorScheme[4])
   }  else if(method == "HDI" || method == "HDP") {
     HDI <- cred_interval( paramSampleVec, cred.level = cred.level, method = "HDI")
-    SE <-  cred_interval( paramSampleVec, cred.level = .682, method = "HDI")
+    SE <-  cred_interval( paramSampleVec, cred.level = .682, method = "QI")
     lines(HDI, c(0,0), lwd=4.5, lend='butt', col = ColorScheme[3])
     lines(SE, c(0,0), lwd=5.45, lend='butt', col = ColorScheme[4])
   }
-  
   
   if (is.null(ROPE) == FALSE) {
     compVal = ROPE[1]

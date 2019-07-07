@@ -5,7 +5,7 @@
 \title{Scatterplots with Marginal Histograms}
 \usage{
 scatPlot(x, y, xlab = "x", ylab = "y", col = "blues",
-  x.breaks = 15, y.breaks = 15, smooth = FALSE)
+  x.breaks = "dhist", y.breaks = "dhist", smooth = FALSE)
 }
 \arguments{
 \item{x}{the x-axis variable}

@@ -2,45 +2,69 @@
 % Please edit documentation in R/vitals.R
 \name{vitals}
 \alias{vitals}
-\title{Quickly calculate the 'vital signs' of a supplied model matrix (rank, condition number, positive definite check)}
+\title{Quickly calculate the rank, condition, positive definiteness, and variance inflation factors for a model}
 \usage{
-vitals(matrix)
+vitals(formula = NULL, data = NULL, matrix = NULL, y = NULL,
+  family = "gaussian")
+}
+\arguments{
+\item{formula}{a model formula}
+
+\item{data}{a data frame}
+
+\item{matrix}{if not using formula, you can provide a model matrix. The intercept column will be removed
+if detected.}
+
+\item{y}{the vector of y values if providing the model matrix}
+
+\item{family}{The glm family being used (required for the VIFs calculation). One of "gaussian" (the default), "binomial", "Gamma", "inverse.gaussian", "poisson", "quasi", "quasibinomial", or "quasipoisson"}
 }
 \value{
-a data frame
+a list
 }
 \description{
-This lets you quickly and easily calculate a few important things to know about a model matrix. The first is the column rank of a matrix. If this returns a value 
-other than the number of columns full.rank will display FALSE.  If FALSE, the model matrix is not invertible and thus cannot be used for ordinary least squares or generalized
-linear models without regularization. Fortunately, this package provides a great number of regularized regression models. The second is #' the conditioning number of the  #' matrix, defined as as either the ratio of the maximum singular
-value to the minimum singular value, or the ratio of the minimum singular value to the maximum singular value. If the max/min ratio is large, that is bad. If the min/max #' ratio is very small, that is not good. The final metric is a check for positive definiteness of the covariance matrix, cov(Matrix). If the covariance matrix has zero or negative
-eigenvalues, it will fail the positive definiteness check.
+This lets you quickly and easily calculate a few important things to know about a model matrix. \cr
+\cr
+The first is the column rank of a matrix. If this returns a value other than the number of columns full.rank will display FALSE.\cr
+\cr
+The second is the ratio the maximum to minimum singular value of the model matrix, which gives the conditioning number, C. 
+When a  matrix has a bad condition number that indicates the model is ill-conditioned. This means 
+a linear regression will be extremely sensitive to even the smallest errors and give untrustworthy results.
+In the worst case, if C is infinite the model matrix is singular and shrinkage methods must be used to 
+obtain a solution at all. Alternatively, the conditioning number can be defined as the ratio of the minimum to maximum singular 
+value of the model matrix, Cinv. Here, larger is better.  \cr
+\cr
+A rough estimate of how many digits the estimated y values will have can be manually calculated via the formula mean(D) - log(C),
+where mean(D) is the average number of decimal digits in the entries of the vector y. 
+\cr
+The third 'vital sign' is a check for positive definiteness of the covariance matrix, cov(Matrix).
+If the covariance matrix has zero or negative eigenvalues, it will fail the positive definiteness check.
 \cr
 \cr
-When a matrix has a bad condition number that indicates the matrix is  ill-conditioned. This means any algebraic functions of the matrix (ie, linear regression) will be 
-extremely sensitive to even the smallest errors and give untrustworthy results.  The condition number is an upper bound on how much precision may be lost . 
-When you solve a regression equation, y = bX, the idea is that small changes in X can yield very large changes in y. 
-To oversimplify an example for the sake of conceptual illustration, if all your entries in X were recorded with a precision up to two decimal places, ie +/- 
-0.01, a condition number of 100 would mean that the solution y would potentially only be correct within a range of +/-100*0.01 = +/-1. Hence, 
-the condition number indicates here that the estimation error of y would be greater than the precision that the data in your matrix X even have! Hence, the predicted #' values #' of y and the vector of coefficients b would be suspect.
-
+Also caculated are the variance inflation factors. These indicate the factor by which the standard error is inflated for
+a variable due to correlation with other variables. A common threshold for a VIF being bad is 5. Other commonly used
+thresholds are 3, 6, 8, and, 10. However, these should be interpreted with some degree of caution. If the model has
+a sufficiently low conditioning number and passes all of the other checks a decent fit may still be obtained (O’Brien, 2007). 
 \cr
 \cr
-At worst, the model matrix may be non-invertible and OLS or GLMs will not work.  
-A sufficiently bad conditioning number, a lack of positive-definiteness, 
-and lack of full #' rank, can result in such cases where the problem is said to
-be ill-posed, which means one of the three following conditions of the 
-regression problem are consequently 
-violated: \cr
+A sufficiently bad conditioning number, a lack of positive-definiteness, or
+lack of full rank can, in the worst case, mean the model matrix may be non-invertible and OLS or GLMs will not work. 
+Shrinkage methods will have to be used to fit the model.  Fortunately, this package provides a great number of regularized regression models. 
+Otherwise, sufficiently bad values can result in 
+the model being "ill-posed", which means one of the three following conditions of a well-posed mathematical problem
+are violated: \cr
 \cr
 1. A solution exists \cr
 2. A unique solution exists \cr
 3. The output of a function changes continuously with the input(s) \cr
 \cr
 \cr
- NOTE: You must get rid of the intercept column of the supplied model matrix.
 }
 \examples{
-vitals(model.matrix(Sepal.Width ~ ., iris)[,-1])
+vitals(matrix = model.matrix(Sepal.Width ~ ., iris)[,-1], y = iris$Sepal.Width)
+vitals(Sepal.Width ~ ., iris)
 
+}
+\references{
+O’brien, R.M.(2007) A Caution Regarding Rules of Thumb for Variance Inflation Factors Qual Quant 41: 673. https://doi.org/10.1007/s11135-006-9018-6
 }

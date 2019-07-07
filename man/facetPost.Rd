@@ -25,7 +25,7 @@ fit = "yourmodel" so that the function knows it is not intended to be a vector.}
 
 \item{breaks}{a number, function name, or function.}
 
-\item{method}{Quantile Intervals "QI" (the default) or highest density intervals "HDI"}
+\item{method}{Quantile intervals "QI" (the default), or highest density intervals "HDI"}
 
 \item{showMedian}{Should the median be used instead of the mean?}
 

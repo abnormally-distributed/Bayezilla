@@ -12,7 +12,7 @@
 #' statements from the marginal posterior ditributions. \cr
 #' \cr
 #' 
-#' Standard gaussian, laplacian, binomial, and poisson likelihood functions are available. \cr
+#' Standard gaussian, binomial, and poisson likelihood functions are available. \cr
 #' \cr
 #' Model Specification:\cr
 #' \cr

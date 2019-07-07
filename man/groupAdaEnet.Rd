@@ -4,9 +4,9 @@
 \alias{groupAdaEnet}
 \title{Group+Within Group Selection with Bayesian Adaptive Elastic Net}
 \usage{
-groupAdaEnet(X, y, idx, log_lik = FALSE, iter = 10000, warmup = 5000,
-  adapt = 5000, chains = 4, thin = 3, method = "parallel",
-  cl = makeCluster(2), ...)
+groupAdaEnet(X, y, idx, family = "gaussian", log_lik = FALSE,
+  iter = 10000, warmup = 5000, adapt = 5000, chains = 4,
+  thin = 3, method = "parallel", cl = makeCluster(2), ...)
 }
 \arguments{
 \item{X}{the model matrix. Construct this manually with model.matrix()[,-1]}
@@ -15,6 +15,8 @@ groupAdaEnet(X, y, idx, log_lik = FALSE, iter = 10000, warmup = 5000,
 
 \item{idx}{the group labels. Should be of length = to ncol(model.matrix()[,-1]) with the group assignments
 for each covariate. Please ensure that you start numbering with 1, and not 0.}
+
+\item{family}{one of "gaussian" (default), "binomial", or "poisson"}
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 
@@ -43,10 +45,6 @@ net (Li & Lin, 2010). It is further adapted such that coefficients can be assign
 spirit of the Group LASSO (Yuan & Lin, 2006) and Group Bayesian LASSO (Kyung et al., 2010). Each group receives an 
 independent L1 norm penalty, which is combined with the top level L2 penalty on a coefficient specific basis via
 the truncated gamma priors. 
- 
-Note only the Gaussian likelihood is 
-provided because the Bayesian elastic net requires conditioning on the error variance, which GLM-families
-do not have.
 
 \cr
 The model structure is given below: \cr

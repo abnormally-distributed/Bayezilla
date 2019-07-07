@@ -14,7 +14,7 @@
 #'
 #' @examples
 #' scatterPlot(iris$Sepal.Width, iris$Petal.Length, xlab = "Sepal Width", ylab = "Petal Length", col = "purple")
-scatPlot = function(x, y, xlab="x", ylab="y", col = "blues", x.breaks = 15, y.breaks = 15, smooth = FALSE){
+scatPlot = function(x, y, xlab="x", ylab="y", col = "blues", x.breaks = "dhist", y.breaks = "dhist", smooth = FALSE){
   
   old.par <- par(no.readonly = TRUE) # save default, for resetting... 
   on.exit(par(old.par))     #and when we quit the function, restore to original values

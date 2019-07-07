@@ -1,6 +1,7 @@
 #' Get a tidy summary of a bayesian model
 #'
-#' @description Get summary including QI or HDI credible intervals
+#' @description Get a detailed summary of your posterior distribution
+#' in the tidy data frame format.
 #'
 #' @param x the set of posterior samples to be summarized
 #' @param digits number of digits to round estimates to. Defaults to 2.
@@ -8,7 +9,7 @@
 #' estimate will be in column title "estimate". If "both" (the default) the mean will be the "estimate" column and the median will be in the "median" column.
 #' @param cred.method one of "HDI" (highest density intervals) or "QI" (equal tailed \ quantile intervals).
 #' @param cred.level the credibility level. defaults to 0.90
-#' @param keeppars the list of specific variables to keep if passing an runjags object.
+#' @param keeppars the list of specific variables to keep
 #' @param droppars list of parameters to exclude
 #' @param ess set to TRUE (default) to include ess
 #' @param knitr if you want to return the summary with knitr's kable function set to TRUE. Default is FALSE.
@@ -197,12 +198,11 @@ post_tibble = function (x, newnames = NULL, newcol = "term")
   dplyr::as_tibble(ret)
 }
 
-#' Calculate Equal Tailed or Highest Density Interval
-#'
-#'
+#' Calculate Equal Tailed Quantile Intervals or Highest Density Intervals
+#' 
 #' @param object vector of posterior samples
 #' @param cred.level the confidence level. defaults to  .90
-#' @param method type of credible interval. One of "QI" or default "HDI".
+#' @param method type of credible interval. One of  "HDI", or default "QI".
 #' @export
 #' @examples
 #' cred_interval()
@@ -236,8 +236,6 @@ cred_interval = function (object, cred.level = .90, method="QI")
   return(result)
 }
 
-
-
 #' Extract Point Estimate of Correlation Matrix 
 #'
 #' @param fit the stanfit or runjags object.
@@ -262,4 +260,82 @@ extractCormat = function (fit, type = "Rho")
   post = matrix(estimates, P, P)
   diag(post) <- 1
   return(post)
+}
+
+
+
+#' Get the marginal mode estimate of a posterior distribution
+#'
+#' @param x the set of posterior samples to be summarized in an runjags or stanfit object.
+#' @param keeppars the list of specific variables to keep. Defaults to c("Intercept", "beta")
+#' @param droppars list of parameters to exclude
+#' @return a vector of modes
+#' @export
+#'
+#' @examples
+#' marginalModes(fit)
+marginalModes = function(x, keeppars = c("Intercept", "beta"), droppars = c("ySim", "log_lik", "lp__")){
+  
+  stan <- inherits(x, "stanfit")
+  if (stan == TRUE) {
+    ss <- as.matrix(x)
+    wch = unique(unlist(sapply(droppars, function(z) which(regexpr(z, 
+                                                                   colnames(ss)) == 1))))
+    if (length(wch) != 0) {
+      ss <- ss[, -wch]
+    }
+    if (!is.null(keeppars)) {
+      wch = unique(unlist(sapply(keeppars, function(z) which(regexpr(z, 
+                                                                     colnames(ss)) == 1))))
+      if (length(wch) != 0) {
+        ss <- ss[, wch]
+      }
+    }
+  }
+  else if (class(x) == "runjags") {
+    ss <- runjags::combine.mcmc(x, collapse.chains = TRUE)
+    ss <- as.matrix(ss)
+    wch = unique(unlist(sapply(droppars, function(z) which(regexpr(z, 
+                                                                   colnames(ss)) == 1))))
+    if (length(wch) != 0) {
+      ss <- ss[, -wch]
+    }
+    if (!is.null(keeppars)) {
+      wch = unique(unlist(sapply(keeppars, function(z) which(regexpr(z, 
+                                                                     colnames(ss)) == 1))))
+      if (length(wch) != 0) {
+        ss <- ss[, wch]
+      }
+    }
+  }
+  else {
+    ss <- as.matrix(x)
+    wch = unique(unlist(sapply(droppars, function(z) which(regexpr(z, 
+                                                                   colnames(ss)) == 1))))
+    if (length(wch) != 0) {
+      ss <- ss[, -wch]
+    }
+    if (!is.null(keeppars)) {
+      wch = unique(unlist(sapply(keeppars, function(z) which(regexpr(z, 
+                                                                     colnames(ss)) == 1))))
+      if (length(wch) != 0) {
+        ss <- ss[, wch]
+      }
+    }
+  }
+  
+  contMode = function(x) {
+    # Use 10% credible interval limits as a threshold to focus later density estimation
+    # on the very highest density region. This provides much greater accuracy but retains
+    # enough samples for the density estimation to be workable
+    lower = Bayezilla::cred_interval(x, cred.level = 0.10, method = "HDI")[1]
+    upper = Bayezilla::cred_interval(x, cred.level = 0.10, method = "HDI")[2]
+    x = x[-c(which(x < lower), which(x > upper))]
+    dens = density(x, kernel = "t", n = 1024 * 10, adjust = 10)
+    round(dens$x[which.max(dens$y)], 5)
+  }
+  
+  modes = as.vector(apply(ss, 2, contMode))
+  names(modes) = colnames(ss)
+  return(modes)
 }

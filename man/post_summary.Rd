@@ -23,7 +23,7 @@ estimate will be in column title "estimate". If "both" (the default) the mean wi
 
 \item{cred.method}{one of "HDI" (highest density intervals) or "QI" (equal tailed \ quantile intervals).}
 
-\item{keeppars}{the list of specific variables to keep if passing an runjags object.}
+\item{keeppars}{the list of specific variables to keep}
 
 \item{droppars}{list of parameters to exclude}
 
@@ -37,7 +37,8 @@ estimate will be in column title "estimate". If "both" (the default) the mean wi
 a tibble or knitr::kable output
 }
 \description{
-Get summary including QI or HDI credible intervals
+Get a detailed summary of your posterior distribution
+in the tidy data frame format.
 }
 \examples{
 post_summary()

@@ -20,7 +20,7 @@ plotCI(fit, keeppars = NULL, droppars = c("ySim", "log_lik", "lp__"),
 
 \item{cred.level}{Confidence level. Defaults to .90.}
 
-\item{method}{credible interval methods. Defaults to QI (quantile intervals).}
+\item{method}{credible interval methods. Defaults to QI (quantile intervals) but HDI (highest density intervals)  is also available.}
 
 \item{ROPE}{If you would like, ROPE limits added to the plot.}
 

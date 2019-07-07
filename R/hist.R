@@ -197,7 +197,7 @@ hist.default <- function (x, breaks = "dhist", freq = FALSE, probability = !freq
       breaks <- match.arg(tolower(breaks), c("sturges", "dhist",
                                              "fd", "freedman-diaconis", "scott"))
       breaks <- switch(breaks, sturges = nclass.Sturges(x), 
-                       `freedman-diaconis` = , dhist = Bayezilla:::nclass.dhist(x), fd = nclass.FD(x), scott = nclass.scott(x), 
+                       `freedman-diaconis` = , dhist = nclass.dhist(x), fd = nclass.FD(x), scott = nclass.scott(x), 
                        stop("unknown 'breaks' algorithm"))
     }
     else if (is.function(breaks)) {
@@ -310,6 +310,7 @@ hist.default <- function (x, breaks = "dhist", freq = FALSE, probability = !freq
 #'   URL \url{http://pubs.amstat.org/doi/abs/10.1198/jcgs.2009.0002.}
 #' @param b slope. See paper for details. Defaults to 1.5.
 #' @param nbins number of bins. See Denby & Mallows (2009).
+#' @param min.bins the minimum number of bins. 
 #' @param rx range of data, if not taken from data.
 #' @return A function that takes a single parameter, a numeric x specifying
 #'   the data for which breaks are needed, and returns a vector of breaks.
@@ -317,21 +318,22 @@ hist.default <- function (x, breaks = "dhist", freq = FALSE, probability = !freq
 #' @examples 
 #' nclass.dhist()
 #' 
-nclass.dhist = function(x, b = 1.5, rx = range(x)) {
+nclass.dhist = function(x, b = 1.5, rx = range(x), min.bins = 9) {
   
-  n.bins <-function(x){
+  n.bins <-function(x, min.bins = 9){
     x<-x[!is.na(x)]
     n<-length(x)
-    Q<-quantile(x, c(0.05 , 0.95))
+    Q<-quantile(x, c(0.025 , 0.98))
     X<-range(x)
     result<- ceiling(n^(1/3)*(X[2]-X[1])/(2*(Q[2]-Q[1])))
+    result <- max(c(min.bins, result))
     names(result)<-NULL
     result
   }
   
-  a = b*diff(quantile(x, c(0.05 , 0.95)))
+  a = b*diff(quantile(x, c(0.025 , 0.98)))
   
-  nbins <- n.bins(x)
+  nbins <- n.bins(x, min.bins = min.bins)
   
   x <- sort(x)
   if(a == 0)

@@ -101,7 +101,7 @@ groupBridge = function(X, y, idx, family = "gaussian",  kappa = 1.4, log_lik = F
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
-    out = run.jags(model = "jags_bridge.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+    out = run.jags(model = "jags_bridge.txt", n.chains = chains, modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
     file.remove("jags_bridge.txt")
     if (!is.null(cl)) {
       parallel::stopCluster(cl = cl)
@@ -150,7 +150,7 @@ groupBridge = function(X, y, idx, family = "gaussian",  kappa = 1.4, log_lik = F
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
-    out = run.jags(model = "jags_bridge.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+    out = run.jags(model = "jags_bridge.txt", n.chains = chains, modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
     file.remove("jags_bridge.txt")
     if (!is.null(cl)) {
       parallel::stopCluster(cl = cl)
@@ -200,7 +200,7 @@ groupBridge = function(X, y, idx, family = "gaussian",  kappa = 1.4, log_lik = F
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
   
-  out = run.jags(model = "jags_bridge.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+  out = run.jags(model = "jags_bridge.txt", n.chains = chains, modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
   file.remove("jags_bridge.txt")
   if (!is.null(cl)) {
     parallel::stopCluster(cl = cl)

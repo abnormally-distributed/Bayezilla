@@ -49,7 +49,7 @@ The exponential
 distributions in turn have their respective rate parameters modeled through 
 independent group-level gamma(k_g * 0.50, 1 / lambda^2) distributions, where k_g is the number of predictors
 in group g. If there is no grouping then this reduces to the \code{\link[Bayezilla]{negLASSO}}.
-Lambda is a single top-level hyperparameter here given a gamma(0.25 , 0.01) prior. \cr 
+Lambda is a single top-level hyperparameter here given a gamma(0.50 , 0.20) prior. \cr 
 \cr
 The model specification is given below: \cr
 \cr

@@ -228,7 +228,7 @@ apcSpike = function(formula, data, lambda = -1, family = "gaussian",  log_lik = 
     }
   
   
-  out = run.jags(model = "jags_apc.txt", modules = c("glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)
+  out = run.jags(model = "jags_apc.txt", modules = c("glm on", "dic off"), monitor = monitor, n.chains = chains, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)
   if (is.null(cl) == FALSE){
     parallel::stopCluster(cl = cl)
   }

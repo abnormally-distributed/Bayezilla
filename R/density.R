@@ -135,9 +135,9 @@ density.default <- function (x, bw = "sj", adjust = 1, df = 1, kernel = c("stude
   kernel <- match.arg(kernel)
   if (give.Rkern) 
     return(switch(kernel, 
+                  student = 1/(sqrt(((df-2) / df) * pi)),
                   normal = 1/(2 * sqrt(pi)),
                   huber = 1/(1.5 * sqrt(pi)),
-                  student = 1/(sqrt(((df-2) / df) * pi)), 
                   laplacian = 1/(2 * pi), 
                   laplace = 1/(2 * pi), 
                   rectangular = sqrt(3)/6, 
@@ -191,7 +191,7 @@ density.default <- function (x, bw = "sj", adjust = 1, df = 1, kernel = c("stude
     n <- 2^ceiling(log2(n))
   if (missing(bw) && !missing(width)) {
     if (is.numeric(width)) {
-      fac <- switch(kernel, normal = 4, huber = 4, student = 4, laplace = 4, laplacian = 4, rectangular = 2 * 
+      fac <- switch(kernel, student = 4, normal = 4, huber = 4, laplace = 4, laplacian = 4, rectangular = 2 * 
                       sqrt(3), triangular = 2 * sqrt(6), epanechnikov = 2 * 
                       sqrt(5), biweight = 2 * sqrt(7), cosine = 2/sqrt(1/3 -  2/pi^2), optcosine = 2/sqrt(1 - 8/pi^2))
       bw <- width/fac
@@ -260,11 +260,11 @@ density.default <- function (x, bw = "sj", adjust = 1, df = 1, kernel = c("stude
   }
   
   kords <- switch(kernel, 
+                  student = dstudent(kords, df = df, mu = 0, sigma = bw), 
                   normal = dnorm(kords, sd = bw), 
                   laplacian = dlaplace(kords, scale = bw), 
                   laplace = dlaplace(kords, scale = bw), 
                   huber = dhuber(kords, bw = bw, k = 1.58),
-                  student = dstudent(kords, df = df, mu = 0, sigma = bw), 
                   rectangular = {
                     a <- bw * sqrt(3)
                     ifelse(abs(kords) < a, 0.5/a, 0)

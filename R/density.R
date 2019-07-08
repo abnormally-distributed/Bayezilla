@@ -128,10 +128,6 @@ density.default <- function (x, bw = "sj", adjust = 1, df = 1, kernel = c("stude
           width, give.Rkern = FALSE, n = 2048, from, to, cut = 3, na.rm = FALSE, 
           ...) 
 {
-  
-  if (kernel == "gaussian"){
-    kernel = "normal"
-  }
 
   chkDots(...)
   if (!missing(window) && missing(kernel)) 

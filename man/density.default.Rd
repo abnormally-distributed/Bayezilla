@@ -4,8 +4,8 @@
 \alias{density.default}
 \title{Modified version of density() with laplacian and student-t kernels}
 \usage{
-\method{density}{default}(x, bw = "sj", adjust = 1, df = 6,
-  kernel = c("normal", "laplacian", "laplace", "student", "huber",
+\method{density}{default}(x, bw = "sj", adjust = 1, df = 1,
+  kernel = c("student", "normal", "laplacian", "laplace", "huber",
   "epanechnikov", "rectangular", "triangular", "biweight", "cosine",
   "optcosine"), weights = NULL, window = kernel, width,
   give.Rkern = FALSE, n = 2048, from, to, cut = 3, na.rm = FALSE,
@@ -25,11 +25,11 @@ and just uses the better option as the default.}
 
 \item{adjust}{The specified (or computed) value of bw is multiplied by adjust.}
 
-\item{df}{The degrees of freedom for the student t kernel.}
+\item{df}{The degrees of freedom for the student t kernel. Defaults to 1 (making it a cauchy kernel).}
 
 \item{kernel}{a character string giving the smoothing kernel to be used. 
 This must partially match one of "normal", "laplacian", "student", "huber", "rectangular", "triangular", "epanechnikov", "biweight",
-"cosine" or "optcosine", with default "normal", and may be abbreviated to a unique prefix (single letter). \cr \cr
+"cosine" or "optcosine", with default "student", and may be abbreviated to a unique prefix (single letter). \cr \cr
 "cosine" is smoother than "optcosine", which is the usual ‘cosine’ kernel in the literature and almost MSE-efficient.
 However, "cosine" is the version used by S.}
 
@@ -38,7 +38,7 @@ The default NULL is equivalent to weights = rep(1/nx, nx) where nx is the length
 
 \item{window}{a character string giving the smoothing kernel to be used. 
 This must partially match one of "normal", "laplacian", "student", "huber","rectangular", "triangular", "epanechnikov", "biweight",
-"cosine" or "optcosine", with default "normal", and may be abbreviated to a unique prefix (single letter). \cr \cr
+"cosine" or "optcosine", with default "student", and may be abbreviated to a unique prefix (single letter). \cr \cr
 "cosine" is smoother than "optcosine", which is the usual ‘cosine’ kernel in the literature and almost MSE-efficient.
 However, "cosine" is the version used by S.}
 

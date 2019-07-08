@@ -1,4 +1,4 @@
-#' Histograms
+#' Modified Version of hist() with additional functionality
 #'
 #' @param x a vector of values for which the histogram is desired.
 #' @param breaks 	one of: a vector giving the breakpoints between histogram cells, a function to compute the vector of breakpoints,
@@ -85,7 +85,7 @@ hist <- function(x, breaks = "dhist", freq = FALSE, probability = !freq,
                  rug.col = "#445edd",
                  ...) { UseMethod("hist") }
 
-#' Histograms
+#' Modified Version of hist() with additional functionality
 #'
 #' @param x a vector of values for which the histogram is desired.
 #' @param breaks 	one of: a vector giving the breakpoints between histogram cells, a function to compute the vector of breakpoints,

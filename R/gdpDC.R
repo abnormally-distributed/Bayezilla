@@ -1,13 +1,13 @@
 #' Generalized double pareto shrinkage prior with unpenalized design covariates
 #'
-#' @description The generalized double pareto shrinkage prior of Armagan, Dunson, & Lee (2013). Note only the Gaussian 
-#' likelihood is provided because the model requires conditioning on the error variance, which GLM-families
-#' do not have. This variant grants the allowance for a set of covariates that are not penalized. 
+#' @description The generalized double pareto shrinkage prior of Armagan, Dunson, & Lee (2013). For the binomial
+#' and poisson likelihoods the same pseudovariance functions used in all other models in this package are used. 
+#' This variant grants the allowance for a set of covariates that are not penalized. 
 #' For example, you may wish to include variables such as age and gender in all models so that 
 #' the coefficients for the other variables are penalized while controlling for these. This
 #' is a common need in research. \cr\cr
 #' \cr
-#' This model is parameterized extremely similarly to the Bayesian LASSO of Park & Casella (2008), Normal-Exponential-Gamma prior of
+#' This model is parameterized similarly to the Bayesian LASSO of Park & Casella (2008), Normal-Exponential-Gamma prior of
 #' Griffin, J. E. and Brown, P. J. (2011), and adaptive Bayesian LASSO of Leng, Tran and David Nott (2018).
 #' The key feature is that this model explicitly utilizes generalized double pareto priors through a scale mixture
 #' of normals, while the Bayesian LASSO utilizes double exponential priors through a scale mixture of normals.
@@ -84,6 +84,9 @@ gdpDC = function(formula, design.formula, data, log_lik = FALSE, iter=10000, war
   y = model.frame(formula, data)[,1]
   FX <- as.matrix(model.matrix(design.formula, data)[, -1])
   
+  
+  if (family == "gaussian"){
+    
   jags_gdp = "model{
   
   tau ~ dgamma(.01, .01) 
@@ -132,10 +135,115 @@ gdpDC = function(formula, design.formula, data, log_lik = FALSE, iter=10000, war
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
   
-  out = run.jags(model = "jags_gdp.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+  out = run.jags(model = "jags_gdp.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, n.chains = chains, ...)
   file.remove("jags_gdp.txt")
   if (!is.null(cl)) {
     parallel::stopCluster(cl = cl)
   }
   return(out)
-}
+  }
+  
+  
+  if (family == "binomial"){
+    
+    jags_gdp = "model{
+    
+  alpha ~ dgamma(4, 8)
+  zeta ~ dgamma(4, 8)
+  for (p in 1:P){
+    lambda[p] ~ dgamma(alpha , zeta)
+    eta[p] ~ dexp(lambda[p]^2 / 2)
+    omega[p] <- 1 / (sigma2 * eta[p])
+    beta[p] ~ dnorm(0, omega[p])
+  }
+  
+  Intercept ~ dnorm(0, 1e-10)
+  
+  for (i in 1:N){
+      logit(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P]) + sum(design_beta[1:FP] * FX[i,1:FP])
+      y[i] ~ dbern(psi[i])
+      log_lik[i] <- logdensity.bern(y[i], psi[i])
+      ySim[i] ~ dbern(psi[i])
+  }
+  
+  sigma <- sqrt(1/tau)
+  Deviance <- -2 * sum(log_lik[1:N])
+}"
+    
+    P <- ncol(X)
+    write_lines(jags_gdp, "jags_gdp.txt")
+    jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X),  sigma2 = pow(mean(y), -1) * pow(1 - mean(y), -1), FP = FP, FX = FX)
+    monitor <- c("Intercept", "beta", "design_beta", "Deviance", "alpha", "zeta", "lambda", "ySim", "log_lik")
+    if (log_lik == FALSE){
+      monitor = monitor[-(length(monitor))]
+    }
+    inits <- lapply(1:chains, function(z) list("Intercept" = coef(glm(design.formula, data, family = "binomial"))[1], 
+                                               "design_beta" = coef(glm(design.formula, data, family = "binomial"))[-1], 
+                                               "alpha" = 1, 
+                                               "zeta" = 1, 
+                                               "eta" = rep(1, P), 
+                                               "lambda" = rep(1, P), 
+                                               .RNG.name= "lecuyer::RngStream", 
+                                               .RNG.seed= sample(1:10000, 1)))
+    
+    out = run.jags(model = "jags_gdp.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, n.chains = chains, summarise = FALSE, ...)
+    file.remove("jags_gdp.txt")
+    if (!is.null(cl)) {
+      parallel::stopCluster(cl = cl)
+    }
+    return(out)
+  }
+  
+  
+  if (family == "poisson"){
+    
+    jags_gdp = "model{
+    
+  alpha ~ dgamma(4, 8)
+  zeta ~ dgamma(4, 8)
+  for (p in 1:P){
+    lambda[p] ~ dgamma(alpha , zeta)
+    eta[p] ~ dexp(lambda[p]^2 / 2)
+    omega[p] <- 1 / (sigma2 * eta[p])
+    beta[p] ~ dnorm(0, omega[p])
+  }
+  
+  Intercept ~ dnorm(0, 1e-10)
+  
+  for (i in 1:N){
+    log(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P]) + sum(design_beta[1:FP] * FX[i,1:FP])
+    y[i] ~ dpois(psi[i])
+    log_lik[i] <- logdensity.pois(y[i], psi[i])
+    ySim[i] ~ dpois(psi[i])
+  }
+  
+  sigma <- sqrt(1/tau)
+  Deviance <- -2 * sum(log_lik[1:N])
+}"
+    
+    P <- ncol(X)
+    write_lines(jags_gdp, "jags_gdp.txt")
+    jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), sigma2 = pow(mean(y), -1), FP = FP, FX = FX)
+    monitor <- c("Intercept", "beta", "design_beta" , "Deviance", "alpha", "zeta", "lambda", "ySim", "log_lik")
+    if (log_lik == FALSE){
+      monitor = monitor[-(length(monitor))]
+    }
+    inits <- lapply(1:chains, function(z) list("Intercept" = coef(glm(design.formula, data, family = "poisson"))[1], 
+                                               "design_beta" = coef(glm(design.formula, data, family = "poisson"))[-1], 
+                                               "beta" = rep(0, P), 
+                                               "alpha" = 1, 
+                                               "zeta" = 1, 
+                                               "eta" = rep(1, P), 
+                                               "lambda" = rep(1, P), 
+                                               .RNG.name= "lecuyer::RngStream", 
+                                               .RNG.seed= sample(1:10000, 1)))
+    
+    out = run.jags(model = "jags_gdp.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, n.chains = chains, summarise = FALSE, ...)
+    file.remove("jags_gdp.txt")
+    if (!is.null(cl)) {
+      parallel::stopCluster(cl = cl)
+    }
+    return(out)
+  }
+  
+}  

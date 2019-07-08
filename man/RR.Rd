@@ -43,8 +43,8 @@ the binomial and poisson likelihood functions.
 \cr
 Model Specification: \cr
 \cr
-\if{html}{\figure{GRR.png}{}}
-\if{latex}{\figure{GRR.png}{}}
+\if{html}{\figure{RR.png}{}}
+\if{latex}{\figure{RR.png}{}}
 \cr
 \cr
 Plugin Pseudo-Variances: \cr

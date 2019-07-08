@@ -2,7 +2,7 @@
 % Please edit documentation in R/hist.R
 \name{hist}
 \alias{hist}
-\title{Histograms}
+\title{Modified Version of hist() with additional functionality}
 \usage{
 hist(x, breaks = "dhist", freq = FALSE, probability = !freq,
   include.lowest = TRUE, right = TRUE, density = NULL, angle = 45,
@@ -63,7 +63,7 @@ a single number giving the number of cells for the histogram, or a character str
 a histogram
 }
 \description{
-Histograms
+Modified Version of hist() with additional functionality
 }
 \details{
 The definition of histogram differs by source (with country-specific biases). 

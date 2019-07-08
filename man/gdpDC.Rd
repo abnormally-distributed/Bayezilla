@@ -37,14 +37,14 @@ gdpDC(formula, design.formula, data, log_lik = FALSE, iter = 10000,
 a runjags object
 }
 \description{
-The generalized double pareto shrinkage prior of Armagan, Dunson, & Lee (2013). Note only the Gaussian 
-likelihood is provided because the model requires conditioning on the error variance, which GLM-families
-do not have. This variant grants the allowance for a set of covariates that are not penalized. 
+The generalized double pareto shrinkage prior of Armagan, Dunson, & Lee (2013). For the binomial
+and poisson likelihoods the same pseudovariance functions used in all other models in this package are used. 
+This variant grants the allowance for a set of covariates that are not penalized. 
 For example, you may wish to include variables such as age and gender in all models so that 
 the coefficients for the other variables are penalized while controlling for these. This
 is a common need in research. \cr\cr
 \cr
-This model is parameterized extremely similarly to the Bayesian LASSO of Park & Casella (2008), Normal-Exponential-Gamma prior of
+This model is parameterized similarly to the Bayesian LASSO of Park & Casella (2008), Normal-Exponential-Gamma prior of
 Griffin, J. E. and Brown, P. J. (2011), and adaptive Bayesian LASSO of Leng, Tran and David Nott (2018).
 The key feature is that this model explicitly utilizes generalized double pareto priors through a scale mixture
 of normals, while the Bayesian LASSO utilizes double exponential priors through a scale mixture of normals.

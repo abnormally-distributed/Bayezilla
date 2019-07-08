@@ -16,3 +16,7 @@
 .onAttach<- function(libname, pkgname){
   suppressMessages(suppressWarnings(assignInNamespace("hist.default", Bayezilla:::hist.default, "Bayezilla")))
 }
+
+.onAttach<- function(libname, pkgname){
+  suppressMessages(suppressWarnings(assignInNamespace("density.default", Bayezilla:::density.default, "Bayezilla")))
+}

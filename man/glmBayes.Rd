@@ -2,7 +2,7 @@
 % Please edit documentation in R/glmBayes.R
 \name{glmBayes}
 \alias{glmBayes}
-\title{Bayesian Regularized GLMs}
+\title{Bayesian GLMs}
 \usage{
 glmBayes(formula, data, family = "gaussian", log_lik = FALSE,
   iter = 10000, warmup = 1000, adapt = 2000, chains = 4,
@@ -37,25 +37,17 @@ glmBayes(formula, data, family = "gaussian", log_lik = FALSE,
 A run.jags object
 }
 \description{
-This model utilizes normal-gamma mixture priors. A student-t prior can be parameterized as a norma-gamma mixture 
-by utilizing a gamma(df/2, df/2) distribution on the precision, where df is the desired degrees of freedom. Smaller
-degrees of freedom 
-result in long tails which can capture larger coefficients with sufficient evidence while also providing regularization
-for coefficients which lack strong evidence of being large. This prevents unrealistically large coefficient estimates
-due to collinearity. Collinearity results in increased posterior variance due to a flatter likelihood function, and a side
-effect of this is inflated coefficient estimates. \cr
+This model utilizes cauchy priors for the coefficients. The cauchy distribution
+is a Student-t distribution with 1 degree of freedom. It has undefined moments, meaning that it has
+undefined mean and undefined variance (although it does have a scale). Here the scale is set to a precision
+of 0.01, meaning a scale of 10. However, the extremely long tails of the cauchy 
+distribution make it extremely uninformative and ideal for use as a weakly informative prior to obtain
+unbiased estimates so long as your data are standardized to mean zero and standard deviation of 1. However,
+it should still be weakly informative for unstandardized data as well, but it's a good idea to standardize
+when using MCMC methods for computational efficiency. 
 \cr
-This model utilizes a prior on the degrees of freedom, meaning the prior distribution is a mixture of student-t distributions
-with different degrees of freedom. This setup yields a prior that is data-driven and adaptive. In other words, only as much
-regularization is applied as is needed. The behavior of this estimator is nearly identical to ridge regression. \cr
-\cr
-Standard gaussian, binomial, and poisson likelihood functions are available. \cr
-\cr
-For an alternative prior that also performs very well see \code{\link[Bayezilla]{apcGlm}}
-\cr
-Note that if you do not scale and center your numeric predictors, this will likely not perform well or
-give reasonable results. The mixing hyperparameters assume all covariates are on the same scale.
-
+For an alternative prior that also performs very well see \code{\link[Bayezilla]{apcGlm}}, which when
+lambda = -1 gives the Zellner-Siow Cauchy g-prior.
 \cr
 The model structure is given below: \cr
 \cr

@@ -6,7 +6,7 @@
 \usage{
 post_summary(x, digits = 2, estimate.method = "both", ess = TRUE,
   cred.level = 0.9, cred.method = "QI", keeppars = NULL,
-  droppars = c("ySim", "log_lik", "lp__"), knitr = FALSE,
+  droppars = c("ySim", "log_lik", "lp__"), knitr = TRUE,
   type = "markdown", ...)
 }
 \arguments{
@@ -27,7 +27,7 @@ estimate will be in column title "estimate". If "both" (the default) the mean wi
 
 \item{droppars}{list of parameters to exclude}
 
-\item{knitr}{if you want to return the summary with knitr's kable function set to TRUE. Default is FALSE.}
+\item{knitr}{if you want to return the summary with knitr's kable function set to TRUE. Default is TRUE.}
 
 \item{type}{output type for kable. Defaults to "markdown"}
 

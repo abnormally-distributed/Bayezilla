@@ -35,7 +35,7 @@ hetLm(formula, data, log_lik = FALSE, iter = 10000, warmup = 1000,
 A run.jags object
 }
 \description{
-Just a modification of the \code{\link[Bayezilla]{glmFlat}} 
+Just a modification of the \code{\link[Bayezilla]{glmBayes}} 
 function to model heteroskedasticity. Since each
 variable is represented by both a coefficient and sigma-coefficient the 
 number of parameters is doubled and hence can be more computationally 

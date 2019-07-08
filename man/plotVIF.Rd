@@ -17,19 +17,22 @@ plotVIF(formula, data, family = "gaussian")
 Calculate the VIF for a least squares or generalized linear model. This is used to
 diagnose the ill effects of multicollinearity and collinearity in a regression model. This can 
 be helpful in deciding to keep or drop a variable, or more preferably in some cases, use a regularized model.
-If the VIFs are all rather low, then using \code{\link[Bayezilla]{glmFlat}} is safe. If some are higher,
-you may wish to use \code{\link[Bayezilla]{glmBayes}} instead which results in ridge-regression like 
-regularization. \cr
+If the VIFs are all rather low, then using \code{\link[Bayezilla]{glmBayes}} is safe. If some are higher, but the
+matrix is still full rank, you might wish to use \code{\link[Bayezilla]{apcGlm}}. Otherwise, if the model is not 
+full rank, not positive definite, or has a very high conditioning number, you may wish to use a ridge regression 
+estimatior such as \code{\link[Bayezilla]{RR}}. To obtain information about rank,
+positive definiteness, and the condition number, use the \code{\link[Bayezilla]{vitals}} function. \cr
 \cr
 To use this simply input the formula, data,
 and family exactly as you would do with the glm() function. A horizontal dash is marked at 5, indicating
 a common point where many argue the variance inflation is problematic. Some have lower conservative (2) 
 thresholds and some have higher liberal (10) thresholds, but 5 is one of the more common figures, i.e., 
 Sheather (2009).
+\cr \cr
 What this means is that if a variable is inflating the variance of the estimation by a factor of 
 5, the standard error of the corresponding coefficient is 2.236068 higher than it would 
 be if it were not correlated with other variables. 
-
+\cr
 An example of output: \cr
 \cr
 \if{html}{\figure{VIF.png}{}}

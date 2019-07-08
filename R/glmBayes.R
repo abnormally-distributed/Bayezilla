@@ -1,24 +1,16 @@
-#' Bayesian Regularized GLMs
+#' Bayesian GLMs
 #'
-#' @description This model utilizes normal-gamma mixture priors. A student-t prior can be parameterized as a norma-gamma mixture 
-#' by utilizing a gamma(df/2, df/2) distribution on the precision, where df is the desired degrees of freedom. Smaller
-#' degrees of freedom 
-#' result in long tails which can capture larger coefficients with sufficient evidence while also providing regularization
-#' for coefficients which lack strong evidence of being large. This prevents unrealistically large coefficient estimates
-#' due to collinearity. Collinearity results in increased posterior variance due to a flatter likelihood function, and a side
-#' effect of this is inflated coefficient estimates. \cr
+#' @description This model utilizes cauchy priors for the coefficients. The cauchy distribution
+#' is a Student-t distribution with 1 degree of freedom. It has undefined moments, meaning that it has
+#' undefined mean and undefined variance (although it does have a scale). Here the scale is set to a precision
+#' of 0.01, meaning a scale of 10. However, the extremely long tails of the cauchy 
+#' distribution make it extremely uninformative and ideal for use as a weakly informative prior to obtain
+#' unbiased estimates so long as your data are standardized to mean zero and standard deviation of 1. However,
+#' it should still be weakly informative for unstandardized data as well, but it's a good idea to standardize
+#' when using MCMC methods for computational efficiency. 
 #' \cr
-#' This model utilizes a prior on the degrees of freedom, meaning the prior distribution is a mixture of student-t distributions
-#' with different degrees of freedom. This setup yields a prior that is data-driven and adaptive. In other words, only as much
-#' regularization is applied as is needed. The behavior of this estimator is nearly identical to ridge regression. \cr
-#' \cr
-#' Standard gaussian, binomial, and poisson likelihood functions are available. \cr
-#' \cr
-#' For an alternative prior that also performs very well see \code{\link[Bayezilla]{apcGlm}}
-#' \cr
-#' Note that if you do not scale and center your numeric predictors, this will likely not perform well or
-#' give reasonable results. The mixing hyperparameters assume all covariates are on the same scale.
-#' 
+#' For an alternative prior that also performs very well see \code{\link[Bayezilla]{apcGlm}}, which when
+#' lambda = -1 gives the Zellner-Siow Cauchy g-prior.
 #' \cr
 #' The model structure is given below: \cr
 #' \cr
@@ -52,16 +44,13 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
   X = as.matrix(model.matrix(formula, data)[,-1])
   y = model.frame(formula, data)[,1]
 
-  
   if (family == "gaussian"){
 
     jags_glm = "model{
               tau ~ dgamma(.01, .01) 
-              df ~ dgamma(.36, .12) 
-              omega ~ dgamma(.5 * df, .5 * df)
 
               for (p in 1:P){
-                beta[p] ~ dnorm(0, omega)
+                beta[p] ~ dt(0, .01, 1)
               }
 
               Intercept ~ dnorm(0, 1e-10)
@@ -78,15 +67,13 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
     P = ncol(X)
     write_lines(jags_glm, "jags_glm.txt")
     jagsdata = list(X = X, y = y,  N = length(y), P = ncol(X))
-    monitor = c("Intercept", "beta", "sigma", "omega", "df", "Deviance", "ySim" ,"log_lik")
+    monitor = c("Intercept", "beta", "sigma", "Deviance", "ySim" ,"log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = 0, 
-                                              "beta" = jitter(rep(0, P), amount = 1), 
-                                              "df" = 3, 
+    inits = lapply(1:chains, function(z) list("Intercept" = lmSolve(formula, data)[1], 
+                                              "beta" = lmSolve(formula, data)[-1], 
                                               "tau" = 1, 
-                                              "omega" = 1, 
                                               "ySim" = y, 
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed = sample(1:10000, 1)))
@@ -96,11 +83,8 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
 
     jags_glm = "model{
 
-              df ~ dgamma(.36, .12) 
-              omega ~ dgamma(.5 * df,  .5 * df) 
-
               for (p in 1:P){
-                beta[p] ~ dnorm(0, omega)
+                beta[p] ~ dt(0, .01, 1)
               }
 
               Intercept ~ dnorm(0, 1e-10)
@@ -117,14 +101,12 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
     P = ncol(X)
     write_lines(jags_glm, "jags_glm.txt")
     jagsdata = list(X = X, y = y, N = length(y),  P = ncol(X))
-    monitor = c("Intercept", "beta", "omega", "df", "Deviance", "ySim", "log_lik")
+    monitor = c("Intercept", "beta", "Deviance", "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = 0, 
-                                              "beta" = jitter(rep(0, P), amount = 1),
-                                              "df" = 3, 
-                                              "omega" = 1, 
+    inits = lapply(1:chains, function(z) list("Intercept" = coef(glm(formula, data, family = "binomial"))[1], 
+                                              "beta" = coef(glm(formula, data, family = "binomial"))[-1],
                                               "ySim" = y, 
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed= sample(1:10000, 1)))
@@ -134,15 +116,11 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
 
     jags_glm = "model{
 
-              df ~ dgamma(.36, .12) 
-              omega ~ dgamma(.5 * df,  .5 * df)
-
               for (p in 1:P){
-                  beta[p] ~ dnorm(0, omega)
+                  beta[p] ~ dt(0, .01, 1)
               }
 
               Intercept ~ dnorm(0, 1e-10)
-
               for (i in 1:N){
                  log(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P])
                  y[i] ~ dpois(psi[i])
@@ -156,15 +134,13 @@ glmBayes  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
     write_lines(jags_glm, "jags_glm.txt")
     P = ncol(X)
     jagsdata = list(X = X, y = y, N = length(y),  P = ncol(X))
-    monitor = c("Intercept", "beta", "omega", "df", "Deviance", "ySim", "log_lik")
+    monitor = c("Intercept", "beta", "Deviance", "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = 0, 
-                                              "omega" = 1, 
-                                              "df" = 3, 
+    inits = lapply(1:chains, function(z) list("Intercept" = coef(glm(formula, data, family = "poissson"))[1], 
                                               "ySim" = y,
-                                              "beta" = jitter(rep(0, P), amount = 1), 
+                                              "beta" = coef(glm(formula, data, family = "poissson"))[-1], 
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed= sample(1:10000, 1)))
   }

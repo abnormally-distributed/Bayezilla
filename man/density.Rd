@@ -28,7 +28,7 @@ and just uses the better option as the default.}
 
 \item{kernel}{a character string giving the smoothing kernel to be used. 
 This must partially match one of "normal", "laplacian", "student", "huber", "rectangular", "triangular", "epanechnikov", "biweight",
-"cosine" or "optcosine", with default "student", and may be abbreviated to a unique prefix (single letter). \cr \cr
+"cosine" or "optcosine", with default "laplacian", and may be abbreviated to a unique prefix (single letter). \cr \cr
 "cosine" is smoother than "optcosine", which is the usual ‘cosine’ kernel in the literature and almost MSE-efficient.
 However, "cosine" is the version used by S.}
 
@@ -37,7 +37,7 @@ The default NULL is equivalent to weights = rep(1/nx, nx) where nx is the length
 
 \item{window}{a character string giving the smoothing kernel to be used. 
 This must partially match one of "normal", "laplacian", "student", "huber", "rectangular", "triangular", "epanechnikov", "biweight",
-"cosine" or "optcosine", with default "student", and may be abbreviated to a unique prefix (single letter). \cr \cr
+"cosine" or "optcosine", with default "laplacian", and may be abbreviated to a unique prefix (single letter). \cr \cr
 "cosine" is smoother than "optcosine", which is the usual ‘cosine’ kernel in the literature and almost MSE-efficient.
 However, "cosine" is the version used by S.}
 

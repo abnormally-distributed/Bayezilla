@@ -1,6 +1,6 @@
 #' Bayesian OLS for Heteroskedastic Residuals
 #'
-#' @description Just a modification of the \code{\link[Bayezilla]{glmFlat}} 
+#' @description Just a modification of the \code{\link[Bayezilla]{glmBayes}} 
 #' function to model heteroskedasticity. Since each
 #' variable is represented by both a coefficient and sigma-coefficient the 
 #' number of parameters is doubled and hence can be more computationally 
@@ -45,8 +45,8 @@ hetLm  = function(formula, data, log_lik = FALSE, iter=10000, warmup=1000, adapt
 
     jags_glm = "model{
               for (p in 1:P){
-                beta[p] ~ dnorm(0, 1)
-                sigmaBeta[p] ~ dnorm(0, 1)
+                beta[p] ~ dt(0, .01, 1)
+                sigmaBeta[p] ~ dt(0, .01, 1)
               }
               
               Intercept ~ dnorm(0, 1e-10)

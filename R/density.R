@@ -17,14 +17,14 @@
 #' @param df The degrees of freedom for  the student t kernel. Defaults to 1 (making it a cauchy kernel).
 #' @param kernel a character string giving the smoothing kernel to be used. 
 #' This must partially match one of "normal", "laplacian", "student", "huber", "rectangular", "triangular", "epanechnikov", "biweight",
-#' "cosine" or "optcosine", with default "student", and may be abbreviated to a unique prefix (single letter). \cr \cr
+#' "cosine" or "optcosine", with default "laplacian", and may be abbreviated to a unique prefix (single letter). \cr \cr
 #' "cosine" is smoother than "optcosine", which is the usual ‘cosine’ kernel in the literature and almost MSE-efficient.
 #' However, "cosine" is the version used by S. 
 #' @param weights numeric vector of non-negative observation weights, hence of same length as x. 
 #' The default NULL is equivalent to weights = rep(1/nx, nx) where nx is the length of (the finite entries of) x[].
 #' @param window a character string giving the smoothing kernel to be used. 
 #' This must partially match one of "normal", "laplacian", "student", "huber", "rectangular", "triangular", "epanechnikov", "biweight",
-#' "cosine" or "optcosine", with default "student", and may be abbreviated to a unique prefix (single letter). \cr \cr
+#' "cosine" or "optcosine", with default "laplacian", and may be abbreviated to a unique prefix (single letter). \cr \cr
 #' "cosine" is smoother than "optcosine", which is the usual ‘cosine’ kernel in the literature and almost MSE-efficient.
 #' However, "cosine" is the version used by S. 
 #' @param width this exists for compatibility with S; if given, and bw is not, will set bw to width if this is a character string, or to a kernel-dependent multiple of width if this is numeric.
@@ -89,14 +89,14 @@ density <- function (x,
 #' @param df The degrees of freedom for the student t kernel. Defaults to 1 (making it a cauchy kernel).
 #' @param kernel a character string giving the smoothing kernel to be used. 
 #' This must partially match one of "normal", "laplacian", "student", "huber", "rectangular", "triangular", "epanechnikov", "biweight",
-#' "cosine" or "optcosine", with default "student", and may be abbreviated to a unique prefix (single letter). \cr \cr
+#' "cosine" or "optcosine", with default "laplacian", and may be abbreviated to a unique prefix (single letter). \cr \cr
 #' "cosine" is smoother than "optcosine", which is the usual ‘cosine’ kernel in the literature and almost MSE-efficient.
 #' However, "cosine" is the version used by S. 
 #' @param weights numeric vector of non-negative observation weights, hence of same length as x. 
 #' The default NULL is equivalent to weights = rep(1/nx, nx) where nx is the length of (the finite entries of) x[].
 #' @param window a character string giving the smoothing kernel to be used. 
 #' This must partially match one of "normal", "laplacian", "student", "huber","rectangular", "triangular", "epanechnikov", "biweight",
-#' "cosine" or "optcosine", with default "student", and may be abbreviated to a unique prefix (single letter). \cr \cr
+#' "cosine" or "optcosine", with default "laplacian", and may be abbreviated to a unique prefix (single letter). \cr \cr
 #' "cosine" is smoother than "optcosine", which is the usual ‘cosine’ kernel in the literature and almost MSE-efficient.
 #' However, "cosine" is the version used by S. 
 #' @param width this exists for compatibility with S; if given, and bw is not, will set bw to width if this is a character string, or to a kernel-dependent multiple of width if this is numeric.
@@ -135,11 +135,11 @@ density.default <- function (x, bw = "sj", adjust = 1, df = 1, kernel = c("stude
   kernel <- match.arg(kernel)
   if (give.Rkern) 
     return(switch(kernel, 
+                  laplacian = 1/(2 * pi), 
+                  laplace = 1/(2 * pi), 
                   student = 1/(sqrt(((df-2) / df) * pi)),
                   normal = 1/(2 * sqrt(pi)),
                   huber = 1/(1.5 * sqrt(pi)),
-                  laplacian = 1/(2 * pi), 
-                  laplace = 1/(2 * pi), 
                   rectangular = sqrt(3)/6, 
                   triangular = sqrt(6)/9, 
                   epanechnikov = 3/(5 * sqrt(5)), 
@@ -260,10 +260,10 @@ density.default <- function (x, bw = "sj", adjust = 1, df = 1, kernel = c("stude
   }
   
   kords <- switch(kernel, 
-                  student = dstudent(kords, df = df, mu = 0, sigma = bw), 
-                  normal = dnorm(kords, sd = bw), 
                   laplacian = dlaplace(kords, scale = bw), 
                   laplace = dlaplace(kords, scale = bw), 
+                  student = dstudent(kords, df = df, mu = 0, sigma = bw), 
+                  normal = dnorm(kords, sd = bw), 
                   huber = dhuber(kords, bw = bw, k = 1.58),
                   rectangular = {
                     a <- bw * sqrt(3)
@@ -296,4 +296,29 @@ density.default <- function (x, bw = "sj", adjust = 1, df = 1, kernel = c("stude
   structure(list(x = x, y = approx(xords, kords, x)$y, bw = bw, 
                  n = N, call = match.call(), data.name = name, has.na = FALSE), 
             class = "density")
+}
+
+
+#' Kernel Density Plot
+#'
+#' @param x the numeric vector of interest
+#' @param rug should a rug of the data be plotted underneath the density? Defaults to TRUE.
+#' @param col The fill color of the density curve. Defaults to "#45a3ffCC"
+#' @param border The border color of the density curve. Defaults to "#000f1e"
+#' @param rug.col The color of the data rug. Defaults to "#62a3e2".
+#' @param main.title Defaults to "Density Plot".
+#' @param ... Arguments to pass to density()
+#'
+#' @return a plot
+#' @export 
+#'
+#' @examples densPlot(rnorm(1000))
+densPlot <- function(x, rug = TRUE, col = "#45a3ffCC", border = "#000f1e", rug.col = "#62a3e2", main.title = "Density Plot", ...){
+  d <- density(x, ...)
+  plot(d, yaxt="n", ylab="", main= main.title, cex.lab=1.3, cex=1.8, bty="n", family = 'serif', lwd=1)
+  polygon(d, col=col, border = border)
+  if (isTRUE(rug)){
+    rug(x, ticksize = 0.01, side = 1, lwd = 0.5, col = rug.col,
+        quiet = getOption("warn") < 0)
+  }
 }

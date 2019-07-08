@@ -12,7 +12,7 @@
 #' @param keeppars the list of specific variables to keep
 #' @param droppars list of parameters to exclude
 #' @param ess set to TRUE (default) to include ess
-#' @param knitr if you want to return the summary with knitr's kable function set to TRUE. Default is FALSE.
+#' @param knitr if you want to return the summary with knitr's kable function set to TRUE. Default is TRUE.
 #' @param type output type for kable. Defaults to "markdown"
 #' @param ... other arguments to pass to knitr::kable
 #' @return a tibble or knitr::kable output
@@ -20,7 +20,7 @@
 #' @examples
 #' post_summary()
 #'
-post_summary = function (x, digits = 2, estimate.method = "both", ess = TRUE, cred.level = 0.90, cred.method = "QI", keeppars = NULL, droppars = c("ySim", "log_lik", "lp__"), knitr = FALSE, type = "markdown", ...)
+post_summary = function (x, digits = 2, estimate.method = "both", ess = TRUE, cred.level = 0.90, cred.method = "QI", keeppars = NULL, droppars = c("ySim", "log_lik", "lp__"), knitr = TRUE, type = "markdown", ...)
   {
     stan <- inherits(x, "stanfit")
     if (stan == TRUE) {

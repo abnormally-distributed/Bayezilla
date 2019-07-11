@@ -57,11 +57,11 @@ adaEnet  = function(formula, data,  family = "gaussian", log_lik = FALSE, iter=1
 
               tau ~ dgamma(.01, .01)
               sigma <- sqrt(1/tau)
-              lambdaL2 ~ dgamma(0.25, 0.2)
+              lambdaL2 ~ dgamma(1.5, 0.25)
               Intercept ~ dnorm(0, 1e-10)
 
               for (p in 1:P){
-                lambdaL1[p] ~ dgamma(0.25, 0.2)
+                lambdaL1[p] ~ dgamma(1.5, 0.25)
                 eta[p] ~ dgamma(.5, (8 * lambdaL2 * pow(sigma,2)) / pow(lambdaL1[p], 2)) T(1,)
                 beta_prec[p] <- (lambdaL2/pow(sigma,2)) * (eta[p]/(eta[p]-1))
                 beta[p] ~ dnorm(0, beta_prec[p])
@@ -79,7 +79,7 @@ adaEnet  = function(formula, data,  family = "gaussian", log_lik = FALSE, iter=1
   P <- ncol(X)
   write_lines(jags_adaptive_elastic_net, "jags_adaptive_elastic_net.txt")
   jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X))
-  monitor <- c("Intercept", "beta", "sigma", "lambdaL1", "lambdaL2", "Deviance", "eta", "ySim", "log_lik")
+  monitor <- c("Intercept", "beta", "sigma", "lambdaL1", "lambdaL2", "Deviance",  "ySim", "log_lik")
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
@@ -106,12 +106,12 @@ adaEnet  = function(formula, data,  family = "gaussian", log_lik = FALSE, iter=1
     jags_adaptive_elastic_net = "model{
 
               
-              lambdaL2 ~ dgamma(0.25, 0.2)
+              lambdaL2 ~ dgamma(1.5, 0.25)
 
               Intercept ~ dnorm(0, 1e-10)
 
               for (p in 1:P){
-                lambdaL1[p] ~ dgamma(0.25, 0.2)
+                lambdaL1[p] ~ dgamma(1.5, 0.25)
                 eta[p] ~ dgamma(.5, (8 * lambdaL2 * sigma2) / pow(lambdaL1[p], 2)) T(1,)
                 beta_prec[p] <- (lambdaL2/sigma2) * (eta[p]/(eta[p]-1))
                 beta[p] ~ dnorm(0, beta_prec[p])
@@ -133,7 +133,7 @@ adaEnet  = function(formula, data,  family = "gaussian", log_lik = FALSE, iter=1
     
     jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), sigma2 =pow(mean(y), -1) * pow(1 - mean(y), -1))
     
-    monitor <- c("Intercept", "beta", "lambdaL1", "lambdaL2", "Deviance", "eta", "ySim", "log_lik")
+    monitor <- c("Intercept", "beta", "lambdaL1", "lambdaL2", "Deviance",  "ySim", "log_lik")
     
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
@@ -159,12 +159,12 @@ adaEnet  = function(formula, data,  family = "gaussian", log_lik = FALSE, iter=1
     
     jags_adaptive_elastic_net = "model{
     
-              lambdaL2 ~ dgamma(0.25, 0.2)
+              lambdaL2 ~ dgamma(1.5, 0.25)
 
               Intercept ~ dnorm(0, 1e-10)
 
               for (p in 1:P){
-                lambdaL1[p] ~ dgamma(0.25, 0.2)
+                lambdaL1[p] ~ dgamma(1.5, 0.25)
                 eta[p] ~ dgamma(.5, (8 * lambdaL2 * sigma2) / pow(lambdaL1[p], 2)) T(1,)
                 beta_prec[p] <- (lambdaL2/sigma2) * (eta[p]/(eta[p]-1))
                 beta[p] ~ dnorm(0, beta_prec[p])
@@ -186,7 +186,7 @@ adaEnet  = function(formula, data,  family = "gaussian", log_lik = FALSE, iter=1
     
     jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), sigma2 = pow(mean(y), -1))
     
-    monitor <- c("Intercept", "beta", "lambdaL1", "lambdaL2", "Deviance", "eta", "ySim", "log_lik")
+    monitor <- c("Intercept", "beta", "lambdaL1", "lambdaL2", "Deviance",  "ySim", "log_lik")
     
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]

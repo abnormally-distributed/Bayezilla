@@ -74,7 +74,7 @@
 #' @param family one of "gaussian", "binomial", or "poisson".
 #' @param eta_prior one of "classic (default)", or "gamma".
 #' @param local_u This must be assigned a value. Default is 2. 
-#' @param top_u If using eta_prior = "classic" this must be assigned a value. Default is 100. 
+#' @param top_u If using eta_prior = "classic" this must be assigned a value. Default is 50. 
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 10000.
 #' @param warmup How many warmup samples? Defaults to 10000.
@@ -91,7 +91,7 @@
 #' @examples
 #' groupExtLASSO()
 #'
-groupExtLASSO  = function(X, y, idx, data, family = "gaussian", eta_prior = "classic", local_u = 2, top_u = 100, log_lik = FALSE, iter=10000, warmup = 10000, adapt=15000, chains=4, thin = 3, method = "parallel", cl = makeCluster(2), ...){
+groupExtLASSO  = function(X, y, idx, data, family = "gaussian", eta_prior = "classic", local_u = 2, top_u = 50, log_lik = FALSE, iter=10000, warmup = 10000, adapt=15000, chains=4, thin = 3, method = "parallel", cl = makeCluster(2), ...){
   
   nG = max(idx)
   
@@ -145,7 +145,7 @@ groupExtLASSO  = function(X, y, idx, data, family = "gaussian", eta_prior = "cla
           }"
       
       P = ncol(X)
-      monitor = c("Intercept", "beta", "sigma",  "Omega", "Deviance",  "eta" , "lambda", "delta", "ySim" ,"log_lik")
+      monitor = c("Intercept", "beta", "sigma",  "Omega", "Deviance",   "lambda", "delta", "ySim" ,"log_lik")
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }
@@ -211,7 +211,7 @@ groupExtLASSO  = function(X, y, idx, data, family = "gaussian", eta_prior = "cla
           }"
       
       P = ncol(X)
-      monitor = c("Intercept", "beta", "sigma",  "Omega",  "Deviance", "eta" , "lambda", "delta", "ySim" ,"log_lik")
+      monitor = c("Intercept", "beta", "sigma",  "Omega",  "Deviance",  "lambda", "delta", "ySim" ,"log_lik")
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }
@@ -278,7 +278,7 @@ groupExtLASSO  = function(X, y, idx, data, family = "gaussian", eta_prior = "cla
             }"
       
       P = ncol(X)
-      monitor = c("Intercept", "beta", "Omega", "Deviance", "eta" , "lambda", "delta", "ySim" ,"log_lik")
+      monitor = c("Intercept", "beta", "Omega", "Deviance",  "lambda", "delta", "ySim" ,"log_lik")
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }
@@ -338,7 +338,7 @@ groupExtLASSO  = function(X, y, idx, data, family = "gaussian", eta_prior = "cla
             }"
       
       P = ncol(X)
-      monitor = c("Intercept", "beta", "Omega", "Deviance",  "eta" , "lambda", "delta", "ySim" ,"log_lik")
+      monitor = c("Intercept", "beta", "Omega", "Deviance",   "lambda", "delta", "ySim" ,"log_lik")
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }
@@ -402,7 +402,7 @@ groupExtLASSO  = function(X, y, idx, data, family = "gaussian", eta_prior = "cla
           }"
       
       P = ncol(X)
-      monitor = c("Intercept", "beta", "Omega",  "Deviance", "eta" , "lambda", "delta", "ySim" ,"log_lik")
+      monitor = c("Intercept", "beta", "Omega",  "Deviance",  "lambda", "delta", "ySim" ,"log_lik")
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }
@@ -462,7 +462,7 @@ groupExtLASSO  = function(X, y, idx, data, family = "gaussian", eta_prior = "cla
           }"
       
       P = ncol(X)
-      monitor = c("Intercept", "beta", "Omega", "Deviance", "eta" , "lambda", "delta", "ySim" ,"log_lik")
+      monitor = c("Intercept", "beta", "Omega", "Deviance",  "lambda", "delta", "ySim" ,"log_lik")
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }

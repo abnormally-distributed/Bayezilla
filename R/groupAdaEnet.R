@@ -58,10 +58,10 @@ groupAdaEnet  = function(X, y, idx, family = "gaussian", log_lik = FALSE, iter=1
               sigma <- sqrt(1/tau)
               
               Intercept ~ dnorm(0, 1e-10)
-              lambdaL2 ~ dgamma(0.25 , 0.20)
+              lambdaL2 ~ dgamma(1.5, 0.25)
               
               for (g in 1:nG){
-                  lambdaL1[g] ~ dgamma(0.25 , 0.20)
+                  lambdaL1[g] ~ dgamma(1.5, 0.25)
               }
               
               for (p in 1:P){
@@ -83,7 +83,7 @@ groupAdaEnet  = function(X, y, idx, family = "gaussian", log_lik = FALSE, iter=1
   P <- ncol(X)
   write_lines(jags_adaptive_elastic_net, "jags_adaptive_elastic_net.txt")
   jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), idx = idx, nG = max(idx), k = as.vector(table(idx)))
-  monitor <- c("Intercept", "beta", "sigma", "lambdaL1", "lambdaL2", "Deviance", "eta", "ySim", "log_lik")
+  monitor <- c("Intercept", "beta", "sigma", "lambdaL1", "lambdaL2", "Deviance",  "ySim", "log_lik")
   
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
@@ -151,7 +151,7 @@ groupAdaEnet  = function(X, y, idx, family = "gaussian", log_lik = FALSE, iter=1
     P <- ncol(X)
     write_lines(jags_elastic_net, "jags_elastic_net.txt")
     jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), idx = idx, nG = max(idx), k = as.vector(table(idx)), sigma2 = pow(mean(y), -1) * pow(1 - mean(y), -1))
-    monitor <- c("Intercept", "beta", "lambdaL1", "lambdaL2", "Deviance", "eta", "ySim", "log_lik")
+    monitor <- c("Intercept", "beta", "lambdaL1", "lambdaL2", "Deviance",  "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
@@ -202,7 +202,7 @@ groupAdaEnet  = function(X, y, idx, family = "gaussian", log_lik = FALSE, iter=1
     P <- ncol(X)
     write_lines(jags_elastic_net, "jags_elastic_net.txt")
     jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), idx = idx, nG = max(idx), k = as.vector(table(idx)), sigma2 = pow(mean(y), -1))
-    monitor <- c("Intercept", "beta", "lambdaL1", "lambdaL2", "Deviance", "eta", "ySim", "log_lik")
+    monitor <- c("Intercept", "beta", "lambdaL1", "lambdaL2", "Deviance",  "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }

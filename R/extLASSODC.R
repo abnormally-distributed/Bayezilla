@@ -65,7 +65,7 @@
 #' @param family one of "gaussian", "binomial", or "poisson".
 #' @param eta_prior one of "classic (default)", or "gamma".
 #' @param local_u This must be assigned a value. Default is 2. 
-#' @param top_u If using eta_prior = "classic" this must be assigned a value. Default is 50. 
+#' @param top_u If using eta_prior = "classic" this must be assigned a value. Default is 25. 
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 10000.
 #' @param warmup How many warmup samples? Defaults to 10000.
@@ -83,7 +83,7 @@
 #' @examples
 #' extLASSODC()
 #'
-extLASSODC  = function(formula, design.formula, data, family = "gaussian", eta_prior = "classic", local_u = 2, top_u = 50, log_lik = FALSE, iter=10000, warmup = 10000, adapt=15000, chains=4, thin = 3, method = "parallel", cl = makeCluster(2), ...){
+extLASSODC  = function(formula, design.formula, data, family = "gaussian", eta_prior = "classic", local_u = 2, top_u = 25, log_lik = FALSE, iter=10000, warmup = 10000, adapt=15000, chains=4, thin = 3, method = "parallel", cl = makeCluster(2), ...){
   
   FX <- as.matrix(model.matrix(design.formula, data)[, -1])
   X = model.matrix(formula, data)[,-1]
@@ -138,7 +138,7 @@ extLASSODC  = function(formula, design.formula, data, family = "gaussian", eta_p
       
       P = ncol(X)
       FP <- ncol(FX)
-      monitor = c("Intercept", "beta", "design_beta", "sigma",  "Omega", "Deviance",  "eta" , "lambda", "delta", "ySim" ,"log_lik")
+      monitor = c("Intercept", "beta", "design_beta", "sigma",  "Omega", "Deviance",   "lambda", "delta", "ySim" ,"log_lik")
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }
@@ -205,7 +205,7 @@ extLASSODC  = function(formula, design.formula, data, family = "gaussian", eta_p
       
       P = ncol(X)
       FP <- ncol(FX)
-      monitor = c("Intercept", "beta", "design_beta", "sigma", "Omega", "Deviance", "eta" , "lambda", "delta", "ySim" ,"log_lik")
+      monitor = c("Intercept", "beta", "design_beta", "sigma", "Omega", "Deviance",  "lambda", "delta", "ySim" ,"log_lik")
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }
@@ -273,7 +273,7 @@ extLASSODC  = function(formula, design.formula, data, family = "gaussian", eta_p
       
       P = ncol(X)
       FP <- ncol(FX)
-      monitor = c("Intercept", "beta", "design_beta", "Omega", "Deviance", "eta" , "lambda", "delta", "ySim" ,"log_lik")
+      monitor = c("Intercept", "beta", "design_beta", "Omega", "Deviance",  "lambda", "delta", "ySim" ,"log_lik")
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }
@@ -337,7 +337,7 @@ extLASSODC  = function(formula, design.formula, data, family = "gaussian", eta_p
       
       P = ncol(X)
       FP <- ncol(FX)
-      monitor = c("Intercept", "beta", "design_beta", "Omega", "Deviance",  "eta" , "lambda", "delta", "ySim" ,"log_lik")
+      monitor = c("Intercept", "beta", "design_beta", "Omega", "Deviance",   "lambda", "delta", "ySim" ,"log_lik")
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }
@@ -405,7 +405,7 @@ extLASSODC  = function(formula, design.formula, data, family = "gaussian", eta_p
       
       P = ncol(X)
       FP <- ncol(FX)
-      monitor = c("Intercept", "beta", "design_beta", "Omega",  "Deviance", "eta" , "lambda", "delta", "ySim" ,"log_lik")
+      monitor = c("Intercept", "beta", "design_beta", "Omega",  "Deviance",  "lambda", "delta", "ySim" ,"log_lik")
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }
@@ -470,7 +470,7 @@ extLASSODC  = function(formula, design.formula, data, family = "gaussian", eta_p
       
       P = ncol(X)
       FP <- ncol(FX)
-      monitor = c("Intercept", "beta", "design_beta", "Omega", "Deviance", "eta" , "lambda", "delta", "ySim" ,"log_lik")
+      monitor = c("Intercept", "beta", "design_beta", "Omega", "Deviance",  "lambda", "delta", "ySim" ,"log_lik")
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }

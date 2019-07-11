@@ -5,7 +5,7 @@
 \title{Extended Bayesian LASSO}
 \usage{
 extLASSO(formula, data, family = "normal", eta_prior = "classic",
-  local_u = 2, top_u = 100, log_lik = FALSE, iter = 10000,
+  local_u = 2, top_u = 50, log_lik = FALSE, iter = 10000,
   warmup = 10000, adapt = 15000, chains = 4, thin = 3,
   method = "parallel", cl = makeCluster(2), ...)
 }
@@ -20,7 +20,7 @@ extLASSO(formula, data, family = "normal", eta_prior = "classic",
 
 \item{local_u}{This must be assigned a value. Default is 2.}
 
-\item{top_u}{If using eta_prior = "classic" this must be assigned a value. Default is 100.}
+\item{top_u}{If using eta_prior = "classic" this must be assigned a value. Default is 50.}
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 

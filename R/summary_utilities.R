@@ -331,7 +331,7 @@ marginalModes = function(x, keeppars = c("Intercept", "beta"), droppars = c("ySi
     lower = Bayezilla::cred_interval(x, cred.level = 0.10, method = "HDI")[1]
     upper = Bayezilla::cred_interval(x, cred.level = 0.10, method = "HDI")[2]
     x = x[-c(which(x < lower), which(x > upper))]
-    dens = density(x, kernel = "laplacian")
+    dens = density(x, kernel = "gaussian")
     round(dens$x[which.max(dens$y)], 5)
   }
   

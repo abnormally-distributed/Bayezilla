@@ -81,7 +81,7 @@ bayesEnetDC  = function(formula, design.formula, data,  family = "gaussian", log
   FP <- ncol(FX)
   write_lines(jags_elastic_net, "jags_elastic_net.txt")
   jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), FP = FP, FX = FX)
-  monitor <- c("Intercept", "beta", "design_beta", "sigma", "lambdaL1", "lambdaL2", "Deviance", "eta", "ySim", "log_lik")
+  monitor <- c("Intercept", "beta", "design_beta", "sigma", "lambdaL1", "lambdaL2", "Deviance",  "ySim", "log_lik")
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
@@ -135,7 +135,7 @@ if (family == "binomial" || family == "logistic"){
   
   jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), sigma2 =pow(mean(y), -1) * pow(1 - mean(y), -1), FP = FP, FX = FX)
   
-  monitor <- c("Intercept", "beta", "lambdaL1", "lambdaL2", "Deviance", "eta", "ySim", "log_lik")
+  monitor <- c("Intercept", "beta", "lambdaL1", "lambdaL2", "Deviance",  "ySim", "log_lik")
   
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
@@ -189,7 +189,7 @@ if (family == "poisson"){
   
   jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), sigma2 = pow(mean(y), -1), FP = FP, FX = FX)
   
-  monitor <- c("Intercept", "beta", "lambdaL1", "lambdaL2", "Deviance", "eta", "ySim", "log_lik")
+  monitor <- c("Intercept", "beta", "lambdaL1", "lambdaL2", "Deviance",  "ySim", "log_lik")
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }

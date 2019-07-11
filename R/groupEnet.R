@@ -76,7 +76,7 @@ groupEnet  = function(X, y, idx, family = "gaussian", log_lik = FALSE, iter=1000
   P <- ncol(X)
   write_lines(jags_elastic_net, "jags_elastic_net.txt")
   jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), idx = idx, nG = max(idx), k = as.vector(table(idx)))
-  monitor <- c("Intercept", "beta", "sigma", "lambdaL1", "lambdaL2", "Deviance", "eta", "ySim", "log_lik")
+  monitor <- c("Intercept", "beta", "sigma", "lambdaL1", "lambdaL2", "Deviance", "ySim", "log_lik")
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
@@ -128,7 +128,7 @@ groupEnet  = function(X, y, idx, family = "gaussian", log_lik = FALSE, iter=1000
     P <- ncol(X)
     write_lines(jags_elastic_net, "jags_elastic_net.txt")
     jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), idx = idx, nG = max(idx), k = as.vector(table(idx)), sigma2 = pow(mean(y), -1) * pow(1 - mean(y), -1))
-    monitor <- c("Intercept", "beta", "lambdaL1", "lambdaL2", "Deviance", "eta", "ySim", "log_lik")
+    monitor <- c("Intercept", "beta", "lambdaL1", "lambdaL2", "Deviance", "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
@@ -180,7 +180,7 @@ groupEnet  = function(X, y, idx, family = "gaussian", log_lik = FALSE, iter=1000
     P <- ncol(X)
     write_lines(jags_elastic_net, "jags_elastic_net.txt")
     jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), idx = idx, nG = max(idx), k = as.vector(table(idx)), sigma2 = pow(mean(y), -1))
-    monitor <- c("Intercept", "beta", "lambdaL1", "lambdaL2", "Deviance", "eta", "ySim", "log_lik")
+    monitor <- c("Intercept", "beta", "lambdaL1", "lambdaL2", "Deviance", "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }

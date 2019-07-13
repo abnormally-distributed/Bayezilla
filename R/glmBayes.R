@@ -40,6 +40,8 @@
 #' tails will be pulled in, giving more uniform shrinkage (at this point it is effectively a ridge regression). If the
 #' precision is increased, the contrast between small and large coefficients will tend to be even greater for small
 #' degrees of freedom, while higher degrees of freedom approach a highly regularized ridge solution. \cr
+#' Note that the figure below is for conceptual illustrative purposes, and does not correspond to an
+#' exact mathematical function. \cr
 #' \cr
 #' \if{html}{\figure{shrinkagelowres.png}{}}
 #' \if{latex}{\figure{shrinkagelowres.png}{}}
@@ -48,7 +50,7 @@
 #' @param formula the model formula
 #' @param data a data frame
 #' @param family one of "gaussian", "binomial", or "poisson".
-#' @param df
+#' @param df degrees of freedom for prior.
 #' @param s The desired prior scale. Defaults to 1. Is automatically squared within the model so
 #' select a number here on the standard deviation scale.
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
@@ -90,6 +92,7 @@ glmBayes  = function(formula, data, family = "gaussian", s = 1, df = 1, log_lik 
                  log_lik[i] <- logdensity.norm(y[i], Intercept + sum(beta[1:P] * X[i,1:P]), tau)
                  ySim[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
               }
+              
               sigma <- sqrt(1/tau)
               Deviance <- -2 * sum(log_lik[1:N])
           }"

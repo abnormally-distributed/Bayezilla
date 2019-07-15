@@ -4,8 +4,8 @@
 \alias{apcGlm}
 \title{Adaptive Powered Correlation Prior}
 \usage{
-apcGlm(formula, data, family = "gaussian", lambda = -1,
-  log_lik = FALSE, iter = 10000, warmup = 1000, adapt = 5000,
+apcGlm(formula, data, family = "gaussian", lower = -10, upper = 10,
+  log_lik = FALSE, iter = 10000, warmup = 2500, adapt = 7500,
   chains = 4, thin = 1, method = "parallel", cl = makeCluster(2),
   ...)
 }
@@ -16,8 +16,8 @@ apcGlm(formula, data, family = "gaussian", lambda = -1,
 
 \item{family}{one of "gaussian", "binomial", or "poisson".}
 
-\item{lambda}{the power to use in the adaptive correlation prior. Default is -1, which gives the Zellner-Siow g prior. I suggest 
-fitting multiple values of lambda and selecting which is best via LOO-IC or WAIC.}
+\item{lower}{lower limit on value of lambda. Defaults to -10. If the model is failing due to a non-invertible
+matrix, try adjusting this number.}
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 
@@ -36,28 +36,33 @@ fitting multiple values of lambda and selecting which is best via LOO-IC or WAIC
 \item{cl}{Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.}
 
 \item{...}{Other arguments to run.jags.}
+
+\item{uppper}{upper limit on value of lambda. Defaults to 10. If the model is failing due to a non-invertible
+matrix, try adjusting this number.}
 }
 \value{
 A run.jags object.
 }
 \description{
-This function adapts the adaptive powered correlation prior to the situation of estimating a single general(ized) linear regression
-model. Typically, in regression the cross-product XtX is inverted in the process of calculating the coefficients. In addition, 
-the Zellner-Siow cauchy g-prior (Zellner & Siow, 1980; also see Liang et al., 2008) utilizes the inverse crossproduct is used as an empirical Bayesian method of determining the proper scale of the coefficient
-priors by treating the inverse crossproduct as a covariance matrix, which is scaled by the parameter "g". \cr
+This function implements the adaptive powered correlation prior for estimating a single general(ized) linear regression
+model. 
 \cr
-The adaptive powered correlation prior simply extends this to allow using other powers besides -1. The power here will be referred to as "lambda".
-Setting lambda to 0 results in a ridge-regression like prior. Setting lambda to a positive value adapts to collinearity by shrinking 
-collinear variables towards a common value. Negative values of lambda pushes collinear variables further apart. Of course, setting lambda
-to -1 is just the Zellner-Siow cauchy g-prior. This is designed to deal with collinearity in a more adaptive way than even ridge regression
-by allowing the analyst to use model comparison techniques to choose an optimal value of lambda, and then using the best model for inference.
-Note, however, that this prior is designed to deal with collinearity but not necessarily P > N scenarios. For that you may wish to take a look
-at the \code{\link[Bayezilla]{glmBayes}} function, which does not utilize the crossproduct matrix in setting prior scales (rather they are
-fully estimated in the model). 
+The adaptive powered correlation prior extends the Zellner-Siow Cauchy g-prior by allowing the crossproduct of the 
+model matrix to be raised to powers other than -1 (which gives the Fisher information matrix). The power here will 
+be referred to as "lambda". A lambda of 0 results in an identity matrix, which results in a ridge-regression like
+prior. Positive values of lambda adapt to collinearity by allowing correlated predictors to enter and exit the model 
+together. Negative values of lambda on the other hand favor including only one of a set of correlated predictors. 
+This can be understood as projecting the information matrix into a new space which leads to a model
+similar in function to principal components regression (Krishna et al., 2009). In this implementation full Bayesian
+inference is used for lambda, rather than searching via marginal likelihood maximization as Krishna et al. (2009) did. 
+The reason for this is twofold. First, full Bayesian inference means the model has to be fit only once instead of
+several times over a grid of candidate values for lambda. Second, this avoids any coherency problems such as those
+that arise when using fixed-g priors.
 \cr
 \cr
 The model specification is given below. Note that the model formulae have been adjusted to reflect the fact that JAGS
-parameterizes the normal and multivariate normal distributions by their precision, rater than (co)variance. For generalized linear models plug-in pseudovariances are used. 
+parameterizes the normal and multivariate normal distributions by their precision, rater than (co)variance. 
+For generalized linear models plug-in pseudovariances are used. 
 \cr
 \cr
 \if{html}{\figure{apc.png}{}}

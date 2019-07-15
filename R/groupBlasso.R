@@ -2,8 +2,8 @@
 #'
 #' Group selection was introduced in the group LASSO by Yuan and Lin (2006) in
 #' the context of the classical "frequentist" LASSO. The concept is adapted here to the Bayesian LASSO 
-#' following the example of Kyung et al. (2010)
-#' 
+#' following the example of Kyung et al. (2010)\cr
+#' \cr
 #' Note that for the binomial and poisson likelihood functions 
 #' the New Bayesian LASSO is adapted for use here, which utilizes a scale mixture of
 #' uniform distributions to obtain the Laplacian priors (Mallick & Yi, 2014). I have found that this parameterization

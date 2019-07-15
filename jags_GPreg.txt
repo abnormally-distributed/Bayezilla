@@ -1,0 +1,30 @@
+model{
+  
+  sigma2 ~ dexp(1)
+  w ~ dexp(10)
+  
+  for (i in 1:(N-1)) {
+      for (j in (i+1):N) {
+        Sigma[i,j] <- sigma2 * K[i,j]
+        Sigma[j,i] <- Sigma[i,j]
+      }
+  }
+  
+   for (k in 1:N) {
+        Sigma[k,k] <- sigma2 + w
+   }
+  
+  Intercept ~ dunif(-10, 10) 
+
+  for (i in 1:P){
+    beta[i] ~ dunif(-10, 10) 
+  }
+
+  for (i in 1:N){
+    mu[i] <- Intercept + sum(X[i,] + beta)
+  }
+
+  y ~ dmnorm(mu, inverse(Sigma))
+  ySim[1:N] ~ dmt(mu, inverse(Sigma), 3)
+  
+  }

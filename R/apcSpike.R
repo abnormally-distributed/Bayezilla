@@ -1,32 +1,31 @@
-#' Stochastic Search Variable Selection (Adaptive Powered Correlation Prior) 
+#' Adaptive Powered Correlation Prior Stochastic Search Variable Selection 
 #'
 #' @description IMPORTANT: I suggest not using any factor predictor variables, only numeric. In my experience the inclusion of categorical
 #' predictors tends to lead to odd results in calculating the prior scale. \cr
 #' \cr
-#' This function impements the adaptive powered correlation g-prior model described by Krishna, Bondell, and Ghosh (2009). Typically, in regression the cross-product XtX is inverted in the process of calculating the coefficients. In addition, 
-#' the Zellner-Siow cauchy g-prior utilizes the inverse crossproduct is used as an empirical Bayesian method of determining the proper scale of the coefficient
-#' priors by treating the inverse crossproduct as a covariance matrix, which is scaled by the parameter "g". \cr
+#' The adaptive powered correlation prior extends the Zellner-Siow Cauchy g-prior by allowing the crossproduct of the 
+#' model matrix to be raised to powers other than -1 (which gives the Fisher information matrix). The power here will 
+#' be referred to as "lambda". A lambda of 0 results in an identity matrix, which results in a ridge-regression like
+#' prior. Positive values of lambda adapt to collinearity by allowing correlated predictors to enter and exit the model 
+#' together. Negative values of lambda on the other hand favor including only one of a set of correlated predictors. 
+#' This can be understood as projecting the information matrix into a new space which leads to a model
+#' similar in function to principal components regression (Krishna et al., 2009). In this implementation full Bayesian
+#' inference is used for lambda, rather than searching via marginal likelihood maximization as Krishna et al. (2009) did. 
+#' The reason for this is twofold. First, full Bayesian inference means the model has to be fit only once instead of
+#' several times over a grid of candidate values for lambda. Second, this avoids any coherency problems such as those
+#' that arise when using fixed-g priors.\cr
 #' \cr
-#' The adaptive powered correlation prior simply extends this to allow using other powers besides -1. The power here will be referred to as "lambda".
-#' Setting lambda to 0 results in a ridge-regression like prior. Setting lambda to a positive value adapts to collinearity by allowing
-#' correlated predictors to enter and exit the model together. Negative values of lambda on the other hand favor including only one
-#' of a set of correlated predictors. Of course, setting lambda to -1 is just the Zellner-Siow cauchy g-prior. This is designed to deal with collinearity in a more adaptive way than even ridge regression
-#' by allowing the analyst to use model comparison techniques to choose an optimal value of lambda, and then using the best model for inference.
-#' An analysts beliefs about which type of selection is preferred, or the goals of the particular analysis, can also inform the choice of lambda.
+#' The probability that a variable has no effect is 1 - mean(delta_i), where delta_i is an indicator variable that takes on values of 1 for
+#' inclusion and 0 for exclusion. Averaging the number of 1s over the MCMC iterations gives the posterior inclusion probability (pip), hence, 
+#' 1-pip gives the posterior exclusion probability. The overall rate of inclusion for all variables is controlled by the hyperparameter 
+#' "phi". Phi is given a beta(1,1) prior which gives uniform probability to the inclusion rate. \cr
 #' \cr
-#' \cr
-#' The probability that a coefficient comes from the null-spike is controlled by a hyperparameter "phi" which estimates the overall probability of inclusion, i.e., the proportion of the P-number of predictors that are non-zero. 
-#' This hyperparameter is given a uniform beta(1, 1) prior which is non-informative and objective. The marginal posterior means give the Bayesian
-#' Model Averaged estimates, which are the expected values of each parameter averaged over all 
-#' possible (or all sampled) models (Hoeting et al., 1999).\cr
-#' \cr
-#' \cr
-#' Note, however, that this prior is designed to deal with collinearity but not necessarily P > N scenarios. For that you may wish to take a look
-#' at the \code{\link[Bayezilla]{extLASSO}} or \code{\link[Bayezilla]{bayesEnet}} functions. 
+#' The posterior means of the coefficients give the Bayesian Model Averaged estimates, which are the expected values of each 
+#' parameter averaged over all sampled models (Hoeting et al., 1999). \cr
 #' \cr
 #' The model specification is given below. Note that the model formulae have been adjusted to reflect the fact that JAGS
-#' parameterizes the normal and multivariate normal distributions by their precision, rater than (co)variance. For generalized linear models plug-in pseudovariances are used.
-#' \cr
+#' parameterizes the normal and multivariate normal distributions by their precision, rater than (co)variance. For generalized
+#' linear models plug-in pseudovariances are used. 
 #' Model Specification:
 #' \cr
 #' \cr
@@ -39,18 +38,18 @@
 #' \if{latex}{\figure{pseudovar.png}{}}
 #' 
 #' @references 
-#' Krishna, A., Bondell, H. D., & Ghosh, S. K. (2009). Bayesian variable selection using an adaptive powered correlation prior. Journal of statistical planning and inference, 139(8), 2665–2674. doi:10.1016/j.jspi.2008.12.004 \cr
+#' Krishna, A., Bondell, H. D., & Ghosh, S. K. (2009). Bayesian variable selection using an adaptive powered correlation prior. Journal of statistical planning and inference, 139(8), 2665-“2674. doi:10.1016/j.jspi.2008.12.004 \cr
 #' \cr
-#' Kuo, L., & Mallick, B. (1998). Variable Selection for Regression Models. Sankhyā: The Indian Journal of Statistics, Series B, 60(1), 65-81. \cr
+#' Kuo, L., & Mallick, B. (1998). Variable Selection for Regression Models. Sankhyā: The Indian Journal of Statistics, Series B, 60(1), 65-81. \cr
 #' \cr
 #' Hoeting, J. , Madigan, D., Raftery, A. & Volinsky, C. (1999). Bayesian model averaging: a tutorial. Statistical Science 14 382–417. \cr
 #'
 #' @param formula the model formula
 #' @param data a data frame
-#' @param lambda the power to use in the adaptive correlation prior. Default is -1, which gives the Zellner-Siow g prior. Setting
-#' lambda to 0 results in a ridge-regression like prior. Setting lambda to a positive value adapts to collinearity by shrinking 
-#' collinear variables towards a common value. Negative values of lambda pushes collinear variables further apart. I suggest 
-#' fitting multiple values of lambda and selecting which is best via LOO-IC or WAIC. 
+#' @param lower lower limit on value of lambda. Defaults to -10. If the model is failing due to a non-invertible
+#' matrix, try adjusting this number.
+#' @param uppper upper limit on value of lambda. Defaults to 10. If the model is failing due to a non-invertible
+#' matrix, try adjusting this number.
 #' @param family one of "gaussian", "binomial", or "poisson".
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 10000.
@@ -69,11 +68,12 @@
 #' @examples
 #' apcSpike()
 #' 
-apcSpike = function(formula, data, lambda = -1, family = "gaussian",  log_lik = FALSE, 
+apcSpike = function(formula, data, family = "gaussian",lower = -10, upper = 10, log_lik = FALSE, 
                     iter = 10000, warmup=1000, adapt = 5000, chains=4, thin=1, method = "rjparallel", cl = makeCluster(2), ...)
 {
   
-  data = as.data.frame(data)
+  
+  data <- as.data.frame(data)
   y <- as.numeric(model.frame(formula, data)[, 1])
   X <- as.matrix(model.matrix(formula, data)[,-1])
   # Eigendecomposition
@@ -82,35 +82,55 @@ apcSpike = function(formula, data, lambda = -1, family = "gaussian",  log_lik = 
   D = eigen(cormat)$values
   Trace = function(mat){sum(diag(mat))}
   P = ncol(X)
-  Dpower = rep(0, P)
-  t = XtXinv(X, tol=1e-6)
-  for(i in 1:P) {
-    Dpower[i] <- (D[i]^lambda);
-  }
-  prior_cov = (L %*% diag(Dpower) %*% t(L)) / length(y)
-  ## Ensure that the matrix is positive definite.
-  prior_cov = fBasics::makePositiveDefinite(prior_cov)
-  K = Trace(t) / Trace(prior_cov)
-  prior_cov = K * (prior_cov)
+  
+  if (family == "gaussian"){
     
-    if (family == "gaussian"){
-      
-      jags_apc = "model{
+    jags_apc = "model{
               
               phi ~ dbeta(1, 1)
-              tau ~ dscaled.gamma(.01, .01)
+              tau ~ dgamma(.01, .01)
               g_inv ~ dgamma(.5, N * .5)
               g <- 1 / g_inv
               sigma <- sqrt(1/tau)
+              lambda ~ dunif(lower, upper)
               
-              for (j in 1:P){
-                for (k in 1:P){
-                  cov[j,k] = g * pow(sigma, 2) * prior_cov[j,k]
+              for (i in 1:(P-1)) {
+               for (j in (i+1):P) {
+                 Dpower[i,j] <- 0
+                 Dpower[j,i] <- Dpower[i,j]
                 }
               }
               
-              omega <- inverse(cov) 
+              for (i in 1:P){
+                Dpower[i,i] <- pow(D[i], lambda)
+              }
+              
+              
+              prior_cov_pre_raw <- L %*% Dpower %*% t(L)
+              
+              
+              for (i in 1:P){
+                for (j in 1:P){
+                  prior_cov_raw[i,j] <- prior_cov_pre_raw[i,j] / N
+                }
+              }
+              
+              for (i in 1:P){
+                d[i] <- prior_cov_raw[i, i]
+              }
+              
+              trace <- sum(d[1:P])
+              K <- t / trace
+              
+              for (i in 1:P){
+                for (j in 1:P){
+                    prior_cov[i, j] <- g * pow(sigma, 2)* (prior_cov_raw[i, j] * K)
+                }
+              }
+
+              omega <- inverse(prior_cov) 
               theta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
+              
               for (i in 1:P){
                 delta[i] ~ dbern(phi)
                 beta[i] <- delta[i] * theta[i]
@@ -126,79 +146,167 @@ apcSpike = function(formula, data, lambda = -1, family = "gaussian",  log_lik = 
               Deviance <- -2 * sum(log_lik[1:N])
               BIC <- (log(N) * sum(delta[1:P])) + Deviance
           }"
-      
-      P = ncol(X)
-      write_lines(jags_apc, "jags_apc.txt")
-      jagsdata = list(X = X, y = y,  N = length(y), P = ncol(X), prior_cov = prior_cov)
-      monitor = c("Intercept", "beta", "sigma", "g",  "BIC" , "Deviance", "phi", "delta", "ySim" ,"log_lik")
-      if (log_lik == FALSE){
-        monitor = monitor[-(length(monitor))]
-      }
-      inits = lapply(1:chains, function(z) list("Intercept"= lmSolve(formula, data)[1], "phi" = .2 , "delta" = rep(0, P), "theta" = lmSolve(formula, data)[-1], "tau" = 1, "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1)))
-    }
     
-    if (family == "binomial" || family == "logistic"){
-      
-      jags_apc = "model{
+    P = ncol(X)
+    write_lines(jags_apc, "jags_apc.txt")
+    jagsdata = list(X = X, 
+                    y = y,  
+                    N = length(y), 
+                    P = ncol(X), 
+                    t = Trace(XtXinv(X)), 
+                    D=D,  
+                    L=L, 
+                    lower = lower, 
+                    upper = upper)
+    monitor = c("Intercept", "beta", "sigma", "g", "lambda" , "phi",  "BIC", "Deviance", "delta", "ySim", "log_lik")
+    if (log_lik == FALSE){
+      monitor = monitor[-(length(monitor))]
+    }
+    inits = lapply(1:chains, function(z) list("Intercept"= lmSolve(formula, data)[1], 
+                                              "phi" = .2 , 
+                                              "delta" = rep(0, P), 
+                                              "theta" = lmSolve(formula, data)[-1], 
+                                              "tau" = 1, 
+                                              "lambda" = runif(1, lower, upper), 
+                                              "g_inv" = 1/length(y), 
+                                              "ySim" = y, 
+                                              .RNG.name= "lecuyer::RngStream", 
+                                              .RNG.seed = sample(1:10000, 1)))
+  }
+  
+  if (family == "binomial"){
+    
+    jags_apc = "model{
     
               phi ~ dbeta(1, 1)
               g_inv ~ dgamma(.5, N * .5)
               g <- 1 / g_inv
+              lambda ~ dunif(lower, upper)
               
-              for (j in 1:P){
-                for (k in 1:P){
-                  cov[j,k] = g * sigma2 * prior_cov[j,k]
+              for (i in 1:(P-1)) {
+               for (j in (i+1):P) {
+                 Dpower[i,j] <- 0
+                 Dpower[j,i] <- Dpower[i,j]
                 }
               }
               
-              omega <- inverse(cov) 
+              for (i in 1:P){
+                Dpower[i,i] <- pow(D[i], lambda)
+              }
               
-              Intercept ~ dnorm(0, 1e-10)
               
+              prior_cov_pre_raw <- L %*% Dpower %*% t(L)
+              
+              
+              for (i in 1:P){
+                for (j in 1:P){
+                  prior_cov_raw[i,j] <- prior_cov_pre_raw[i,j] / N
+                }
+              }
+              
+              for (i in 1:P){
+                d[i] <- prior_cov_raw[i, i]
+              }
+              
+              trace <- sum(d[1:P])
+              K <- t / trace
+              
+              for (i in 1:P){
+                for (j in 1:P){
+                    prior_cov[i, j] <- g * sigma2* (prior_cov_raw[i, j] * K)
+                }
+              }
+
+              omega <- inverse(prior_cov) 
               theta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
+              
               for (i in 1:P){
                 delta[i] ~ dbern(phi)
                 beta[i] <- delta[i] * theta[i]
               }
+              
               for (i in 1:N){
                  logit(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P])
                  y[i] ~ dbern(psi[i])
                  log_lik[i] <- logdensity.bern(y[i], psi[i])
                  ySim[i] ~ dbern(psi[i])
-              }
+             }
+              
              Deviance <- -2 * sum(log_lik[1:N])
              BIC <- (log(N) * sum(delta[1:P])) + Deviance
           }"
-      
-      P = ncol(X)
-      write_lines(jags_apc, "jags_apc.txt")
-      jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), prior_cov = prior_cov, sigma2 = pow(mean(y), -1) * pow(1 - mean(y), -1))
-      monitor = c("Intercept", "beta", "g",  "BIC" , "Deviance", "phi", "delta","ySim", "log_lik")
-      if (log_lik == FALSE){
-        monitor = monitor[-(length(monitor))]
-      }
-      inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "binomial")))[1], "phi" = .2 , "delta" = rep(0, P), "theta" = as.vector(coef(glm(formula, data, family = "binomial")))[-1], "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
+    
+    P = ncol(X)
+    write_lines(jags_apc, "jags_apc.txt")
+    jagsdata = list(X = X, 
+                    y = y, 
+                    N = length(y), 
+                    P = ncol(X), 
+                    t = Trace(XtXinv(X)), 
+                    D=D, 
+                    L=L, 
+                    lower = lower, 
+                    upper = upper, 
+                    sigma2 = pow(mean(y), -1) * pow(1 - mean(y), -1))
+    monitor = c("Intercept", "beta", "g", "lambda" , "phi", "BIC" , "Deviance", "delta", "ySim", "log_lik")
+    if (log_lik == FALSE){
+      monitor = monitor[-(length(monitor))]
     }
+    inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "binomial")))[1], 
+                                              "phi" = .2 , 
+                                              "delta" = rep(0, P), 
+                                              "theta" = as.vector(coef(glm(formula, data, family = "binomial")))[-1], 
+                                              "lambda" = runif(1, lower, upper), 
+                                              "g_inv" = 1/length(y), 
+                                              "ySim" = y, 
+                                              .RNG.name= "lecuyer::RngStream", 
+                                              .RNG.seed= sample(1:10000, 1)))
+  }
+  
+  if (family == "poisson"){
     
-    if (family == "poisson"){
-      
-      jags_apc = "model{
-    
+    jags_apc = "model{
+              
               phi ~ dbeta(1, 1)
-
               g_inv ~ dgamma(.5, N * .5)
               g <- 1 / g_inv
+              lambda ~ dunif(lower, upper)
               
-              for (j in 1:P){
-                for (k in 1:P){
-                  cov[j,k] = g * sigma2 * prior_cov[j,k]
+              for (i in 1:(P-1)) {
+               for (j in (i+1):P) {
+                 Dpower[i,j] <- 0
+                 Dpower[j,i] <- Dpower[i,j]
                 }
               }
               
-              omega <- inverse(cov) 
+              for (i in 1:P){
+                Dpower[i,i] <- pow(D[i], lambda)
+              }
               
-              Intercept ~ dnorm(0, 1e-10)
               
+              prior_cov_pre_raw <- L %*% Dpower %*% t(L)
+              
+              
+              for (i in 1:P){
+                for (j in 1:P){
+                  prior_cov_raw[i,j] <- prior_cov_pre_raw[i,j] / N
+                }
+              }
+              
+              for (i in 1:P){
+                d[i] <- prior_cov_raw[i, i]
+              }
+              
+              trace <- sum(d[1:P])
+              K <- t / trace
+              
+              for (i in 1:P){
+                for (j in 1:P){
+                    prior_cov[i, j] <- g * sigma2* (prior_cov_raw[i, j] * K)
+                }
+              }
+
+              omega <- inverse(prior_cov) 
               theta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
               
               for (i in 1:P){
@@ -219,16 +327,47 @@ apcSpike = function(formula, data, lambda = -1, family = "gaussian",  log_lik = 
       
       write_lines(jags_apc, "jags_apc.txt")
       P = ncol(X)
-      jagsdata = list(X = X, y = y, N = length(y),  P = ncol(X), prior_cov = prior_cov, sigma2 = pow(mean(y) , -1))
-      monitor = c("Intercept", "beta", "g", "BIC" , "Deviance", "phi", "delta", "ySim", "log_lik")
+      jagsdata = list(X = X, 
+                      y = y, 
+                      N = length(y),  
+                      P = ncol(X), 
+                      t = Trace(XtXinv(X)), 
+                      D=D, 
+                      L=L, 
+                      lower = lower, 
+                      upper = upper, 
+                      sigma2 = pow(mean(y) , -1))
+      monitor = c("Intercept", "beta", "g", "lambda", "phi", "BIC", "Deviance", "delta",  "ySim", "log_lik")
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }
-      inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "poisson")))[1], "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1),"phi" = .2 , "delta" = rep(0, P), "theta" = as.vector(coef(glm(formula, data, family = "poisson")))[-1]))
+      inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "poisson")))[1], 
+                                                "g_inv" = 1/length(y), 
+                                                "ySim" = y, 
+                                                .RNG.name= "lecuyer::RngStream", 
+                                                .RNG.seed= sample(1:10000, 1),
+                                                "phi" = .2 , 
+                                                "lambda" = runif(1, lower, upper), 
+                                                "delta" = rep(0, P), 
+                                                "theta" = as.vector(coef(glm(formula, data, family = "poisson")))[-1]))
     }
   
   
-  out = run.jags(model = "jags_apc.txt", modules = c("glm on", "dic off"), monitor = monitor, n.chains = chains, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)
+  out = run.jags(model = "jags_apc.txt", 
+                 modules = c("glm on", "dic off"), 
+                 monitor = monitor, 
+                 n.chains = chains, 
+                 data = jagsdata, 
+                 inits = inits, 
+                 burnin = warmup, 
+                 sample = iter, 
+                 thin = thin, 
+                 adapt = adapt, 
+                 method = method, 
+                 cl = cl,
+                 summarise = FALSE,
+                 ...)
+  
   if (is.null(cl) == FALSE){
     parallel::stopCluster(cl = cl)
   }

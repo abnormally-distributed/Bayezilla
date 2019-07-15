@@ -39,7 +39,7 @@
 #' as the degrees of freedom increase the Student-t distribution will take on an increasingly gaussian shape and the
 #' tails will be pulled in, giving more uniform shrinkage (at this point it is effectively a ridge regression). If the
 #' precision is increased, the contrast between small and large coefficients will tend to be even greater for small
-#' degrees of freedom, while higher degrees of freedom approach a highly regularized ridge solution. \cr
+#' degrees of freedom, while higher degrees of freedom approach a highly regularized ridge solution. \cr  \cr
 #' Note that the figure below is for conceptual illustrative purposes, and does not correspond to an
 #' exact mathematical function. \cr
 #' \cr

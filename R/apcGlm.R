@@ -41,15 +41,13 @@
 #' 
 #' @param formula the model formula
 #' @param data a data frame
-#' @param lower lower limit on value of lambda. Defaults to -10. If the model is failing due to a non-invertible
-#' matrix, try adjusting this number.
-#' @param uppper upper limit on value of lambda. Defaults to 10. If the model is failing due to a non-invertible
-#' matrix, try adjusting this number.
+#' @param lower lower limit on value of lambda. Is NULL by default and limits are set based on the minimum value that produces a positive definite covariance matrix.
+#' @param uppper upper limit on value of lambda. Is NULL by default and limits are set based on the maximum value that produces a positive definite covariance matrix.
 #' @param family one of "gaussian", "binomial", or "poisson".
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
-#' @param iter How many post-warmup samples? Defaults to 10000.
-#' @param warmup How many warmup samples? Defaults to 1000.
-#' @param adapt How many adaptation steps? Defaults to 2000.
+#' @param iter How many post-warmup samples? Defaults to 15000.
+#' @param warmup How many warmup samples? Defaults to 5000.
+#' @param adapt How many adaptation steps? Defaults to 5000.
 #' @param chains How many chains? Defaults to 4. 
 #' @param thin Thinning interval. Defaults to 1.
 #' @param method Defaults to "parallel". For an alternative parallel option, choose "rjparallel". Otherwise, "rjags" (single core run).
@@ -63,7 +61,7 @@
 #' @examples
 #' apcGlm()
 #' 
-apcGlm = function(formula, data, family = "gaussian", lower = -10, upper = 10, log_lik = FALSE, iter=10000, warmup=2500, adapt=7500, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...)
+apcGlm = function(formula, data, family = "gaussian", lower = NULL, upper = NULL, log_lik = FALSE, iter = 15000, warmup = 5000, adapt = 5000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...)
 {
   data <- as.data.frame(data)
   y <- as.numeric(model.frame(formula, data)[, 1])
@@ -74,6 +72,33 @@ apcGlm = function(formula, data, family = "gaussian", lower = -10, upper = 10, l
   D = eigen(cormat)$values
   Trace = function(mat){sum(diag(mat))}
   P = ncol(X)
+  
+  
+  apcLambda = function(formula, data){
+    pdcheck = function(formula, data, lambda){
+      X = model.matrix(formula, data)[,-1]
+      cormat = cov2cor(fBasics::makePositiveDefinite(cor(X)))
+      L = eigen(cormat)$vectors
+      D = eigen(cormat)$values
+      Trace = function(mat){sum(diag(mat))}
+      Dpower = matrix(0, length(D), length(D))
+      for (i in 1:length(D)){
+        Dpower[i,i] <- pow(D[i], lambda)
+      }
+      fBasics::isPositiveDefinite(L %*% Dpower %*% t(L))
+    }
+    
+    
+    pd = as.numeric(sapply(seq(-20, 20, by = 1), function(l) pdcheck(formula, data, l)))
+    l = seq(-20, 20, by = 1)[which(pd == 1)]
+    c(lower.limit = min(l), upper.limit = max(l))
+  }
+  
+  if (is.null(lower) || is.null(upper)){
+    limits = apcLambda(formula, data)
+    lower = limits[1]
+    upper = limits[2]
+  }
   
   if (family == "gaussian"){
     

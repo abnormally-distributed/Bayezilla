@@ -1,4 +1,4 @@
-#' Bayesian LASSO 
+#' Bayesian LASSO-Spike Stochastic Search Variable Selection (Laplace-Bernoulli Mixture)
 #'
 #' @description The Bayesian LASSO of Park & Casella (2008).  The Bayesian Lasso is equivalent to using independent double exponential 
 #' (Laplace distribution) priors on the 
@@ -46,24 +46,28 @@
 #' @export
 
 #' @examples
-#' blasso()
-blasso = function(formula, data, family = "gaussian",  log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
+#' blassoSpike()
+blassoSpike = function(formula, data, family = "gaussian",  log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
+  
+  X = model.matrix(formula, data)[,-1]
+  y = model.frame(formula, data)[,1]
+  
+  
+  if (family == "gaussian"){
     
-    X = model.matrix(formula, data)[,-1]
-    y = model.frame(formula, data)[,1]
-
+    jags_blasso = "model{
     
-if (family == "gaussian"){
-      
-  jags_blasso = "model{
   tau ~ dgamma(.01, .01) 
   sigma2 <- 1/tau
   lambda ~ dgamma(0.5 , 0.20)
+  phi ~ dbeta(1, 1)
   
   for (p in 1:P){
     eta[p] ~ dexp(lambda^2 / 2)
     omega[p] <- 1 / (sigma2 * eta[p])
-    beta[p] ~ dnorm(0, omega[p])
+    theta[p] ~ dnorm(0, omega[p])
+    delta[p] ~ dbern(phi)
+    beta[p] <- delta[p] * theta[p]
   }
   
   Intercept ~ dnorm(0, 1e-10)
@@ -76,42 +80,49 @@ if (family == "gaussian"){
   sigma <- sqrt(1/tau)
   Deviance <- -2 * sum(log_lik[1:N])
 }"
-      P <- ncol(X)
-      write_lines(jags_blasso, "jags_blasso.txt")
-      jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X))
-      monitor <- c("Intercept", "beta", "sigma", "lambda", "Deviance", "ySim", "log_lik")
-      if (log_lik == FALSE){
-        monitor = monitor[-(length(monitor))]
-      }
-      inits <- lapply(1:chains, function(z) list("Intercept" = lmSolve(formula, data)[1], 
-                                                 "beta" = lmSolve(formula, data)[-1], 
-                                                 "eta" = rep(1, P), 
-                                                 "lambda" = 2, 
-                                                 "tau" = 1, 
-                                                 "ySim" = y, 
-                                                 .RNG.name= "lecuyer::RngStream", 
-                                                 .RNG.seed= sample(1:10000, 1)))
-      
-  out = run.jags(model = "jags_blasso.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
-  file.remove("jags_blasso.txt")
-  if (!is.null(cl)) {
+    P <- ncol(X)
+    write_lines(jags_blasso, "jags_blasso.txt")
+    jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X))
+    monitor <- c("Intercept", "beta", "sigma", "lambda", "Deviance", "ySim", "log_lik")
+    if (log_lik == FALSE){
+      monitor = monitor[-(length(monitor))]
+    }
+    inits <- lapply(1:chains, function(z) list("Intercept" = lmSolve(formula, data)[1], 
+                                               "theta" = lmSolve(formula, data)[-1], 
+                                               "eta" = rep(1, P), 
+                                               "phi" = rbeta(1, 2, 2),
+                                               "delta" = rep(0, P),
+                                               "lambda" = 2, 
+                                               "tau" = 1, 
+                                               "ySim" = y, 
+                                               .RNG.name= "lecuyer::RngStream", 
+                                               .RNG.seed= sample(1:10000, 1)))
+    
+    out = run.jags(model = "jags_blasso.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+    file.remove("jags_blasso.txt")
+    if (!is.null(cl)) {
       parallel::stopCluster(cl = cl)
-  }
-  return(out)
+    }
+    return(out)
+    
+  }  
   
-}  
   
-  
-  if (family == "binomial" || family == "logistic"){
+  if (family == "binomial"){
     
     jags_bridge = "model{
     
-  lambda ~ dgamma(0.5 , 0.20)
+  lambda ~ dgamma(1, 1)
+  phi ~ dbeta(0.50, 0.50)
   
-  for (i in 1:P){
-    u[i] ~ dgamma( 2  , lambda )
-    beta[i] ~ dunif(-1 * (sigma * u[i]), sigma * u[i])
+  for (p in 1:P){
+    eta[p] ~ dexp(lambda^2 / 2)
+    omega[p] <- 1 / (sigma2 * eta[p])
+    theta[p] ~ dnorm(0, omega[p])
+    delta[p] ~ dbern(phi)
+    beta[p] <- delta[p] * theta[p]
   }
+  
   
   Intercept ~ dnorm(0, 1e-10)
   
@@ -127,15 +138,17 @@ if (family == "gaussian"){
     
     P <- ncol(X)
     write_lines(jags_bridge, "jags_bridge.txt")
-    jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), sigma = sqrt(pow(mean(y), -1) * pow(1 - mean(y), -1)))
-    monitor <- c("Intercept", "beta", "lambda", "Deviance", "ySim", "log_lik")
+    jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), sigma2 = pow(mean(y), -1) * pow(1 - mean(y), -1))
+    monitor <- c("Intercept", "beta", "lambda", "phi", "Deviance", "delta" , "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "binomial", lambda = 0.025, alpha = 0, standardize = FALSE))[1,1]), 
-                                               "beta" = rep(0, P), 
-                                               "u" = rgamma(P, 2, 1), 
-                                               "lambda" = 1, 
+    inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "binomial", lambda = 0, alpha = 0, standardize = FALSE))[1,1]), 
+                                               "theta" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "binomial", lambda = 0, alpha = 0, standardize = FALSE))[-1,1]), 
+                                               "eta" = rep(1, P),  
+                                               "phi" = rbeta(1, 2, 2),
+                                               "delta" = rep(0, P),
+                                               "lambda" = 2, 
                                                "ySim" = y, 
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
@@ -154,11 +167,16 @@ if (family == "gaussian"){
     jags_bridge = "model{
     
   lambda ~ dgamma(0.5 , 0.20)
+  phi ~ dbeta(1, 1)
   
-  for (i in 1:P){
-    u[i] ~ dgamma( 2 , lambda )
-    beta[i] ~ dunif(-1 * pow(sigma * u[i], 1/kappa), pow(sigma * u[i], 1/kappa))
+  for (p in 1:P){
+    eta[p] ~ dexp(lambda^2 / 2)
+    omega[p] <- 1 / (sigma2 * eta[p])
+    theta[p] ~ dnorm(0, omega[p])
+    delta[p] ~ dbern(phi)
+    beta[p] <- delta[p] * theta[p]
   }
+  
   
   Intercept ~ dnorm(0, 1e-10)
   
@@ -174,17 +192,19 @@ if (family == "gaussian"){
   
   P <- ncol(X)
   write_lines(jags_bridge, "jags_bridge.txt")
-  jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), sigma = sqrt(pow(mean(y) , -1)))
-  monitor <- c("Intercept", "beta", "lambda", "Deviance", "ySim", "log_lik")
+  jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), sigma2 = pow(mean(y) , -1))
+  monitor <- c("Intercept", "beta", "lambda", "phi", "Deviance", "delta", "ySim", "log_lik")
   
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
   
-  inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "poisson", lambda = 0.025, alpha = 0, standardize = FALSE))[1,1]), 
-                                             "beta" = rep(0, P), 
-                                             "u" = rgamma(P, 2, 1), 
-                                             "lambda" = 1, 
+  inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "poisson", lambda = 0, alpha = 0, standardize = FALSE))[1,1]), 
+                                             "theta" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "poisson", lambda = 0, alpha = 0, standardize = FALSE))[-1,1]), 
+                                             "eta" = rep(1, P), 
+                                             "phi" = rbeta(1, 2, 2),
+                                             "delta" = rep(0, P),
+                                             "lambda" = 2, 
                                              "ySim" = y, 
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
@@ -196,6 +216,6 @@ if (family == "gaussian"){
   }
   return(out)
   }
-  
+
 }
-  
+

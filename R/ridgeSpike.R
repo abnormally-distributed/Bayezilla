@@ -1,4 +1,4 @@
-#' Ridge Regression 
+#' Ridge Regression Stochastic Search Variable Selection (Bernoulli-Normal Mixture)
 #'
 #' @description The Bayesian implementation of ridge regression. Plug-in pseudovariances are used for 
 #' the binomial and poisson likelihood functions. 
@@ -34,8 +34,8 @@
 #' @export
 
 #' @examples
-#' ridge()
-ridge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
+#' ridgeSpike()
+ridgeSpike = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
   
   X = model.matrix(formula, data)[,-1]
   y = model.frame(formula, data)[,1]
@@ -46,12 +46,15 @@ ridge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000
     jags_grr = "model{
   tau ~ dgamma(.01, .01) 
   sigma2 <- 1/tau
-
+  phi ~ dbeta(1, 1)
+  
   lambda ~ dgamma(0.25 , 0.20)
 
   for (p in 1:P){
+    delta[p] ~ dbern(phi)
     omega[p] <- 1 / (sigma2 / lambda)
-    beta[p] ~ dnorm(0, omega[p])
+    theta[p] ~ dnorm(0, omega[p])
+    beta[p] <- delta[p] * theta[p]
   }
   
   Intercept ~ dnorm(0, 1e-10)
@@ -69,12 +72,15 @@ ridge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000
     P <- ncol(X)
     write_lines(jags_grr, "jags_grr.txt")
     jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X))
-    monitor <- c("Intercept", "beta", "sigma", "lambda", "Deviance", "ySim", "log_lik")
+    monitor <- c("Intercept", "beta", "sigma", "lambda", "phi", "Deviance","delta", "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
+    
     inits <- lapply(1:chains, function(z) list("Intercept" = lmSolve(formula, data)[1], 
-                                               "beta" = lmSolve(formula, data)[-1], 
+                                               "theta" = lmSolve(formula, data)[-1], 
+                                               "phi" = rbeta(1, 2, 2),
+                                               "delta" = rep(0, P),
                                                "lambda" = 2, 
                                                "tau" = 1, 
                                                "ySim" = y, 
@@ -90,17 +96,20 @@ ridge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000
     
   }  
   
-
   
-  if (family == "binomial" || family == "logistic"){
+  
+  if (family == "binomial"){
     
     jags_grr = "model{
     
   lambda ~ dgamma(0.25 , 0.20)
-
+  phi ~ dbeta(1, 1)
+  
   for (p in 1:P){
     omega[p] <- 1 / (sigma2 / lambda)
-    beta[p] ~ dnorm(0, omega[p])
+    theta[p] ~ dnorm(0, omega[p])
+    delta[p] ~ dbern(phi)
+    beta[p] <- delta[p] * theta[p]
   }
   
   Intercept ~ dnorm(0, 1e-10)
@@ -118,15 +127,17 @@ ridge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000
     P <- ncol(X)
     write_lines(jags_grr, "jags_grr.txt")
     jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), sigma2 = pow(mean(y), -1) * pow(1 - mean(y), -1))
-    monitor <- c("Intercept", "beta", "lambda", "Deviance", "ySim", "log_lik")
+    monitor <- c("Intercept", "beta", "lambda", "phi", "Deviance", "delta", "ySim", "log_lik")
     
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
     
     inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "binomial", lambda = 0.025, alpha = 0, standardize = FALSE))[1,1]), 
-                                               "beta" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "binomial", lambda = 0.025, alpha = 0, standardize = FALSE))[-1,1]), 
+                                               "theta" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "binomial", lambda = 0.025, alpha = 0, standardize = FALSE))[-1,1]), 
                                                "lambda" = 2, 
+                                               "phi" = rbeta(1, 2, 2),
+                                               "delta" = rep(0, P),
                                                "ySim" = y, 
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
@@ -147,8 +158,10 @@ ridge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000
   lambda ~ dgamma(0.25 , 0.20)
 
   for (p in 1:P){
+    delta[p] ~ dbern(phi)
     omega[p] <- 1 / (sigma2 / lambda)
-    beta[p] ~ dnorm(0, omega[p])
+    theta[p] ~ dnorm(0, omega[p])
+    beta[p] <- delta[p] * theta[p]
   }
   
   Intercept ~ dnorm(0, 1e-10)
@@ -166,15 +179,17 @@ ridge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000
   P <- ncol(X)
   write_lines(jags_grr, "jags_grr.txt")
   jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), sigma2 = pow(mean(y) , -1))
-  monitor <- c("Intercept", "beta", "lambda", "Deviance", "ySim", "log_lik")
+  monitor <- c("Intercept", "beta", "lambda", "phi", "Deviance","delta", "ySim", "log_lik")
   
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
   
   inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "poisson", lambda = 0.025, alpha = 0, standardize = FALSE))[1,1]), 
-                                             "beta" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "poisson", lambda = 0.025, alpha = 0, standardize = FALSE))[-1,1]), 
+                                             "theta" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "poisson", lambda = 0.025, alpha = 0, standardize = FALSE))[-1,1]), 
                                              "lambda" = 2, 
+                                             "delta" = rep(0, P),
+                                             "phi" = rbeta(1, 2, 2),
                                              "ySim" = y, 
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))

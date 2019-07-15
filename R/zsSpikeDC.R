@@ -127,7 +127,7 @@ if (family == "gaussian"){
     monitor = monitor[-(length(monitor))]
   }
   inits = lapply(1:chains, function(z) list("Intercept"= lmSolve(formula, data)[1], 
-                                            "phi" = rbeta(1, 15, 15), 
+                                            "phi" = rbeta(1, 2, 2), 
                                             "delta" = rep(0, P), 
                                             "theta" = lmSolve(formula, data)[-1], 
                                             "tau" = 1, 
@@ -185,12 +185,12 @@ if (family == "binomial"){
     monitor = monitor[-(length(monitor))]
   }
   inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "binomial")))[1], 
-                                            "phi" = rbeta(1, 15, 15), 
+                                            "phi" = rbeta(1, 2, 2), 
                                             "delta" = rep(0, P), 
                                             "theta" = as.vector(coef(glm(formula, data, family = "binomial")))[-1], 
                                             "g_inv" = 1/length(y), 
                                             "ySim" = y, 
-                                            "design_beta" = rep(0, FP),
+                                            "design_beta" = sample(c(0, 1), replace = TRUE, size = P),
                                             .RNG.name= "lecuyer::RngStream", 
                                             .RNG.seed= sample(1:10000, 1)))
 }
@@ -249,7 +249,7 @@ if (family == "poisson"){
                                             "ySim" = y, 
                                             .RNG.name= "lecuyer::RngStream", 
                                             .RNG.seed= sample(1:10000, 1),
-                                            "phi" = rbeta(1, 15, 15), 
+                                            "phi" = rbeta(1, 2, 2), 
                                             "design_beta" = rep(0, FP),
                                             "delta" = rep(0, P), 
                                             "theta" = as.vector(coef(glm(formula, data, family = "poisson")))[-1]))

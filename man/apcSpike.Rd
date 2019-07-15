@@ -4,10 +4,10 @@
 \alias{apcSpike}
 \title{Adaptive Powered Correlation Prior Stochastic Search Variable Selection}
 \usage{
-apcSpike(formula, data, family = "gaussian", lower = -10, upper = 10,
-  log_lik = FALSE, iter = 10000, warmup = 1000, adapt = 5000,
-  chains = 4, thin = 1, method = "rjparallel", cl = makeCluster(2),
-  ...)
+apcSpike(formula, data, family = "gaussian", lower = NULL,
+  upper = NULL, log_lik = FALSE, iter = 15000, warmup = 5000,
+  adapt = 5000, chains = 4, thin = 1, method = "rjparallel",
+  cl = makeCluster(2), ...)
 }
 \arguments{
 \item{formula}{the model formula}
@@ -16,16 +16,15 @@ apcSpike(formula, data, family = "gaussian", lower = -10, upper = 10,
 
 \item{family}{one of "gaussian", "binomial", or "poisson".}
 
-\item{lower}{lower limit on value of lambda. Defaults to -10. If the model is failing due to a non-invertible
-matrix, try adjusting this number.}
+\item{lower}{lower limit on value of lambda. Is NULL by default and limits are set based on the minimum value that produces a positive definite covariance matrix.}
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 
-\item{iter}{How many post-warmup samples? Defaults to 10000.}
+\item{iter}{How many post-warmup samples? Defaults to 15000.}
 
-\item{warmup}{How many warmup samples? Defaults to 1000.}
+\item{warmup}{How many warmup samples? Defaults to 5000.}
 
-\item{adapt}{How many adaptation steps? Defaults to 2000.}
+\item{adapt}{How many adaptation steps? Defaults to 5000.}
 
 \item{chains}{How many chains? Defaults to 4.}
 
@@ -37,8 +36,7 @@ matrix, try adjusting this number.}
 
 \item{...}{Other arguments to run.jags.}
 
-\item{uppper}{upper limit on value of lambda. Defaults to 10. If the model is failing due to a non-invertible
-matrix, try adjusting this number.}
+\item{uppper}{upper limit on value of lambda. Is NULL by default and limits are set based on the maximum value that produces a positive definite covariance matrix.}
 }
 \value{
 A run.jags object.

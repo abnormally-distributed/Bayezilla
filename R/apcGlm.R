@@ -144,7 +144,7 @@ apcGlm = function(formula, data, family = "gaussian", lower = -10, upper = 10, l
                                               "tau" = 1, 
                                               "g_inv" = 1/length(y), 
                                               "ySim" = y, 
-                                              "lambda" = 0,
+                                              "lambda" = runif(1, lower, upper),
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed = sample(1:10000, 1)))
   }
@@ -210,7 +210,13 @@ apcGlm = function(formula, data, family = "gaussian", lower = -10, upper = 10, l
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "binomial")))[1], "beta" = as.vector(coef(glm(formula, data, family = "binomial")))[-1], "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
+    inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "binomial")))[1], 
+                                              "beta" = as.vector(coef(glm(formula, data, family = "binomial")))[-1], 
+                                              "g_inv" = 1/length(y), 
+                                              "ySim" = y, 
+                                              "lambda" = runif(1, lower, upper),
+                                              .RNG.name= "lecuyer::RngStream", 
+                                              .RNG.seed= sample(1:10000, 1)))
   }
   
   if (family == "poisson"){
@@ -275,7 +281,13 @@ apcGlm = function(formula, data, family = "gaussian", lower = -10, upper = 10, l
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "poisson")))[1], "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "beta" = as.vector(coef(glm(formula, data, family = "poisson")))[1]))
+    inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "poisson")))[1], 
+                                              "beta" = as.vector(coef(glm(formula, data, family = "poisson")))[1], 
+                                              "g_inv" = 1/length(y), 
+                                              "ySim" = y, 
+                                              "lambda" = runif(1, lower, upper),
+                                              .RNG.name= "lecuyer::RngStream", 
+                                              .RNG.seed= sample(1:10000, 1)))
   }
   
   out = run.jags(model = "jags_apc.txt", modules = c("glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, n.chains = chains, cl = cl, summarise = FALSE,...)

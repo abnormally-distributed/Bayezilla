@@ -163,7 +163,7 @@ apcSpike = function(formula, data, family = "gaussian",lower = -10, upper = 10, 
       monitor = monitor[-(length(monitor))]
     }
     inits = lapply(1:chains, function(z) list("Intercept"= lmSolve(formula, data)[1], 
-                                              "phi" = .2 , 
+                                              "phi" = rbeta(1, 15, 15), 
                                               "delta" = rep(0, P), 
                                               "theta" = lmSolve(formula, data)[-1], 
                                               "tau" = 1, 
@@ -253,7 +253,7 @@ apcSpike = function(formula, data, family = "gaussian",lower = -10, upper = 10, 
       monitor = monitor[-(length(monitor))]
     }
     inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "binomial")))[1], 
-                                              "phi" = .2 , 
+                                              "phi" = rbeta(1, 15, 15), 
                                               "delta" = rep(0, P), 
                                               "theta" = as.vector(coef(glm(formula, data, family = "binomial")))[-1], 
                                               "lambda" = runif(1, lower, upper), 
@@ -346,7 +346,7 @@ apcSpike = function(formula, data, family = "gaussian",lower = -10, upper = 10, 
                                                 "ySim" = y, 
                                                 .RNG.name= "lecuyer::RngStream", 
                                                 .RNG.seed= sample(1:10000, 1),
-                                                "phi" = .2 , 
+                                                "phi" = rbeta(1, 15, 15), 
                                                 "lambda" = runif(1, lower, upper), 
                                                 "delta" = rep(0, P), 
                                                 "theta" = as.vector(coef(glm(formula, data, family = "poisson")))[-1]))

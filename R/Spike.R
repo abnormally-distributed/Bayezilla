@@ -88,7 +88,7 @@ Spike <- function(formula, data, family = "gaussian", log_lik = FALSE, iter = 10
     if (log_lik == FALSE) {
       monitor <- monitor[-(length(monitor))]
     }
-    inits <- lapply(1:chains, function(z) list("Intercept" = lmSolve(formula, data)[1], .RNG.name = "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1),   "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = lmSolve(formula, data)[-1], "tau" = 1))
+    inits <- lapply(1:chains, function(z) list("Intercept" = lmSolve(formula, data)[1], .RNG.name = "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1),   "ySim" = y, "delta" = rep(1, P),  "phi" = rbeta(1, 15, 15),  "theta" = lmSolve(formula, data)[-1], "tau" = 1))
     out <- run.jags(model = "jags_glm_spike.txt", modules = c("glm on", "bugs on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl,summarise = FALSE, ...)
     return(out)
   }
@@ -123,7 +123,7 @@ Spike <- function(formula, data, family = "gaussian", log_lik = FALSE, iter = 10
     if (log_lik == FALSE) {
       monitor <- monitor[-(length(monitor))]
     }
-    inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "binomial")))[1], .RNG.name = "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1), "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = as.vector(coef(glm(formula, data, family = "binomial")))[-1]))
+    inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "binomial")))[1], .RNG.name = "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1), "ySim" = y, "delta" = rep(1, P),  "phi" = rbeta(1, 15, 15),  "theta" = as.vector(coef(glm(formula, data, family = "binomial")))[-1]))
     out <- run.jags(model = "jags_glm_spike.txt", modules = c("glm on", "bugs on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)
     return(out)
   }
@@ -157,7 +157,7 @@ Spike <- function(formula, data, family = "gaussian", log_lik = FALSE, iter = 10
     if (log_lik == FALSE) {
       monitor <- monitor[-(length(monitor))]
     }
-    inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "poisson")))[1], .RNG.name = "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1), "ySim" = y, "delta" = rep(1, P), "phi" = .20, "theta" = as.vector(coef(glm(formula, data, family = "poisson")))[-1]))
+    inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "poisson")))[1], .RNG.name = "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1), "ySim" = y, "delta" = rep(1, P), "phi" = rbeta(1, 15, 15),  "theta" = as.vector(coef(glm(formula, data, family = "poisson")))[-1]))
     out <- run.jags(model = "jags_glm_spike.txt", modules = c("glm on", "bugs on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
     file.remove("jags_glm_spike.txt")
     if (!is.null(cl)) {

@@ -150,7 +150,7 @@ apcDC = function(formula, design.formula, data, family = "gaussian", lower = -10
                                               "tau" = 1, 
                                               "g_inv" = 1/length(y), 
                                               "ySim" = y, 
-                                              "lambda" = 0,
+                                              "lambda" = runif(1, lower, upper),
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed = sample(1:10000, 1)))
   }
@@ -226,6 +226,7 @@ apcDC = function(formula, design.formula, data, family = "gaussian", lower = -10
                                               "design_beta" = rep(0, FP),
                                               "g_inv" = 1/length(y), 
                                               "ySim" = y, 
+                                              "lambda" = runif(1, lower, upper),
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed= sample(1:10000, 1)))
   }
@@ -311,6 +312,7 @@ apcDC = function(formula, design.formula, data, family = "gaussian", lower = -10
     inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "poisson")))[1], 
                                               "g_inv" = 1/length(y), 
                                               "ySim" = y, 
+                                              "lambda" = runif(1, lower, upper),
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed= sample(1:10000, 1), 
                                               "design_beta" = rep(0, FP),

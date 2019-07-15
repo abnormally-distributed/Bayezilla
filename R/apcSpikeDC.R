@@ -166,7 +166,7 @@ apcSpikeDC = function(formula, design.formula, data, family = "gaussian", lower 
     }
     inits = lapply(1:chains, function(z) list("Intercept"= as.vector(coef(lm(formula, data)))[1], 
                                               "design_beta" = as.vector(coef(lm(design.formula, data)))[-1], 
-                                              "phi" = .2 , 
+                                              "phi" = rbeta(1, 15, 15), 
                                               "lambda" = runif(1, lower, upper), 
                                               "delta" = rep(0, P), 
                                               "theta" = lmSolve(formula, data)[-1], 
@@ -227,7 +227,7 @@ apcSpikeDC = function(formula, design.formula, data, family = "gaussian", lower 
     }
     inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "binomial")))[1], 
                                               "design_beta" = rep(0, FP),  
-                                              "phi" = .2 , 
+                                              "phi" = rbeta(1, 15, 15), 
                                               "delta" = rep(0, P), 
                                               "lambda" = runif(1, lower, upper), 
                                               "theta" = as.vector(coef(glm(formula, data, family = "binomial")))[-1], 
@@ -292,7 +292,7 @@ apcSpikeDC = function(formula, design.formula, data, family = "gaussian", lower 
                                               "ySim" = y, 
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed= sample(1:10000, 1),
-                                              "phi" = .2 , 
+                                              "phi" = rbeta(1, 15, 15), 
                                               "lambda" = runif(1, lower, upper), 
                                               "delta" = rep(0, P), 
                                               "theta" = as.vector(coef(glm(formula, data, family = "poisson")))[-1]))

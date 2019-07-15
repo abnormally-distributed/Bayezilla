@@ -6,14 +6,17 @@
 #' @param border The border color of the density curve. Defaults to "#000f1e"
 #' @param rug.col The color of the data rug. Defaults to "#62a3e2".
 #' @param main.title Defaults to "Density Plot".
-#' @param ... Arguments to pass to density()
+#' @param kernel one of the kernels from density(). Defaults to "optcosine"
+#' @param n number of points to generate the density grid. Defaults to 4096. 
 #'
 #' @return a plot
 #' @export 
 #'
 #' @examples densPlot(rnorm(1000))
-densPlot <- function(x, rug = TRUE, col = "#45a3ffCC", border = "#000f1e", rug.col = "#62a3e2", main.title = "Density Plot", ...){
-  d <- density(x, ...)
+densPlot <- function(x, rug = TRUE, col = "#45a3ffCC", border = "#000f1e", rug.col = "#62a3e2", main.title = "Density Plot", 
+                     kernel = "optcosine", n = 4096){
+  d <- density(x, n = n, kernel = kernel)
+  d$x <- density(x, from = min(x), to = max(x), n = n, kernel = kernel)$x
   plot(d, yaxt="n", ylab="", main= main.title, cex.lab=1.3, cex=1.8, bty="n", family = 'serif', lwd=1)
   polygon(d, col=col, border = border)
   if (isTRUE(rug)){

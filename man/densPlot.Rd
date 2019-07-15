@@ -5,7 +5,8 @@
 \title{Kernel Density Plot}
 \usage{
 densPlot(x, rug = TRUE, col = "#45a3ffCC", border = "#000f1e",
-  rug.col = "#62a3e2", main.title = "Density Plot", ...)
+  rug.col = "#62a3e2", main.title = "Density Plot",
+  kernel = "optcosine", n = 4096)
 }
 \arguments{
 \item{x}{the numeric vector of interest}
@@ -20,7 +21,9 @@ densPlot(x, rug = TRUE, col = "#45a3ffCC", border = "#000f1e",
 
 \item{main.title}{Defaults to "Density Plot".}
 
-\item{...}{Arguments to pass to density()}
+\item{kernel}{one of the kernels from density(). Defaults to "optcosine"}
+
+\item{n}{number of points to generate the density grid. Defaults to 4096.}
 }
 \value{
 a plot

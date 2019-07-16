@@ -16,7 +16,7 @@
 #' \if{latex}{\figure{extLASSODC.png}{}}
 #' \cr
 #' \cr
-#' The second version is the "gamma" prior. This places a gamma(0.25 , 0.20) prior on the
+#' The second version is the "gamma" prior. This places a gamma(0.50 , 0.20) prior on the
 #' top level shrinkage hyperparameter. The individual shrinkage parameters are still given independent uniform(0, local_u) 
 #' priors just as in the classic version. 
 #' \cr
@@ -101,7 +101,7 @@ extLASSODC  = function(formula, design.formula, data, family = "gaussian", eta_p
               tau ~ dgamma(.01, .01)
 
               # Shrinkage top-level-hyperparameter
-              Omega ~ dgamma(0.25 , 0.20)
+              Omega ~ dgamma(0.50 , 0.20)
 
               Intercept ~ dnorm(0, 1e-10)
 
@@ -236,7 +236,7 @@ extLASSODC  = function(formula, design.formula, data, family = "gaussian", eta_p
       jags_extended_LASSO = "model{
 
               # Shrinkage top-level-hyperparameter
-              Omega ~ dgamma(0.25 , 0.20)
+              Omega ~ dgamma(0.50 , 0.20)
 
               Intercept ~ dnorm(0, 1e-10)
 
@@ -366,7 +366,7 @@ extLASSODC  = function(formula, design.formula, data, family = "gaussian", eta_p
       jags_extended_LASSO = "model{
 
               # Shrinkage top-level-hyperparameter
-              Omega ~ dgamma(0.25 , 0.20)
+              Omega ~ dgamma(0.50 , 0.20)
 
               Intercept ~ dnorm(0, 1e-10)
 

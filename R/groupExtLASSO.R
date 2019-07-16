@@ -21,7 +21,7 @@
 #' \if{latex}{\figure{groupExtLASSO.png}{}}
 #' \cr
 #' \cr
-#' The second version is the "gamma" prior. This places a gamma(0.50 , 0.01) prior on the
+#' The second version is the "gamma" prior. This places a gamma(0.50 , 0.20) prior on the
 #' top level shrinkage hyperparameter. The individual shrinkage parameters are still given independent uniform(0, local_u) 
 #' priors just as in the classic version. 
 #' \cr

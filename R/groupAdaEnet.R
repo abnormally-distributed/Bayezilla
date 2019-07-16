@@ -58,10 +58,10 @@ groupAdaEnet  = function(X, y, idx, family = "gaussian", log_lik = FALSE, iter=1
               sigma <- sqrt(1/tau)
               
               Intercept ~ dnorm(0, 1e-10)
-              lambdaL2 ~ dgamma(1.5, 0.25)
+              lambdaL2 ~ dgamma(0.50, 0.20)
               
               for (g in 1:nG){
-                  lambdaL1[g] ~ dgamma(1.5, 0.25)
+                  lambdaL1[g] ~ dgamma(0.50, 0.20)
               }
               
               for (p in 1:P){
@@ -126,10 +126,10 @@ groupAdaEnet  = function(X, y, idx, family = "gaussian", log_lik = FALSE, iter=1
     jags_elastic_net = "model{
               
               Intercept ~ dnorm(0, 1e-10)
-              lambdaL2 ~ dgamma(0.25 , 0.20)
+              lambdaL2 ~ dgamma(0.50, 0.20)
               
               for (g in 1:nG){
-                  lambdaL1[g] ~ dgamma(0.25 , 0.20)
+                  lambdaL1[g] ~ dgamma(0.50, 0.20)
               }
               
               for (p in 1:P){
@@ -177,10 +177,10 @@ groupAdaEnet  = function(X, y, idx, family = "gaussian", log_lik = FALSE, iter=1
     jags_elastic_net = "model{
 
               Intercept ~ dnorm(0, 1e-10)
-              lambdaL2 ~ dgamma(0.25 , 0.20)
+              lambdaL2 ~ dgamma(0.50, 0.20)
               
               for (g in 1:nG){
-                  lambdaL1[g] ~ dgamma(0.25 , 0.20)
+                  lambdaL1[g] ~ dgamma(0.50, 0.20)
               }
               
               for (p in 1:P){

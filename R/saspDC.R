@@ -59,7 +59,7 @@ saspDC = function(formula, design.formula, data, family = "gaussian", log_lik = 
   
   tau ~ dgamma(.01, .01) 
   sigma <- sqrt(1/tau)
-  lambda ~ dgamma(.25, 0.2)
+  lambda ~ dgamma(0.50, 0.20)
   kappa ~ dgamma(3.0625, 2.1875)
   
   for (i in 1:P){
@@ -115,7 +115,7 @@ saspDC = function(formula, design.formula, data, family = "gaussian", log_lik = 
     jags_bridge = "model{
 
 
-  lambda ~ dgamma(.25, 0.2)
+  lambda ~ dgamma(0.50, 0.20)
   kappa ~ dgamma(3.0625, 2.1875)
     
   for (f in 1:FP){
@@ -170,7 +170,7 @@ saspDC = function(formula, design.formula, data, family = "gaussian", log_lik = 
     jags_bridge = "model{
 
 
-  lambda ~ dgamma(.25, 0.2)
+  lambda ~ dgamma(0.50, 0.20)
   kappa ~ dgamma(3.0625, 2.1875)
   
   for (i in 1:P){

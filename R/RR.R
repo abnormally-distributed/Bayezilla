@@ -43,7 +43,7 @@ ridge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000
   
   if (family == "gaussian"){
     
-    jags_grr = "model{
+    jags_ridge = "model{
   tau ~ dgamma(.01, .01) 
   sigma2 <- 1/tau
 
@@ -67,7 +67,7 @@ ridge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000
 }"
     
     P <- ncol(X)
-    write_lines(jags_grr, "jags_grr.txt")
+    write_lines(jags_ridge, "jags_ridge.txt")
     jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X))
     monitor <- c("Intercept", "beta", "sigma", "lambda", "Deviance", "ySim", "log_lik")
     if (log_lik == FALSE){
@@ -81,8 +81,8 @@ ridge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
-    out = run.jags(model = "jags_grr.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
-    file.remove("jags_grr.txt")
+    out = run.jags(model = "jags_ridge.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+    file.remove("jags_ridge.txt")
     if (!is.null(cl)) {
       parallel::stopCluster(cl = cl)
     }
@@ -94,7 +94,7 @@ ridge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000
   
   if (family == "binomial" || family == "logistic"){
     
-    jags_grr = "model{
+    jags_ridge = "model{
     
   lambda ~ dgamma(0.50 , 0.20)
 
@@ -116,7 +116,7 @@ ridge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000
 }"
     
     P <- ncol(X)
-    write_lines(jags_grr, "jags_grr.txt")
+    write_lines(jags_ridge, "jags_ridge.txt")
     jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), sigma2 = pow(mean(y), -1) * pow(1 - mean(y), -1))
     monitor <- c("Intercept", "beta", "lambda", "Deviance", "ySim", "log_lik")
     
@@ -131,8 +131,8 @@ ridge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
-    out = run.jags(model = "jags_grr.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
-    file.remove("jags_grr.txt")
+    out = run.jags(model = "jags_ridge.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+    file.remove("jags_ridge.txt")
     if (!is.null(cl)) {
       parallel::stopCluster(cl = cl)
     }
@@ -142,9 +142,9 @@ ridge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000
   
   if (family == "poisson"){
     
-    jags_grr = "model{
+    jags_ridge = "model{
     
-  lambda ~ dgamma(0.50 , 0.20)
+  lambda ~ dgamma(0.50, 0.20)
 
   for (p in 1:P){
     omega[p] <- 1 / (sigma2 / lambda)
@@ -164,7 +164,7 @@ ridge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000
 }"
   
   P <- ncol(X)
-  write_lines(jags_grr, "jags_grr.txt")
+  write_lines(jags_ridge, "jags_ridge.txt")
   jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), sigma2 = pow(mean(y) , -1))
   monitor <- c("Intercept", "beta", "lambda", "Deviance", "ySim", "log_lik")
   
@@ -179,8 +179,8 @@ ridge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
   
-  out = run.jags(model = "jags_grr.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
-  file.remove("jags_grr.txt")
+  out = run.jags(model = "jags_ridge.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+  file.remove("jags_ridge.txt")
   if (!is.null(cl)) {
     parallel::stopCluster(cl = cl)
   }

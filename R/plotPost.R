@@ -5,10 +5,7 @@
 #' original function.
 #' \cr
 #' 
-#' @param paramSampleVec a vector containing the posterior distribution
-#' @param fit a stanfit or runjags object. This can be used as an alternative to paramSampleVec,
-#' but you must specify which parameter you would like to plot. If using this argument be sure to type
-#' fit = "yourmodel" so that the function knows it is not intended to be a vector.
+#' @param fit a stanfit or runjags object. You must specify which parameter you would like to plot. Alternatively, a vector containing the posterior distribution.
 #' @param param the name of the parameter in the stanfit or runjags object you want to plot.
 #' @param breaks a number, function name, or function.
 #' @param col the color scheme. One of "blue", "green" "red", or "purple".
@@ -18,7 +15,8 @@
 #' @param cred.level The credibility level. Defaults to 90\% (.90).
 #' @param method Quantile intervals "QI" (the default), or highest density intervals "HDI"
 #' @param CItextPlace Adjust the position of the credible interval text if needed.
-#' @param showMedian Should the median be used instead of the mean?
+#' @param est One of "mean" (the default), "median", or "mode". The mode gives the value corresponding to the highest density of
+#' a kernel density estimate of the marginal posterior. 
 #' @param ROPE If you would like to display a ROPE, enter vector of three numbers, the first being the
 #' comparison value, the second being the lower limit of the ROPE and the third being the upper limit of the ROPE.
 #' @param ... other arguments to hist()
@@ -27,13 +25,12 @@
 #' @export
 #' @examples
 #' plotPost()
-plotPost <- function(paramSampleVec, fit = NULL, param = NULL, xlab = NULL, col = "blue", ROPE = NULL, cred.level = 0.90, method = "QI", CItextPlace = 0.7, breaks = "dhist", showMedian = FALSE, ...) {
+plotPost <- function(fit = NULL, param = NULL, xlab = NULL, col = "blue", ROPE = NULL, cred.level = 0.90, method = "QI", CItextPlace = 0.7, breaks = "dhist", est = "mean", ...) {
 
   old.par <- par(no.readonly = TRUE) # save default, for resetting... 
   on.exit(par(old.par))     #and when we quit the function, restore to original values
   
-  
-  if (is.null(fit) != TRUE){
+  if (!is.vector(fit)){
     if (is.null(param) == TRUE)  {
       stop("please choose a single parameter to plot with the 'param' argument")
       } 
@@ -43,12 +40,15 @@ plotPost <- function(paramSampleVec, fit = NULL, param = NULL, xlab = NULL, col 
       paramSampleVec = as.vector(paramSampleVec[,which(colnames(paramSampleVec) == param)])
     } 
     else if (class(fit) == "runjags") {
-      paramSampleVec = as.matrix(combine.mcmc(fit, collapse.chains = TRUE, vars = param))
+      paramSampleVec = as.vector(as.matrix(combine.mcmc(fit, collapse.chains = TRUE, vars = param)))
     }
     
     param.label <- noquote(param)
   }
-  else {
+  else if (is.vector(fit)){
+   
+     paramSampleVec <- fit
+    
     if (is.null(param)){
       param.label <- expression(theta)
     }
@@ -77,14 +77,26 @@ plotPost <- function(paramSampleVec, fit = NULL, param = NULL, xlab = NULL, col 
   
   # Get point estimate information for the title
   
-  if ( showMedian==FALSE ) {
+  if (est == "mean" ){
     Param <- round(mean( paramSampleVec ), 2)
     estimate.text = paste("Mean", ":", Param)
-  } else {
+  } 
+  else if (est == "median"){
     Param <- round(median( paramSampleVec ), 2)
     estimate.text = paste("Median", ":", Param)
+  } 
+  else if (est == "mode"){
+    d <- density(paramSampleVec, n = 3072, kernel = "triangular")
+    d$x <- density(paramSampleVec, from = min(paramSampleVec), to = max(paramSampleVec), n = 3072, kernel = "triangular")$x
+    Param <- round(d$x[which.max(d$y)], 2)
+    estimate.text = paste("Value at max density", ":", Param)
   }
-  
+  else if (est == "all"){
+    d <- density(paramSampleVec, n = 3072, kernel = "triangular")
+    d$x <- density(paramSampleVec, from = min(paramSampleVec), to = max(paramSampleVec), n = 3072, kernel = "triangular")$x
+    estimate.text <- paste("mean: ", round(mean( paramSampleVec ), 2), "median: ", round(median( paramSampleVec ), 2), "mode: ", round(d$x[which.max(d$y)], 2))
+  }
+
   # Get HDI information for the title
   if (method == "QI" || method == "ETI") {
     HDI <- round(cred_interval( paramSampleVec, cred.level = cred.level, method = "QI"), 2)
@@ -102,8 +114,8 @@ plotPost <- function(paramSampleVec, fit = NULL, param = NULL, xlab = NULL, col 
   if(length(dots) == 1 && class(dots[[1]]) == "list")
     dots <- dots[[1]]
   defaultArgs <- list(xlab= param.label,
-                      yaxt="n", ylab="", main= main.title, cex.lab=1.5,
-                      cex=1.4, col=ColorScheme[1], border=ColorScheme[2], bty="n", xaxt = "n",
+                      yaxt="n", ylab="", main= main.title, cex.lab=1.4, cex.main = 1.2, 
+                      cex=1.3, col=ColorScheme[1], border=ColorScheme[2], bty="n", xaxt = "n",
                       family = 'serif',
                       lwd=6, freq=FALSE,
                       xlim = cred_interval(paramSampleVec, cred.level=0.999999, method = method))
@@ -161,7 +173,9 @@ plotPost <- function(paramSampleVec, fit = NULL, param = NULL, xlab = NULL, col 
           adj=c(.5,0) , cex=1 , col=ropeCol )
   }
   
-  points(x = Param, y = 0, pch = 18, cex = 1.75)
+  if (est != "all"){
+    points(x = Param, y = 0, pch = 18, cex = 1.75)
+  }
   axis(1, col = NA, tck = 0, family = 'serif')
   return(invisible(histinfo))
 }

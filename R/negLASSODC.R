@@ -3,7 +3,7 @@
 #' @description This implements the normal-exponential-gamma "hyperlasso" of Griffin & Brown (2011). This model has independent normal priors
 #' on each coefficient, whose precision is modeled by independent, predictor specific, exponential distributions. The exponential
 #' distributions in turn have their respective rate parameters modeled through independent gamma(.5, 1 / lambda^2) distributions.
-#' Lambda is a single top-level hyperparameter here given a gamma(0.25 , 0.20) prior. \cr 
+#' Lambda is a single top-level hyperparameter here given a gamma(0.50 , 0.20) prior. \cr 
 #' \cr
 #' The model specification is given below: \cr
 #' \cr
@@ -50,7 +50,7 @@ negLASSODC  = function(formula, design.formula, data, family = "gaussian", log_l
 
               tau ~ dgamma(.01, .01)
 
-              lambda ~ dgamma(0.25 , 0.20)
+              lambda ~ dgamma(0.50 , 0.20)
 
               Intercept ~ dnorm(0, 1e-10)
 
@@ -97,7 +97,7 @@ negLASSODC  = function(formula, design.formula, data, family = "gaussian", log_l
     
     jags_neg_LASSO = "model{
 
-              lambda ~ dgamma(0.25 , 0.20)
+              lambda ~ dgamma(0.50 , 0.20)
 
               Intercept ~ dnorm(0, 1e-10)
 
@@ -141,7 +141,7 @@ negLASSODC  = function(formula, design.formula, data, family = "gaussian", log_l
     
     jags_neg_LASSO = "model{
 
-              lambda ~ dgamma(0.25 , 0.20)
+              lambda ~ dgamma(0.50 , 0.20)
 
               Intercept ~ dnorm(0, 1e-10)
 

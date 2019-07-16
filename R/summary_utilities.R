@@ -325,17 +325,184 @@ marginalModes = function(x, keeppars = c("Intercept", "beta"), droppars = c("ySi
   }
   
   contMode = function(x) {
-    # Use 10% credible interval limits as a threshold to focus later density estimation
-    # on the very highest density region. This provides much greater accuracy but retains
-    # enough samples for the density estimation to be workable
-    lower = Bayezilla::cred_interval(x, cred.level = 0.10, method = "HDI")[1]
-    upper = Bayezilla::cred_interval(x, cred.level = 0.10, method = "HDI")[2]
-    x = x[-c(which(x < lower), which(x > upper))]
-    dens = density(x, kernel = "gaussian")
-    round(dens$x[which.max(dens$y)], 5)
+    d <- density(x, n = length(x), kernel = "triangular")
+    d$x <- density(x, from = min(x), to = max(x), n = length(x), kernel = "triangular")$x
+    round(d$x[which.max(d$y)], 5)
   }
   
   modes = as.vector(apply(ss, 2, contMode))
   names(modes) = colnames(ss)
   return(modes)
 }
+
+
+#' Approximate the maximum joint posterior density estimate 
+#' 
+#' @description This function calculates the density estimate for each column of a 
+#' joint posterior distribution, then takes the logarithm of the estimate densities. The log-
+#' densities are then summed to give the row-wise log-posterior probability function. The 
+#' row with the highest log-posterior density is returned which corresponds to the monte carlo
+#' sample with the highest joint probability, or MAP estimate. Note, however, this is an approximation
+#' to the MAP in the sense that MAP estimation proper is done through optimization.
+#'
+#' @param x the set of posterior samples to be summarized in an runjags or stanfit object.
+#' @param keeppars the list of specific variables to keep. Defaults to NULL. 
+#' @param droppars list of parameters to exclude from the calculation of the density. The default is c("ySim", "log_lik", "lp__", "Deviance", "BIC", "delta"),
+#' but this should be adjusted to make sure that derived and generated quantities such as predictions, deviance, indicator variables, and so forth --
+#' anything not directly part of the posterior distribution of the model parameters -- are removed. Note, however, that the function will still
+#' return all quantities in the model. The droppars argument only applies to the density estimation itself. 
+#' @return a vector of modes
+#' @export
+#'
+#' @examples
+#' jointMode(fit)
+jointMode = function(x, keeppars = NULL, droppars = c("ySim", "log_lik", "lp__", "Deviance", "delta", "BIC")){
+  
+  stan <- inherits(x, "stanfit")
+  
+  if (stan == TRUE) {
+    ss <- as.matrix(x)
+    ss1 <- ss
+    wch = unique(unlist(sapply(droppars, function(z) which(regexpr(z,  colnames(ss)) == 1))))
+    if (length(wch) != 0) {
+      ss <- ss[, -wch]
+    }
+    if (!is.null(keeppars)) {
+      wch = unique(unlist(sapply(keeppars, function(z) which(regexpr(z,  colnames(ss)) == 1))))
+      if (length(wch) != 0) {
+        ss <- ss[, wch]
+      }
+    }
+  }
+  else if (class(x) == "runjags") {
+    ss <- runjags::combine.mcmc(x, collapse.chains = TRUE)
+    ss <- as.matrix(ss)
+    ss1 <- ss
+    wch = unique(unlist(sapply(droppars, function(z) which(regexpr(z, colnames(ss)) == 1))))
+    if (length(wch) != 0) {
+      ss <- ss[, -wch]
+    }
+    if (!is.null(keeppars)) {
+      wch = unique(unlist(sapply(keeppars, function(z) which(regexpr(z, colnames(ss)) == 1))))
+      if (length(wch) != 0) {
+        ss <- ss[, wch]
+      }
+    }
+  }
+  else {
+    ss <- as.matrix(x)
+    ss1 <- ss
+    wch = unique(unlist(sapply(droppars, function(z) which(regexpr(z, 
+                                                                   colnames(ss)) == 1))))
+    if (length(wch) != 0) {
+      ss <- ss[, -wch]
+    }
+    if (!is.null(keeppars)) {
+      wch = unique(unlist(sapply(keeppars, function(z) which(regexpr(z, 
+                                                                     colnames(ss)) == 1))))
+      if (length(wch) != 0) {
+        ss <- ss[, wch]
+      }
+    }
+  }
+  
+  logdensity = function(x) {
+    d <- density(x, from = min(x), to = max(x), n = length(x), kernel = "triangular")
+    lp = log(d$y) 
+    #dx = d$x
+    #cbind.data.frame(lp = lp, x = dx)
+    lp
+  }
+  
+  logpost = apply(ss, 2, function(x) logdensity(x))
+  round(ss1[which.max(rowSums(logpost)) , ], 5)
+}
+
+
+
+#' Approximate the maximum joint posterior density estimate 
+#' 
+#' @description This function calculates the kernel density estimate for each column of a 
+#' joint posterior distribution, then takes the logarithm of the estimate densities. The log-
+#' densities are then summed to give the row-wise log-posterior probability function. The 
+#' row with the highest log-posterior density is returned which corresponds to the monte carlo
+#' sample with the highest joint probability, or MAP estimate. Note, however, this is an approximation
+#' to the MAP in the sense that MAP estimation proper is done through optimization.
+#'
+#' @param x the set of posterior samples to be summarized in an runjags or stanfit object.
+#' @param keeppars the list of specific variables to keep. Defaults to NULL. 
+#' @param droppars list of parameters to exclude from the calculation of the density. The default is c("ySim", "log_lik", "lp__", "Deviance", "BIC", "delta"),
+#' but this should be adjusted to make sure that derived and generated quantities such as predictions, deviance, indicator variables, and so forth --
+#' anything not directly part of the posterior distribution of the model parameters -- are removed. Note, however, that the function will still
+#' return all quantities in the model. The droppars argument only applies to the density estimation itself. 
+#' @return a vector of modes
+#' @export
+#'
+#' @examples
+#' jointMode(fit)
+jointMode = function(x, keeppars = NULL, droppars = c("ySim", "log_lik", "Deviance", "delta", "BIC")){
+  
+  stan <- inherits(x, "stanfit")
+  
+  if (stan == TRUE){
+    ss <- as.matrix(x)
+    if(isTRUE(suppressWarnings(any(colnames(ss), "lp__")))){
+      ssp = as.data.frame(ss)
+      stop(return(ss[which.max(ssp$`lp__`), ]))
+    }
+    else {
+    ss1 <- ss
+    wch = unique(unlist(sapply(droppars, function(z) which(regexpr(z,  colnames(ss)) == 1))))
+    if (length(wch) != 0) {
+      ss <- ss[, -wch]
+    }
+    if (!is.null(keeppars)) {
+      wch = unique(unlist(sapply(keeppars, function(z) which(regexpr(z,  colnames(ss)) == 1))))
+      if (length(wch) != 0) {
+        ss <- ss[, wch]
+        }
+      }
+    }
+  }
+  else if (class(x) == "runjags") {
+    ss <- runjags::combine.mcmc(x, collapse.chains = TRUE)
+    ss <- as.matrix(ss)
+    ss1 <- ss
+    wch = unique(unlist(sapply(droppars, function(z) which(regexpr(z, colnames(ss)) == 1))))
+    if (length(wch) != 0) {
+      ss <- ss[, -wch]
+    }
+    if (!is.null(keeppars)) {
+      wch = unique(unlist(sapply(keeppars, function(z) which(regexpr(z, colnames(ss)) == 1))))
+      if (length(wch) != 0) {
+        ss <- ss[, wch]
+      }
+    }
+  }
+  else {
+    ss <- as.matrix(x)
+    ss1 <- ss
+    wch = unique(unlist(sapply(droppars, function(z) which(regexpr(z, 
+                                                                   colnames(ss)) == 1))))
+    if (length(wch) != 0) {
+      ss <- ss[, -wch]
+    }
+    if (!is.null(keeppars)) {
+      wch = unique(unlist(sapply(keeppars, function(z) which(regexpr(z, 
+                                                                     colnames(ss)) == 1))))
+      if (length(wch) != 0) {
+        ss <- ss[, wch]
+      }
+    }
+  }
+  
+  logdensity = function(x) {
+    d <- density(x, from = min(x), to = max(x), n = length(x), kernel = "triangular")
+    lp = log(d$y)
+    lp
+  }
+  
+  logpost = apply(ss, 2, function(x) logdensity(x))
+  round(ss1[which.max(rowSums(logpost)) , ], 5)
+}
+

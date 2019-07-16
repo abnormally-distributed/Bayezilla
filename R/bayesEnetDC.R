@@ -53,8 +53,8 @@ bayesEnetDC  = function(formula, design.formula, data,  family = "gaussian", log
     jags_elastic_net = "model{
               tau ~ dgamma(.01, .01)
               sigma <- sqrt(1/tau)
-              lambdaL1 ~ dgamma(0.25 , 0.2)
-              lambdaL2 ~ dgamma(0.25 , 0.2)
+              lambdaL1 ~ dgamma(0.5 , 0.2)
+              lambdaL2 ~ dgamma(0.5 , 0.2)
 
               Intercept ~ dnorm(0, 1e-10)
 
@@ -108,8 +108,8 @@ if (family == "binomial" || family == "logistic"){
   
   jags_elastic_net = "model{
 
-              lambdaL1 ~ dgamma(0.25 , 0.2)
-              lambdaL2 ~ dgamma(0.25 , 0.2)
+              lambdaL1 ~ dgamma(0.5 , 0.2)
+              lambdaL2 ~ dgamma(0.5 , 0.2)
 
               Intercept ~ dnorm(0, 1e-10)
 
@@ -162,8 +162,8 @@ if (family == "poisson"){
   
   jags_elastic_net = "model{
 
-              lambdaL1 ~ dgamma(0.25 , 0.2)
-              lambdaL2 ~ dgamma(0.25 , 0.2)
+              lambdaL1 ~ dgamma(0.5 , 0.2)
+              lambdaL2 ~ dgamma(0.5 , 0.2)
 
               Intercept ~ dnorm(0, 1e-10)
 

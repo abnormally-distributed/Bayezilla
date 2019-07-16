@@ -4,16 +4,12 @@
 \alias{plotPost}
 \title{Histogram of Posterior Distribution}
 \usage{
-plotPost(paramSampleVec, fit = NULL, param = NULL, xlab = NULL,
-  col = "blue", ROPE = NULL, cred.level = 0.9, method = "QI",
-  CItextPlace = 0.7, breaks = "dhist", showMedian = FALSE, ...)
+plotPost(fit = NULL, param = NULL, xlab = NULL, col = "blue",
+  ROPE = NULL, cred.level = 0.9, method = "QI", CItextPlace = 0.7,
+  breaks = "dhist", est = "mean", ...)
 }
 \arguments{
-\item{paramSampleVec}{a vector containing the posterior distribution}
-
-\item{fit}{a stanfit or runjags object. This can be used as an alternative to paramSampleVec,
-but you must specify which parameter you would like to plot. If using this argument be sure to type
-fit = "yourmodel" so that the function knows it is not intended to be a vector.}
+\item{fit}{a stanfit or runjags object. You must specify which parameter you would like to plot. Alternatively, a vector containing the posterior distribution.}
 
 \item{param}{the name of the parameter in the stanfit or runjags object you want to plot.}
 
@@ -34,7 +30,8 @@ comparison value, the second being the lower limit of the ROPE and the third bei
 
 \item{breaks}{a number, function name, or function.}
 
-\item{showMedian}{Should the median be used instead of the mean?}
+\item{est}{One of "mean" (the default), "median", or "mode". The mode gives the value corresponding to the highest density of
+a kernel density estimate of the marginal posterior.}
 
 \item{...}{other arguments to hist()}
 }

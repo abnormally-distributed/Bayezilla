@@ -57,7 +57,7 @@ genRidge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10
   sigma2 <- 1/tau
 
   for (p in 1:P){
-    lambda[p] ~ dgamma(1.5, 0.25)
+    lambda[p] ~ dgamma(0.50, 0.20)
     omega[p] <- 1 / (sigma2 / lambda[p])
     beta[p] ~ dnorm(0, omega[p])
   }
@@ -104,7 +104,7 @@ genRidge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10
     jags_grr = "model{
     
   for (p in 1:P){
-    lambda[p] ~ dgamma(0.25 , 0.20)
+    lambda[p] ~ dgamma(0.50, 0.20)
     omega[p] <- 1 / (sigma2 / lambda[p])
     beta[p] ~ dnorm(0, omega[p])
   }
@@ -151,7 +151,7 @@ genRidge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10
     jags_grr = "model{
     
   for (p in 1:P){
-    lambda[p] ~ dgamma(0.25 , 0.20)
+    lambda[p] ~ dgamma(0.50, 0.20)
     omega[p] <- 1 / (sigma2 / lambda[p])
     beta[p] ~ dnorm(0, omega[p])
   }

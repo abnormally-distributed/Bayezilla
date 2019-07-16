@@ -48,8 +48,8 @@ bayesEnet  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=
 
               tau ~ dgamma(.01, .01)
               sigma <- sqrt(1/tau)
-              lambdaL1 ~ dgamma(0.25, 0.2)
-              lambdaL2 ~ dgamma(0.25, 0.2)
+              lambdaL1 ~ dgamma(0.50, 0.2)
+              lambdaL2 ~ dgamma(0.50, 0.2)
 
               Intercept ~ dnorm(0, 1e-10)
 
@@ -96,8 +96,8 @@ bayesEnet  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=
     
     jags_elastic_net = "model{
 
-              lambdaL1 ~ dgamma(0.25, 0.2)
-              lambdaL2 ~ dgamma(0.25, 0.2)
+              lambdaL1 ~ dgamma(0.50, 0.2)
+              lambdaL2 ~ dgamma(0.50, 0.2)
 
               Intercept ~ dnorm(0, 1e-10)
 
@@ -149,8 +149,8 @@ bayesEnet  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=
     
     jags_elastic_net = "model{
 
-              lambdaL1 ~ dgamma(0.25, 0.2)
-              lambdaL2 ~ dgamma(0.25, 0.2)
+              lambdaL1 ~ dgamma(0.50, 0.2)
+              lambdaL2 ~ dgamma(0.50, 0.2)
 
               Intercept ~ dnorm(0, 1e-10)
 

@@ -37,8 +37,15 @@ ridgeSpike(formula, data, family = "gaussian", log_lik = FALSE,
 a runjags object
 }
 \description{
-The Bayesian implementation of ridge regression. Plug-in pseudovariances are used for 
-the binomial and poisson likelihood functions. 
+The Bayesian implementation of ridge regression combined with
+the Bernoulli-Normal mixture model for stochastic search variable selection. 
+Plug-in pseudovariances are used for the binomial and poisson likelihood functions. 
+
+\cr
+In a way this is comparable to the elastic net. The elastic net is a convex combination of L1 and L2
+norm penalities, while this model is a combination of L2 and L0 penalities (albeit not convex, since
+the L0 norm is not convex).
+
 \cr
 \cr
 Model Specification: \cr

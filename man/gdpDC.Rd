@@ -4,9 +4,10 @@
 \alias{gdpDC}
 \title{Generalized double pareto shrinkage prior with unpenalized design covariates}
 \usage{
-gdpDC(formula, design.formula, data, log_lik = FALSE, iter = 10000,
-  warmup = 1000, adapt = 2000, chains = 4, thin = 1,
-  method = "parallel", cl = makeCluster(2), ...)
+gdpDC(formula, design.formula, data, family = "gaussian",
+  log_lik = FALSE, iter = 10000, warmup = 1000, adapt = 2000,
+  chains = 4, thin = 1, method = "parallel", cl = makeCluster(2),
+  ...)
 }
 \arguments{
 \item{formula}{the model formula}
@@ -14,6 +15,8 @@ gdpDC(formula, design.formula, data, log_lik = FALSE, iter = 10000,
 \item{design.formula}{formula for the design covariates.}
 
 \item{data}{a data frame.}
+
+\item{family}{one of "gaussian" (the default), "binomial", or "poisson"}
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 

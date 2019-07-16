@@ -24,7 +24,7 @@ return all quantities in the model. The droppars argument only applies to the de
 
 \item{keeppars}{the list of specific variables to keep. Defaults to NULL.}
 
-\item{droppars}{list of parameters to exclude from the calculation of the density. The default is c("ySim", "log_lik", "lp__", "Deviance", "BIC", "delta"),
+\item{droppars}{list of parameters to exclude from the calculation of the density. The default is c("ySim", "log_lik", "Deviance", "BIC", "delta"),
 but this should be adjusted to make sure that derived and generated quantities such as predictions, deviance, indicator variables, and so forth --
 anything not directly part of the posterior distribution of the model parameters -- are removed. Note, however, that the function will still
 return all quantities in the model. The droppars argument only applies to the density estimation itself.}
@@ -47,7 +47,13 @@ joint posterior distribution, then takes the logarithm of the estimate densities
 densities are then summed to give the row-wise log-posterior probability function. The 
 row with the highest log-posterior density is returned which corresponds to the monte carlo
 sample with the highest joint probability, or MAP estimate. Note, however, this is an approximation
-to the MAP in the sense that MAP estimation proper is done through optimization.
+to the MAP in the sense that MAP estimation proper is done through optimization. \cr
+\cr
+Frankly this function is included largely for didactic purposes. MAP estimation, whether by approximating via
+finding the MCMC iteration with the highest joint log-probability or directly optimizing an objective function,
+will be often poor with higher dimensional problems. This is due to the fact that the mode of a multidimensional
+function may be no where near the expected values of the marginal distributions. This stems from the curse of
+dimensionality. \cr
 }
 \examples{
 jointMode(fit)

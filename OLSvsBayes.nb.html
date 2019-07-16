@@ -74,7 +74,7 @@ display: none;
 padding: 0 4px 0 4px;
 }
 .pagedtable .even {
-background-color: rgba(140, 140, 140, 0.1);
+background-color: #fcfcfc;
 }
 .pagedtable-padding-col {
 display: none;
@@ -1478,7 +1478,7 @@ window.initializeCodeFolding = function(show) {
   var currentIndex = 1;
 
   // select all R code blocks
-  var rCodeBlocks = $('pre.r, pre.python, pre.bash, pre.sql, pre.cpp, pre.stan, pre.julia');
+  var rCodeBlocks = $('pre.r, pre.python, pre.bash, pre.sql, pre.cpp, pre.stan');
   rCodeBlocks.each(function() {
 
     // create a collapsable div to wrap the code in
@@ -1599,7 +1599,9 @@ h6 {
 </style>
 
 
+</head>
 
+<body>
 
 <style type="text/css">
 .main-container {
@@ -1623,9 +1625,6 @@ img {
 }
 button.code-folding-btn:focus {
   outline: none;
-}
-summary {
-  display: list-item;
 }
 </style>
 
@@ -1655,71 +1654,12 @@ summary {
 </style>
 
 
+<div class="container-fluid main-container">
+
 <!-- tabsets -->
-
-<style type="text/css">
-.tabset-dropdown > .nav-tabs {
-  display: inline-table;
-  max-height: 500px;
-  min-height: 44px;
-  overflow-y: auto;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-}
-
-.tabset-dropdown > .nav-tabs > li.active:before {
-  content: "";
-  font-family: 'Glyphicons Halflings';
-  display: inline-block;
-  padding: 10px;
-  border-right: 1px solid #ddd;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
-  content: "";
-  border: none;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
-  content: "";
-  font-family: 'Glyphicons Halflings';
-  display: inline-block;
-  padding: 10px;
-  border-right: 1px solid #ddd;
-}
-
-.tabset-dropdown > .nav-tabs > li.active {
-  display: block;
-}
-
-.tabset-dropdown > .nav-tabs > li > a,
-.tabset-dropdown > .nav-tabs > li > a:focus,
-.tabset-dropdown > .nav-tabs > li > a:hover {
-  border: none;
-  display: inline-block;
-  border-radius: 4px;
-}
-
-.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
-  display: block;
-  float: none;
-}
-
-.tabset-dropdown > .nav-tabs > li {
-  display: none;
-}
-</style>
-
 <script>
 $(document).ready(function () {
   window.buildTabsets("TOC");
-});
-
-$(document).ready(function () {
-  $('.tabset-dropdown > .nav-tabs > li').click(function () {
-    $(this).parent().toggleClass('nav-tabs-open')
-  });
 });
 </script>
 
@@ -1735,14 +1675,6 @@ $(document).ready(function () {
 </script>
 
 
-
-
-</head>
-
-<body>
-
-
-<div class="container-fluid main-container">
 
 
 
@@ -1770,13 +1702,13 @@ $(document).ready(function () {
 <!-- rnb-text-end -->
 <!-- rnb-text-begin -->
 <p>This features a comparison of ordinary least squares linear regression to several Bayesian models. All four data sets were randomly generated from specified coefficients. The aim of this simulation study was to assess how accurately different models can estimate the true coefficients after noise is added to simulate estimation and sampling error. Rather than focusing on prediction error of the outcome variables, the focus is on the coefficients to assess the suitability of various models for estimating the effects of variables on an outcome for scientific analysis.</p>
-<p>The first two data sets are sparse cases, where some of the true effects are exactly zero. The last two data sets are generated from non-sparse coefficient vectors. Tables of the point estimates are presented for each data set, along with a summary of the sum of absolute errors and sum of squared errors for the point estimates from the known true coefficients. Point estimates for the Bayesian models are the median values of the marginal posterior distributions.</p>
+<p>The first two data sets are sparse cases, where some of the true effects are exactly zero. The last two data sets are generated from non-sparse coefficient vectors. Tables of the point estimates are presented for each data set, along with a summary of the sum of absolute Errors and sum of squared errors for the point estimates from the known true coefficients. Point estimates for the Bayesian models are the median values of the marginal posterior distributions.</p>
 <p>The first and third data sets contain 30 observations and 15 predictors. The second and fourth data sets contain 60 observations and 11 predictors. These dimensions were chosen to assess the performance of least squares regression in sample sizes typical of many scientific studies, with an emphasis on a relatively large number of predictors. Nevertheless, all data sets are full rank and positive definite. These conditions are typical for when least squares performs less than desirably, hence it is expected that the regularized Bayesian models will perform better. The question to be answered here is how much better.</p>
 <p>Models Compared:</p>
 <p>Ordinary Least squares</p>
 <p>glmBayes - Bayesian model with studen-t priors on the coefficients and adaptive degrees of freedom estimated from the data.</p>
-<p>RR - Bayesian Ridge Regression</p>
-<p>GRR - Adaptive Bayesian Ridge Regression</p>
+<p>ridge - Bayesian Ridge Regression</p>
+<p>genRidge - Adaptive Bayesian Ridge Regression</p>
 <p>blasso - Bayesian LASSO</p>
 <p>extLASSO - Extended Bayesian LASSO</p>
 <p>negLASSO - Normal-Exponential-Gamma Bayesian LASSO (also known as hyperlasso)</p>
@@ -1802,14 +1734,29 @@ $(document).ready(function () {
 <!-- rnb-html-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImtuaXRfYXNpcyJdLCJzaXppbmdQb2xpY3kiOltdfX0= -->
 
 <table>
+<colgroup>
+<col width="9%" />
+<col width="5%" />
+<col width="5%" />
+<col width="8%" />
+<col width="5%" />
+<col width="8%" />
+<col width="6%" />
+<col width="8%" />
+<col width="8%" />
+<col width="8%" />
+<col width="9%" />
+<col width="7%" />
+<col width="5%" />
+</colgroup>
 <thead>
 <tr class="header">
 <th align="left"></th>
 <th align="right">true</th>
 <th align="right">lm</th>
 <th align="right">glmBayes</th>
-<th align="right">RR</th>
-<th align="right">GRR</th>
+<th align="right">ridge</th>
+<th align="right">genRidge</th>
 <th align="right">blasso</th>
 <th align="right">extLASSO</th>
 <th align="right">negLASSO</th>
@@ -1839,15 +1786,15 @@ $(document).ready(function () {
 <td align="left">V1</td>
 <td align="right">0.00</td>
 <td align="right">0.06</td>
-<td align="right">0.02</td>
-<td align="right">0.02</td>
+<td align="right">0.03</td>
+<td align="right">0.01</td>
 <td align="right">-0.01</td>
 <td align="right">-0.01</td>
 <td align="right">-0.01</td>
 <td align="right">-0.01</td>
 <td align="right">-0.01</td>
 <td align="right">0.00</td>
-<td align="right">0.00</td>
+<td align="right">-0.01</td>
 <td align="right">-0.01</td>
 </tr>
 <tr class="odd">
@@ -1858,25 +1805,25 @@ $(document).ready(function () {
 <td align="right">0.07</td>
 <td align="right">0.04</td>
 <td align="right">0.04</td>
-<td align="right">0.01</td>
 <td align="right">0.02</td>
-<td align="right">0.00</td>
-<td align="right">0.04</td>
-<td align="right">0.00</td>
+<td align="right">0.02</td>
+<td align="right">0.01</td>
+<td align="right">0.05</td>
+<td align="right">0.01</td>
 <td align="right">0.01</td>
 </tr>
 <tr class="even">
 <td align="left">V3</td>
 <td align="right">0.00</td>
 <td align="right">0.31</td>
-<td align="right">0.15</td>
+<td align="right">0.19</td>
 <td align="right">0.13</td>
-<td align="right">0.07</td>
+<td align="right">0.04</td>
 <td align="right">0.05</td>
 <td align="right">0.00</td>
 <td align="right">0.01</td>
 <td align="right">0.00</td>
-<td align="right">0.06</td>
+<td align="right">0.09</td>
 <td align="right">0.00</td>
 <td align="right">0.00</td>
 </tr>
@@ -1884,45 +1831,45 @@ $(document).ready(function () {
 <td align="left">V4</td>
 <td align="right">0.00</td>
 <td align="right">-0.09</td>
-<td align="right">-0.12</td>
+<td align="right">-0.11</td>
 <td align="right">-0.13</td>
+<td align="right">-0.08</td>
 <td align="right">-0.09</td>
-<td align="right">-0.09</td>
-<td align="right">-0.03</td>
+<td align="right">-0.04</td>
 <td align="right">-0.06</td>
 <td align="right">-0.02</td>
-<td align="right">-0.10</td>
-<td align="right">-0.02</td>
+<td align="right">-0.12</td>
+<td align="right">-0.07</td>
 <td align="right">-0.05</td>
 </tr>
 <tr class="even">
 <td align="left">V5</td>
 <td align="right">0.28</td>
 <td align="right">0.44</td>
-<td align="right">0.36</td>
+<td align="right">0.38</td>
 <td align="right">0.35</td>
-<td align="right">0.32</td>
+<td align="right">0.31</td>
 <td align="right">0.31</td>
 <td align="right">0.28</td>
 <td align="right">0.29</td>
 <td align="right">0.28</td>
-<td align="right">0.32</td>
-<td align="right">0.28</td>
+<td align="right">0.33</td>
+<td align="right">0.30</td>
 <td align="right">0.29</td>
 </tr>
 <tr class="odd">
 <td align="left">V6</td>
 <td align="right">0.00</td>
 <td align="right">-0.31</td>
-<td align="right">-0.17</td>
+<td align="right">-0.20</td>
 <td align="right">-0.15</td>
-<td align="right">-0.11</td>
 <td align="right">-0.09</td>
-<td align="right">-0.02</td>
+<td align="right">-0.09</td>
+<td align="right">-0.03</td>
 <td align="right">-0.05</td>
 <td align="right">-0.01</td>
-<td align="right">-0.10</td>
-<td align="right">0.00</td>
+<td align="right">-0.12</td>
+<td align="right">-0.03</td>
 <td align="right">-0.03</td>
 </tr>
 <tr class="even">
@@ -1931,13 +1878,13 @@ $(document).ready(function () {
 <td align="right">-0.38</td>
 <td align="right">-0.36</td>
 <td align="right">-0.35</td>
-<td align="right">-0.38</td>
+<td align="right">-0.39</td>
 <td align="right">-0.38</td>
 <td align="right">-0.43</td>
-<td align="right">-0.41</td>
+<td align="right">-0.40</td>
 <td align="right">-0.44</td>
-<td align="right">-0.37</td>
-<td align="right">-0.44</td>
+<td align="right">-0.36</td>
+<td align="right">-0.40</td>
 <td align="right">-0.42</td>
 </tr>
 <tr class="odd">
@@ -1950,68 +1897,68 @@ $(document).ready(function () {
 <td align="right">-0.02</td>
 <td align="right">-0.01</td>
 <td align="right">-0.01</td>
-<td align="right">0.00</td>
-<td align="right">-0.02</td>
-<td align="right">0.00</td>
+<td align="right">-0.01</td>
+<td align="right">-0.03</td>
+<td align="right">-0.01</td>
 <td align="right">-0.01</td>
 </tr>
 <tr class="even">
 <td align="left">V9</td>
 <td align="right">0.00</td>
 <td align="right">0.32</td>
-<td align="right">0.21</td>
+<td align="right">0.24</td>
 <td align="right">0.20</td>
-<td align="right">0.16</td>
+<td align="right">0.14</td>
 <td align="right">0.14</td>
 <td align="right">0.06</td>
 <td align="right">0.10</td>
 <td align="right">0.05</td>
-<td align="right">0.15</td>
-<td align="right">0.07</td>
-<td align="right">0.09</td>
+<td align="right">0.17</td>
+<td align="right">0.11</td>
+<td align="right">0.08</td>
 </tr>
 <tr class="odd">
 <td align="left">V10</td>
 <td align="right">-0.58</td>
 <td align="right">-0.23</td>
-<td align="right">-0.35</td>
-<td align="right">-0.36</td>
-<td align="right">-0.42</td>
+<td align="right">-0.33</td>
+<td align="right">-0.37</td>
+<td align="right">-0.44</td>
 <td align="right">-0.42</td>
 <td align="right">-0.48</td>
 <td align="right">-0.46</td>
-<td align="right">-0.49</td>
-<td align="right">-0.41</td>
-<td align="right">-0.47</td>
+<td align="right">-0.48</td>
+<td align="right">-0.39</td>
+<td align="right">-0.45</td>
 <td align="right">-0.47</td>
 </tr>
 <tr class="even">
 <td align="left">V11</td>
 <td align="right">0.00</td>
 <td align="right">-0.35</td>
-<td align="right">-0.09</td>
-<td align="right">-0.06</td>
+<td align="right">-0.14</td>
+<td align="right">-0.05</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
+<td align="right">0.01</td>
+<td align="right">0.01</td>
+<td align="right">0.00</td>
 <td align="right">-0.02</td>
-<td align="right">0.00</td>
 <td align="right">0.01</td>
-<td align="right">0.01</td>
-<td align="right">0.00</td>
-<td align="right">0.00</td>
-<td align="right">0.00</td>
 <td align="right">0.01</td>
 </tr>
 <tr class="odd">
 <td align="left">V12</td>
 <td align="right">0.00</td>
 <td align="right">-0.16</td>
-<td align="right">-0.03</td>
+<td align="right">-0.06</td>
 <td align="right">-0.01</td>
-<td align="right">-0.01</td>
 <td align="right">0.00</td>
 <td align="right">0.00</td>
 <td align="right">0.00</td>
 <td align="right">0.00</td>
-<td align="right">0.01</td>
+<td align="right">0.00</td>
+<td align="right">0.00</td>
 <td align="right">0.00</td>
 <td align="right">0.00</td>
 </tr>
@@ -2019,46 +1966,46 @@ $(document).ready(function () {
 <td align="left">V13</td>
 <td align="right">0.00</td>
 <td align="right">-0.17</td>
-<td align="right">-0.13</td>
-<td align="right">-0.12</td>
-<td align="right">-0.09</td>
+<td align="right">-0.14</td>
+<td align="right">-0.11</td>
+<td align="right">-0.07</td>
 <td align="right">-0.07</td>
 <td align="right">-0.01</td>
-<td align="right">-0.03</td>
+<td align="right">-0.04</td>
 <td align="right">0.00</td>
-<td align="right">-0.08</td>
-<td align="right">0.00</td>
+<td align="right">-0.10</td>
 <td align="right">-0.02</td>
+<td align="right">-0.01</td>
 </tr>
 <tr class="odd">
 <td align="left">V14</td>
 <td align="right">0.00</td>
 <td align="right">0.23</td>
-<td align="right">0.12</td>
+<td align="right">0.14</td>
 <td align="right">0.10</td>
-<td align="right">0.07</td>
+<td align="right">0.05</td>
 <td align="right">0.05</td>
 <td align="right">0.01</td>
 <td align="right">0.03</td>
 <td align="right">0.00</td>
-<td align="right">0.06</td>
-<td align="right">0.00</td>
-<td align="right">0.02</td>
+<td align="right">0.08</td>
+<td align="right">0.01</td>
+<td align="right">0.01</td>
 </tr>
 <tr class="even">
 <td align="left">V15</td>
 <td align="right">-0.41</td>
 <td align="right">-0.56</td>
+<td align="right">-0.50</td>
+<td align="right">-0.45</td>
 <td align="right">-0.47</td>
-<td align="right">-0.46</td>
-<td align="right">-0.48</td>
 <td align="right">-0.46</td>
 <td align="right">-0.46</td>
 <td align="right">-0.46</td>
 <td align="right">-0.47</td>
 <td align="right">-0.45</td>
-<td align="right">-0.47</td>
-<td align="right">-0.47</td>
+<td align="right">-0.45</td>
+<td align="right">-0.46</td>
 </tr>
 </tbody>
 </table>
@@ -2069,13 +2016,27 @@ $(document).ready(function () {
 <!-- rnb-html-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImtuaXRfYXNpcyJdLCJzaXppbmdQb2xpY3kiOltdfX0= -->
 
 <table>
+<colgroup>
+<col width="7%" />
+<col width="7%" />
+<col width="9%" />
+<col width="7%" />
+<col width="9%" />
+<col width="7%" />
+<col width="9%" />
+<col width="9%" />
+<col width="9%" />
+<col width="10%" />
+<col width="8%" />
+<col width="5%" />
+</colgroup>
 <thead>
 <tr class="header">
 <th align="left">Errors</th>
 <th align="left">lm</th>
 <th align="left">glmBayes</th>
-<th align="left">RR</th>
-<th align="left">GRR</th>
+<th align="left">ridge</th>
+<th align="left">genRidge</th>
 <th align="left">blasso</th>
 <th align="left">extLASSO</th>
 <th align="left">negLASSO</th>
@@ -2089,30 +2050,30 @@ $(document).ready(function () {
 <tr class="odd">
 <td align="left">SSE</td>
 <td align="left">0.7295</td>
-<td align="left">0.2369</td>
-<td align="left">0.206</td>
-<td align="left">0.1105</td>
+<td align="left">0.3131</td>
+<td align="left">0.1971</td>
+<td align="left">0.0793</td>
 <td align="left">0.0889</td>
-<td align="left">0.0216</td>
-<td align="left">0.0421</td>
-<td align="left">0.0173</td>
-<td align="left">0.1047</td>
-<td align="left">0.0235</td>
-<td align="left">0.0334</td>
+<td align="left">0.0231</td>
+<td align="left">0.0445</td>
+<td align="left">0.0194</td>
+<td align="left">0.1431</td>
+<td align="left">0.0458</td>
+<td align="left">0.03</td>
 </tr>
 <tr class="even">
 <td align="left">SAE</td>
 <td align="left">2.91</td>
-<td align="left">1.65</td>
-<td align="left">1.5</td>
-<td align="left">1.07</td>
+<td align="left">1.93</td>
+<td align="left">1.45</td>
+<td align="left">0.87</td>
 <td align="left">0.91</td>
-<td align="left">0.38</td>
-<td align="left">0.59</td>
-<td align="left">0.29</td>
-<td align="left">0.99</td>
-<td align="left">0.31</td>
-<td align="left">0.5</td>
+<td align="left">0.41</td>
+<td align="left">0.61</td>
+<td align="left">0.32</td>
+<td align="left">1.19</td>
+<td align="left">0.56</td>
+<td align="left">0.46</td>
 </tr>
 </tbody>
 </table>
@@ -2134,6 +2095,48 @@ $(document).ready(function () {
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
+<!-- rnb-output-begin eyJkYXRhIjoiQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuIn0= -->
+<pre><code>Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
@@ -2141,15 +2144,30 @@ $(document).ready(function () {
 <p>
 <!-- rnb-html-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImtuaXRfYXNpcyJdLCJzaXppbmdQb2xpY3kiOltdfX0= -->
 
-<table>
+<table style="width:100%;">
+<colgroup>
+<col width="11%" />
+<col width="5%" />
+<col width="5%" />
+<col width="8%" />
+<col width="5%" />
+<col width="8%" />
+<col width="6%" />
+<col width="8%" />
+<col width="8%" />
+<col width="8%" />
+<col width="9%" />
+<col width="7%" />
+<col width="5%" />
+</colgroup>
 <thead>
 <tr class="header">
 <th align="left"></th>
 <th align="right">true</th>
 <th align="right">lm</th>
 <th align="right">glmBayes</th>
-<th align="right">RR</th>
-<th align="right">GRR</th>
+<th align="right">ridge</th>
+<th align="right">genRidge</th>
 <th align="right">blasso</th>
 <th align="right">extLASSO</th>
 <th align="right">negLASSO</th>
@@ -2181,29 +2199,29 @@ $(document).ready(function () {
 <td align="right">-0.15</td>
 <td align="right">-0.12</td>
 <td align="right">-0.11</td>
-<td align="right">-0.12</td>
-<td align="right">-0.08</td>
-<td align="right">-0.05</td>
-<td align="right">-0.07</td>
+<td align="right">-0.11</td>
+<td align="right">-0.09</td>
+<td align="right">-0.04</td>
+<td align="right">-0.06</td>
 <td align="right">-0.03</td>
 <td align="right">-0.09</td>
-<td align="right">0.00</td>
-<td align="right">-0.06</td>
+<td align="right">-0.02</td>
+<td align="right">-0.07</td>
 </tr>
 <tr class="odd">
 <td align="left">X2</td>
 <td align="right">0.00</td>
 <td align="right">0.24</td>
+<td align="right">0.19</td>
+<td align="right">0.15</td>
 <td align="right">0.18</td>
-<td align="right">0.16</td>
-<td align="right">0.20</td>
 <td align="right">0.14</td>
-<td align="right">0.10</td>
-<td align="right">0.13</td>
 <td align="right">0.09</td>
+<td align="right">0.13</td>
+<td align="right">0.07</td>
 <td align="right">0.14</td>
-<td align="right">0.00</td>
-<td align="right">0.12</td>
+<td align="right">0.06</td>
+<td align="right">0.13</td>
 </tr>
 <tr class="even">
 <td align="left">X3</td>
@@ -2211,58 +2229,58 @@ $(document).ready(function () {
 <td align="right">-0.11</td>
 <td align="right">-0.11</td>
 <td align="right">-0.10</td>
-<td align="right">-0.10</td>
+<td align="right">-0.09</td>
 <td align="right">-0.07</td>
 <td align="right">-0.04</td>
-<td align="right">-0.06</td>
-<td align="right">-0.03</td>
+<td align="right">-0.05</td>
+<td align="right">-0.02</td>
 <td align="right">-0.08</td>
-<td align="right">0.00</td>
+<td align="right">-0.01</td>
 <td align="right">-0.05</td>
 </tr>
 <tr class="odd">
 <td align="left">X4</td>
 <td align="right">0.45</td>
 <td align="right">0.44</td>
-<td align="right">0.39</td>
-<td align="right">0.36</td>
 <td align="right">0.40</td>
-<td align="right">0.34</td>
+<td align="right">0.36</td>
+<td align="right">0.38</td>
+<td align="right">0.35</td>
 <td align="right">0.32</td>
 <td align="right">0.35</td>
 <td align="right">0.32</td>
-<td align="right">0.34</td>
-<td align="right">0.30</td>
 <td align="right">0.35</td>
+<td align="right">0.32</td>
+<td align="right">0.36</td>
 </tr>
 <tr class="even">
 <td align="left">X5</td>
 <td align="right">0.00</td>
 <td align="right">-0.21</td>
-<td align="right">-0.13</td>
-<td align="right">-0.11</td>
-<td align="right">-0.16</td>
-<td align="right">-0.09</td>
-<td align="right">-0.07</td>
+<td align="right">-0.14</td>
 <td align="right">-0.10</td>
+<td align="right">-0.14</td>
+<td align="right">-0.10</td>
+<td align="right">-0.06</td>
+<td align="right">-0.09</td>
 <td align="right">-0.04</td>
 <td align="right">-0.09</td>
-<td align="right">0.00</td>
-<td align="right">-0.09</td>
+<td align="right">-0.02</td>
+<td align="right">-0.08</td>
 </tr>
 <tr class="odd">
 <td align="left">X6</td>
 <td align="right">-0.91</td>
 <td align="right">-0.91</td>
-<td align="right">-0.79</td>
-<td align="right">-0.74</td>
-<td align="right">-0.84</td>
-<td align="right">-0.75</td>
-<td align="right">-0.74</td>
-<td align="right">-0.77</td>
+<td align="right">-0.80</td>
 <td align="right">-0.73</td>
+<td align="right">-0.82</td>
+<td align="right">-0.76</td>
+<td align="right">-0.73</td>
+<td align="right">-0.77</td>
+<td align="right">-0.72</td>
 <td align="right">-0.74</td>
-<td align="right">-0.66</td>
+<td align="right">-0.68</td>
 <td align="right">-0.76</td>
 </tr>
 <tr class="even">
@@ -2271,42 +2289,42 @@ $(document).ready(function () {
 <td align="right">0.17</td>
 <td align="right">0.11</td>
 <td align="right">0.08</td>
-<td align="right">0.13</td>
-<td align="right">0.07</td>
-<td align="right">0.05</td>
-<td align="right">0.07</td>
+<td align="right">0.11</td>
+<td align="right">0.08</td>
 <td align="right">0.04</td>
 <td align="right">0.07</td>
-<td align="right">0.00</td>
-<td align="right">0.06</td>
+<td align="right">0.03</td>
+<td align="right">0.07</td>
+<td align="right">0.01</td>
+<td align="right">0.07</td>
 </tr>
 <tr class="odd">
 <td align="left">X8</td>
 <td align="right">0.28</td>
 <td align="right">0.28</td>
-<td align="right">0.26</td>
-<td align="right">0.26</td>
 <td align="right">0.27</td>
 <td align="right">0.26</td>
 <td align="right">0.26</td>
 <td align="right">0.26</td>
 <td align="right">0.26</td>
+<td align="right">0.26</td>
+<td align="right">0.26</td>
 <td align="right">0.25</td>
-<td align="right">0.28</td>
+<td align="right">0.26</td>
 <td align="right">0.26</td>
 </tr>
 <tr class="even">
 <td align="left">X9</td>
 <td align="right">-0.23</td>
 <td align="right">-0.23</td>
+<td align="right">-0.24</td>
 <td align="right">-0.25</td>
-<td align="right">-0.25</td>
-<td align="right">-0.23</td>
+<td align="right">-0.24</td>
 <td align="right">-0.24</td>
 <td align="right">-0.23</td>
 <td align="right">-0.23</td>
-<td align="right">-0.23</td>
-<td align="right">-0.24</td>
+<td align="right">-0.22</td>
+<td align="right">-0.25</td>
 <td align="right">-0.23</td>
 <td align="right">-0.23</td>
 </tr>
@@ -2314,16 +2332,16 @@ $(document).ready(function () {
 <td align="left">X10</td>
 <td align="right">-0.17</td>
 <td align="right">-0.17</td>
-<td align="right">-0.23</td>
+<td align="right">-0.22</td>
 <td align="right">-0.25</td>
 <td align="right">-0.20</td>
-<td align="right">-0.24</td>
-<td align="right">-0.24</td>
 <td align="right">-0.23</td>
 <td align="right">-0.25</td>
-<td align="right">-0.24</td>
-<td align="right">-0.32</td>
 <td align="right">-0.23</td>
+<td align="right">-0.27</td>
+<td align="right">-0.24</td>
+<td align="right">-0.29</td>
+<td align="right">-0.24</td>
 </tr>
 <tr class="even">
 <td align="left">X11</td>
@@ -2331,8 +2349,8 @@ $(document).ready(function () {
 <td align="right">0.01</td>
 <td align="right">0.01</td>
 <td align="right">0.01</td>
-<td align="right">0.00</td>
-<td align="right">0.00</td>
+<td align="right">0.01</td>
+<td align="right">0.01</td>
 <td align="right">0.00</td>
 <td align="right">0.00</td>
 <td align="right">0.00</td>
@@ -2349,13 +2367,27 @@ $(document).ready(function () {
 <!-- rnb-html-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImtuaXRfYXNpcyJdLCJzaXppbmdQb2xpY3kiOltdfX0= -->
 
 <table>
+<colgroup>
+<col width="7%" />
+<col width="7%" />
+<col width="9%" />
+<col width="7%" />
+<col width="9%" />
+<col width="7%" />
+<col width="9%" />
+<col width="9%" />
+<col width="9%" />
+<col width="10%" />
+<col width="8%" />
+<col width="6%" />
+</colgroup>
 <thead>
 <tr class="header">
 <th align="left">Errors</th>
 <th align="left">lm</th>
 <th align="left">glmBayes</th>
-<th align="left">RR</th>
-<th align="left">GRR</th>
+<th align="left">ridge</th>
+<th align="left">genRidge</th>
 <th align="left">blasso</th>
 <th align="left">extLASSO</th>
 <th align="left">negLASSO</th>
@@ -2369,29 +2401,29 @@ $(document).ready(function () {
 <tr class="odd">
 <td align="left">SSE</td>
 <td align="left">0.1429</td>
-<td align="left">0.0969</td>
-<td align="left">0.1</td>
-<td align="left">0.1018</td>
-<td align="left">0.0855</td>
-<td align="left">0.0801</td>
-<td align="left">0.0754</td>
-<td align="left">0.0827</td>
-<td align="left">0.0896</td>
-<td align="left">0.13</td>
-<td align="left">0.0732</td>
+<td align="left">0.0982</td>
+<td align="left">0.0983</td>
+<td align="left">0.0883</td>
+<td align="left">0.0812</td>
+<td align="left">0.0831</td>
+<td align="left">0.0741</td>
+<td align="left">0.0857</td>
+<td align="left">0.0878</td>
+<td align="left">0.1057</td>
+<td align="left">0.073</td>
 </tr>
 <tr class="even">
 <td align="left">SAE</td>
 <td align="left">0.75</td>
-<td align="left">0.85</td>
-<td align="left">0.88</td>
-<td align="left">0.78</td>
-<td align="left">0.81</td>
+<td align="left">0.82</td>
+<td align="left">0.87</td>
+<td align="left">0.79</td>
+<td align="left">0.8</td>
 <td align="left">0.75</td>
-<td align="left">0.76</td>
+<td align="left">0.75</td>
 <td align="left">0.73</td>
 <td align="left">0.84</td>
-<td align="left">0.7</td>
+<td align="left">0.73</td>
 <td align="left">0.74</td>
 </tr>
 </tbody>
@@ -2414,22 +2446,85 @@ $(document).ready(function () {
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
+<!-- rnb-output-begin eyJkYXRhIjoiQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuIn0= -->
+<pre><code>Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogY2xvc2luZyB1bnVzZWQgY29ubmVjdGlvbiA2ICg8LUxTLTEzMTg2LmNsaW5sYW4ubG9jYWw6MTEyMzcpXG5XYXJuaW5nOiBjbG9zaW5nIHVudXNlZCBjb25uZWN0aW9uIDUgKDwtTFMtMTMxODYuY2xpbmxhbi5sb2NhbDoxMTIzNylcbldhcm5pbmc6IGNsb3NpbmcgdW51c2VkIGNvbm5lY3Rpb24gNCAoPC1MUy0xMzE4Ni5jbGlubGFuLmxvY2FsOjExMjM3KVxuV2FybmluZzogY2xvc2luZyB1bnVzZWQgY29ubmVjdGlvbiAzICg8LUxTLTEzMTg2LmNsaW5sYW4ubG9jYWw6MTEyMzcpXG4ifQ== -->
+<pre><code>Warning: closing unused connection 6 (&lt;-LS-13186.clinlan.local:11237)
+Warning: closing unused connection 5 (&lt;-LS-13186.clinlan.local:11237)
+Warning: closing unused connection 4 (&lt;-LS-13186.clinlan.local:11237)
+Warning: closing unused connection 3 (&lt;-LS-13186.clinlan.local:11237)</code></pre>
+<!-- rnb-output-end -->
 <p>
 <!-- rnb-html-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImtuaXRfYXNpcyJdLCJzaXppbmdQb2xpY3kiOltdfX0= -->
 
 <table>
+<colgroup>
+<col width="9%" />
+<col width="5%" />
+<col width="5%" />
+<col width="8%" />
+<col width="5%" />
+<col width="8%" />
+<col width="6%" />
+<col width="8%" />
+<col width="8%" />
+<col width="8%" />
+<col width="9%" />
+<col width="7%" />
+<col width="5%" />
+</colgroup>
 <thead>
 <tr class="header">
 <th align="left"></th>
 <th align="right">true</th>
 <th align="right">lm</th>
 <th align="right">glmBayes</th>
-<th align="right">RR</th>
-<th align="right">GRR</th>
+<th align="right">ridge</th>
+<th align="right">genRidge</th>
 <th align="right">blasso</th>
 <th align="right">extLASSO</th>
 <th align="right">negLASSO</th>
@@ -2459,28 +2554,28 @@ $(document).ready(function () {
 <td align="left">V1</td>
 <td align="right">0.12</td>
 <td align="right">0.18</td>
-<td align="right">0.14</td>
+<td align="right">0.15</td>
 <td align="right">0.13</td>
+<td align="right">0.09</td>
 <td align="right">0.10</td>
-<td align="right">0.10</td>
-<td align="right">0.07</td>
+<td align="right">0.06</td>
 <td align="right">0.08</td>
-<td align="right">0.04</td>
-<td align="right">0.11</td>
-<td align="right">0.02</td>
+<td align="right">0.05</td>
+<td align="right">0.12</td>
+<td align="right">0.07</td>
 <td align="right">0.07</td>
 </tr>
 <tr class="odd">
 <td align="left">V2</td>
 <td align="right">-0.08</td>
 <td align="right">0.02</td>
-<td align="right">-0.01</td>
-<td align="right">-0.01</td>
-<td align="right">-0.02</td>
-<td align="right">-0.02</td>
-<td align="right">-0.01</td>
-<td align="right">-0.02</td>
 <td align="right">0.00</td>
+<td align="right">-0.01</td>
+<td align="right">-0.02</td>
+<td align="right">-0.02</td>
+<td align="right">-0.02</td>
+<td align="right">-0.02</td>
+<td align="right">-0.01</td>
 <td align="right">-0.01</td>
 <td align="right">0.00</td>
 <td align="right">-0.01</td>
@@ -2489,14 +2584,14 @@ $(document).ready(function () {
 <td align="left">V3</td>
 <td align="right">0.02</td>
 <td align="right">0.33</td>
-<td align="right">0.16</td>
+<td align="right">0.19</td>
 <td align="right">0.13</td>
-<td align="right">0.06</td>
-<td align="right">0.05</td>
-<td align="right">-0.01</td>
-<td align="right">0.01</td>
+<td align="right">0.03</td>
+<td align="right">0.04</td>
 <td align="right">0.00</td>
-<td align="right">0.08</td>
+<td align="right">0.01</td>
+<td align="right">-0.01</td>
+<td align="right">0.10</td>
 <td align="right">0.00</td>
 <td align="right">0.00</td>
 </tr>
@@ -2504,12 +2599,12 @@ $(document).ready(function () {
 <td align="left">V4</td>
 <td align="right">0.06</td>
 <td align="right">-0.04</td>
-<td align="right">-0.07</td>
+<td align="right">-0.06</td>
 <td align="right">-0.08</td>
-<td align="right">-0.04</td>
+<td align="right">-0.03</td>
 <td align="right">-0.04</td>
 <td align="right">-0.01</td>
-<td align="right">-0.01</td>
+<td align="right">-0.02</td>
 <td align="right">0.00</td>
 <td align="right">-0.06</td>
 <td align="right">0.00</td>
@@ -2519,30 +2614,30 @@ $(document).ready(function () {
 <td align="left">V5</td>
 <td align="right">0.28</td>
 <td align="right">0.44</td>
-<td align="right">0.37</td>
+<td align="right">0.38</td>
 <td align="right">0.35</td>
-<td align="right">0.31</td>
-<td align="right">0.31</td>
+<td align="right">0.30</td>
+<td align="right">0.30</td>
 <td align="right">0.27</td>
 <td align="right">0.28</td>
 <td align="right">0.27</td>
-<td align="right">0.32</td>
-<td align="right">0.27</td>
+<td align="right">0.33</td>
+<td align="right">0.28</td>
 <td align="right">0.27</td>
 </tr>
 <tr class="odd">
 <td align="left">V6</td>
 <td align="right">-0.12</td>
 <td align="right">-0.42</td>
-<td align="right">-0.27</td>
+<td align="right">-0.31</td>
 <td align="right">-0.25</td>
-<td align="right">-0.22</td>
+<td align="right">-0.19</td>
 <td align="right">-0.20</td>
 <td align="right">-0.14</td>
 <td align="right">-0.17</td>
-<td align="right">-0.11</td>
-<td align="right">-0.22</td>
-<td align="right">-0.12</td>
+<td align="right">-0.10</td>
+<td align="right">-0.23</td>
+<td align="right">-0.17</td>
 <td align="right">-0.16</td>
 </tr>
 <tr class="even">
@@ -2551,13 +2646,13 @@ $(document).ready(function () {
 <td align="right">-0.39</td>
 <td align="right">-0.37</td>
 <td align="right">-0.36</td>
-<td align="right">-0.39</td>
+<td align="right">-0.40</td>
 <td align="right">-0.39</td>
 <td align="right">-0.43</td>
-<td align="right">-0.41</td>
+<td align="right">-0.42</td>
 <td align="right">-0.45</td>
-<td align="right">-0.38</td>
-<td align="right">-0.45</td>
+<td align="right">-0.37</td>
+<td align="right">-0.42</td>
 <td align="right">-0.43</td>
 </tr>
 <tr class="odd">
@@ -2579,44 +2674,44 @@ $(document).ready(function () {
 <td align="left">V9</td>
 <td align="right">0.01</td>
 <td align="right">0.34</td>
-<td align="right">0.22</td>
-<td align="right">0.21</td>
-<td align="right">0.16</td>
-<td align="right">0.15</td>
+<td align="right">0.25</td>
+<td align="right">0.20</td>
+<td align="right">0.13</td>
+<td align="right">0.14</td>
 <td align="right">0.07</td>
 <td align="right">0.10</td>
 <td align="right">0.03</td>
-<td align="right">0.17</td>
-<td align="right">0.02</td>
+<td align="right">0.18</td>
+<td align="right">0.10</td>
 <td align="right">0.08</td>
 </tr>
 <tr class="odd">
 <td align="left">V10</td>
 <td align="right">-0.58</td>
 <td align="right">-0.24</td>
-<td align="right">-0.37</td>
-<td align="right">-0.38</td>
-<td align="right">-0.44</td>
+<td align="right">-0.34</td>
+<td align="right">-0.39</td>
+<td align="right">-0.46</td>
 <td align="right">-0.45</td>
 <td align="right">-0.50</td>
+<td align="right">-0.49</td>
+<td align="right">-0.51</td>
+<td align="right">-0.41</td>
 <td align="right">-0.48</td>
-<td align="right">-0.51</td>
-<td align="right">-0.42</td>
-<td align="right">-0.51</td>
 <td align="right">-0.50</td>
 </tr>
 <tr class="even">
 <td align="left">V11</td>
 <td align="right">0.00</td>
 <td align="right">-0.36</td>
-<td align="right">-0.08</td>
+<td align="right">-0.14</td>
 <td align="right">-0.04</td>
+<td align="right">0.02</td>
+<td align="right">0.01</td>
+<td align="right">0.01</td>
+<td align="right">0.01</td>
+<td align="right">0.01</td>
 <td align="right">-0.01</td>
-<td align="right">0.00</td>
-<td align="right">0.01</td>
-<td align="right">0.01</td>
-<td align="right">0.00</td>
-<td align="right">0.00</td>
 <td align="right">0.00</td>
 <td align="right">0.01</td>
 </tr>
@@ -2624,60 +2719,60 @@ $(document).ready(function () {
 <td align="left">V12</td>
 <td align="right">0.01</td>
 <td align="right">-0.16</td>
-<td align="right">-0.02</td>
-<td align="right">0.00</td>
+<td align="right">-0.05</td>
 <td align="right">0.01</td>
 <td align="right">0.02</td>
+<td align="right">0.02</td>
 <td align="right">0.01</td>
 <td align="right">0.02</td>
 <td align="right">0.00</td>
 <td align="right">0.02</td>
-<td align="right">0.00</td>
+<td align="right">0.01</td>
 <td align="right">0.01</td>
 </tr>
 <tr class="even">
 <td align="left">V13</td>
 <td align="right">-0.04</td>
 <td align="right">-0.22</td>
-<td align="right">-0.17</td>
+<td align="right">-0.18</td>
 <td align="right">-0.15</td>
-<td align="right">-0.13</td>
-<td align="right">-0.11</td>
+<td align="right">-0.10</td>
+<td align="right">-0.10</td>
 <td align="right">-0.04</td>
-<td align="right">-0.08</td>
+<td align="right">-0.07</td>
 <td align="right">-0.01</td>
 <td align="right">-0.13</td>
-<td align="right">0.00</td>
-<td align="right">-0.04</td>
+<td align="right">-0.05</td>
+<td align="right">-0.05</td>
 </tr>
 <tr class="odd">
 <td align="left">V14</td>
 <td align="right">0.02</td>
 <td align="right">0.25</td>
-<td align="right">0.13</td>
+<td align="right">0.16</td>
 <td align="right">0.11</td>
-<td align="right">0.09</td>
-<td align="right">0.07</td>
+<td align="right">0.06</td>
+<td align="right">0.06</td>
 <td align="right">0.02</td>
 <td align="right">0.04</td>
 <td align="right">0.00</td>
-<td align="right">0.08</td>
-<td align="right">0.00</td>
-<td align="right">0.02</td>
+<td align="right">0.09</td>
+<td align="right">0.03</td>
+<td align="right">0.03</td>
 </tr>
 <tr class="even">
 <td align="left">V15</td>
 <td align="right">-0.41</td>
 <td align="right">-0.57</td>
-<td align="right">-0.48</td>
+<td align="right">-0.50</td>
 <td align="right">-0.46</td>
-<td align="right">-0.48</td>
+<td align="right">-0.46</td>
 <td align="right">-0.45</td>
 <td align="right">-0.44</td>
 <td align="right">-0.45</td>
 <td align="right">-0.44</td>
 <td align="right">-0.45</td>
-<td align="right">-0.43</td>
+<td align="right">-0.44</td>
 <td align="right">-0.45</td>
 </tr>
 </tbody>
@@ -2688,14 +2783,28 @@ $(document).ready(function () {
 
 <!-- rnb-html-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImtuaXRfYXNpcyJdLCJzaXppbmdQb2xpY3kiOltdfX0= -->
 
-<table>
+<table style="width:100%;">
+<colgroup>
+<col width="7%" />
+<col width="7%" />
+<col width="9%" />
+<col width="7%" />
+<col width="9%" />
+<col width="7%" />
+<col width="9%" />
+<col width="9%" />
+<col width="9%" />
+<col width="10%" />
+<col width="8%" />
+<col width="7%" />
+</colgroup>
 <thead>
 <tr class="header">
 <th align="left">Errors</th>
 <th align="left">lm</th>
 <th align="left">glmBayes</th>
-<th align="left">RR</th>
-<th align="left">GRR</th>
+<th align="left">ridge</th>
+<th align="left">genRidge</th>
 <th align="left">blasso</th>
 <th align="left">extLASSO</th>
 <th align="left">negLASSO</th>
@@ -2709,30 +2818,30 @@ $(document).ready(function () {
 <tr class="odd">
 <td align="left">SSE</td>
 <td align="left">0.7417</td>
-<td align="left">0.2171</td>
-<td align="left">0.1807</td>
-<td align="left">0.0967</td>
-<td align="left">0.0779</td>
-<td align="left">0.0283</td>
-<td align="left">0.0411</td>
-<td align="left">0.0263</td>
-<td align="left">0.1117</td>
-<td align="left">0.0297</td>
-<td align="left">0.031</td>
+<td align="left">0.2977</td>
+<td align="left">0.1728</td>
+<td align="left">0.0632</td>
+<td align="left">0.0721</td>
+<td align="left">0.0276</td>
+<td align="left">0.0385</td>
+<td align="left">0.0242</td>
+<td align="left">0.1277</td>
+<td align="left">0.0396</td>
+<td align="left">0.0312</td>
 </tr>
 <tr class="even">
 <td align="left">SAE</td>
 <td align="left">2.95</td>
-<td align="left">1.59</td>
-<td align="left">1.39</td>
-<td align="left">0.99</td>
-<td align="left">0.87</td>
-<td align="left">0.49</td>
-<td align="left">0.63</td>
-<td align="left">0.49</td>
-<td align="left">1.05</td>
-<td align="left">0.49</td>
-<td align="left">0.52</td>
+<td align="left">1.89</td>
+<td align="left">1.36</td>
+<td align="left">0.8</td>
+<td align="left">0.83</td>
+<td align="left">0.48</td>
+<td align="left">0.61</td>
+<td align="left">0.5</td>
+<td align="left">1.13</td>
+<td align="left">0.58</td>
+<td align="left">0.54</td>
 </tr>
 </tbody>
 </table>
@@ -2754,22 +2863,89 @@ $(document).ready(function () {
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
+<!-- rnb-output-begin eyJkYXRhIjoiQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuQ29tcGlsaW5nIHJqYWdzIG1vZGVsLi4uXG5TdGFydGluZyA0IHJqYWdzIHNpbXVsYXRpb25zIHVzaW5nIGEgUFNPQ0sgY2x1c3RlciB3aXRoIDQgbm9kZXMgb24gaG9zdCAnbG9jYWxob3N0J1xuU2ltdWxhdGlvbiBjb21wbGV0ZVxuRmluaXNoZWQgcnVubmluZyB0aGUgc2ltdWxhdGlvblxuIn0= -->
+<pre><code>Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation
+Compiling rjags model...
+Starting 4 rjags simulations using a PSOCK cluster with 4 nodes on host &#39;localhost&#39;
+Simulation complete
+Finished running the simulation</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZyBpbiBtYXRjaC5hcmcobWV0aG9kKSA6XG4gIGNsb3NpbmcgdW51c2VkIGNvbm5lY3Rpb24gMTAgKDwtTFMtMTMxODYuY2xpbmxhbi5sb2NhbDoxMTIzNylcbldhcm5pbmcgaW4gbWF0Y2guYXJnKG1ldGhvZCkgOlxuICBjbG9zaW5nIHVudXNlZCBjb25uZWN0aW9uIDkgKDwtTFMtMTMxODYuY2xpbmxhbi5sb2NhbDoxMTIzNylcbldhcm5pbmcgaW4gbWF0Y2guYXJnKG1ldGhvZCkgOlxuICBjbG9zaW5nIHVudXNlZCBjb25uZWN0aW9uIDggKDwtTFMtMTMxODYuY2xpbmxhbi5sb2NhbDoxMTIzNylcbldhcm5pbmcgaW4gbWF0Y2guYXJnKG1ldGhvZCkgOlxuICBjbG9zaW5nIHVudXNlZCBjb25uZWN0aW9uIDcgKDwtTFMtMTMxODYuY2xpbmxhbi5sb2NhbDoxMTIzNylcbiJ9 -->
+<pre><code>Warning in match.arg(method) :
+  closing unused connection 10 (&lt;-LS-13186.clinlan.local:11237)
+Warning in match.arg(method) :
+  closing unused connection 9 (&lt;-LS-13186.clinlan.local:11237)
+Warning in match.arg(method) :
+  closing unused connection 8 (&lt;-LS-13186.clinlan.local:11237)
+Warning in match.arg(method) :
+  closing unused connection 7 (&lt;-LS-13186.clinlan.local:11237)</code></pre>
+<!-- rnb-output-end -->
 <p>
 <!-- rnb-html-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImtuaXRfYXNpcyJdLCJzaXppbmdQb2xpY3kiOltdfX0= -->
 
 <table>
+<colgroup>
+<col width="9%" />
+<col width="5%" />
+<col width="5%" />
+<col width="8%" />
+<col width="5%" />
+<col width="8%" />
+<col width="6%" />
+<col width="8%" />
+<col width="8%" />
+<col width="8%" />
+<col width="9%" />
+<col width="7%" />
+<col width="5%" />
+</colgroup>
 <thead>
 <tr class="header">
 <th align="left"></th>
 <th align="right">true</th>
 <th align="right">lm</th>
 <th align="right">glmBayes</th>
-<th align="right">RR</th>
-<th align="right">GRR</th>
+<th align="right">ridge</th>
+<th align="right">genRidge</th>
 <th align="right">blasso</th>
 <th align="right">extLASSO</th>
 <th align="right">negLASSO</th>
@@ -2799,31 +2975,31 @@ $(document).ready(function () {
 <td align="left">V1</td>
 <td align="right">-0.15</td>
 <td align="right">-0.15</td>
-<td align="right">-0.12</td>
-<td align="right">-0.12</td>
+<td align="right">-0.13</td>
+<td align="right">-0.11</td>
 <td align="right">-0.12</td>
 <td align="right">-0.10</td>
 <td align="right">-0.08</td>
 <td align="right">-0.09</td>
+<td align="right">-0.07</td>
+<td align="right">-0.11</td>
 <td align="right">-0.06</td>
-<td align="right">-0.10</td>
-<td align="right">-0.04</td>
 <td align="right">-0.09</td>
 </tr>
 <tr class="odd">
 <td align="left">V2</td>
 <td align="right">0.04</td>
 <td align="right">0.32</td>
+<td align="right">0.26</td>
+<td align="right">0.22</td>
 <td align="right">0.25</td>
-<td align="right">0.23</td>
-<td align="right">0.27</td>
 <td align="right">0.22</td>
 <td align="right">0.19</td>
 <td align="right">0.21</td>
-<td align="right">0.17</td>
+<td align="right">0.19</td>
 <td align="right">0.22</td>
-<td align="right">0.17</td>
-<td align="right">0.22</td>
+<td align="right">0.19</td>
+<td align="right">0.21</td>
 </tr>
 <tr class="even">
 <td align="left">V3</td>
@@ -2833,7 +3009,7 @@ $(document).ready(function () {
 <td align="right">-0.01</td>
 <td align="right">0.00</td>
 <td align="right">0.00</td>
-<td align="right">0.01</td>
+<td align="right">0.00</td>
 <td align="right">0.00</td>
 <td align="right">0.00</td>
 <td align="right">0.00</td>
@@ -2844,76 +3020,76 @@ $(document).ready(function () {
 <td align="left">V4</td>
 <td align="right">0.25</td>
 <td align="right">0.49</td>
+<td align="right">0.43</td>
+<td align="right">0.39</td>
 <td align="right">0.42</td>
-<td align="right">0.40</td>
-<td align="right">0.44</td>
 <td align="right">0.39</td>
 <td align="right">0.36</td>
+<td align="right">0.38</td>
+<td align="right">0.37</td>
 <td align="right">0.39</td>
 <td align="right">0.36</td>
-<td align="right">0.39</td>
-<td align="right">0.34</td>
 <td align="right">0.39</td>
 </tr>
 <tr class="even">
 <td align="left">V5</td>
 <td align="right">-0.02</td>
 <td align="right">-0.25</td>
-<td align="right">-0.17</td>
+<td align="right">-0.18</td>
 <td align="right">-0.14</td>
-<td align="right">-0.20</td>
+<td align="right">-0.18</td>
 <td align="right">-0.14</td>
+<td align="right">-0.11</td>
+<td align="right">-0.13</td>
 <td align="right">-0.10</td>
+<td align="right">-0.14</td>
+<td align="right">-0.06</td>
 <td align="right">-0.12</td>
-<td align="right">-0.09</td>
-<td align="right">-0.14</td>
-<td align="right">-0.02</td>
-<td align="right">-0.14</td>
 </tr>
 <tr class="odd">
 <td align="left">V6</td>
 <td align="right">-0.58</td>
 <td align="right">-0.90</td>
-<td align="right">-0.77</td>
-<td align="right">-0.72</td>
-<td align="right">-0.83</td>
+<td align="right">-0.79</td>
+<td align="right">-0.71</td>
+<td align="right">-0.80</td>
 <td align="right">-0.74</td>
-<td align="right">-0.72</td>
-<td align="right">-0.74</td>
-<td align="right">-0.70</td>
 <td align="right">-0.73</td>
+<td align="right">-0.75</td>
+<td align="right">-0.72</td>
+<td align="right">-0.72</td>
 <td align="right">-0.68</td>
-<td align="right">-0.76</td>
+<td align="right">-0.74</td>
 </tr>
 <tr class="even">
 <td align="left">V7</td>
 <td align="right">-0.02</td>
 <td align="right">0.16</td>
-<td align="right">0.10</td>
-<td align="right">0.08</td>
-<td align="right">0.12</td>
+<td align="right">0.11</td>
 <td align="right">0.07</td>
+<td align="right">0.10</td>
+<td align="right">0.06</td>
 <td align="right">0.04</td>
+<td align="right">0.06</td>
+<td align="right">0.03</td>
+<td align="right">0.07</td>
+<td align="right">0.01</td>
 <td align="right">0.05</td>
-<td align="right">0.02</td>
-<td align="right">0.06</td>
-<td align="right">0.00</td>
-<td align="right">0.06</td>
 </tr>
 <tr class="odd">
 <td align="left">V8</td>
 <td align="right">0.51</td>
 <td align="right">0.26</td>
-<td align="right">0.24</td>
-<td align="right">0.24</td>
 <td align="right">0.25</td>
 <td align="right">0.24</td>
-<td align="right">0.23</td>
-<td align="right">0.23</td>
+<td align="right">0.24</td>
+<td align="right">0.24</td>
 <td align="right">0.23</td>
 <td align="right">0.24</td>
 <td align="right">0.24</td>
 <td align="right">0.24</td>
+<td align="right">0.23</td>
+<td align="right">0.23</td>
 </tr>
 <tr class="even">
 <td align="left">V9</td>
@@ -2921,29 +3097,29 @@ $(document).ready(function () {
 <td align="right">-0.25</td>
 <td align="right">-0.27</td>
 <td align="right">-0.28</td>
-<td align="right">-0.26</td>
-<td align="right">-0.28</td>
-<td align="right">-0.28</td>
-<td align="right">-0.28</td>
-<td align="right">-0.28</td>
-<td align="right">-0.28</td>
-<td align="right">-0.31</td>
 <td align="right">-0.27</td>
+<td align="right">-0.27</td>
+<td align="right">-0.28</td>
+<td align="right">-0.28</td>
+<td align="right">-0.28</td>
+<td align="right">-0.28</td>
+<td align="right">-0.29</td>
+<td align="right">-0.28</td>
 </tr>
 <tr class="odd">
 <td align="left">V10</td>
 <td align="right">-0.49</td>
 <td align="right">-0.16</td>
 <td align="right">-0.22</td>
-<td align="right">-0.24</td>
-<td align="right">-0.19</td>
+<td align="right">-0.25</td>
+<td align="right">-0.20</td>
 <td align="right">-0.22</td>
 <td align="right">-0.22</td>
-<td align="right">-0.22</td>
-<td align="right">-0.24</td>
+<td align="right">-0.21</td>
 <td align="right">-0.23</td>
 <td align="right">-0.24</td>
-<td align="right">-0.20</td>
+<td align="right">-0.26</td>
+<td align="right">-0.22</td>
 </tr>
 <tr class="even">
 <td align="left">V11</td>
@@ -2951,7 +3127,7 @@ $(document).ready(function () {
 <td align="right">-0.02</td>
 <td align="right">-0.01</td>
 <td align="right">-0.01</td>
-<td align="right">-0.01</td>
+<td align="right">-0.02</td>
 <td align="right">-0.01</td>
 <td align="right">-0.01</td>
 <td align="right">-0.01</td>
@@ -2968,14 +3144,28 @@ $(document).ready(function () {
 
 <!-- rnb-html-begin eyJtZXRhZGF0YSI6eyJjbGFzc2VzIjpbImtuaXRfYXNpcyJdLCJzaXppbmdQb2xpY3kiOltdfX0= -->
 
-<table>
+<table style="width:100%;">
+<colgroup>
+<col width="7%" />
+<col width="7%" />
+<col width="9%" />
+<col width="7%" />
+<col width="9%" />
+<col width="7%" />
+<col width="9%" />
+<col width="9%" />
+<col width="9%" />
+<col width="10%" />
+<col width="8%" />
+<col width="7%" />
+</colgroup>
 <thead>
 <tr class="header">
 <th align="left">Errors</th>
 <th align="left">lm</th>
 <th align="left">glmBayes</th>
-<th align="left">RR</th>
-<th align="left">GRR</th>
+<th align="left">ridge</th>
+<th align="left">genRidge</th>
 <th align="left">blasso</th>
 <th align="left">extLASSO</th>
 <th align="left">negLASSO</th>
@@ -2989,30 +3179,30 @@ $(document).ready(function () {
 <tr class="odd">
 <td align="left">SSE</td>
 <td align="left">0.5232</td>
-<td align="left">0.3177</td>
-<td align="left">0.2622</td>
-<td align="left">0.3866</td>
+<td align="left">0.3333</td>
+<td align="left">0.2468</td>
+<td align="left">0.3411</td>
 <td align="left">0.2694</td>
-<td align="left">0.2393</td>
+<td align="left">0.246</td>
+<td align="left">0.2691</td>
+<td align="left">0.2333</td>
+<td align="left">0.2521</td>
+<td align="left">0.2071</td>
 <td align="left">0.2649</td>
-<td align="left">0.2199</td>
-<td align="left">0.2593</td>
-<td align="left">0.2011</td>
-<td align="left">0.2885</td>
 </tr>
 <tr class="even">
 <td align="left">SAE</td>
 <td align="left">2.1</td>
-<td align="left">1.67</td>
-<td align="left">1.5</td>
-<td align="left">1.84</td>
+<td align="left">1.71</td>
+<td align="left">1.46</td>
+<td align="left">1.71</td>
 <td align="left">1.52</td>
+<td align="left">1.42</td>
+<td align="left">1.51</td>
 <td align="left">1.39</td>
+<td align="left">1.47</td>
+<td align="left">1.27</td>
 <td align="left">1.49</td>
-<td align="left">1.33</td>
-<td align="left">1.49</td>
-<td align="left">1.19</td>
-<td align="left">1.57</td>
 </tr>
 </tbody>
 </table>
@@ -3026,7 +3216,7 @@ $(document).ready(function () {
 <!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIkEgQ29tcGFyaXNvbiBvZiBPcmRpbmFyeSBMZWFzdCBTcXVhcmVzIFJlZ3Jlc3Npb24gdG8gVmFyaW91cyBCYXllc2lhbiBSZWdyZXNzaW9uIE1vZGVscyINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQoNCg0KYGBge3IgaW5jbHVkZT1GQUxTRX0NCmxpYnJhcnkoQmF5ZXppbGxhKQ0KYGBgDQoNCg0KVGhpcyBmZWF0dXJlcyBhIGNvbXBhcmlzb24gb2Ygb3JkaW5hcnkgbGVhc3Qgc3F1YXJlcyBsaW5lYXIgcmVncmVzc2lvbiB0byBzZXZlcmFsIEJheWVzaWFuIG1vZGVscy4gQWxsIGZvdXIgZGF0YSBzZXRzDQp3ZXJlIHJhbmRvbWx5IGdlbmVyYXRlZCBmcm9tIHNwZWNpZmllZCBjb2VmZmljaWVudHMuIFRoZSBhaW0gb2YgdGhpcyBzaW11bGF0aW9uIHN0dWR5IHdhcyB0byBhc3Nlc3MgaG93IGFjY3VyYXRlbHkgZGlmZmVyZW50IG1vZGVscyBjYW4gZXN0aW1hdGUgdGhlIHRydWUgY29lZmZpY2llbnRzIGFmdGVyIG5vaXNlIGlzIGFkZGVkIHRvIHNpbXVsYXRlIGVzdGltYXRpb24gYW5kIHNhbXBsaW5nIGVycm9yLiBSYXRoZXIgdGhhbiBmb2N1c2luZyBvbiBwcmVkaWN0aW9uIGVycm9yIG9mIHRoZSBvdXRjb21lDQp2YXJpYWJsZXMsIHRoZSBmb2N1cyBpcyBvbiB0aGUgY29lZmZpY2llbnRzIHRvIGFzc2VzcyB0aGUgc3VpdGFiaWxpdHkgb2YNCnZhcmlvdXMgbW9kZWxzIGZvciBlc3RpbWF0aW5nIHRoZSBlZmZlY3RzIG9mIHZhcmlhYmxlcyBvbiBhbiBvdXRjb21lIGZvciBzY2llbnRpZmljIGFuYWx5c2lzLiANCg0KVGhlIGZpcnN0IHR3byBkYXRhIHNldHMgYXJlIHNwYXJzZSBjYXNlcywgd2hlcmUgc29tZSBvZiB0aGUgdHJ1ZSBlZmZlY3RzIGFyZSBleGFjdGx5IHplcm8uIFRoZSBsYXN0IHR3byBkYXRhIHNldHMgYXJlIA0KZ2VuZXJhdGVkIGZyb20gbm9uLXNwYXJzZSBjb2VmZmljaWVudCB2ZWN0b3JzLiBUYWJsZXMgb2YgdGhlIHBvaW50IGVzdGltYXRlcyBhcmUgcHJlc2VudGVkIGZvciBlYWNoIGRhdGEgc2V0LCBhbG9uZyB3aXRoDQphIHN1bW1hcnkgb2YgdGhlIHN1bSBvZiBhYnNvbHV0ZSBlcnJvcnMgYW5kIHN1bSBvZiBzcXVhcmVkIGVycm9ycyBmb3IgdGhlIHBvaW50IGVzdGltYXRlcyBmcm9tIHRoZSBrbm93biB0cnVlIGNvZWZmaWNpZW50cy4gUG9pbnQgZXN0aW1hdGVzIGZvciB0aGUgQmF5ZXNpYW4gbW9kZWxzIGFyZSB0aGUgbWVkaWFuIHZhbHVlcyBvZiB0aGUNCm1hcmdpbmFsIHBvc3RlcmlvciBkaXN0cmlidXRpb25zLiANCg0KVGhlIGZpcnN0IGFuZCB0aGlyZCBkYXRhIHNldHMgY29udGFpbiAzMCBvYnNlcnZhdGlvbnMgYW5kIDE1IHByZWRpY3RvcnMuIFRoZSBzZWNvbmQgYW5kIGZvdXJ0aA0KZGF0YSBzZXRzIGNvbnRhaW4gNjAgb2JzZXJ2YXRpb25zIGFuZCAxMSBwcmVkaWN0b3JzLiBUaGVzZSBkaW1lbnNpb25zIHdlcmUgY2hvc2VuIHRvIGFzc2VzcyB0aGUgcGVyZm9ybWFuY2Ugb2YgDQpsZWFzdCBzcXVhcmVzIHJlZ3Jlc3Npb24gaW4gc2FtcGxlIHNpemVzIHR5cGljYWwgb2YgbWFueSBzY2llbnRpZmljIHN0dWRpZXMsIHdpdGggYW4gZW1waGFzaXMgb24gYSByZWxhdGl2ZWx5IA0KbGFyZ2UgbnVtYmVyIG9mIHByZWRpY3RvcnMuIE5ldmVydGhlbGVzcywgYWxsIGRhdGEgc2V0cyBhcmUgZnVsbCByYW5rIGFuZCBwb3NpdGl2ZSBkZWZpbml0ZS4gVGhlc2UgY29uZGl0aW9ucyBhcmUgdHlwaWNhbCBmb3Igd2hlbiBsZWFzdCBzcXVhcmVzIHBlcmZvcm1zIGxlc3MgdGhhbiBkZXNpcmFibHksIGhlbmNlIGl0IGlzIGV4cGVjdGVkIHRoYXQgdGhlIHJlZ3VsYXJpemVkIEJheWVzaWFuIG1vZGVscyB3aWxsIHBlcmZvcm0gYmV0dGVyLiBUaGUgcXVlc3Rpb24gdG8gYmUgYW5zd2VyZWQgaGVyZSBpcyBob3cgbXVjaCBiZXR0ZXIuIA0KDQpNb2RlbHMgQ29tcGFyZWQ6DQoNCk9yZGluYXJ5IExlYXN0IHNxdWFyZXMNCg0KZ2xtQmF5ZXMgLSBCYXllc2lhbiBtb2RlbCB3aXRoIHN0dWRlbi10IHByaW9ycyBvbiB0aGUgY29lZmZpY2llbnRzIGFuZCBhZGFwdGl2ZSBkZWdyZWVzIG9mIGZyZWVkb20gZXN0aW1hdGVkIGZyb20gdGhlIGRhdGEuDQoNClJSIC0gQmF5ZXNpYW4gUmlkZ2UgUmVncmVzc2lvbg0KDQpHUlIgLSBBZGFwdGl2ZSBCYXllc2lhbiBSaWRnZSBSZWdyZXNzaW9uDQoNCmJsYXNzbyAtIEJheWVzaWFuIExBU1NPIA0KDQpleHRMQVNTTyAtIEV4dGVuZGVkIEJheWVzaWFuIExBU1NPDQoNCm5lZ0xBU1NPIC0gTm9ybWFsLUV4cG9uZW50aWFsLUdhbW1hIEJheWVzaWFuIExBU1NPIChhbHNvIGtub3duIGFzIGh5cGVybGFzc28pDQoNCmFkYUxBU1NPIC0gQWRhcHRpdmUgQmF5ZXNpYW4gTEFTU08NCg0KYmF5ZXNFbmV0IC0gQmF5ZXNpYW4gRWxhc3RpYyBOZXQNCg0KYWRhRW5ldCAtIEJheWVzaWFuIEFkYXB0aXZlIEVsYXN0aWMgTmV0DQoNCmdkcCAtIEdlbmVyYWxpemVkIERvdWJsZSBQYXJldG8gUHJpb3INCg0KIyMgU3BhcnNlIEV4YW1wbGUgMQ0KDQpgYGB7ciBldmFsPUZBTFNFLCBpbmNsdWRlPUZBTFNFfQ0KZGF0YSgiZGVtby5kYXQiKQ0KYGBgDQoNCmBgYHtyIGVjaG89RkFMU0V9DQpsbWNvZWZzID0gcm91bmQoY29lZihsbSh5IH4gLiwgZGVtby5kYXQpKSwgMykNCmBgYA0KDQpgYGB7ciBlY2hvID0gRkFMU0UsIG1lc3NhZ2U9RkFMU0UsIHdhcm5pbmc9RkFMU0V9DQpvdXQxID0gZ2xtQmF5ZXMoeSB+IC4sIGRlbW8uZGF0LCBsb2dfbGlrID0gVFJVRSwgY2wgPSBtYWtlQ2x1c3Rlcig0KSwgaXRlciA9IDQwMDAsIHRoaW4gPSAxLCBhZGFwdCA9IDEwMDAsIHdhcm11cCA9IDEwMDAsIG1ldGhvZCA9ICJyanBhcmFsbGVsIikNCm91dDIgPSBSUih5IH4gLiwgZGVtby5kYXQsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0MyA9IEdSUih5IH4gLiwgZGVtby5kYXQsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0NCA9IGJsYXNzbyh5IH4gLiwgZGVtby5kYXQsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0NSA9IGV4dExBU1NPKHkgfiAuLCBkZW1vLmRhdCwgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpvdXQ2ID0gbmVnTEFTU08oeSB+IC4sIGRlbW8uZGF0LCBsb2dfbGlrID0gVFJVRSwgY2wgPSBtYWtlQ2x1c3Rlcig0KSwgaXRlciA9IDQwMDAsIHRoaW4gPSAxLCBhZGFwdCA9IDEwMDAsIHdhcm11cCA9IDEwMDAsIG1ldGhvZCA9ICJyanBhcmFsbGVsIikNCm91dDcgPSBhZGFMQVNTTyh5IH4gLiwgZGVtby5kYXQsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0OCA9IGJheWVzRW5ldCh5IH4gLiwgZGVtby5kYXQsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0OSA9IGFkYUVuZXQoeSB+IC4sIGRlbW8uZGF0LCBsb2dfbGlrID0gVFJVRSwgY2wgPSBtYWtlQ2x1c3Rlcig0KSwgaXRlciA9IDQwMDAsIHRoaW4gPSAxLCBhZGFwdCA9IDEwMDAsIHdhcm11cCA9IDEwMDAsIG1ldGhvZCA9ICJyanBhcmFsbGVsIikNCm91dDEwID0gZ2RwKHkgfiAuLCBkZW1vLmRhdCwgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpgYGANCg0KDQpgYGB7ciBlY2hvPUZBTFNFfQ0KZXN0cyA9IGRhdGEuZnJhbWUodHJ1ZSA9IHJvdW5kKGF0dHIoZGVtby5kYXQsICJ0cnVlLmJldGFzIiksIDIpLCANCiAgICAgICAgICAgbG0gPSByb3VuZChsbWNvZWZzLCAyKSwgDQogICAgICAgICAgIGdsbUJheWVzID0gcG9zdF9zdW1tYXJ5KG91dDEsIGtlZXBwYXJzID0gYygiSW50ZXJjZXB0IiwgImJldGEiKSkkbWVkaWFuLA0KICAgICAgICAgICBSUiA9IHBvc3Rfc3VtbWFyeShvdXQyLCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIikpJG1lZGlhbiwNCiAgICAgICAgICAgR1JSID0gcG9zdF9zdW1tYXJ5KG91dDMsIGtlZXBwYXJzID0gYygiSW50ZXJjZXB0IiwgImJldGEiKSkkbWVkaWFuLA0KICAgICAgICAgICBibGFzc28gPSBwb3N0X3N1bW1hcnkob3V0NCwga2VlcHBhcnMgPSBjKCJJbnRlcmNlcHQiLCAiYmV0YSIpKSRtZWRpYW4sDQogICAgICAgICAgIGV4dExBU1NPID0gcG9zdF9zdW1tYXJ5KG91dDUsIGtlZXBwYXJzID0gYygiSW50ZXJjZXB0IiwgImJldGEiKSkkbWVkaWFuLA0KICAgICAgICAgICBuZWdMQVNTTyA9IHBvc3Rfc3VtbWFyeShvdXQ2LCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIikpJG1lZGlhbiwNCiAgICAgICAgICAgYWRhTEFTU08gPSBwb3N0X3N1bW1hcnkob3V0Nywga2VlcHBhcnMgPSBjKCJJbnRlcmNlcHQiLCAiYmV0YSIpKSRtZWRpYW4sDQogICAgICAgICAgIGJheWVzRW5ldCA9IHBvc3Rfc3VtbWFyeShvdXQ4LCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIikpJG1lZGlhbiwNCiAgICAgICAgICAgYWRhRW5ldCA9IHBvc3Rfc3VtbWFyeShvdXQ5LCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIikpJG1lZGlhbiwNCiAgICAgICAgICAgZ2RwID0gcG9zdF9zdW1tYXJ5KG91dDEwLCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIikpJG1lZGlhbikNCg0Ka25pdHI6OmthYmxlKGVzdHMsICJtYXJrZG93biIpDQoNCm1vZGVsLmVycnMgPSBhcy5kYXRhLmZyYW1lKGNiaW5kKEVycm9ycyA9IGMoIlNTRSIsICJTQUUiKSwgIHJiaW5kKA0KICBzYXBwbHkoMjpuY29sKGVzdHMpLCBmdW5jdGlvbih4KSBzdW0oKGVzdHNbLDFdIC0gZXN0c1sseF0pXjIpKSwNCiAgc2FwcGx5KDI6bmNvbChlc3RzKSwgZnVuY3Rpb24oeCkgc3VtKGFicyhlc3RzWywxXSAtIGVzdHNbLHhdKSkpDQopKSkNCmNvbG5hbWVzKG1vZGVsLmVycnMpID0gYygiRXJyb3JzIiwgY29sbmFtZXMoZXN0cylbLTFdKQ0KDQprbml0cjo6a2FibGUobW9kZWwuZXJycywgIm1hcmtkb3duIikNCmBgYA0KDQpXaW5uZXI6IEFkYXB0aXZlIEVsYXN0aWMgTmV0LCB3aXRoIEFkYXB0aXZlIExBU1NPIGFuZCBFeHRlbmRlZCBMQVNTTyBlc3NlbnRpYWxseSB0aWVkLg0KDQojIyBTcGFyc2UgRXhhbXBsZSAyDQoNCmBgYHtyIGV2YWw9RkFMU0UsIGluY2x1ZGU9RkFMU0V9DQpkYXRhKCJkZW1vLmRhdDMiKQ0KYGBgDQoNCg0KYGBge3IgZWNobz1GQUxTRX0NCmxtY29lZnMgPSByb3VuZChjb2VmKGxtKHkgfiAuLCBkZW1vLmRhdDMpKSwgMykNCmBgYA0KDQoNCmBgYHtyIGVjaG8gPSBGQUxTRSwgbWVzc2FnZT1GQUxTRSwgd2FybmluZz1GQUxTRX0NCm91dDEgPSBnbG1CYXllcyh5IH4gLiwgZGVtby5kYXQzLCBsb2dfbGlrID0gVFJVRSwgY2wgPSBtYWtlQ2x1c3Rlcig0KSwgaXRlciA9IDQwMDAsIHRoaW4gPSAxLCBhZGFwdCA9IDEwMDAsIHdhcm11cCA9IDEwMDAsIG1ldGhvZCA9ICJyanBhcmFsbGVsIikNCm91dDIgPSBSUih5IH4gLiwgZGVtby5kYXQzLCBsb2dfbGlrID0gVFJVRSwgY2wgPSBtYWtlQ2x1c3Rlcig0KSwgaXRlciA9IDQwMDAsIHRoaW4gPSAxLCBhZGFwdCA9IDEwMDAsIHdhcm11cCA9IDEwMDAsIG1ldGhvZCA9ICJyanBhcmFsbGVsIikNCm91dDMgPSBHUlIoeSB+IC4sIGRlbW8uZGF0MywgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpvdXQ0ID0gYmxhc3NvKHkgfiAuLCBkZW1vLmRhdDMsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0NSA9IGV4dExBU1NPKHkgfiAuLCBkZW1vLmRhdDMsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0NiA9IG5lZ0xBU1NPKHkgfiAuLCBkZW1vLmRhdDMsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0NyA9IGFkYUxBU1NPKHkgfiAuLCBkZW1vLmRhdDMsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0OCA9IGJheWVzRW5ldCh5IH4gLiwgZGVtby5kYXQzLCBsb2dfbGlrID0gVFJVRSwgY2wgPSBtYWtlQ2x1c3Rlcig0KSwgaXRlciA9IDQwMDAsIHRoaW4gPSAxLCBhZGFwdCA9IDEwMDAsIHdhcm11cCA9IDEwMDAsIG1ldGhvZCA9ICJyanBhcmFsbGVsIikNCm91dDkgPSBhZGFFbmV0KHkgfiAuLCBkZW1vLmRhdDMsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0MTAgPSBnZHAoeSB+IC4sIGRlbW8uZGF0MywgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpgYGANCg0KDQpgYGB7ciBlY2hvPUZBTFNFfQ0KZXN0cyA9IGRhdGEuZnJhbWUodHJ1ZSA9IHJvdW5kKGF0dHIoZGVtby5kYXQzLCAidHJ1ZS5iZXRhcyIpLCAyKSwgDQogICAgICAgICAgIGxtID0gcm91bmQobG1jb2VmcywgMiksIA0KICAgICAgICAgICBnbG1CYXllcyA9IHBvc3Rfc3VtbWFyeShvdXQxLCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIikpJG1lZGlhbiwNCiAgICAgICAgICAgUlIgPSBwb3N0X3N1bW1hcnkob3V0Miwga2VlcHBhcnMgPSBjKCJJbnRlcmNlcHQiLCAiYmV0YSIpKSRtZWRpYW4sDQogICAgICAgICAgIEdSUiA9IHBvc3Rfc3VtbWFyeShvdXQzLCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIikpJG1lZGlhbiwNCiAgICAgICAgICAgYmxhc3NvID0gcG9zdF9zdW1tYXJ5KG91dDQsIGtlZXBwYXJzID0gYygiSW50ZXJjZXB0IiwgImJldGEiKSkkbWVkaWFuLA0KICAgICAgICAgICBleHRMQVNTTyA9IHBvc3Rfc3VtbWFyeShvdXQ1LCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIikpJG1lZGlhbiwNCiAgICAgICAgICAgbmVnTEFTU08gPSBwb3N0X3N1bW1hcnkob3V0Niwga2VlcHBhcnMgPSBjKCJJbnRlcmNlcHQiLCAiYmV0YSIpKSRtZWRpYW4sDQogICAgICAgICAgIGFkYUxBU1NPID0gcG9zdF9zdW1tYXJ5KG91dDcsIGtlZXBwYXJzID0gYygiSW50ZXJjZXB0IiwgImJldGEiKSkkbWVkaWFuLA0KICAgICAgICAgICBiYXllc0VuZXQgPSBwb3N0X3N1bW1hcnkob3V0OCwga2VlcHBhcnMgPSBjKCJJbnRlcmNlcHQiLCAiYmV0YSIpKSRtZWRpYW4sDQogICAgICAgICAgIGFkYUVuZXQgPSBwb3N0X3N1bW1hcnkob3V0OSwga2VlcHBhcnMgPSBjKCJJbnRlcmNlcHQiLCAiYmV0YSIpKSRtZWRpYW4sDQogICAgICAgICAgIGdkcCA9IHBvc3Rfc3VtbWFyeShvdXQxMCwga2VlcHBhcnMgPSBjKCJJbnRlcmNlcHQiLCAiYmV0YSIpKSRtZWRpYW4pDQoNCmtuaXRyOjprYWJsZShlc3RzLCAibWFya2Rvd24iKQ0KDQptb2RlbC5lcnJzID0gYXMuZGF0YS5mcmFtZShjYmluZChFcnJvcnMgPSBjKCJTU0UiLCAiU0FFIiksICByYmluZCgNCiAgc2FwcGx5KDI6bmNvbChlc3RzKSwgZnVuY3Rpb24oeCkgc3VtKChlc3RzWywxXSAtIGVzdHNbLHhdKV4yKSksDQogIHNhcHBseSgyOm5jb2woZXN0cyksIGZ1bmN0aW9uKHgpIHN1bShhYnMoZXN0c1ssMV0gLSBlc3RzWyx4XSkpKQ0KKSkpDQpjb2xuYW1lcyhtb2RlbC5lcnJzKSA9IGMoIkVycm9ycyIsIGNvbG5hbWVzKGVzdHMpWy0xXSkNCg0Ka25pdHI6OmthYmxlKG1vZGVsLmVycnMsICJtYXJrZG93biIpDQpgYGANCg0KV2lubmVyOiBHZW5lcmFsaXplZCBEb3VibGUgUGFyZXRvIHByaW9yLCBidXQgc2V2ZXJhbCBvdGhlciBtb2RlbHMgdmVyeQ0Kc2ltaWxhciBpbiBwZXJmb3JtYW5jZS4NCg0KIyMgTm9uLVNwYXJzZSBFeGFtcGxlIDENCg0KYGBge3IgZXZhbD1GQUxTRSwgaW5jbHVkZT1GQUxTRX0NCmRhdGEoImRlbW8uZGF0MiIpDQpgYGANCg0KYGBge3IgZWNobz1GQUxTRX0NCmxtY29lZnMgPSByb3VuZChjb2VmKGxtKHkgfiAuLCBkZW1vLmRhdDIpKSwgMykNCmBgYA0KIA0KYGBge3IgZWNobyA9IEZBTFNFLCBtZXNzYWdlPUZBTFNFLCB3YXJuaW5nPUZBTFNFfQ0Kb3V0MSA9IGdsbUJheWVzKHkgfiAuLCBkZW1vLmRhdDIsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0MiA9IFJSKHkgfiAuLCBkZW1vLmRhdDIsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0MyA9IEdSUih5IH4gLiwgZGVtby5kYXQyLCBsb2dfbGlrID0gVFJVRSwgY2wgPSBtYWtlQ2x1c3Rlcig0KSwgaXRlciA9IDQwMDAsIHRoaW4gPSAxLCBhZGFwdCA9IDEwMDAsIHdhcm11cCA9IDEwMDAsIG1ldGhvZCA9ICJyanBhcmFsbGVsIikNCm91dDQgPSBibGFzc28oeSB+IC4sIGRlbW8uZGF0MiwgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpvdXQ1ID0gZXh0TEFTU08oeSB+IC4sIGRlbW8uZGF0MiwgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpvdXQ2ID0gbmVnTEFTU08oeSB+IC4sIGRlbW8uZGF0MiwgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpvdXQ3ID0gYWRhTEFTU08oeSB+IC4sIGRlbW8uZGF0MiwgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpvdXQ4ID0gYmF5ZXNFbmV0KHkgfiAuLCBkZW1vLmRhdDIsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0OSA9IGFkYUVuZXQoeSB+IC4sIGRlbW8uZGF0MiwgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpvdXQxMCA9IGdkcCh5IH4gLiwgZGVtby5kYXQyLCBsb2dfbGlrID0gVFJVRSwgY2wgPSBtYWtlQ2x1c3Rlcig0KSwgaXRlciA9IDQwMDAsIHRoaW4gPSAxLCBhZGFwdCA9IDEwMDAsIHdhcm11cCA9IDEwMDAsIG1ldGhvZCA9ICJyanBhcmFsbGVsIikNCmBgYA0KDQoNCmBgYHtyIGVjaG89RkFMU0V9DQplc3RzID0gZGF0YS5mcmFtZSh0cnVlID0gcm91bmQoYXR0cihkZW1vLmRhdDIsICJ0cnVlLmJldGFzIiksIDIpLCANCiAgICAgICAgICAgbG0gPSByb3VuZChsbWNvZWZzLCAyKSwgDQogICAgICAgICAgIGdsbUJheWVzID0gcG9zdF9zdW1tYXJ5KG91dDEsIGtlZXBwYXJzID0gYygiSW50ZXJjZXB0IiwgImJldGEiKSkkbWVkaWFuLA0KICAgICAgICAgICBSUiA9IHBvc3Rfc3VtbWFyeShvdXQyLCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIikpJG1lZGlhbiwNCiAgICAgICAgICAgR1JSID0gcG9zdF9zdW1tYXJ5KG91dDMsIGtlZXBwYXJzID0gYygiSW50ZXJjZXB0IiwgImJldGEiKSkkbWVkaWFuLA0KICAgICAgICAgICBibGFzc28gPSBwb3N0X3N1bW1hcnkob3V0NCwga2VlcHBhcnMgPSBjKCJJbnRlcmNlcHQiLCAiYmV0YSIpKSRtZWRpYW4sDQogICAgICAgICAgIGV4dExBU1NPID0gcG9zdF9zdW1tYXJ5KG91dDUsIGtlZXBwYXJzID0gYygiSW50ZXJjZXB0IiwgImJldGEiKSkkbWVkaWFuLA0KICAgICAgICAgICBuZWdMQVNTTyA9IHBvc3Rfc3VtbWFyeShvdXQ2LCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIikpJG1lZGlhbiwNCiAgICAgICAgICAgYWRhTEFTU08gPSBwb3N0X3N1bW1hcnkob3V0Nywga2VlcHBhcnMgPSBjKCJJbnRlcmNlcHQiLCAiYmV0YSIpKSRtZWRpYW4sDQogICAgICAgICAgIGJheWVzRW5ldCA9IHBvc3Rfc3VtbWFyeShvdXQ4LCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIikpJG1lZGlhbiwNCiAgICAgICAgICAgYWRhRW5ldCA9IHBvc3Rfc3VtbWFyeShvdXQ5LCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIikpJG1lZGlhbiwNCiAgICAgICAgICAgZ2RwID0gcG9zdF9zdW1tYXJ5KG91dDEwLCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIikpJG1lZGlhbikNCg0Ka25pdHI6OmthYmxlKGVzdHMsICJtYXJrZG93biIpDQoNCm1vZGVsLmVycnMgPSBhcy5kYXRhLmZyYW1lKGNiaW5kKEVycm9ycyA9IGMoIlNTRSIsICJTQUUiKSwgIHJiaW5kKA0KICBzYXBwbHkoMjpuY29sKGVzdHMpLCBmdW5jdGlvbih4KSBzdW0oKGVzdHNbLDFdIC0gZXN0c1sseF0pXjIpKSwNCiAgc2FwcGx5KDI6bmNvbChlc3RzKSwgZnVuY3Rpb24oeCkgc3VtKGFicyhlc3RzWywxXSAtIGVzdHNbLHhdKSkpDQopKSkNCmNvbG5hbWVzKG1vZGVsLmVycnMpID0gYygiRXJyb3JzIiwgY29sbmFtZXMoZXN0cylbLTFdKQ0KDQprbml0cjo6a2FibGUobW9kZWwuZXJycywgIm1hcmtkb3duIikNCmBgYA0KDQpXaW5uZXI6IEFkYXB0aXZlIExBU1NPLCB3aXRoIGEgZmV3IG5lYXJseSB0aWVkLg0KDQojIyBOb24tU3BhcnNlIEV4YW1wbGUgMg0KDQpgYGB7ciBldmFsPUZBTFNFLCBpbmNsdWRlPUZBTFNFfQ0KZGF0YSgiZGVtby5kYXQ0IikNCmBgYA0KDQpgYGB7ciBlY2hvPUZBTFNFfQ0KbG1jb2VmcyA9IHJvdW5kKGNvZWYobG0oeSB+IC4sIGRlbW8uZGF0NCkpLCAzKQ0KYGBgDQogDQpgYGB7ciBlY2hvID0gRkFMU0UsIG1lc3NhZ2U9RkFMU0UsIHdhcm5pbmc9RkFMU0V9DQpvdXQxID0gZ2xtQmF5ZXMoeSB+IC4sIGRlbW8uZGF0NCwgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpvdXQyID0gUlIoeSB+IC4sIGRlbW8uZGF0NCwgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpvdXQzID0gR1JSKHkgfiAuLCBkZW1vLmRhdDQsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0NCA9IGJsYXNzbyh5IH4gLiwgZGVtby5kYXQ0LCBsb2dfbGlrID0gVFJVRSwgY2wgPSBtYWtlQ2x1c3Rlcig0KSwgaXRlciA9IDQwMDAsIHRoaW4gPSAxLCBhZGFwdCA9IDEwMDAsIHdhcm11cCA9IDEwMDAsIG1ldGhvZCA9ICJyanBhcmFsbGVsIikNCm91dDUgPSBleHRMQVNTTyh5IH4gLiwgZGVtby5kYXQ0LCBsb2dfbGlrID0gVFJVRSwgY2wgPSBtYWtlQ2x1c3Rlcig0KSwgaXRlciA9IDQwMDAsIHRoaW4gPSAxLCBhZGFwdCA9IDEwMDAsIHdhcm11cCA9IDEwMDAsIG1ldGhvZCA9ICJyanBhcmFsbGVsIikNCm91dDYgPSBuZWdMQVNTTyh5IH4gLiwgZGVtby5kYXQ0LCBsb2dfbGlrID0gVFJVRSwgY2wgPSBtYWtlQ2x1c3Rlcig0KSwgaXRlciA9IDQwMDAsIHRoaW4gPSAxLCBhZGFwdCA9IDEwMDAsIHdhcm11cCA9IDEwMDAsIG1ldGhvZCA9ICJyanBhcmFsbGVsIikNCm91dDcgPSBhZGFMQVNTTyh5IH4gLiwgZGVtby5kYXQ0LCBsb2dfbGlrID0gVFJVRSwgY2wgPSBtYWtlQ2x1c3Rlcig0KSwgaXRlciA9IDQwMDAsIHRoaW4gPSAxLCBhZGFwdCA9IDEwMDAsIHdhcm11cCA9IDEwMDAsIG1ldGhvZCA9ICJyanBhcmFsbGVsIikNCm91dDggPSBiYXllc0VuZXQoeSB+IC4sIGRlbW8uZGF0NCwgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpvdXQ5ID0gYWRhRW5ldCh5IH4gLiwgZGVtby5kYXQ0LCBsb2dfbGlrID0gVFJVRSwgY2wgPSBtYWtlQ2x1c3Rlcig0KSwgaXRlciA9IDQwMDAsIHRoaW4gPSAxLCBhZGFwdCA9IDEwMDAsIHdhcm11cCA9IDEwMDAsIG1ldGhvZCA9ICJyanBhcmFsbGVsIikNCm91dDEwID0gZ2RwKHkgfiAuLCBkZW1vLmRhdDQsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0KYGBgDQoNCg0KYGBge3IgZWNobz1GQUxTRX0NCmVzdHMgPSBkYXRhLmZyYW1lKHRydWUgPSByb3VuZChhdHRyKGRlbW8uZGF0NCwgInRydWUuYmV0YXMiKSwgMiksIA0KICAgICAgICAgICBsbSA9IHJvdW5kKGxtY29lZnMsIDIpLCANCiAgICAgICAgICAgZ2xtQmF5ZXMgPSBwb3N0X3N1bW1hcnkob3V0MSwga2VlcHBhcnMgPSBjKCJJbnRlcmNlcHQiLCAiYmV0YSIpKSRtZWRpYW4sDQogICAgICAgICAgIFJSID0gcG9zdF9zdW1tYXJ5KG91dDIsIGtlZXBwYXJzID0gYygiSW50ZXJjZXB0IiwgImJldGEiKSkkbWVkaWFuLA0KICAgICAgICAgICBHUlIgPSBwb3N0X3N1bW1hcnkob3V0Mywga2VlcHBhcnMgPSBjKCJJbnRlcmNlcHQiLCAiYmV0YSIpKSRtZWRpYW4sDQogICAgICAgICAgIGJsYXNzbyA9IHBvc3Rfc3VtbWFyeShvdXQ0LCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIikpJG1lZGlhbiwNCiAgICAgICAgICAgZXh0TEFTU08gPSBwb3N0X3N1bW1hcnkob3V0NSwga2VlcHBhcnMgPSBjKCJJbnRlcmNlcHQiLCAiYmV0YSIpKSRtZWRpYW4sDQogICAgICAgICAgIG5lZ0xBU1NPID0gcG9zdF9zdW1tYXJ5KG91dDYsIGtlZXBwYXJzID0gYygiSW50ZXJjZXB0IiwgImJldGEiKSkkbWVkaWFuLA0KICAgICAgICAgICBhZGFMQVNTTyA9IHBvc3Rfc3VtbWFyeShvdXQ3LCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIikpJG1lZGlhbiwNCiAgICAgICAgICAgYmF5ZXNFbmV0ID0gcG9zdF9zdW1tYXJ5KG91dDgsIGtlZXBwYXJzID0gYygiSW50ZXJjZXB0IiwgImJldGEiKSkkbWVkaWFuLA0KICAgICAgICAgICBhZGFFbmV0ID0gcG9zdF9zdW1tYXJ5KG91dDksIGtlZXBwYXJzID0gYygiSW50ZXJjZXB0IiwgImJldGEiKSkkbWVkaWFuLA0KICAgICAgICAgICBnZHAgPSBwb3N0X3N1bW1hcnkob3V0MTAsIGtlZXBwYXJzID0gYygiSW50ZXJjZXB0IiwgImJldGEiKSkkbWVkaWFuKQ0KDQprbml0cjo6a2FibGUoZXN0cywgIm1hcmtkb3duIikNCg0KbW9kZWwuZXJycyA9IGFzLmRhdGEuZnJhbWUoY2JpbmQoRXJyb3JzID0gYygiU1NFIiwgIlNBRSIpLCAgcmJpbmQoDQogIHNhcHBseSgyOm5jb2woZXN0cyksIGZ1bmN0aW9uKHgpIHN1bSgoZXN0c1ssMV0gLSBlc3RzWyx4XSleMikpLA0KICBzYXBwbHkoMjpuY29sKGVzdHMpLCBmdW5jdGlvbih4KSBzdW0oYWJzKGVzdHNbLDFdIC0gZXN0c1sseF0pKSkNCikpKQ0KY29sbmFtZXMobW9kZWwuZXJycykgPSBjKCJFcnJvcnMiLCBjb2xuYW1lcyhlc3RzKVstMV0pDQoNCmtuaXRyOjprYWJsZShtb2RlbC5lcnJzLCAibWFya2Rvd24iKQ0KYGBgDQoNCldpbm5lcjogQWRhcHRpdmUgRWxhc3RpYyBOZXQ=</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIkEgQ29tcGFyaXNvbiBvZiBPcmRpbmFyeSBMZWFzdCBTcXVhcmVzIFJlZ3Jlc3Npb24gdG8gVmFyaW91cyBCYXllc2lhbiBSZWdyZXNzaW9uIE1vZGVscyINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQoNCg0KYGBge3IgaW5jbHVkZT1GQUxTRX0NCmxpYnJhcnkoQmF5ZXppbGxhKQ0KYGBgDQoNCg0KVGhpcyBmZWF0dXJlcyBhIGNvbXBhcmlzb24gb2Ygb3JkaW5hcnkgbGVhc3Qgc3F1YXJlcyBsaW5lYXIgcmVncmVzc2lvbiB0byBzZXZlcmFsIEJheWVzaWFuIG1vZGVscy4gQWxsIGZvdXIgZGF0YSBzZXRzIHdlcmUgcmFuZG9tbHkgZ2VuZXJhdGVkIGZyb20gc3BlY2lmaWVkIGNvZWZmaWNpZW50cy4gVGhlIGFpbSBvZiB0aGlzIHNpbXVsYXRpb24gc3R1ZHkgd2FzIHRvIGFzc2VzcyBob3cgYWNjdXJhdGVseSBkaWZmZXJlbnQgbW9kZWxzIGNhbiBlc3RpbWF0ZSB0aGUgdHJ1ZSBjb2VmZmljaWVudHMgYWZ0ZXIgbm9pc2UgaXMgYWRkZWQgdG8gc2ltdWxhdGUgZXN0aW1hdGlvbiBhbmQgc2FtcGxpbmcgZXJyb3IuIFJhdGhlciB0aGFuIGZvY3VzaW5nIG9uIHByZWRpY3Rpb24gZXJyb3Igb2YgdGhlIG91dGNvbWUgdmFyaWFibGVzLCB0aGUgZm9jdXMgaXMgb24gdGhlIGNvZWZmaWNpZW50cyB0byBhc3Nlc3MgdGhlIHN1aXRhYmlsaXR5IG9mIHZhcmlvdXMgbW9kZWxzIGZvciBlc3RpbWF0aW5nIHRoZSBlZmZlY3RzIG9mIHZhcmlhYmxlcyBvbiBhbiBvdXRjb21lIGZvciBzY2llbnRpZmljIGFuYWx5c2lzLiANCg0KVGhlIGZpcnN0IHR3byBkYXRhIHNldHMgYXJlIHNwYXJzZSBjYXNlcywgd2hlcmUgc29tZSBvZiB0aGUgdHJ1ZSBlZmZlY3RzIGFyZSBleGFjdGx5IHplcm8uIFRoZSBsYXN0IHR3byBkYXRhIHNldHMgYXJlIGdlbmVyYXRlZCBmcm9tIG5vbi1zcGFyc2UgY29lZmZpY2llbnQgdmVjdG9ycy4gVGFibGVzIG9mIHRoZSBwb2ludCBlc3RpbWF0ZXMgYXJlIHByZXNlbnRlZCBmb3IgZWFjaCBkYXRhIHNldCwgYWxvbmcgd2l0aA0KYSBzdW1tYXJ5IG9mIHRoZSBzdW0gb2YgYWJzb2x1dGUgRXJyb3JzIGFuZCBzdW0gb2Ygc3F1YXJlZCBlcnJvcnMgZm9yIHRoZSBwb2ludCBlc3RpbWF0ZXMgZnJvbSB0aGUga25vd24gdHJ1ZSBjb2VmZmljaWVudHMuIFBvaW50IGVzdGltYXRlcyBmb3IgdGhlIEJheWVzaWFuIG1vZGVscyBhcmUgdGhlIG1lZGlhbiB2YWx1ZXMgb2YgdGhlDQptYXJnaW5hbCBwb3N0ZXJpb3IgZGlzdHJpYnV0aW9ucy4gDQoNClRoZSBmaXJzdCBhbmQgdGhpcmQgZGF0YSBzZXRzIGNvbnRhaW4gMzAgb2JzZXJ2YXRpb25zIGFuZCAxNSBwcmVkaWN0b3JzLiBUaGUgc2Vjb25kIGFuZCBmb3VydGgNCmRhdGEgc2V0cyBjb250YWluIDYwIG9ic2VydmF0aW9ucyBhbmQgMTEgcHJlZGljdG9ycy4gVGhlc2UgZGltZW5zaW9ucyB3ZXJlIGNob3NlbiB0byBhc3Nlc3MgdGhlIHBlcmZvcm1hbmNlIG9mIA0KbGVhc3Qgc3F1YXJlcyByZWdyZXNzaW9uIGluIHNhbXBsZSBzaXplcyB0eXBpY2FsIG9mIG1hbnkgc2NpZW50aWZpYyBzdHVkaWVzLCB3aXRoIGFuIGVtcGhhc2lzIG9uIGEgcmVsYXRpdmVseSANCmxhcmdlIG51bWJlciBvZiBwcmVkaWN0b3JzLiBOZXZlcnRoZWxlc3MsIGFsbCBkYXRhIHNldHMgYXJlIGZ1bGwgcmFuayBhbmQgcG9zaXRpdmUgZGVmaW5pdGUuIFRoZXNlIGNvbmRpdGlvbnMgYXJlIHR5cGljYWwgZm9yIHdoZW4gbGVhc3Qgc3F1YXJlcyBwZXJmb3JtcyBsZXNzIHRoYW4gZGVzaXJhYmx5LCBoZW5jZSBpdCBpcyBleHBlY3RlZCB0aGF0IHRoZSByZWd1bGFyaXplZCBCYXllc2lhbiBtb2RlbHMgd2lsbCBwZXJmb3JtIGJldHRlci4gVGhlIHF1ZXN0aW9uIHRvIGJlIGFuc3dlcmVkIGhlcmUgaXMgaG93IG11Y2ggYmV0dGVyLiANCg0KTW9kZWxzIENvbXBhcmVkOg0KDQpPcmRpbmFyeSBMZWFzdCBzcXVhcmVzDQoNCmdsbUJheWVzIC0gQmF5ZXNpYW4gbW9kZWwgd2l0aCBzdHVkZW4tdCBwcmlvcnMgb24gdGhlIGNvZWZmaWNpZW50cyBhbmQgYWRhcHRpdmUgZGVncmVlcyBvZiBmcmVlZG9tIGVzdGltYXRlZCBmcm9tIHRoZSBkYXRhLg0KDQpyaWRnZSAtIEJheWVzaWFuIFJpZGdlIFJlZ3Jlc3Npb24NCg0KZ2VuUmlkZ2UgLSBBZGFwdGl2ZSBCYXllc2lhbiBSaWRnZSBSZWdyZXNzaW9uDQoNCmJsYXNzbyAtIEJheWVzaWFuIExBU1NPIA0KDQpleHRMQVNTTyAtIEV4dGVuZGVkIEJheWVzaWFuIExBU1NPDQoNCm5lZ0xBU1NPIC0gTm9ybWFsLUV4cG9uZW50aWFsLUdhbW1hIEJheWVzaWFuIExBU1NPIChhbHNvIGtub3duIGFzIGh5cGVybGFzc28pDQoNCmFkYUxBU1NPIC0gQWRhcHRpdmUgQmF5ZXNpYW4gTEFTU08NCg0KYmF5ZXNFbmV0IC0gQmF5ZXNpYW4gRWxhc3RpYyBOZXQNCg0KYWRhRW5ldCAtIEJheWVzaWFuIEFkYXB0aXZlIEVsYXN0aWMgTmV0DQoNCmdkcCAtIEdlbmVyYWxpemVkIERvdWJsZSBQYXJldG8gUHJpb3INCg0KIyMgU3BhcnNlIEV4YW1wbGUgMQ0KDQpgYGB7ciBldmFsPUZBTFNFLCBpbmNsdWRlPUZBTFNFfQ0KZGF0YSgiZGVtby5kYXQiKQ0KYGBgDQoNCmBgYHtyIGVjaG89RkFMU0V9DQpsbWNvZWZzID0gcm91bmQoY29lZihsbSh5IH4gLiwgZGVtby5kYXQpKSwgMykNCmBgYA0KDQpgYGB7ciBlY2hvID0gRkFMU0UsIG1lc3NhZ2U9RkFMU0UsIHdhcm5pbmc9RkFMU0V9DQpvdXQxID0gZ2xtQmF5ZXMoeSB+IC4sIGRlbW8uZGF0LCBsb2dfbGlrID0gVFJVRSwgY2wgPSBtYWtlQ2x1c3Rlcig0KSwgaXRlciA9IDQwMDAsIHRoaW4gPSAxLCBhZGFwdCA9IDEwMDAsIHdhcm11cCA9IDEwMDAsIG1ldGhvZCA9ICJyanBhcmFsbGVsIikNCm91dDIgPSByaWRnZSh5IH4gLiwgZGVtby5kYXQsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0MyA9IGdlblJpZGdlKHkgfiAuLCBkZW1vLmRhdCwgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpvdXQ0ID0gYmxhc3NvKHkgfiAuLCBkZW1vLmRhdCwgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpvdXQ1ID0gZXh0TEFTU08oeSB+IC4sIGRlbW8uZGF0LCBsb2dfbGlrID0gVFJVRSwgY2wgPSBtYWtlQ2x1c3Rlcig0KSwgaXRlciA9IDQwMDAsIHRoaW4gPSAxLCBhZGFwdCA9IDEwMDAsIHdhcm11cCA9IDEwMDAsIG1ldGhvZCA9ICJyanBhcmFsbGVsIikNCm91dDYgPSBuZWdMQVNTTyh5IH4gLiwgZGVtby5kYXQsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0NyA9IGFkYUxBU1NPKHkgfiAuLCBkZW1vLmRhdCwgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpvdXQ4ID0gYmF5ZXNFbmV0KHkgfiAuLCBkZW1vLmRhdCwgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpvdXQ5ID0gYWRhRW5ldCh5IH4gLiwgZGVtby5kYXQsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0MTAgPSBnZHAoeSB+IC4sIGRlbW8uZGF0LCBsb2dfbGlrID0gVFJVRSwgY2wgPSBtYWtlQ2x1c3Rlcig0KSwgaXRlciA9IDQwMDAsIHRoaW4gPSAxLCBhZGFwdCA9IDEwMDAsIHdhcm11cCA9IDEwMDAsIG1ldGhvZCA9ICJyanBhcmFsbGVsIikNCmBgYA0KDQoNCmBgYHtyIGVjaG89RkFMU0V9DQplc3RzID0gZGF0YS5mcmFtZSh0cnVlID0gcm91bmQoYXR0cihkZW1vLmRhdCwgInRydWUuYmV0YXMiKSwgMiksIA0KICAgICAgICAgICBsbSA9IHJvdW5kKGxtY29lZnMsIDIpLCANCiAgICAgICAgICAgZ2xtQmF5ZXMgPSBwb3N0X3N1bW1hcnkob3V0MSwga2VlcHBhcnMgPSBjKCJJbnRlcmNlcHQiLCAiYmV0YSIpLCBrbml0ciA9IEZBTFNFKSRtZWRpYW4sDQogICAgICAgICAgIHJpZGdlID0gcG9zdF9zdW1tYXJ5KG91dDIsIGtlZXBwYXJzID0gYygiSW50ZXJjZXB0IiwgImJldGEiKSwga25pdHIgPSBGQUxTRSkkbWVkaWFuLA0KICAgICAgICAgICBnZW5SaWRnZSA9IHBvc3Rfc3VtbWFyeShvdXQzLCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIiksIGtuaXRyID0gRkFMU0UpJG1lZGlhbiwNCiAgICAgICAgICAgYmxhc3NvID0gcG9zdF9zdW1tYXJ5KG91dDQsIGtlZXBwYXJzID0gYygiSW50ZXJjZXB0IiwgImJldGEiKSwga25pdHIgPSBGQUxTRSkkbWVkaWFuLA0KICAgICAgICAgICBleHRMQVNTTyA9IHBvc3Rfc3VtbWFyeShvdXQ1LCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIiksIGtuaXRyID0gRkFMU0UpJG1lZGlhbiwNCiAgICAgICAgICAgbmVnTEFTU08gPSBwb3N0X3N1bW1hcnkob3V0Niwga2VlcHBhcnMgPSBjKCJJbnRlcmNlcHQiLCAiYmV0YSIpLCBrbml0ciA9IEZBTFNFKSRtZWRpYW4sDQogICAgICAgICAgIGFkYUxBU1NPID0gcG9zdF9zdW1tYXJ5KG91dDcsIGtlZXBwYXJzID0gYygiSW50ZXJjZXB0IiwgImJldGEiKSwga25pdHIgPSBGQUxTRSkkbWVkaWFuLA0KICAgICAgICAgICBiYXllc0VuZXQgPSBwb3N0X3N1bW1hcnkob3V0OCwga2VlcHBhcnMgPSBjKCJJbnRlcmNlcHQiLCAiYmV0YSIpLCBrbml0ciA9IEZBTFNFKSRtZWRpYW4sDQogICAgICAgICAgIGFkYUVuZXQgPSBwb3N0X3N1bW1hcnkob3V0OSwga2VlcHBhcnMgPSBjKCJJbnRlcmNlcHQiLCAiYmV0YSIpLCBrbml0ciA9IEZBTFNFKSRtZWRpYW4sDQogICAgICAgICAgIGdkcCA9IHBvc3Rfc3VtbWFyeShvdXQxMCwga2VlcHBhcnMgPSBjKCJJbnRlcmNlcHQiLCAiYmV0YSIpLCBrbml0ciA9IEZBTFNFKSRtZWRpYW4pDQoNCmtuaXRyOjprYWJsZShlc3RzLCAibWFya2Rvd24iKQ0KDQptb2RlbC5lcnJvcnMgPSBhcy5kYXRhLmZyYW1lKGNiaW5kKEVycm9ycyA9IGMoIlNTRSIsICJTQUUiKSwgIHJiaW5kKA0KICBzYXBwbHkoMjpuY29sKGVzdHMpLCBmdW5jdGlvbih4KSBzdW0oKGVzdHNbLDFdIC0gZXN0c1sseF0pXjIpKSwNCiAgc2FwcGx5KDI6bmNvbChlc3RzKSwgZnVuY3Rpb24oeCkgc3VtKGFicyhlc3RzWywxXSAtIGVzdHNbLHhdKSkpDQopKSkNCmNvbG5hbWVzKG1vZGVsLmVycm9ycykgPSBjKCJFcnJvcnMiLCBjb2xuYW1lcyhlc3RzKVstMV0pDQoNCmtuaXRyOjprYWJsZShtb2RlbC5lcnJvcnMsICJtYXJrZG93biIpDQpgYGANCg0KV2lubmVyOiBBZGFwdGl2ZSBFbGFzdGljIE5ldCwgd2l0aCBBZGFwdGl2ZSBMQVNTTyBhbmQgRXh0ZW5kZWQgTEFTU08gZXNzZW50aWFsbHkgdGllZC4NCg0KIyMgU3BhcnNlIEV4YW1wbGUgMg0KDQpgYGB7ciBldmFsPUZBTFNFLCBpbmNsdWRlPUZBTFNFfQ0KZGF0YSgiZGVtby5kYXQzIikNCmBgYA0KDQoNCmBgYHtyIGVjaG89RkFMU0V9DQpsbWNvZWZzID0gcm91bmQoY29lZihsbSh5IH4gLiwgZGVtby5kYXQzKSksIDMpDQpgYGANCg0KDQpgYGB7ciBlY2hvID0gRkFMU0UsIG1lc3NhZ2U9RkFMU0UsIHdhcm5pbmc9RkFMU0V9DQpvdXQxID0gZ2xtQmF5ZXMoeSB+IC4sIGRlbW8uZGF0MywgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpvdXQyID0gcmlkZ2UoeSB+IC4sIGRlbW8uZGF0MywgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpvdXQzID0gZ2VuUmlkZ2UoeSB+IC4sIGRlbW8uZGF0MywgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpvdXQ0ID0gYmxhc3NvKHkgfiAuLCBkZW1vLmRhdDMsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0NSA9IGV4dExBU1NPKHkgfiAuLCBkZW1vLmRhdDMsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0NiA9IG5lZ0xBU1NPKHkgfiAuLCBkZW1vLmRhdDMsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0NyA9IGFkYUxBU1NPKHkgfiAuLCBkZW1vLmRhdDMsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0OCA9IGJheWVzRW5ldCh5IH4gLiwgZGVtby5kYXQzLCBsb2dfbGlrID0gVFJVRSwgY2wgPSBtYWtlQ2x1c3Rlcig0KSwgaXRlciA9IDQwMDAsIHRoaW4gPSAxLCBhZGFwdCA9IDEwMDAsIHdhcm11cCA9IDEwMDAsIG1ldGhvZCA9ICJyanBhcmFsbGVsIikNCm91dDkgPSBhZGFFbmV0KHkgfiAuLCBkZW1vLmRhdDMsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0MTAgPSBnZHAoeSB+IC4sIGRlbW8uZGF0MywgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpgYGANCg0KDQpgYGB7ciBlY2hvPUZBTFNFfQ0KZXN0cyA9IGRhdGEuZnJhbWUodHJ1ZSA9IHJvdW5kKGF0dHIoZGVtby5kYXQzLCAidHJ1ZS5iZXRhcyIpLCAyKSwgDQogICAgICAgICAgIGxtID0gcm91bmQobG1jb2VmcywgMiksIA0KICAgICAgICAgICBnbG1CYXllcyA9IHBvc3Rfc3VtbWFyeShvdXQxLCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIiksIGtuaXRyID0gRkFMU0UpJG1lZGlhbiwNCiAgICAgICAgICAgcmlkZ2UgPSBwb3N0X3N1bW1hcnkob3V0Miwga2VlcHBhcnMgPSBjKCJJbnRlcmNlcHQiLCAiYmV0YSIpLCBrbml0ciA9IEZBTFNFKSRtZWRpYW4sDQogICAgICAgICAgIGdlblJpZGdlID0gcG9zdF9zdW1tYXJ5KG91dDMsIGtlZXBwYXJzID0gYygiSW50ZXJjZXB0IiwgImJldGEiKSwga25pdHIgPSBGQUxTRSkkbWVkaWFuLA0KICAgICAgICAgICBibGFzc28gPSBwb3N0X3N1bW1hcnkob3V0NCwga2VlcHBhcnMgPSBjKCJJbnRlcmNlcHQiLCAiYmV0YSIpLCBrbml0ciA9IEZBTFNFKSRtZWRpYW4sDQogICAgICAgICAgIGV4dExBU1NPID0gcG9zdF9zdW1tYXJ5KG91dDUsIGtlZXBwYXJzID0gYygiSW50ZXJjZXB0IiwgImJldGEiKSwga25pdHIgPSBGQUxTRSkkbWVkaWFuLA0KICAgICAgICAgICBuZWdMQVNTTyA9IHBvc3Rfc3VtbWFyeShvdXQ2LCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIiksIGtuaXRyID0gRkFMU0UpJG1lZGlhbiwNCiAgICAgICAgICAgYWRhTEFTU08gPSBwb3N0X3N1bW1hcnkob3V0Nywga2VlcHBhcnMgPSBjKCJJbnRlcmNlcHQiLCAiYmV0YSIpLCBrbml0ciA9IEZBTFNFKSRtZWRpYW4sDQogICAgICAgICAgIGJheWVzRW5ldCA9IHBvc3Rfc3VtbWFyeShvdXQ4LCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIiksIGtuaXRyID0gRkFMU0UpJG1lZGlhbiwNCiAgICAgICAgICAgYWRhRW5ldCA9IHBvc3Rfc3VtbWFyeShvdXQ5LCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIiksIGtuaXRyID0gRkFMU0UpJG1lZGlhbiwNCiAgICAgICAgICAgZ2RwID0gcG9zdF9zdW1tYXJ5KG91dDEwLCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIiksIGtuaXRyID0gRkFMU0UpJG1lZGlhbikNCg0Ka25pdHI6OmthYmxlKGVzdHMsICJtYXJrZG93biIpDQoNCm1vZGVsLmVycm9ycyA9IGFzLmRhdGEuZnJhbWUoY2JpbmQoRXJyb3JzID0gYygiU1NFIiwgIlNBRSIpLCAgcmJpbmQoDQogIHNhcHBseSgyOm5jb2woZXN0cyksIGZ1bmN0aW9uKHgpIHN1bSgoZXN0c1ssMV0gLSBlc3RzWyx4XSleMikpLA0KICBzYXBwbHkoMjpuY29sKGVzdHMpLCBmdW5jdGlvbih4KSBzdW0oYWJzKGVzdHNbLDFdIC0gZXN0c1sseF0pKSkNCikpKQ0KY29sbmFtZXMobW9kZWwuZXJyb3JzKSA9IGMoIkVycm9ycyIsIGNvbG5hbWVzKGVzdHMpWy0xXSkNCg0Ka25pdHI6OmthYmxlKG1vZGVsLmVycm9ycywgIm1hcmtkb3duIikNCmBgYA0KDQpXaW5uZXI6IEdlbmVyYWxpemVkIERvdWJsZSBQYXJldG8gcHJpb3IsIGJ1dCBzZXZlcmFsIG90aGVyIG1vZGVscyB2ZXJ5DQpzaW1pbGFyIGluIHBlcmZvcm1hbmNlLg0KDQojIyBOb24tU3BhcnNlIEV4YW1wbGUgMQ0KDQpgYGB7ciBldmFsPUZBTFNFLCBpbmNsdWRlPUZBTFNFfQ0KZGF0YSgiZGVtby5kYXQyIikNCmBgYA0KDQpgYGB7ciBlY2hvPUZBTFNFfQ0KbG1jb2VmcyA9IHJvdW5kKGNvZWYobG0oeSB+IC4sIGRlbW8uZGF0MikpLCAzKQ0KYGBgDQogDQpgYGB7ciBlY2hvID0gRkFMU0UsIG1lc3NhZ2U9RkFMU0UsIHdhcm5pbmc9RkFMU0V9DQpvdXQxID0gZ2xtQmF5ZXMoeSB+IC4sIGRlbW8uZGF0MiwgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpvdXQyID0gcmlkZ2UoeSB+IC4sIGRlbW8uZGF0MiwgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpvdXQzID0gZ2VuUmlkZ2UoeSB+IC4sIGRlbW8uZGF0MiwgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpvdXQ0ID0gYmxhc3NvKHkgfiAuLCBkZW1vLmRhdDIsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0NSA9IGV4dExBU1NPKHkgfiAuLCBkZW1vLmRhdDIsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0NiA9IG5lZ0xBU1NPKHkgfiAuLCBkZW1vLmRhdDIsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0NyA9IGFkYUxBU1NPKHkgfiAuLCBkZW1vLmRhdDIsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0OCA9IGJheWVzRW5ldCh5IH4gLiwgZGVtby5kYXQyLCBsb2dfbGlrID0gVFJVRSwgY2wgPSBtYWtlQ2x1c3Rlcig0KSwgaXRlciA9IDQwMDAsIHRoaW4gPSAxLCBhZGFwdCA9IDEwMDAsIHdhcm11cCA9IDEwMDAsIG1ldGhvZCA9ICJyanBhcmFsbGVsIikNCm91dDkgPSBhZGFFbmV0KHkgfiAuLCBkZW1vLmRhdDIsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0MTAgPSBnZHAoeSB+IC4sIGRlbW8uZGF0MiwgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpgYGANCg0KDQpgYGB7ciBlY2hvPUZBTFNFfQ0KZXN0cyA9IGRhdGEuZnJhbWUodHJ1ZSA9IHJvdW5kKGF0dHIoZGVtby5kYXQyLCAidHJ1ZS5iZXRhcyIpLCAyKSwgDQogICAgICAgICAgIGxtID0gcm91bmQobG1jb2VmcywgMiksIA0KICAgICAgICAgICBnbG1CYXllcyA9IHBvc3Rfc3VtbWFyeShvdXQxLCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIiksIGtuaXRyID0gRkFMU0UpJG1lZGlhbiwNCiAgICAgICAgICAgcmlkZ2UgPSBwb3N0X3N1bW1hcnkob3V0Miwga2VlcHBhcnMgPSBjKCJJbnRlcmNlcHQiLCAiYmV0YSIpLCBrbml0ciA9IEZBTFNFKSRtZWRpYW4sDQogICAgICAgICAgIGdlblJpZGdlID0gcG9zdF9zdW1tYXJ5KG91dDMsIGtlZXBwYXJzID0gYygiSW50ZXJjZXB0IiwgImJldGEiKSwga25pdHIgPSBGQUxTRSkkbWVkaWFuLA0KICAgICAgICAgICBibGFzc28gPSBwb3N0X3N1bW1hcnkob3V0NCwga2VlcHBhcnMgPSBjKCJJbnRlcmNlcHQiLCAiYmV0YSIpLCBrbml0ciA9IEZBTFNFKSRtZWRpYW4sDQogICAgICAgICAgIGV4dExBU1NPID0gcG9zdF9zdW1tYXJ5KG91dDUsIGtlZXBwYXJzID0gYygiSW50ZXJjZXB0IiwgImJldGEiKSwga25pdHIgPSBGQUxTRSkkbWVkaWFuLA0KICAgICAgICAgICBuZWdMQVNTTyA9IHBvc3Rfc3VtbWFyeShvdXQ2LCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIiksIGtuaXRyID0gRkFMU0UpJG1lZGlhbiwNCiAgICAgICAgICAgYWRhTEFTU08gPSBwb3N0X3N1bW1hcnkob3V0Nywga2VlcHBhcnMgPSBjKCJJbnRlcmNlcHQiLCAiYmV0YSIpLCBrbml0ciA9IEZBTFNFKSRtZWRpYW4sDQogICAgICAgICAgIGJheWVzRW5ldCA9IHBvc3Rfc3VtbWFyeShvdXQ4LCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIiksIGtuaXRyID0gRkFMU0UpJG1lZGlhbiwNCiAgICAgICAgICAgYWRhRW5ldCA9IHBvc3Rfc3VtbWFyeShvdXQ5LCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIiksIGtuaXRyID0gRkFMU0UpJG1lZGlhbiwNCiAgICAgICAgICAgZ2RwID0gcG9zdF9zdW1tYXJ5KG91dDEwLCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIiksIGtuaXRyID0gRkFMU0UpJG1lZGlhbikNCg0Ka25pdHI6OmthYmxlKGVzdHMsICJtYXJrZG93biIpDQoNCm1vZGVsLmVycm9ycyA9IGFzLmRhdGEuZnJhbWUoY2JpbmQoRXJyb3JzID0gYygiU1NFIiwgIlNBRSIpLCAgcmJpbmQoDQogIHNhcHBseSgyOm5jb2woZXN0cyksIGZ1bmN0aW9uKHgpIHN1bSgoZXN0c1ssMV0gLSBlc3RzWyx4XSleMikpLA0KICBzYXBwbHkoMjpuY29sKGVzdHMpLCBmdW5jdGlvbih4KSBzdW0oYWJzKGVzdHNbLDFdIC0gZXN0c1sseF0pKSkNCikpKQ0KY29sbmFtZXMobW9kZWwuZXJyb3JzKSA9IGMoIkVycm9ycyIsIGNvbG5hbWVzKGVzdHMpWy0xXSkNCg0Ka25pdHI6OmthYmxlKG1vZGVsLmVycm9ycywgIm1hcmtkb3duIikNCmBgYA0KDQpXaW5uZXI6IEFkYXB0aXZlIExBU1NPLCB3aXRoIGEgZmV3IG5lYXJseSB0aWVkLg0KDQojIyBOb24tU3BhcnNlIEV4YW1wbGUgMg0KDQpgYGB7ciBldmFsPUZBTFNFLCBpbmNsdWRlPUZBTFNFfQ0KZGF0YSgiZGVtby5kYXQ0IikNCmBgYA0KDQpgYGB7ciBlY2hvPUZBTFNFfQ0KbG1jb2VmcyA9IHJvdW5kKGNvZWYobG0oeSB+IC4sIGRlbW8uZGF0NCkpLCAzKQ0KYGBgDQogDQpgYGB7ciBlY2hvID0gRkFMU0UsIG1lc3NhZ2U9RkFMU0UsIHdhcm5pbmc9RkFMU0V9DQpvdXQxID0gZ2xtQmF5ZXMoeSB+IC4sIGRlbW8uZGF0NCwgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpvdXQyID0gcmlkZ2UoeSB+IC4sIGRlbW8uZGF0NCwgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpvdXQzID0gZ2VuUmlkZ2UoeSB+IC4sIGRlbW8uZGF0NCwgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpvdXQ0ID0gYmxhc3NvKHkgfiAuLCBkZW1vLmRhdDQsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0NSA9IGV4dExBU1NPKHkgfiAuLCBkZW1vLmRhdDQsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0NiA9IG5lZ0xBU1NPKHkgfiAuLCBkZW1vLmRhdDQsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0NyA9IGFkYUxBU1NPKHkgfiAuLCBkZW1vLmRhdDQsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0OCA9IGJheWVzRW5ldCh5IH4gLiwgZGVtby5kYXQ0LCBsb2dfbGlrID0gVFJVRSwgY2wgPSBtYWtlQ2x1c3Rlcig0KSwgaXRlciA9IDQwMDAsIHRoaW4gPSAxLCBhZGFwdCA9IDEwMDAsIHdhcm11cCA9IDEwMDAsIG1ldGhvZCA9ICJyanBhcmFsbGVsIikNCm91dDkgPSBhZGFFbmV0KHkgfiAuLCBkZW1vLmRhdDQsIGxvZ19saWsgPSBUUlVFLCBjbCA9IG1ha2VDbHVzdGVyKDQpLCBpdGVyID0gNDAwMCwgdGhpbiA9IDEsIGFkYXB0ID0gMTAwMCwgd2FybXVwID0gMTAwMCwgbWV0aG9kID0gInJqcGFyYWxsZWwiKQ0Kb3V0MTAgPSBnZHAoeSB+IC4sIGRlbW8uZGF0NCwgbG9nX2xpayA9IFRSVUUsIGNsID0gbWFrZUNsdXN0ZXIoNCksIGl0ZXIgPSA0MDAwLCB0aGluID0gMSwgYWRhcHQgPSAxMDAwLCB3YXJtdXAgPSAxMDAwLCBtZXRob2QgPSAicmpwYXJhbGxlbCIpDQpgYGANCg0KDQpgYGB7ciBlY2hvPUZBTFNFfQ0KZXN0cyA9IGRhdGEuZnJhbWUodHJ1ZSA9IHJvdW5kKGF0dHIoZGVtby5kYXQ0LCAidHJ1ZS5iZXRhcyIpLCAyKSwgDQogICAgICAgICAgIGxtID0gcm91bmQobG1jb2VmcywgMiksIA0KICAgICAgICAgICBnbG1CYXllcyA9IHBvc3Rfc3VtbWFyeShvdXQxLCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIiksIGtuaXRyID0gRkFMU0UpJG1lZGlhbiwNCiAgICAgICAgICAgcmlkZ2UgPSBwb3N0X3N1bW1hcnkob3V0Miwga2VlcHBhcnMgPSBjKCJJbnRlcmNlcHQiLCAiYmV0YSIpLCBrbml0ciA9IEZBTFNFKSRtZWRpYW4sDQogICAgICAgICAgIGdlblJpZGdlID0gcG9zdF9zdW1tYXJ5KG91dDMsIGtlZXBwYXJzID0gYygiSW50ZXJjZXB0IiwgImJldGEiKSwga25pdHIgPSBGQUxTRSkkbWVkaWFuLA0KICAgICAgICAgICBibGFzc28gPSBwb3N0X3N1bW1hcnkob3V0NCwga2VlcHBhcnMgPSBjKCJJbnRlcmNlcHQiLCAiYmV0YSIpLCBrbml0ciA9IEZBTFNFKSRtZWRpYW4sDQogICAgICAgICAgIGV4dExBU1NPID0gcG9zdF9zdW1tYXJ5KG91dDUsIGtlZXBwYXJzID0gYygiSW50ZXJjZXB0IiwgImJldGEiKSwga25pdHIgPSBGQUxTRSkkbWVkaWFuLA0KICAgICAgICAgICBuZWdMQVNTTyA9IHBvc3Rfc3VtbWFyeShvdXQ2LCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIiksIGtuaXRyID0gRkFMU0UpJG1lZGlhbiwNCiAgICAgICAgICAgYWRhTEFTU08gPSBwb3N0X3N1bW1hcnkob3V0Nywga2VlcHBhcnMgPSBjKCJJbnRlcmNlcHQiLCAiYmV0YSIpLCBrbml0ciA9IEZBTFNFKSRtZWRpYW4sDQogICAgICAgICAgIGJheWVzRW5ldCA9IHBvc3Rfc3VtbWFyeShvdXQ4LCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIiksIGtuaXRyID0gRkFMU0UpJG1lZGlhbiwNCiAgICAgICAgICAgYWRhRW5ldCA9IHBvc3Rfc3VtbWFyeShvdXQ5LCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIiksIGtuaXRyID0gRkFMU0UpJG1lZGlhbiwNCiAgICAgICAgICAgZ2RwID0gcG9zdF9zdW1tYXJ5KG91dDEwLCBrZWVwcGFycyA9IGMoIkludGVyY2VwdCIsICJiZXRhIiksIGtuaXRyID0gRkFMU0UpJG1lZGlhbikNCg0Ka25pdHI6OmthYmxlKGVzdHMsICJtYXJrZG93biIpDQoNCm1vZGVsLmVycm9ycyA9IGFzLmRhdGEuZnJhbWUoY2JpbmQoRXJyb3JzID0gYygiU1NFIiwgIlNBRSIpLCAgcmJpbmQoDQogIHNhcHBseSgyOm5jb2woZXN0cyksIGZ1bmN0aW9uKHgpIHN1bSgoZXN0c1ssMV0gLSBlc3RzWyx4XSleMikpLA0KICBzYXBwbHkoMjpuY29sKGVzdHMpLCBmdW5jdGlvbih4KSBzdW0oYWJzKGVzdHNbLDFdIC0gZXN0c1sseF0pKSkNCikpKQ0KY29sbmFtZXMobW9kZWwuZXJyb3JzKSA9IGMoIkVycm9ycyIsIGNvbG5hbWVzKGVzdHMpWy0xXSkNCg0Ka25pdHI6OmthYmxlKG1vZGVsLmVycm9ycywgIm1hcmtkb3duIikNCmBgYA0KDQpXaW5uZXI6IEFkYXB0aXZlIEVsYXN0aWMgTmV0</div>
 
 
 

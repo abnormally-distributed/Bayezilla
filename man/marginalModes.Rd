@@ -2,15 +2,14 @@
 % Please edit documentation in R/summary_utilities.R
 \name{marginalModes}
 \alias{marginalModes}
-\title{Get the marginal mode estimate of a posterior distribution}
+\title{Get the marginal modes of a posterior distribution}
 \usage{
-marginalModes(x, keeppars = c("Intercept", "beta"),
-  droppars = c("ySim", "log_lik", "lp__"))
+marginalModes(x, keeppars = NULL, droppars = NULL)
 }
 \arguments{
-\item{x}{the set of posterior samples to be summarized in an runjags or stanfit object.}
+\item{x}{set of posterior samples to be summarized in a runjags or stanfit object}
 
-\item{keeppars}{the list of specific variables to keep. Defaults to c("Intercept", "beta")}
+\item{keeppars}{list of specific variables to keep}
 
 \item{droppars}{list of parameters to exclude}
 }
@@ -18,7 +17,7 @@ marginalModes(x, keeppars = c("Intercept", "beta"),
 a vector of modes
 }
 \description{
-Get the marginal mode estimate of a posterior distribution
+Get the marginal modes of a posterior distribution
 }
 \examples{
 marginalModes(fit)

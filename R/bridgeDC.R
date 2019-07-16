@@ -49,9 +49,9 @@
 #' @export
 #'
 #' @examples
-#' BridgeDC()
+#' bridgeDC()
 #' 
-BridgeDC = function(formula, design.formula, data,  family = "gaussian", kappa = 1.4, log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
+bridgeDC = function(formula, design.formula, data,  family = "gaussian", kappa = 1.4, log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
   
   X = as.matrix(model.matrix(formula, data)[,-1])
   y = model.frame(formula, data)[,1]

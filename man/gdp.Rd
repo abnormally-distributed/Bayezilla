@@ -4,14 +4,16 @@
 \alias{gdp}
 \title{Generalized double pareto shrinkage prior}
 \usage{
-gdp(formula, data, log_lik = FALSE, iter = 10000, warmup = 1000,
-  adapt = 2000, chains = 4, thin = 1, method = "parallel",
-  cl = makeCluster(2), ...)
+gdp(formula, data, family = "gaussian", log_lik = FALSE,
+  iter = 10000, warmup = 1000, adapt = 2000, chains = 4,
+  thin = 1, method = "parallel", cl = makeCluster(2), ...)
 }
 \arguments{
 \item{formula}{the model formula}
 
 \item{data}{a data frame.}
+
+\item{family}{one of "gaussian" (the default), "binomial", or "poisson"}
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 

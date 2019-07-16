@@ -59,6 +59,7 @@
 #' @param formula the model formula
 #' @param design.formula formula for the design covariates.
 #' @param data a data frame.
+#' @param family one of "gaussian" (the default), "binomial", or "poisson"
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 10000.
 #' @param warmup How many warmup samples? Defaults to 2500.
@@ -78,7 +79,7 @@
 #' @examples
 #' gdpDC()
 #' 
-gdpDC = function(formula, design.formula, data, log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
+gdpDC = function(formula, design.formula, data, family = "gaussian", log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
   
   X = model.matrix(formula, data)[,-1]
   y = model.frame(formula, data)[,1]

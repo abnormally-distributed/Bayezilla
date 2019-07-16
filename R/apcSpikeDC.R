@@ -100,8 +100,8 @@ apcSpikeDC = function(formula, design.formula, data, family = "gaussian", lower 
     }
     
     
-    pd = as.numeric(sapply(seq(-20, 20, by = 1), function(l) pdcheck(formula, data, l)))
-    l = seq(-20, 20, by = 1)[which(pd == 1)]
+    pd = as.numeric(sapply(seq(-20, 20, by = 0.25), function(l) pdcheck(formula, data, l)))
+    l = seq(-20, 20, by = 0.25)[which(pd == 1)]
     c(lower.limit = min(l), upper.limit = max(l))
   }
   

@@ -264,17 +264,17 @@ extractCormat = function (fit, type = "Rho")
 
 
 
-#' Get the marginal mode estimate of a posterior distribution
+#' Get the marginal modes of a posterior distribution
 #'
-#' @param x the set of posterior samples to be summarized in an runjags or stanfit object.
-#' @param keeppars the list of specific variables to keep. Defaults to c("Intercept", "beta")
+#' @param x set of posterior samples to be summarized in a runjags or stanfit object
+#' @param keeppars list of specific variables to keep
 #' @param droppars list of parameters to exclude
 #' @return a vector of modes
 #' @export
 #'
 #' @examples
 #' marginalModes(fit)
-marginalModes = function(x, keeppars = c("Intercept", "beta"), droppars = c("ySim", "log_lik", "lp__")){
+marginalModes = function(x, keeppars = NULL, droppars = NULL){
   
   stan <- inherits(x, "stanfit")
   if (stan == TRUE) {
@@ -427,11 +427,17 @@ jointMode = function(x, keeppars = NULL, droppars = c("ySim", "log_lik", "lp__",
 #' densities are then summed to give the row-wise log-posterior probability function. The 
 #' row with the highest log-posterior density is returned which corresponds to the monte carlo
 #' sample with the highest joint probability, or MAP estimate. Note, however, this is an approximation
-#' to the MAP in the sense that MAP estimation proper is done through optimization.
+#' to the MAP in the sense that MAP estimation proper is done through optimization. \cr
+#' \cr
+#' Frankly this function is included largely for didactic purposes. MAP estimation, whether by approximating via
+#' finding the MCMC iteration with the highest joint log-probability or directly optimizing an objective function,
+#' will be often poor with higher dimensional problems. This is due to the fact that the mode of a multidimensional
+#' function may be no where near the expected values of the marginal distributions. This stems from the curse of
+#' dimensionality. \cr
 #'
 #' @param x the set of posterior samples to be summarized in an runjags or stanfit object.
 #' @param keeppars the list of specific variables to keep. Defaults to NULL. 
-#' @param droppars list of parameters to exclude from the calculation of the density. The default is c("ySim", "log_lik", "lp__", "Deviance", "BIC", "delta"),
+#' @param droppars list of parameters to exclude from the calculation of the density. The default is c("ySim", "log_lik", "Deviance", "BIC", "delta"),
 #' but this should be adjusted to make sure that derived and generated quantities such as predictions, deviance, indicator variables, and so forth --
 #' anything not directly part of the posterior distribution of the model parameters -- are removed. Note, however, that the function will still
 #' return all quantities in the model. The droppars argument only applies to the density estimation itself. 
@@ -496,13 +502,19 @@ jointMode = function(x, keeppars = NULL, droppars = c("ySim", "log_lik", "Devian
     }
   }
   
-  logdensity = function(x) {
-    d <- density(x, from = min(x), to = max(x), n = length(x), kernel = "triangular")
+  logdensityY = function(x) {
+    d <- density(x, from = min(x), to = max(x), n = length(x), kernel = "t")
     lp = log(d$y)
     lp
   }
   
-  logpost = apply(ss, 2, function(x) logdensity(x))
-  round(ss1[which.max(rowSums(logpost)) , ], 5)
+  logdensityX = function(x) {
+    d <- density(x, from = min(x), to = max(x), n = length(x), kernel = "t")
+    d$x
+  }
+  
+  logpost = apply(ss, 2, function(x) logdensityY(x))
+  dens = apply(ss1, 2, function(x) logdensityX(x))
+  round(dens[which.max(rowSums(logpost)) , ], 4)
 }
 

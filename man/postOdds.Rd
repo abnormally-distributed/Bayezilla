@@ -7,7 +7,7 @@
 postOdds(fit, param = NULL, H0 = 0, method = "mean")
 }
 \arguments{
-\item{fit}{a runjags or stanfit object}
+\item{fit}{a runjags or stanfit object. Alternatively, a numeric vector can be provided.}
 
 \item{param}{the name of the parameter to be tested}
 
@@ -17,21 +17,18 @@ for a binomial test. Be sure to pick a reasonable null hypothesis.}
 \item{method}{whether the mean (default), "median", or a kernel density estimate of the "mode" should be used for the hypothesis test}
 }
 \description{
-Evaluates the density at the null hypothesis vs the density at the estimate, and calculates the
-posterior odds as P(H0 | Data) / P(theta_hat | Data). This function is not an estimate of the Bayes
-Factor. The Savage-Dickey Density Ratio Bayes Factors evaluate P(H0 | Data) / P(H0) 
-and characterize the change in probability between the null hypothesis in the prior and posterior. 
-Rather, this characterizes the relative posterior probabilities between a null hypothesis and a chosen
-point estimate and is not reliant on the prior distribution. \cr
-\cr
-Smaller values indicate greater evidence against the null. The maximum odds in favor of the null is 1, because
-if the estimate is the same value as the null hypothesis, the density ratio will consist of density / density = 1.
-This function also returns a "posterior p-value" which is the density ratio (odds) converted
-to a probability through the formula p = odds / (1 + odds), which gives the probability
-of an error if one rejects the point estimate. Hence, if the estimate is at zero and the
-null hypothesis is also zero, the density ratio = 1, so the p-value here
-would be 1 / 2 = 0.50. 
+Evaluates the density at the null hypothesis vs the density at the estimate, and calculates a
+posterior p-value as the percentage of the density at the null hypothesis out of the value of density at the  
+point estimate. If the value of the density at the estimate and null are equivalent, then the probability
+of the null hypothesis is 1. 
 
+The posterior odds ratio in favor of the null hypothesis is calculated as p / (1 - p).
+
+While similar to the Savage-Dickey density ratio method of calculating Bayes Factors, the posterior odds
+ratio evaluates P(H0 | Data) / P(H | Data ), while the Bayes Factor evaluates P(H0 | Data) / P(H0).
+That is, the Bayes Factor evaluates the increase in probability relative to the prior, while the posterior odds
+is the relative strength of evidence in favor of the null hypothesis. \cr
+\cr
 Guidelines for interpretation are given in a figure below, however, these are intended as rough 
 guidelines for interpreting a continuous measure of evidence. The levels of evience given 
 below are not intended to be significance thresholds, but rather, "mile-markers". 
@@ -39,9 +36,6 @@ below are not intended to be significance thresholds, but rather, "mile-markers"
 \if{html}{\figure{postodds.png}{}}
 \if{latex}{\figure{postodds.png}{}}
 \cr
-\cr
-\if{html}{\figure{postodds2.png}{}}
-\if{latex}{\figure{postodds2.png}{}}
 }
 \examples{
 postOdds()

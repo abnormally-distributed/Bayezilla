@@ -2,17 +2,13 @@
 #'
 #' @description 
 #' 
-#' IMPORTANT NOTICE: This model works best on smaller to medium sized data sets with a small number of variables (less than 20).
-#' If you experience difficulty with running times or obtaining a good effective sample size consider using the extended group LASSO.
-#' 
 #' IMPORTANT NOTICE: Center and scale your predictors before using this function.
-#' If you do not scale and center your numeric predictors, this will likely not give reasonable results. 
 #'
 #  This variant of the Bernoulli-Normal mixture prior models the selection of parameters as groups, akin to the group LASSO.
-#' The model is very similar to the \code{\link[Bayezilla]{Spike}} model. Each group receives its own inclusion 
-#' probability prior "phi", which is in turn controlled by an overall inclusion probability given a uniform beta(1, 1) prior.
-#' The marginal posterior means give the Bayesian Model Averaged estimates, which are the expected values of each parameter averaged over all 
-#' possible (or all sampled) models (Hoeting et al., 1999).\cr
+#' The model is very similar to the \code{\link[Bayezilla]{Spike}} model. Each group receives its own inclusion probability 
+#' prior "phi", which is in turn controlled by an overall inclusion probability given a uniform beta(1, 1) prior. The marginal
+#' posterior means give the Bayesian Model Averaged estimates, which are the expected values of each parameter averaged over 
+#' all possible (or all sampled) models (Hoeting et al., 1999).\cr
 #' \cr
 #' Model Specification: \cr
 #' \cr
@@ -64,7 +60,7 @@ groupSpike  = function(X, y, idx, family = "gaussian", phi_prior = c(1, 4), log_
 
               # Coefficients
               for (p in 1:P){
-                theta[p] ~ dnorm(0, 1e-200)
+                theta[p] ~ dnorm(0, 1)
                 beta[p] <- delta[idx[p]] * theta[p]
               }
 
@@ -107,7 +103,7 @@ groupSpike  = function(X, y, idx, family = "gaussian", phi_prior = c(1, 4), log_
 
               # Coefficients
               for (p in 1:P){
-                theta[p] ~ dnorm(0, 1e-200)
+                theta[p] ~ dnorm(0, 1)
                 beta[p] <- delta[idx[p]] * theta[p]
               }
 
@@ -148,7 +144,7 @@ groupSpike  = function(X, y, idx, family = "gaussian", phi_prior = c(1, 4), log_
 
               # Coefficients
               for (p in 1:P){
-                theta[p] ~ dnorm(0, 1e-200)
+                theta[p] ~ dnorm(0, 1)
                 beta[p] <- delta[idx[p]] * theta[p]
               }
 

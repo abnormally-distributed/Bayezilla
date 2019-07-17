@@ -200,6 +200,8 @@ apcSpike = function(formula, data, family = "gaussian", lower = NULL, upper = NU
     
     jags_apc = "model{
     
+              Intercept ~ dnorm(0, 1e-10)
+    
               phi ~ dbeta(1, 1)
               g_inv ~ dgamma(.5, N * .5)
               g <- 1 / g_inv
@@ -247,6 +249,7 @@ apcSpike = function(formula, data, family = "gaussian", lower = NULL, upper = NU
                 beta[i] <- delta[i] * theta[i]
               }
               
+              
               for (i in 1:N){
                  logit(psi[i]) <- Intercept + sum(beta[1:P] * X[i,1:P])
                  y[i] ~ dbern(psi[i])
@@ -288,7 +291,8 @@ apcSpike = function(formula, data, family = "gaussian", lower = NULL, upper = NU
   if (family == "poisson"){
     
     jags_apc = "model{
-              
+             
+              Intercept ~ dnorm(0, 1e-10)
               phi ~ dbeta(1, 1)
               g_inv ~ dgamma(.5, N * .5)
               g <- 1 / g_inv

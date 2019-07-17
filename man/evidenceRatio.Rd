@@ -2,7 +2,7 @@
 % Please edit documentation in R/evidenceRatio.R
 \name{evidenceRatio}
 \alias{evidenceRatio}
-\title{Obtain evidence ratios (pseudo-Bayes Factors) comparing two models}
+\title{Obtain evidence ratios comparing two models}
 \usage{
 evidenceRatio(modelA, modelB, method = "LOO")
 }

@@ -5,15 +5,6 @@
 #' model discussed by Knürr, Läärä, and Sillanpää (2011). 
 #' \cr
 #' \cr
-#' The prior probability for the inclusion rate ("phi") is given a weakly 
-#' informative beta(1.5, 1.5) prior distribution. The degrees of freedom
-#' for the thetas (raw coefficients) requires user input. 
-#' The default is set to 3. It is doubtful that you would need to change
-#' this. However if there is a large amount of collinearity 
-#' in your data you may want to set it to a higher number such as
-#' 12 or 30.
-#' \cr
-#' \cr
 #' Model Specification:
 #' \cr
 #' \if{html}{\figure{IAt.png}{}}
@@ -25,7 +16,6 @@
 #' @param formula the model formula
 #' @param data a data frame.
 #' @param family one of "gaussian", "binomial", or "poisson".
-#' @param df degrees of freedom on the prior thetas 
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 5000.
 #' @param warmup How many warmup samples? Defaults to 5000.
@@ -42,11 +32,7 @@
 #' @examples
 #' IAt()
 #'
-#' @seealso 
-#' \code{\link[Bayezilla]{apcSpike}} 
-#' \code{\link[Bayezilla]{Spike}} 
-#'
-IAt = function(formula, data, family = "gaussian", df = 3, log_lik = FALSE, iter= 10000, warmup = 5000, adapt = 5000, chains=4, thin = 2, method = "parallel", cl = makeCluster(2), ...){
+IAt = function(formula, data, family = "gaussian", log_lik = FALSE, iter= 10000, warmup = 5000, adapt = 5000, chains=4, thin = 2, method = "parallel", cl = makeCluster(2), ...){
   
   X = model.matrix(formula, data)[,-1]
   y = model.frame(formula, data)[,1]
@@ -56,8 +42,9 @@ if (family == "gaussian"){
   
   tau ~ dgamma(.01, .01)
   Intercept ~ dnorm(0, 1e-10)
-  phi ~ dbeta(1.5, 1.5)
-
+  phi ~ dbeta(1, 1)
+  df ~ dgamma(1, 0.33333333333333333333)
+  
   for (p in 1:P){
     beta[p] <- delta[p]*theta[p]
     theta[p] ~ dnorm(0, omega[p])
@@ -76,12 +63,12 @@ if (family == "gaussian"){
 }"
   
   P = ncol(X)
-  monitor = c("Intercept", "beta", "sigma", "BIC", "Deviance", "omega", "delta", "ySim", "log_lik")
+  monitor = c("Intercept", "beta", "sigma", "df", "phi" , "delta", "Deviance", "BIC",  "ySim", "log_lik")
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
-  jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), df = df)
-  inits = lapply(1:chains, function(z) list("Intercept" = 0, "ySim" = y, "omega" = rep(1, P), "theta" = rep(0, P),  "phi" = .5, tau = 1 , .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))  
+  jagsdata = list(X = X, y = y, N = length(y), P = ncol(X))
+  inits = lapply(1:chains, function(z) list("Intercept" = 0, "ySim" = y, "omega" = rep(1, P), "df" = runif(1, 3, 30), "theta" = rep(0, P),  "phi" = .5, tau = 1 , .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))  
   write_lines(jags_iat, "jags_iat.txt")
 }
 
@@ -89,7 +76,8 @@ if (family == "binomial"){
   jags_iat = "model{
   
   Intercept ~ dnorm(0, 1e-10)
-  phi ~ dbeta(1.5, 1.5)
+  phi ~ dbeta(1, 1)
+  df ~ dgamma(1, 0.33333333333333333333)
 
   for (p in 1:P){
     beta[p] <- delta[p]*theta[p]
@@ -109,12 +97,12 @@ if (family == "binomial"){
 }"
   
   P = ncol(X)
-  monitor = c("Intercept", "beta", "BIC",  "Deviance", "omega",  "delta", "ySim" ,"log_lik")
+  monitor = c("Intercept", "beta", "df", "phi", "delta", "Deviance", "BIC", "ySim" ,"log_lik")
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
-  jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), df = df)
-  inits = lapply(1:chains, function(z) list("Intercept" = 0, "ySim" = y, "omega" = rep(1, P), "theta" = rep(0, P),  "phi" = .5, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))  
+  jagsdata = list(X = X, y = y, N = length(y), P = ncol(X))
+  inits = lapply(1:chains, function(z) list("Intercept" = 0, "ySim" = y, "omega" = rep(1, P), "df" = runif(1, 3, 30), "theta" = rep(0, P),  "phi" = .5, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))  
   write_lines(jags_iat, "jags_iat.txt")
 }
 
@@ -122,7 +110,8 @@ if (family == "poisson"){
   jags_iat = "model{
   
   Intercept ~ dnorm(0, 1e-10)
-  phi ~ dbeta(1.5, 1.5)
+  phi ~ dbeta(1, 1)
+  df ~ dgamma(1, 0.33333333333333333333)
 
   for (p in 1:P){
     beta[p] <- delta[p]*theta[p]
@@ -142,12 +131,12 @@ if (family == "poisson"){
 }"
   
   P = ncol(X)
-  monitor = c("Intercept", "beta", "BIC",  "Deviance", "omega", "delta", "ySim" ,"log_lik")
+  monitor = c("Intercept", "beta", "df", "phi", "delta", "Deviance", "BIC", "ySim" ,"log_lik")
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
   }
-  jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), df = df)
-  inits = lapply(1:chains, function(z) list("Intercept" = 0, "ySim" = y, "omega" = rep(1, P), "theta" = rep(0, P),  "phi" = .5, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
+  jagsdata = list(X = X, y = y, N = length(y), P = ncol(X))
+  inits = lapply(1:chains, function(z) list("Intercept" = 0, "ySim" = y, "omega" = rep(1, P), "df" = runif(1, 3, 30), "theta" = rep(0, P),  "phi" = .5, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
   write_lines(jags_iat, "jags_iat.txt")
 
 }

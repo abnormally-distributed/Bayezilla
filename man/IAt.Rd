@@ -4,7 +4,7 @@
 \alias{IAt}
 \title{Stochastic Search Variable Selection (Indicator Variable and Adaptive Student-t model)}
 \usage{
-IAt(formula, data, family = "gaussian", df = 3, log_lik = FALSE,
+IAt(formula, data, family = "gaussian", log_lik = FALSE,
   iter = 10000, warmup = 5000, adapt = 5000, chains = 4,
   thin = 2, method = "parallel", cl = makeCluster(2), ...)
 }
@@ -14,8 +14,6 @@ IAt(formula, data, family = "gaussian", df = 3, log_lik = FALSE,
 \item{data}{a data frame.}
 
 \item{family}{one of "gaussian", "binomial", or "poisson".}
-
-\item{df}{degrees of freedom on the prior thetas}
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 
@@ -43,15 +41,6 @@ This is the \strong{I}ndicator variables and \strong{A}daptive Student’s \stro
 model discussed by Knürr, Läärä, and Sillanpää (2011). 
 \cr
 \cr
-The prior probability for the inclusion rate ("phi") is given a weakly 
-informative beta(1.5, 1.5) prior distribution. The degrees of freedom
-for the thetas (raw coefficients) requires user input. 
-The default is set to 3. It is doubtful that you would need to change
-this. However if there is a large amount of collinearity 
-in your data you may want to set it to a higher number such as
-12 or 30.
-\cr
-\cr
 Model Specification:
 \cr
 \if{html}{\figure{IAt.png}{}}
@@ -63,8 +52,4 @@ IAt()
 }
 \references{
 
-}
-\seealso{
-\code{\link[Bayezilla]{apcSpike}} 
-\code{\link[Bayezilla]{Spike}}
 }

@@ -1,4 +1,4 @@
-#' Obtain evidence ratios (pseudo-Bayes Factors) comparing two models
+#' Obtain evidence ratios comparing two models
 #'
 #' @description This function is used to compare two models. The output can be interpreted
 #  just as one would interpret a Bayes Factor as representing the relative likelihood of one

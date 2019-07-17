@@ -15,7 +15,8 @@
 #' @param col the color scheme. One of "blue", "green" "red", or "purple".
 #' @param cred.level The credibility level. Defaults to 90\% (.90).
 #' @param method Quantile intervals "QI" (the default), or highest density intervals "HDI"
-#' @param showMedian Should the median be used instead of the mean?
+#' @param est One of "mean" (the default), "median", or "mode". The mode gives the value corresponding to the highest density of
+#' a kernel density estimate of the marginal posterior. 
 #' @param comparison value, the second being the lower limit of the ROPE and the third being the upper limit of the ROPE.
 #' 
 #' @return A plot
@@ -31,7 +32,7 @@
 #' \if{html}{\figure{facetPost.png}{}}
 #' \if{latex}{\figure{facetPost.png}{}}
 #'
-facetPost = function(fit, keeppars = NULL, droppars = c("ySim", "log_lik", "lp__"), col = "blue",  nrow = 4, ncol = 2, breaks = "dhist", method = "QI", showMedian = FALSE, cred.level = .90){
+facetPost = function(fit, keeppars = NULL, droppars = c("ySim", "log_lik", "lp__"), col = "blue", nrow = 4, ncol = 2, breaks = "dhist", method = "QI", est = "mean", cred.level = .90){
   
   old.par <- par(no.readonly = TRUE) # save default, for resetting...
   on.exit(par(old.par))     #and when we quit the function, restore to original values
@@ -85,8 +86,8 @@ facetPost = function(fit, keeppars = NULL, droppars = c("ySim", "log_lik", "lp__
   layout(matrix(1:total, nrow=nrow))
   
   for (i in 1:length(parNames)){
-    plotPost(paramSampleVec = codaObject[,i], param = paste0(parNames[i]), col = col, breaks = breaks,  
-             showMedian = showMedian,
+    plotPost(fit = codaObject[,i], param = paste0(parNames[i]), col = col, breaks = breaks,  
+             est = est,
              method = method, 
              cred.level = cred.level)
   }

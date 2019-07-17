@@ -6,7 +6,7 @@
 \usage{
 facetPost(fit, keeppars = NULL, droppars = c("ySim", "log_lik",
   "lp__"), col = "blue", nrow = 4, ncol = 2, breaks = "dhist",
-  method = "QI", showMedian = FALSE, cred.level = 0.9)
+  method = "QI", est = "mean", cred.level = 0.9)
 }
 \arguments{
 \item{fit}{a stanfit or runjags object. This can be used as an alternative to paramSampleVec,
@@ -27,7 +27,8 @@ fit = "yourmodel" so that the function knows it is not intended to be a vector.}
 
 \item{method}{Quantile intervals "QI" (the default), or highest density intervals "HDI"}
 
-\item{showMedian}{Should the median be used instead of the mean?}
+\item{est}{One of "mean" (the default), "median", or "mode". The mode gives the value corresponding to the highest density of
+a kernel density estimate of the marginal posterior.}
 
 \item{cred.level}{The credibility level. Defaults to 90\% (.90).}
 

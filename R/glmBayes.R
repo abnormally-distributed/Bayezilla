@@ -18,7 +18,7 @@
 #' The default prior settings assume your data are standardized to mean zero and standard deviation of 1. 
 #' \cr \cr
 #' For an alternative prior that also performs very well see \code{\link[Bayezilla]{apcGlm}}, which when
-#' lambda = -1 gives the Zellner-Siow Cauchy g-prior.
+#' lambda = -1 gives the Zellner-Siow Cauchy g-prior. \cr
 #' \cr
 #' The full model structure is given below: \cr
 #' \cr

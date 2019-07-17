@@ -39,8 +39,12 @@ a runjags object
 \description{
 The shape adaptive shrinkage prior of Sillanpää &  Mutshinda (2011). This is essentially bridge regression, but with a
 shape parameter describing the Lp norm that is allowed to vary rather than stay fixed at a single value. The generalized gaussian 
-prior is parameterized in the manner of Mallick, H. & Yi (2018) rather than the method originally described in Sillanpää &  Mutshinda (2011).
-Analytically, this makes no difference, but computationally, it is much faster and more stable.
+prior is parameterized in the manner of Mallick & Yi (2018) rather than the method originally described in Sillanpää &  Mutshinda (2011).
+Analytically, this makes no difference, but computationally, it is much faster and more stable. \cr
+\cr
+The benefit of the shape adaptive shrinkage prior is that one need not pick a specific norm. Hence, if there is uncertainty over
+whether or not one wishes to choose the L1 norm (LASSO) or L2 norm (Ridge), this integrates over a reasonable range of values. The gamma
+prior for the norm has an expected value of 1.4, which gives a reasonable compromise between the LASSO and Ridge. 
 \cr
 
 \cr

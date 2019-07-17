@@ -54,22 +54,22 @@ data("demo.dat")
 lmcoefs = round(coef(lm(y ~ ., demo.dat)), 3)
 ```
 
-```{r echo = FALSE, message=FALSE, warning=FALSE}
-out1 = glmBayes(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out2 = ridge(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out3 = genRidge(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out4 = blasso(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out5 = extLASSO(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out6 = negLASSO(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out7 = adaLASSO(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out8 = bayesEnet(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out9 = adaEnet(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out10 = gdp(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+out1 = glmBayes(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out2 = ridge(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out3 = genRidge(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out4 = blasso(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out5 = extLASSO(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out6 = negLASSO(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out7 = adaLASSO(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out8 = bayesEnet(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out9 = adaEnet(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out10 = gdp(y ~ ., demo.dat, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
 ```
 
 
 ```{r echo=FALSE}
-ests = data.frame(true = round(attr(demo.dat, "true.betas"), 2), 
+ests1 = data.frame(true = round(attr(demo.dat, "true.betas"), 2), 
            lm = round(lmcoefs, 2), 
            glmBayes = post_summary(out1, keeppars = c("Intercept", "beta"), knitr = FALSE)$median,
            ridge = post_summary(out2, keeppars = c("Intercept", "beta"), knitr = FALSE)$median,
@@ -82,18 +82,18 @@ ests = data.frame(true = round(attr(demo.dat, "true.betas"), 2),
            adaEnet = post_summary(out9, keeppars = c("Intercept", "beta"), knitr = FALSE)$median,
            gdp = post_summary(out10, keeppars = c("Intercept", "beta"), knitr = FALSE)$median)
 
-knitr::kable(ests, "markdown")
+knitr::kable(ests1, "markdown")
 
-model.errors = as.data.frame(cbind(Errors = c("SSE", "SAE"),  rbind(
-  sapply(2:ncol(ests), function(x) sum((ests[,1] - ests[,x])^2)),
-  sapply(2:ncol(ests), function(x) sum(abs(ests[,1] - ests[,x])))
+model.errors1 = as.data.frame(cbind(Errors = c("SSE", "SAE"),  rbind(
+  sapply(2:ncol(ests1), function(x) sum((ests1[,1] - ests1[,x])^2)),
+  sapply(2:ncol(ests1), function(x) sum(abs(ests1[,1] - ests1[,x])))
 )))
-colnames(model.errors) = c("Errors", colnames(ests)[-1])
+colnames(model.errors1) = c("Errors", colnames(ests1)[-1])
 
-knitr::kable(model.errors, "markdown")
+knitr::kable(model.errors1, "markdown")
 ```
 
-Winner: Adaptive Elastic Net, with Adaptive LASSO and Extended LASSO essentially tied.
+
 
 ## Sparse Example 2
 
@@ -108,16 +108,16 @@ lmcoefs = round(coef(lm(y ~ ., demo.dat3)), 3)
 
 
 ```{r echo = FALSE, message=FALSE, warning=FALSE}
-out1 = glmBayes(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out2 = ridge(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out3 = genRidge(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out4 = blasso(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out5 = extLASSO(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out6 = negLASSO(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out7 = adaLASSO(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out8 = bayesEnet(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out9 = adaEnet(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out10 = gdp(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out1 = glmBayes(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out2 = ridge(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out3 = genRidge(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out4 = blasso(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out5 = extLASSO(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out6 = negLASSO(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out7 = adaLASSO(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out8 = bayesEnet(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out9 = adaEnet(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out10 = gdp(y ~ ., demo.dat3, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
 ```
 
 
@@ -160,16 +160,16 @@ lmcoefs = round(coef(lm(y ~ ., demo.dat2)), 3)
 ```
  
 ```{r echo = FALSE, message=FALSE, warning=FALSE}
-out1 = glmBayes(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out2 = ridge(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out3 = genRidge(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out4 = blasso(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out5 = extLASSO(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out6 = negLASSO(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out7 = adaLASSO(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out8 = bayesEnet(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out9 = adaEnet(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out10 = gdp(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out1 = glmBayes(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out2 = ridge(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out3 = genRidge(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out4 = blasso(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out5 = extLASSO(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out6 = negLASSO(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out7 = adaLASSO(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out8 = bayesEnet(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out9 = adaEnet(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out10 = gdp(y ~ ., demo.dat2, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
 ```
 
 
@@ -198,6 +198,9 @@ colnames(model.errors) = c("Errors", colnames(ests)[-1])
 knitr::kable(model.errors, "markdown")
 ```
 
+
+
+
 Winner: Adaptive LASSO, with a few nearly tied.
 
 ## Non-Sparse Example 2
@@ -211,16 +214,16 @@ lmcoefs = round(coef(lm(y ~ ., demo.dat4)), 3)
 ```
  
 ```{r echo = FALSE, message=FALSE, warning=FALSE}
-out1 = glmBayes(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out2 = ridge(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out3 = genRidge(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out4 = blasso(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out5 = extLASSO(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out6 = negLASSO(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out7 = adaLASSO(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out8 = bayesEnet(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out9 = adaEnet(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
-out10 = gdp(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 4000, thin = 1, adapt = 1000, warmup = 1000, method = "rjparallel")
+out1 = glmBayes(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out2 = ridge(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out3 = genRidge(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out4 = blasso(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out5 = extLASSO(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out6 = negLASSO(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out7 = adaLASSO(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out8 = bayesEnet(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out9 = adaEnet(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
+out10 = gdp(y ~ ., demo.dat4, log_lik = TRUE, cl = makeCluster(4), iter = 10000, thin = 1, adapt = 2500, warmup = 2500, method = "rjparallel")
 ```
 
 

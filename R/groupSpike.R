@@ -4,9 +4,8 @@
 #' 
 #' IMPORTANT NOTICE: Center and scale your predictors before using this function.
 #'
-#  This variant of the Bernoulli-Normal mixture prior models the selection of parameters as groups, akin to the group LASSO.
-#' The model is very similar to the \code{\link[Bayezilla]{Spike}} model. Each group receives its own inclusion probability 
-#' prior "phi", which is in turn controlled by an overall inclusion probability given a uniform beta(1, 1) prior. The marginal
+#  This variant of the Bernoulli-Normal mixture prior models the selection of parameters as groups, akin to the group LASSO. 
+#' Each group receives its own inclusion prior "phi" through a uniform beta(1, 1) prior. The marginal
 #' posterior means give the Bayesian Model Averaged estimates, which are the expected values of each parameter averaged over 
 #' all possible (or all sampled) models (Hoeting et al., 1999).\cr
 #' \cr

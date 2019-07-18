@@ -7,7 +7,7 @@
 #' \cr
 #' Note only the Gaussian likelihood is provided because the Bayesian LASSO requires conditioning
 #' on the error variance, which GLM-families do not have. If you need to use the LASSO for a poisson or binomial regression, I suggest taking 
-#' a look at \code{\link[Bayezilla]{extLASSODC}}\cr Alternatively, utilizing \code{\link[Bayezilla]{BridgeDC}} with kappa = 1
+#' a look at \code{\link[Bayezilla]{extLASSODC}}\cr Alternatively, utilizing \code{\link[Bayezilla]{bridgeDC}} with kappa = 1
 #' yields the New Bayesian LASSO, which is a re-parameterization of the Bayesian LASSO utilizing a scale mixture of
 #' uniform distributions to obtain the Laplacian priors (Mallick & Yi, 2014).  \cr
 #' 

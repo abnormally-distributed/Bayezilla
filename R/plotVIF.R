@@ -6,7 +6,7 @@
 #' If the VIFs are all rather low, then using \code{\link[Bayezilla]{glmBayes}} is safe. If some are higher, but the
 #' matrix is still full rank, you might wish to use \code{\link[Bayezilla]{apcGlm}}. Otherwise, if the model is not 
 #' full rank, not positive definite, or has a very high conditioning number, you may wish to use a ridge regression 
-#' estimatior such as \code{\link[Bayezilla]{RR}}. To obtain information about rank,
+#' estimatior such as \code{\link[Bayezilla]{ridge}}. To obtain information about rank,
 #' positive definiteness, and the condition number, use the \code{\link[Bayezilla]{vitals}} function. \cr
 #' \cr
 #' To use this simply input the formula, data,

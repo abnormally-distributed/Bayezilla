@@ -64,7 +64,7 @@ groupBridge = function(X, y, idx, family = "gaussian",  kappa = 1.4, log_lik = F
   tau ~ dgamma(.01, .01) 
   sigma <- sqrt(1/tau)
   
-  for (i in 1:nG){
+  for (g in 1:nG){
     lambda[g] ~ dgamma(0.50, 0.20)
     u[g] ~ dgamma( (k[g]/kappa) + 1  , lambda[g])
   }
@@ -109,11 +109,11 @@ groupBridge = function(X, y, idx, family = "gaussian",  kappa = 1.4, log_lik = F
     return(out)
   }
   
-  if (family == "binomial" || family == "logistic"){
+  if (family == "binomial"){
     
     jags_bridge = "model{
 
-  for (i in 1:nG){
+  for (g in 1:nG){
     lambda[g] ~ dgamma(0.50, 0.20)
     u[g] ~ dgamma( (k[g]/kappa) + 1  , lambda[g])
   }
@@ -163,7 +163,7 @@ groupBridge = function(X, y, idx, family = "gaussian",  kappa = 1.4, log_lik = F
     
     jags_bridge = "model{
 
-  for (i in 1:nG){
+  for (g in 1:nG){
     lambda[g] ~ dgamma(0.50, 0.20)
     u[g] ~ dgamma( (k[g]/kappa) + 1  , lambda[g])
   }

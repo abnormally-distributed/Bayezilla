@@ -58,8 +58,8 @@ The parameterization is given below. For generalized linear models plug-in pseud
 \cr
 Model Specification:
 \cr
-\if{html}{\figure{groupBridge.png}{}}
-\if{latex}{\figure{groupBridge.png}{}}
+\if{html}{\figure{groupSasp.png}{}}
+\if{latex}{\figure{groupSasp.png}{}}
 
 \cr
 Plugin Pseudo-Variances: \cr

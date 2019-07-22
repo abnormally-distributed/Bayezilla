@@ -60,9 +60,9 @@
 #' 
 #' @param formula the model formula
 #' @param data a data frame.
-#' @param family one of "gaussian", "binomial", or "poisson".
+#' @param family one of "gaussian", "st" (Student-t with nu=3), "binomial", or "poisson".
 #' @param eta_prior one of "classic (default)", or "gamma".
-#' @param local_u This must be assigned a value. Default is 2. 
+#' @param local_u This must be assigned a value. Default is 4. 
 #' @param top_u If using eta_prior = "classic" this must be assigned a value. Default is 50. 
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 10000.
@@ -70,35 +70,27 @@
 #' @param adapt How many adaptation steps? Defaults to 15000.
 #' @param chains How many chains? Defaults to 4.
 #' @param thin Thinning interval. Defaults to 3.
-#' @param method Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).
+#' @param method Defaults to "rjparallel". For an alternative parallel option, choose "parallel" or. Otherwise, "rjags" (single core run).
 #' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.
 #' @param ... Other arguments to run.jags.
 #'
 #' @return A run.jags object
 #' @export
 #'
-#' @seealso
-#' \code{\link[Bayezilla]{adaLASSO}}
-#' \code{\link[Bayezilla]{negLASSO}} 
-#' \code{\link[Bayezilla]{blasso}}
-#' \code{\link[Bayezilla]{HS}}
-#' \code{\link[Bayezilla]{HSplus}}
-#' \code{\link[Bayezilla]{HSreg}}
-#'
 #' @examples
 #' extLASSO()
 #'
-extLASSO  = function(formula, data, family = "normal", eta_prior = "classic", local_u = 2, top_u = 50, log_lik = FALSE, iter=10000, warmup = 10000, adapt=15000, chains=4, thin = 3, method = "parallel", cl = makeCluster(2), ...){
-
+extLASSO  = function(formula, data, family = "gaussian", eta_prior = "classic", local_u = 4, top_u = 50, log_lik = FALSE, iter=10000, warmup = 10000, adapt=15000, chains=4, thin = 3, method = "rjparallel", cl = makeCluster(2), ...){
+  
   X = model.matrix(formula, data)[,-1]
   y = model.frame(formula, data)[,1]
-
-  if (family == "gaussian" || family == "normal") {
-
+  
+  if (family == "gaussian") {
+    
     if (eta_prior == "gamma"){
-
+      
       if(is.na(local_u)) stop("Please select an upper limit for the uniform prior on eta.")
-
+      
       jags_extended_LASSO = "model{
 
               # Precision
@@ -135,7 +127,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "classic", lo
               sigma <- sqrt(1/tau)
               Deviance <- -2 * sum(log_lik[1:N])
           }"
-
+      
       P = ncol(X)
       monitor = c("Intercept", "beta", "sigma",  "Omega", "Deviance",   "lambda", "delta", "ySim" ,"log_lik")
       if (log_lik == FALSE){
@@ -145,10 +137,10 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "classic", lo
       inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = sample(y, length(y)), "Omega" = 2, "beta" = lmSolve(formula, data)[-1], "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
       write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
     }
-
-
+    
+    
     if (eta_prior == "classic"){
-
+      
       if(is.na(local_u)) stop("Please select an upper limit for the uniform prior on eta.")
       if (is.na(top_u)) stop("Please select an upper limit for the uniform prior on Omega.")
       jags_extended_LASSO = "model{
@@ -187,26 +179,136 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "classic", lo
               sigma <- sqrt(1/tau)
               Deviance <- -2 * sum(log_lik[1:N])
           }"
-
+      
       P = ncol(X)
       monitor = c("Intercept", "beta", "sigma",  "Omega",  "Deviance",  "lambda", "delta", "ySim" ,"log_lik")
       if (log_lik == FALSE){
         monitor = monitor[-(length(monitor))]
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u, top_u = top_u)
-
+      
       inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = sample(y, length(y)), "Omega" = 2, "beta" = jitter(rep(0, P), amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
       write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
     }
   }
-
-  if (family == "binomial" || family == "logistic") {
-
+  
+  if (family == "st") {
     
-   if (eta_prior == "gamma"){
-
+    if (eta_prior == "gamma"){
+      
       if(is.na(local_u)) stop("Please select an upper limit for the uniform prior on eta.")
+      
+      jags_extended_LASSO = "model{
 
+              # Precision
+              tau ~ dgamma(.01, .01)
+
+              # Shrinkage top-level-hyperparameter
+              Omega ~ dgamma(0.50 , 0.20)
+
+              Intercept ~ dnorm(0, 1e-10)
+
+              for (p in 1:P){
+
+                # Individual Level shrinkage hyperparameter
+                eta[p] ~ dunif(0, local_u)
+                lambda[p] <- Omega * eta[p]
+
+                # Beta Precision
+                w[p]<- pow(lambda[p],2)/2
+                beta_var[p] ~ dexp(w[p])
+                beta_prec[p] <- 1 / beta_var[p]
+
+                # Coefficient
+                beta[p] ~ dnorm(0, beta_prec[p])
+
+                # Indicator Function
+                delta[p] <- step(1-eta[p])
+              }
+
+              for (i in 1:N){
+                 mu[i] <- Intercept + sum(beta[1:P] * X[i,1:P])
+                 y[i] ~ dt(mu[i], tau, 3)
+                 log_lik[i] <- logdensity.t(y[i], mu[i], tau, 3)
+                 ySim[i] ~ dt(mu[i], tau, 3)
+              }
+              sigma <- sqrt(1/tau)
+              Deviance <- -2 * sum(log_lik[1:N])
+          }"
+      
+      P = ncol(X)
+      monitor = c("Intercept", "beta", "sigma",  "Omega", "Deviance", "lambda", "delta", "ySim" ,"log_lik")
+      if (log_lik == FALSE){
+        monitor = monitor[-(length(monitor))]
+      }
+      jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u)
+      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = sample(y, length(y)), "Omega" = 2, "beta" = lmSolve(formula, data)[-1], "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
+      write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
+    }
+    
+    
+    if (eta_prior == "classic"){
+      
+      if(is.na(local_u)) stop("Please select an upper limit for the uniform prior on eta.")
+      if (is.na(top_u)) stop("Please select an upper limit for the uniform prior on Omega.")
+      jags_extended_LASSO = "model{
+
+              # Precision
+              tau ~ dgamma(.01, .01)
+
+              # Shrinkage top-level-hyperparameter
+              Omega ~ dunif(0, top_u)
+
+              Intercept ~ dnorm(0, 1e-10)
+
+              for (p in 1:P){
+
+                # Individual Level shrinkage hyperparameter
+                eta[p] ~ dunif(0, local_u)
+                lambda[p] <- Omega * eta[p]
+
+                # Beta Precision
+                w[p]<- pow(lambda[p],2)/2
+                beta_var[p] ~ dexp(w[p])
+                beta_prec[p] <- 1 / beta_var[p]
+
+                # Coefficient
+                beta[p] ~ dnorm(0, beta_prec[p])
+
+                # Indicator Function
+                delta[p] <- step(1-eta[p])
+              }
+
+              for (i in 1:N){
+                 mu[i] <- Intercept + sum(beta[1:P] * X[i,1:P])
+                 y[i] ~ dt(mu[i], tau, 3)
+                 log_lik[i] <- logdensity.t(y[i], mu[i], tau, 3)
+                 ySim[i] ~ dt(mu[i], tau, 3)
+              }
+              sigma <- sqrt(1/tau)
+              Deviance <- -2 * sum(log_lik[1:N])
+          }"
+      
+      P = ncol(X)
+      monitor = c("Intercept", "beta", "sigma",  "Omega",  "Deviance",  "lambda", "delta", "ySim" ,"log_lik")
+      if (log_lik == FALSE){
+        monitor = monitor[-(length(monitor))]
+      }
+      jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u, top_u = top_u)
+      
+      inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = sample(y, length(y)), "Omega" = 2, "beta" = jitter(rep(0, P), amount = .025), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25)), "tau" = 1))
+      write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
+    }
+  }
+  
+  
+  if (family == "binomial" || family == "logistic") {
+    
+    
+    if (eta_prior == "gamma"){
+      
+      if(is.na(local_u)) stop("Please select an upper limit for the uniform prior on eta.")
+      
       jags_extended_LASSO = "model{
 
               # Shrinkage top-level-hyperparameter
@@ -240,7 +342,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "classic", lo
               }
               Deviance <- -2 * sum(log_lik[1:N])
             }"
-
+      
       P = ncol(X)
       monitor = c("Intercept", "beta", "Omega", "Deviance",  "lambda", "delta", "ySim" ,"log_lik")
       if (log_lik == FALSE){
@@ -250,9 +352,9 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "classic", lo
       inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = sample(y, length(y)), "Omega" = 2, "beta" = jitter(rep(0, P), amount = .25), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
       write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
     }
-
+    
     else if (eta_prior == "classic"){
-
+      
       if(is.na(local_u)) stop("Please select an upper limit for the uniform prior on eta.")
       if (is.na(top_u)) stop("Please select an upper limit for the uniform prior on Omega.")
       jags_extended_LASSO = "model{
@@ -289,7 +391,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "classic", lo
               }
               Deviance <- -2 * sum(log_lik[1:N])
             }"
-
+      
       P = ncol(X)
       monitor = c("Intercept", "beta", "Omega", "Deviance",   "lambda", "delta", "ySim" ,"log_lik")
       if (log_lik == FALSE){
@@ -299,15 +401,15 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "classic", lo
       inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = sample(y, length(y)), "Omega" = 2, "beta" = jitter(rep(0, P), amount = .25), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
       write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
     }
-
+    
   }
-
+  
   else if (family == "poisson") {
-
+    
     if (eta_prior == "gamma"){
-
+      
       if (is.na(local_u)) stop("Please select an upper limit for the uniform prior on eta.")
-
+      
       jags_extended_LASSO = "model{
 
               # Shrinkage top-level-hyperparameter
@@ -341,7 +443,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "classic", lo
               }
               Deviance <- -2 * sum(log_lik[1:N])
           }"
-
+      
       P = ncol(X)
       monitor = c("Intercept", "beta", "Omega",  "Deviance",  "lambda", "delta", "ySim" ,"log_lik")
       if (log_lik == FALSE){
@@ -351,9 +453,9 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "classic", lo
       inits = lapply(1:chains, function(z) list("Intercept" = 0, .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "ySim" = sample(y, length(y)), "Omega" = 2, "beta" = jitter(rep(0, P)), "eta" = rep(1, P), "beta_var" = abs(jitter(rep(.5, P), amount = .25))))
       write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
     }
-
+    
     if (eta_prior == "classic"){
-
+      
       if(is.na(local_u)) stop("Please select an upper limit for the uniform prior on eta.")
       if (is.na(top_u)) stop("Please select an upper limit for the uniform prior on Omega.")
       jags_extended_LASSO = "model{
@@ -389,7 +491,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "classic", lo
               }
               Deviance <- -2 * sum(log_lik[1:N])
           }"
-
+      
       P = ncol(X)
       monitor = c("Intercept", "beta", "Omega", "Deviance",  "lambda", "delta", "ySim" ,"log_lik")
       if (log_lik == FALSE){
@@ -400,7 +502,7 @@ extLASSO  = function(formula, data, family = "normal", eta_prior = "classic", lo
       write_lines(jags_extended_LASSO, "jags_extended_LASSO.txt")
     }
   }
-
+  
   out = run.jags(model = "jags_extended_LASSO.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, n.chains = chains, method = method, cl = cl, summarise = FALSE, ...)
   file.remove("jags_extended_LASSO.txt")
   if (is.null(cl) == FALSE){

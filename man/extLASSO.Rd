@@ -4,21 +4,21 @@
 \alias{extLASSO}
 \title{Extended Bayesian LASSO}
 \usage{
-extLASSO(formula, data, family = "normal", eta_prior = "classic",
-  local_u = 2, top_u = 50, log_lik = FALSE, iter = 10000,
+extLASSO(formula, data, family = "gaussian", eta_prior = "classic",
+  local_u = 4, top_u = 50, log_lik = FALSE, iter = 10000,
   warmup = 10000, adapt = 15000, chains = 4, thin = 3,
-  method = "parallel", cl = makeCluster(2), ...)
+  method = "rjparallel", cl = makeCluster(2), ...)
 }
 \arguments{
 \item{formula}{the model formula}
 
 \item{data}{a data frame.}
 
-\item{family}{one of "gaussian", "binomial", or "poisson".}
+\item{family}{one of "gaussian", "st" (Student-t with nu=3), "binomial", or "poisson".}
 
 \item{eta_prior}{one of "classic (default)", or "gamma".}
 
-\item{local_u}{This must be assigned a value. Default is 2.}
+\item{local_u}{This must be assigned a value. Default is 4.}
 
 \item{top_u}{If using eta_prior = "classic" this must be assigned a value. Default is 50.}
 
@@ -34,7 +34,7 @@ extLASSO(formula, data, family = "normal", eta_prior = "classic",
 
 \item{thin}{Thinning interval. Defaults to 3.}
 
-\item{method}{Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).}
+\item{method}{Defaults to "rjparallel". For an alternative parallel option, choose "parallel" or. Otherwise, "rjags" (single core run).}
 
 \item{cl}{Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.}
 
@@ -105,12 +105,4 @@ Li, Z.,and Sillanpää, M. J. (2012) Overview of LASSO-related penalized regress
 Mutshinda, C.M., & Sillanpää, M.J. (2010). Extended Bayesian LASSO for multiple quantitative trait loci mapping and unobserved phenotype prediction. Genetics, 186 3, 1067-75 . \cr 
 \cr
 Mutshinda, C. M., and M. J. Sillanpää (2012) A decision rule for quantitative trait locus detection under the extended Bayesian LASSO model. Genetics 192: 1483-1491. \cr
-}
-\seealso{
-\code{\link[Bayezilla]{adaLASSO}}
-\code{\link[Bayezilla]{negLASSO}} 
-\code{\link[Bayezilla]{blasso}}
-\code{\link[Bayezilla]{HS}}
-\code{\link[Bayezilla]{HSplus}}
-\code{\link[Bayezilla]{HSreg}}
 }

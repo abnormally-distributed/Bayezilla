@@ -221,10 +221,10 @@ glmBayes  = function(formula, data, family = "gaussian", s = 1, df = 1, log_lik 
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = coef(glm(formula, data, family = "poissson"))[1], 
+    inits = lapply(1:chains, function(z) list("Intercept" = coef(glm(formula, data, family = "poisson"))[1], 
                                               "ySim" = sample(y, length(y)),
                                               "eta" = 2, 
-                                              "beta" = coef(glm(formula, data, family = "poissson"))[-1], 
+                                              "beta" = coef(glm(formula, data, family = "poisson"))[-1], 
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed= sample(1:10000, 1)))
   }

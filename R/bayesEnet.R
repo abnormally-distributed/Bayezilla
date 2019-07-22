@@ -112,7 +112,7 @@ bayesEnet  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=
               for (i in 1:N){
                  mu[i] <- Intercept + sum(beta[1:P] * X[i,1:P])
                  y[i] ~ dt(mu[i], tau, 3)
-                 log_lik[i] <- logdensity.t(mu[i], tau, 3)
+                 log_lik[i] <- logdensity.t(y[i], mu[i], tau, 3)
                  ySim[i] ~ dt(mu[i], tau, 3)
               }
               Deviance <- -2 * sum(log_lik[1:N])

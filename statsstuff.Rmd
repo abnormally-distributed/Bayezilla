@@ -25,10 +25,13 @@ That means, so long as the five assumptions are met, as the sample size approach
 
 In any situation where one of the above 5 assumptions is not met there are alternative estimation methods which have superior performance. 
 
-The (asymptotic) breakdown point (BP) of an estimator of the parameter $\theta$ is the largest  amount of outliers that the data may contain such that the estimate $\hat \theta$ still provides valid information. Rousseeuw and Yohai (1984) proved that OLS estimates have a breakdown point of 1/N. While large samples may have a good breakdown point, small to medium sized samples are extremely vulnerable. The finite-sample breakdown point (FBP) is the largest proportion of data points that can be arbitrarily replaced by outliers in resampling without making the estimate inaccurate, which provides a non-asymptotic measure of the robustness of an estimator. 
+The asymptotic breakdown point (ABP) of an estimator of the parameter $\theta$ is the percentage of data points that are outlying observations a vector of observations may 
+contain such that the estimate $\hat \theta$ still provides valid information. Rousseeuw and Yohai (1984) proved that OLS estimates have a breakdown point of 1/N. While large samples may have a good breakdown point, small to medium sized samples are extremely vulnerable. The finite-sample breakdown point (FBP) is the largest proportion of data points that can be arbitrarily replaced by outliers in resampling without making the estimate inaccurate, which provides a non-asymptotic measure of the robustness of an estimator. While the ABP is of interest in characterizing how fragile an estimator is with increasing N, the FBP allows assessment of the breakown point at a fixed sample size.
 
 
-
+$$\large
+S
+$$
 
 
 

@@ -85,7 +85,7 @@ genRidge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10
                                                "beta" = lmSolve(formula, data)[-1], 
                                                "lambda" = rep(1, P), 
                                                "tau" = 1, 
-                                               "ySim" = y, 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
@@ -133,7 +133,7 @@ genRidge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10
     inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "binomial", lambda = 0.025, alpha = 0, standardize = FALSE))[1,1]), 
                                                "beta" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "binomial", lambda = 0.025, alpha = 0, standardize = FALSE))[-1,1]), 
                                                "lambda" = rgamma(P, 2, 1), 
-                                               "ySim" = y, 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
@@ -180,7 +180,7 @@ genRidge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10
   inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "poisson", lambda = 0.025, alpha = 0, standardize = FALSE))[1,1]), 
                                              "beta" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "poisson", lambda = 0.025, alpha = 0, standardize = FALSE))[-1,1]), 
                                              "lambda" = rgamma(P, 2, 1), 
-                                             "ySim" = y, 
+                                             "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
   

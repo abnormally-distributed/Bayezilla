@@ -100,6 +100,7 @@ inits = lapply(1:chains, function(z) list("beta" = lmSolve(formula, data)[-1],
                                           "local_lambda" = rep(1, ncol(X)),
                                           "global_lambda"= 1, 
                                           "tau" = 1,
+                                          "ySim" = sample(y, length(y)),
                                           .RNG.name= "lecuyer::RngStream",
                                           .RNG.seed= sample(1:10000, 1)))
 
@@ -152,6 +153,7 @@ inits = lapply(1:chains, function(z) list("beta" = as.vector(coef(glmnet::glmnet
                                           "design_beta" = as.vector(coef(glm(design.formula, data, family = "binomial")))[-1],
                                           "local_lambda" =  rep(1, ncol(X)),
                                           "global_lambda"= 1, 
+                                          "ySim" = sample(y, length(y)),
                                           .RNG.name= "lecuyer::RngStream",
                                           .RNG.seed= sample(1:10000, 1)))
 
@@ -203,6 +205,7 @@ inits = lapply(1:chains, function(z) list("beta" = as.vector(coef(glmnet::glmnet
                                           "design_beta" = as.vector(coef(glm(design.formula, data, family = "poisson")))[-1],
                                           "local_lambda" =  rep(1, ncol(X)),
                                           "global_lambda"= 1, 
+                                          "ySim" = sample(y, length(y)),
                                           .RNG.name= "lecuyer::RngStream",
                                           .RNG.seed= sample(1:10000, 1)))
 

@@ -78,6 +78,7 @@ inits = lapply(1:chains, function(z) list("beta" = lmSolve(formula, data)[-1],
                                           "local_lambda" =  rep(1, ncol(X)),
                                           "global_lambda"= 1, 
                                           "tau" = 1,
+                                          "ySim" = sample(y, length(y)),
                                           .RNG.name= "lecuyer::RngStream",
                                           .RNG.seed= sample(1:10000, 1)))
 monitor = c("Intercept", "beta", "sigma", "Deviance" , "global_lambda", "local_lambda", "ySim", "log_lik")
@@ -126,6 +127,7 @@ inits = lapply(1:chains, function(z) list("beta" = as.vector(coef(glmnet::glmnet
                                           "Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "binomial", lambda = runif(1, .01, .15), alpha = 0, standardize = FALSE))[1,1]), 
                                           "local_lambda" =  rep(1, ncol(X)),
                                           "global_lambda"= 1, 
+                                          "ySim" = sample(y, length(y)),
                                           .RNG.name= "lecuyer::RngStream",
                                           .RNG.seed= sample(1:10000, 1)))
 
@@ -175,6 +177,7 @@ inits = lapply(1:chains, function(z) list("beta" = as.vector(coef(glmnet::glmnet
                                           "Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "poisson", lambda = runif(1, .01, .15), alpha = 0, standardize = FALSE))[1,1]), 
                                           "local_lambda" =  rep(1, ncol(X)),
                                           "global_lambda"= 1, 
+                                          "ySim" = sample(y, length(y)),
                                           .RNG.name= "lecuyer::RngStream",
                                           .RNG.seed= sample(1:10000, 1)))
 

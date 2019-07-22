@@ -90,7 +90,7 @@ ridgeSpike = function(formula, data, family = "gaussian", log_lik = FALSE, iter=
                                                "delta" = rep(0, P),
                                                "lambda" = 2, 
                                                "tau" = 1, 
-                                               "ySim" = y, 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
@@ -143,7 +143,7 @@ ridgeSpike = function(formula, data, family = "gaussian", log_lik = FALSE, iter=
                                                "lambda" = 2, 
                                                "phi" = rbeta(1, 2, 2),
                                                "delta" = rep(0, P),
-                                               "ySim" = y, 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
@@ -161,6 +161,7 @@ ridgeSpike = function(formula, data, family = "gaussian", log_lik = FALSE, iter=
     jags_ridgeSpike = "model{
     
   lambda ~ dgamma(0.50 , 0.20)
+  phi ~ dbeta(1, 1)
 
   for (p in 1:P){
     delta[p] ~ dbern(phi)
@@ -195,7 +196,7 @@ ridgeSpike = function(formula, data, family = "gaussian", log_lik = FALSE, iter=
                                              "lambda" = 2, 
                                              "delta" = rep(0, P),
                                              "phi" = rbeta(1, 2, 2),
-                                             "ySim" = y, 
+                                             "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
   

@@ -82,17 +82,17 @@ plotPost <- function(fit = NULL, param = NULL, xlab = NULL, col = "blue", ROPE =
     estimate.text = paste("Mean", ":", Param)
   } 
   else if (est == "median"){
-    Param <- round(median( paramSampleVec ), 2)
+    Param <- round(median( zapsmall(paramSampleVec, 3) ), 2)
     estimate.text = paste("Median", ":", Param)
   } 
   else if (est == "mode"){
-    d <- density(paramSampleVec, from = min(paramSampleVec), to = max(paramSampleVec), n = 3072, kernel = "triangular")
+    d <- density(zapsmall(round(paramSampleVec,3), 2), from = min(paramSampleVec), to = max(paramSampleVec), n = length(paramSampleVec), kernel = "triangular")
     Param <- round(d$x[which.max(d$y)], 2)
     estimate.text = paste("Mode", ":", Param)
   }
   else if (est == "all"){
-    d <- density(paramSampleVec, from = min(paramSampleVec), to = max(paramSampleVec), n = 3072, kernel = "triangular")
-    estimate.text <- paste("Mean: ", round(mean( paramSampleVec ), 2), " Median: ", round(median( paramSampleVec ), 2), " Mode: ", round(d$x[which.max(d$y)], 2))
+    d <- density(zapsmall(round(paramSampleVec, 3), 2) , from = min(paramSampleVec), to = max(paramSampleVec), n = length(paramSampleVec), kernel = "triangular")
+    estimate.text <- paste("Mean: ", round(mean( paramSampleVec ), 2), " Median: ", round(median( zapsmall(paramSampleVec, 3) ), 2), " Mode: ", round(d$x[which.max(d$y)], 2))
   }
 
   # Get HDI information for the title

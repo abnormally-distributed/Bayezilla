@@ -45,7 +45,7 @@
 #'
 #' @param formula the model formula
 #' @param data a data frame
-#' @param family one of "gaussian", "binomial", or "poisson".
+#' @param family one of "gaussian", "st" (Student-t with nu = 3), "binomial", or "poisson".
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 10000.
 #' @param warmup How many warmup samples? Defaults to 1000.
@@ -113,7 +113,53 @@ zsSpike = function(formula, data, family = "gaussian",  log_lik = FALSE,
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept"= lmSolve(formula, data)[1],  "phi" = rbeta(1, 2, 2),  "delta" = sample(c(0, 1), replace = TRUE, size = P), "theta" = lmSolve(formula, data)[-1], "tau" = 1, "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1)))
+    inits = lapply(1:chains, function(z) list("Intercept"= lmSolve(formula, data)[1],  "phi" = rbeta(1, 2, 2),  "delta" = sample(c(0, 1), replace = TRUE, size = P), "theta" = lmSolve(formula, data)[-1], "tau" = 1, "g_inv" = 1/length(y), "ySim" = sample(y, length(y)), .RNG.name= "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1)))
+  }
+  
+  
+  if (family == "st"){
+    
+    jags_zs = "model{
+              
+              phi ~ dbeta(1, 1)
+              tau ~ dscaled.gamma(.01, .01)
+              g_inv ~ dgamma(.5, N * .5)
+              g <- 1 / g_inv
+              sigma <- sqrt(1/tau)
+              
+              for (j in 1:P){
+                for (k in 1:P){
+                  cov[j,k] = g * pow(sigma, 2) * prior_cov[j,k]
+                }
+              }
+              
+              omega <- inverse(cov) 
+              theta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
+              for (i in 1:P){
+                delta[i] ~ dbern(phi)
+                beta[i] <- delta[i] * theta[i]
+              }
+              
+              Intercept ~ dnorm(0, 1e-10)
+              
+              for (i in 1:N){
+                 mu[i] <- Intercept + sum(beta[1:P] * X[i,1:P])
+                 y[i] ~ dt(mu[i], tau, 3)
+                 log_lik[i] <- logdensity.t(y[i], mu[i], tau, 3)
+                 ySim[i] ~ dt(mu[i], tau, 3)
+              }
+              Deviance <- -2 * sum(log_lik[1:N])
+              BIC <- (log(N) * sum(delta[1:P])) + Deviance
+          }"
+    
+    P = ncol(X)
+    write_lines(jags_zs, "jags_zs.txt")
+    jagsdata = list(X = X, y = y,  N = length(y), P = ncol(X), prior_cov = prior_cov)
+    monitor = c("Intercept", "beta", "sigma", "g",  "BIC" , "Deviance", "phi", "delta", "ySim" ,"log_lik")
+    if (log_lik == FALSE){
+      monitor = monitor[-(length(monitor))]
+    }
+    inits = lapply(1:chains, function(z) list("Intercept"= lmSolve(formula, data)[1],  "phi" = rbeta(1, 2, 2),  "delta" = sample(c(0, 1), replace = TRUE, size = P), "theta" = lmSolve(formula, data)[-1], "tau" = 1, "g_inv" = 1/length(y), "ySim" = sample(y, length(y)), .RNG.name= "lecuyer::RngStream", .RNG.seed = sample(1:10000, 1)))
   }
   
   if (family == "binomial" || family == "logistic"){
@@ -156,7 +202,7 @@ zsSpike = function(formula, data, family = "gaussian",  log_lik = FALSE,
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "binomial")))[1],  "phi" = rbeta(1, 2, 2),  "delta" = sample(c(0, 1), replace = TRUE, size = P), "theta" = as.vector(coef(glm(formula, data, family = "binomial")))[-1], "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
+    inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "binomial")))[1],  "phi" = rbeta(1, 2, 2),  "delta" = sample(c(0, 1), replace = TRUE, size = P), "theta" = as.vector(coef(glm(formula, data, family = "binomial")))[-1], "g_inv" = 1/length(y), "ySim" = sample(y, length(y)), .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
   }
   
   if (family == "poisson"){
@@ -203,7 +249,7 @@ zsSpike = function(formula, data, family = "gaussian",  log_lik = FALSE,
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "poisson")))[1], "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "phi" = rbeta(1, 2, 2),  "delta" = sample(c(0, 1), replace = TRUE, size = P), "theta" = as.vector(coef(glm(formula, data, family = "poisson")))[-1]))
+    inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "poisson")))[1], "g_inv" = 1/length(y), "ySim" = sample(y, length(y)), .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1), "phi" = rbeta(1, 2, 2),  "delta" = sample(c(0, 1), replace = TRUE, size = P), "theta" = as.vector(coef(glm(formula, data, family = "poisson")))[-1]))
   }
   
   

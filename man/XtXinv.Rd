@@ -4,7 +4,7 @@
 \alias{XtXinv}
 \title{Obtain the inverse crossproduct of a matrix}
 \usage{
-XtXinv(X, tol = 0.001)
+XtXinv(X, robust = TRUE, tol = 0.001)
 }
 \arguments{
 \item{X}{the matrix}

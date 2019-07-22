@@ -13,7 +13,7 @@ ridge(formula, data, family = "gaussian", log_lik = FALSE,
 
 \item{data}{a data frame.}
 
-\item{family}{one of "gaussian", "binomial", or "poisson".}
+\item{family}{one of "gaussian", "st" (Student-t with nu = 3), "binomial", or "poisson".}
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 

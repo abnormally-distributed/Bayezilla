@@ -144,6 +144,7 @@ adaEnet  = function(formula, data,  family = "gaussian", log_lik = FALSE, iter=1
                                                "eta" = 1 + abs(jitter(rep(1, P), amount = .25)), 
                                                "lambdaL1" = rep(1, P), 
                                                "lambdaL2" = 2, 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
@@ -197,6 +198,7 @@ adaEnet  = function(formula, data,  family = "gaussian", log_lik = FALSE, iter=1
                                                "eta" = 1 + abs(jitter(rep(1, P), amount = .25)), 
                                                "lambdaL1" = rep(1, P), 
                                                "lambdaL2" = 2, 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     

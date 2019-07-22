@@ -97,7 +97,7 @@ groupBridge = function(X, y, idx, family = "gaussian",  kappa = 1.4, log_lik = F
                                                "u" = rgamma(nG, (1 / kappa) + 1, 1), 
                                                "lambda" = rep(1, nG), 
                                                "tau" = 1, 
-                                               "ySim" = y, 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
@@ -146,7 +146,7 @@ groupBridge = function(X, y, idx, family = "gaussian",  kappa = 1.4, log_lik = F
                                                "beta" = rep(0, P), 
                                                "u" = rgamma(nG, (1 / kappa) + 1, 1), 
                                                "lambda" = rep(1, nG), 
-                                               "ySim" = y, 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
@@ -196,7 +196,7 @@ groupBridge = function(X, y, idx, family = "gaussian",  kappa = 1.4, log_lik = F
                                              "beta" = rep(0, P), 
                                              "u" = rgamma(nG, (1 / kappa) + 1, 1), 
                                              "lambda" = rep(1, nG), 
-                                             "ySim" = y, 
+                                             "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
   

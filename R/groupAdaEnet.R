@@ -95,6 +95,7 @@ groupAdaEnet  = function(X, y, idx, family = "gaussian", log_lik = FALSE, iter=1
                                              "lambdaL1" = rep(2, max(idx)), 
                                              "lambdaL2" = 3,  
                                              "tau" = 1,
+                                             "ySim" = sample(y, length(y)),
                                              .RNG.name = "lecuyer::RngStream", 
                                              .RNG.seed = sample(1:1000, 1) 
                                              ))
@@ -160,6 +161,7 @@ groupAdaEnet  = function(X, y, idx, family = "gaussian", log_lik = FALSE, iter=1
                                                "eta" = 1 + abs(jitter(rep(1, max(idx)), amount = .25)), 
                                                "lambdaL1" = rep(2, max(idx)), 
                                                "lambdaL2" = 5, 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
@@ -211,6 +213,7 @@ groupAdaEnet  = function(X, y, idx, family = "gaussian", log_lik = FALSE, iter=1
                                                "eta" = 1 + abs(jitter(rep(1, max(idx)), amount = .25)), 
                                                "lambdaL1" = rep(2, max(idx)), 
                                                "lambdaL2" = 5, 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     

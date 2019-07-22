@@ -93,6 +93,7 @@ bayesEnetDC  = function(formula, design.formula, data,  family = "gaussian", log
                                              "eta" = 1 + abs(jitter(rep(1, P), amount = .25)), 
                                              "lambdaL1" = 2, 
                                              "lambdaL2" = 5, 
+                                             "ySim" = sample(y, length(y)),
                                              "tau" = 1))
   
   out = run.jags(model = "jags_elastic_net.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
@@ -147,6 +148,7 @@ if (family == "binomial" || family == "logistic"){
                                              "design_beta" = as.vector(coef(glmnet::glmnet(x = FX, y = y, family = "binomial", lambda = 0, alpha = 0, standardize = FALSE))[-1,1]),
                                              "lambdaL1" = 1, 
                                              "lambdaL2" = 1, 
+                                             "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
   
@@ -199,6 +201,7 @@ if (family == "poisson"){
                                              "eta" = 1 + abs(jitter(rep(1, P), amount = .25)), 
                                              "lambdaL1" = 1, 
                                              "lambdaL2" = 1, 
+                                             "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
   

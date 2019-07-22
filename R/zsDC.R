@@ -99,7 +99,7 @@ zsDC = function(formula, design.formula, data, family = "gaussian", log_lik = FA
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = jitter(rep(0, P), amount = 1), "design_beta" = rep(0, FP), "tau" = 1,  "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
+    inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = jitter(rep(0, P), amount = 1), "design_beta" = rep(0, FP), "tau" = 1,  "g_inv" = 1/length(y), "ySim" = sample(y, length(y)), .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
     out = run.jags(model = "jags_zs.txt", modules = c("glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)
 }
   if (family == "binomial" || family == "logistic"){
@@ -140,7 +140,7 @@ zsDC = function(formula, design.formula, data, family = "gaussian", log_lik = FA
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = jitter(rep(0, P), amount = 1), "design_beta" = rep(0, FP), "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
+    inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = jitter(rep(0, P), amount = 1), "design_beta" = rep(0, FP), "g_inv" = 1/length(y), "ySim" = sample(y, length(y)), .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
     out = run.jags(model = "jags_zs.txt", modules = c("glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)
 }
   
@@ -184,7 +184,7 @@ zsDC = function(formula, design.formula, data, family = "gaussian", log_lik = FA
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = jitter(rep(0, P), amount = 1), "design_beta" = rep(0, FP), "g_inv" = 1/length(y), "ySim" = y, .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
+    inits = lapply(1:chains, function(z) list("Intercept" = 0, "beta" = jitter(rep(0, P), amount = 1), "design_beta" = rep(0, FP), "g_inv" = 1/length(y), "ySim" = sample(y, length(y)), .RNG.name= "lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
     out = run.jags(model = "jags_zs.txt", modules = c("glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE,...)
   }
   if (is.null(cl) == FALSE){

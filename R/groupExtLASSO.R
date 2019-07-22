@@ -151,7 +151,7 @@ groupExtLASSO  = function(X, y, idx, data, family = "gaussian", eta_prior = "cla
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u, idx = idx, nG = max(idx), k = as.vector(table(idx)))
       inits = lapply(1:chains, function(z) list("Intercept" = lmSolve(y ~ ., data = data.frame(y = y, X))[1], 
-                                                "ySim" = y, 
+                                                "ySim" = sample(y, length(y)), 
                                                 "Omega" = 2, 
                                                 "beta" = lmSolve(y ~ ., data = data.frame(y = y, X))[-1], 
                                                 "eta" = rep(1, nG), 
@@ -218,7 +218,7 @@ groupExtLASSO  = function(X, y, idx, data, family = "gaussian", eta_prior = "cla
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u, top_u = top_u, idx = idx, nG = max(idx), k = as.vector(table(idx)))
       
       inits = lapply(1:chains, function(z) list("Intercept" = lmSolve(y ~ ., data = data.frame(y = y, X))[1], 
-                                                "ySim" = y, 
+                                                "ySim" = sample(y, length(y)), 
                                                 "Omega" = 2, 
                                                 "beta" = lmSolve(y ~ ., data = data.frame(y = y, X))[-1], 
                                                 "eta" = rep(1, nG), 
@@ -284,7 +284,7 @@ groupExtLASSO  = function(X, y, idx, data, family = "gaussian", eta_prior = "cla
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u, idx = idx, nG = max(idx), k = as.vector(table(idx)))
       inits = lapply(1:chains, function(z) list("Intercept" = 0, 
-                                                "ySim" = y, 
+                                                "ySim" = sample(y, length(y)), 
                                                 "Omega" = 2, 
                                                 "beta" = rep(0, P), 
                                                 "eta" = rep(1, nG), 
@@ -344,7 +344,7 @@ groupExtLASSO  = function(X, y, idx, data, family = "gaussian", eta_prior = "cla
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u, top_u = top_u, idx = idx, nG = max(idx), k = as.vector(table(idx)))
       inits = lapply(1:chains, function(z) list("Intercept" = 0, 
-                                                "ySim" = y, 
+                                                "ySim" = sample(y, length(y)), 
                                                 "Omega" = 2, 
                                                 "beta" = rep(0, P), 
                                                 "eta" = rep(1, nG), 
@@ -408,7 +408,7 @@ groupExtLASSO  = function(X, y, idx, data, family = "gaussian", eta_prior = "cla
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u, idx = idx, nG = max(idx), k = as.vector(table(idx)))
       inits = lapply(1:chains, function(z) list("Intercept" = 0, 
-                                                "ySim" = y, 
+                                                "ySim" = sample(y, length(y)), 
                                                 "Omega" = 2, 
                                                 "beta" = rep(0, P), 
                                                 "eta" = rep(1, nG), 
@@ -468,7 +468,7 @@ groupExtLASSO  = function(X, y, idx, data, family = "gaussian", eta_prior = "cla
       }
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), local_u = local_u, top_u = top_u, idx = idx, nG = max(idx), k = as.vector(table(idx)))
       inits = lapply(1:chains, function(z) list("Intercept" = 0, 
-                                                "ySim" = y, 
+                                                "ySim" = sample(y, length(y)), 
                                                 "Omega" = 2, 
                                                 "beta" = rep(0, P), 
                                                 "eta" = rep(1, nG), 

@@ -14,7 +14,7 @@
 #' @export
 #'
 #' @examples
-#' imageIncl()
+#' plotIncl()
 #'
 #' @return
 #' an image
@@ -26,7 +26,7 @@
 #' \if{html}{\figure{imageIncl.png}{}}
 #' \if{latex}{\figure{imageIncl.png}{}}
 #'
-imageIncl <- function(model, col_labs = NULL, colors=c("#99004C", "#1c1c1c", "#0065CC"), ...){
+plotIncl <- function(model, col_labs = NULL, colors=c("#99004C", "#1c1c1c", "#0065CC"), ...){
   x = as.matrix(combine.mcmc(model,collapse.chains = TRUE))
   x = x[,grep(colnames(x), pattern =  "beta")]
   x = sign(x)
@@ -100,7 +100,6 @@ plotPips = function(model, col_labs = NULL){
   }
 
   data = rownames_to_column(as.data.frame(colMeans(x)))
-  
   
   colnames(data) = c("variable", "pip")
   ggplot(data = data, aes(x = variable, y = pip, color = ifelse(pip < .50, "Fail", ifelse(pip <= .60 & pip > .50, "Borderline", "Pass")), fill = ifelse(pip < .50, "Fail", ifelse(pip <= .60 & pip > .50, "Borderline", "Pass")))) +

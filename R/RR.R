@@ -18,7 +18,7 @@
 #'
 #' @param formula the model formula
 #' @param data a data frame.
-#' @param family one of "gaussian", "binomial", or "poisson".
+#' @param family one of "gaussian", "st" (Student-t with nu = 3), "binomial", or "poisson".
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 10000.
 #' @param warmup How many warmup samples? Defaults to 1000.
@@ -44,6 +44,7 @@ ridge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000
   if (family == "gaussian"){
     
     jags_ridge = "model{
+    
   tau ~ dgamma(.01, .01) 
   sigma2 <- 1/tau
 
@@ -77,7 +78,7 @@ ridge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000
                                                "beta" = lmSolve(formula, data)[-1], 
                                                "lambda" = 2, 
                                                "tau" = 1, 
-                                               "ySim" = y, 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
@@ -90,9 +91,59 @@ ridge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000
     
   }  
   
-
   
-  if (family == "binomial" || family == "logistic"){
+  if (family == "st"){
+    
+    jags_ridge = "model{
+    
+  tau ~ dgamma(.01, .01) 
+  sigma2 <- 1/tau
+
+  lambda ~ dgamma(0.50 , 0.20)
+
+  for (p in 1:P){
+    omega[p] <- 1 / (sigma2 / lambda)
+    beta[p] ~ dnorm(0, omega[p])
+  }
+  
+  Intercept ~ dnorm(0, 1e-10)
+  
+  for (i in 1:N){
+    mu[i] <- Intercept + sum(beta[1:P] * X[i,1:P])
+    y[i] ~ dt(mu[i], tau, 3)
+    log_lik[i] <- logdensity.t(y[i], mu[i], tau, 3)
+    ySim[i] ~ dt(mu[i], tau, 3)
+  }
+
+  sigma <- sqrt(1/tau)
+  Deviance <- -2 * sum(log_lik[1:N])
+}"
+    
+    P <- ncol(X)
+    write_lines(jags_ridge, "jags_ridge.txt")
+    jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X))
+    monitor <- c("Intercept", "beta", "sigma", "lambda", "Deviance", "ySim", "log_lik")
+    if (log_lik == FALSE){
+      monitor = monitor[-(length(monitor))]
+    }
+    inits <- lapply(1:chains, function(z) list("Intercept" = lmSolve(formula, data)[1], 
+                                               "beta" = lmSolve(formula, data)[-1], 
+                                               "lambda" = 2, 
+                                               "tau" = 1, 
+                                               "ySim" = sample(y, length(y)),
+                                               .RNG.name= "lecuyer::RngStream", 
+                                               .RNG.seed= sample(1:10000, 1)))
+    
+    out = run.jags(model = "jags_ridge.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+    file.remove("jags_ridge.txt")
+    if (!is.null(cl)) {
+      parallel::stopCluster(cl = cl)
+    }
+    return(out)
+    
+  }  
+  
+  if (family == "binomial"){
     
     jags_ridge = "model{
     
@@ -127,7 +178,7 @@ ridge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000
     inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "binomial", lambda = 0.025, alpha = 0, standardize = FALSE))[1,1]), 
                                                "beta" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "binomial", lambda = 0.025, alpha = 0, standardize = FALSE))[-1,1]), 
                                                "lambda" = 2, 
-                                               "ySim" = y, 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
@@ -175,7 +226,7 @@ ridge = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000
   inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "poisson", lambda = 0.025, alpha = 0, standardize = FALSE))[1,1]), 
                                              "beta" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "poisson", lambda = 0.025, alpha = 0, standardize = FALSE))[-1,1]), 
                                              "lambda" = 2, 
-                                             "ySim" = y, 
+                                             "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
   

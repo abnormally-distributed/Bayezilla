@@ -1,0 +1,92 @@
+---
+title: "Modern Regression Modeling Methods"
+output: html_notebook
+---
+
+
+
+
+Properties of OLS (or Maximum Likelihood Estimates more generally): 
+
+Ordinary least squares is the best linear unbiased estimator (BLUE) of the coefficients in ordinary linear model, so long as it exists and is unique. "Best" means giving the lowest standard error for the coefficient(s). For example, least
+absolute deviations will have standard errors $\geq$ to those of OLS. OLS is asymptotically unbiased in that as $N \rightarrow \infty$ OLS will recover the true values of the coefficients. 
+
+This sounds like the ideal estimator, but it is only ideal under ideal conditions. OLS assumes several conditions:
+
+1. The relationship between the model parameters (coefficients) and the outcome variable is linear.
+2. There is no multi-collinearity. 
+3. Observations are independent (Independent and identically distributed)
+4. Errors are homoscedastic
+5. Errors are normally distributed.
+
+**Asymptotically unbiased.** 
+
+That means, so long as the five assumptions are met, as the sample size approaches *infinity*, the estimates (meaning both predicted y values and coefficient terms) are unbiased. MLE is said to be the best linear unbiased estimator, or "BLUE". However, this name implies (and many statisticians speak as if) the regression estimates fit by MLE are unbiased, but for a finite sample size, this will typically not be so. The five assumptions are rarely perfectly met, and often at least one of them is violated. 
+
+In any situation where one of the above 5 assumptions is not met there are alternative estimation methods which have superior performance. 
+
+The (asymptotic) breakdown point (BP) of an estimator of the parameter $\theta$ is the largest  amount of outliers that the data may contain such that the estimate $\hat \theta$ still provides valid information. Rousseeuw and Yohai (1984) proved that OLS estimates have a breakdown point of 1/N. While large samples may have a good breakdown point, small to medium sized samples are extremely vulnerable. The finite-sample breakdown point (FBP) is the largest proportion of data points that can be arbitrarily replaced by outliers in resampling without making the estimate inaccurate, which provides a non-asymptotic measure of the robustness of an estimator. 
+
+
+
+
+
+
+Wald Intervals 
+
+Wald confidence intervals are the simplest type of interval. They are formed through multiplying the standard error by the critical test statistic value and then adding/subtracting to obtain the upper/lower confidence limits. For example, the 95% Confidence Interval for a parameter can be calculated by $\theta \pm$ critical value $\cdot$ standard error. The particular critical value may differ, depending on the test and sample size, but for a calculation assuming the sampling distribution for a parameter is Gaussian the critical value is 1.96. 
+
+Let x=(x1,…,xn) be a sample from a distribution with density $f(x,\theta)$. Suppose that $\mu$ is a parameter of interest, and $\sigma$ is a nuisance parameter.
+
+The joint likelihood function is as follows: 
+
+$$
+\mathcal{L}(\mu, \sigma \mid {X}) = \prod_{i=1}^{n} f(x_i \mid \mu, \sigma)
+$$
+
+
+$$
+\mathcal{PL}(\mu\mid {X}) = \dfrac{\mathcal{L}(\mu,\widehat{\sigma}(\mu) \mid \mathbf{x})}{\mathcal{L}(\widehat{\mu} , \widehat{\sigma} , \mid \mathbf{x})} = \dfrac{p(\mathbf{x} \mid \mu, \widehat{\sigma}(\mu))}{p(\mathbf{x} \mid \widehat{\mu} , \widehat{\sigma})}
+$$
+
+
+The denominator $\mathcal{L}(\widehat{\mu} , \widehat{\sigma} , \mid {x})$ signifies the joint likelihood function. The numerator $\mathcal{L}(\mu,\widehat{\sigma}(\mu) \mid {X})$ signifies the likelihood with respect to $\sigma$, for a fixed value of $\mu$.
+
+A major advantage of using a profiled likelihood function is that it readily accomodates non-Gaussian shapes. Hence, there is no need for reliance on Gaussian approximations if the maximum likelihood estimate for a parameter does not have an asymptotic normal distribution.
+
+A weakness is that by maximizing the likelihood in the numerator with respect to a fixed value ignores the uncertainty in the fixed value. In problems with several nuisance parameters this leads to an inaccurately precise interval. 
+
+```{r}
+# Delete memory
+rm(list = ls())
+
+# Simulated data from a normal with mean zero and variance 1
+set.seed(123)
+data = rnorm(n = 30, 0, 1 )
+n = length(data)
+s = sqrt(mean((data-mean(data))^2))
+x.bar <- mean(data)
+# MLE
+MLE <- c(x.bar,s)
+MLE
+# Profile likelihood of sigma
+R.sigma = Vectorize( function(sigma) return( (s/sigma)^n*exp( 0.5*n*(1-(s/sigma)^2)) ) )
+# Visualising the profile likelihood of sigma
+curve(R.sigma,0,2, n = 1000, lwd =3, col = "blue", cex.axis = 2, cex.lab = 1.5, main =  expression(paste("Profile likelihood of ", sigma), ylim = c(0,1)),
+      xlab = ~sigma, ylab = "Profile")
+abline(h = 0.147, lwd = 2, col = "red")
+abline(v = MLE[2], lwd = 2, col = "purple", lty = 2)
+R.sigmaC = Vectorize( function(sigma) return(R.sigma(sigma)-0.147))
+c(uniroot(R.sigmaC,c(0.6,0.8))$root,uniroot(R.sigmaC,c(1.1,1.5))$root)
+
+# Profile likelihood of mu
+R.mu = Vectorize( function(mu) return(  ( sum((data-x.bar)^2)/sum((data-mu)^2) )^(0.5*n)  ))
+# Visualising the profile likelihood of mu
+curve(R.mu,-1,1, n = 1000, lwd =3, col = "blue", cex.axis = 2, cex.lab = 1.5, 
+      main =  expression(paste("Profile likelihood of ", mu)), xlab = ~mu, ylab = "Profile", ylim = c(0,1))
+abline(h = 0.147, lwd = 2, col = "red", lty = 2)
+abline(v = MLE[1], lwd = 2, col = "purple", lty = 2)
+R.muC = Vectorize( function(mu) return(R.mu(mu)-0.147))
+
+c(uniroot(R.muC,c(-0.8,0))$root,uniroot(R.muC,c(0.1,0.8))$root)
+```

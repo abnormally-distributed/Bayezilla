@@ -90,7 +90,7 @@ sasp = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000,
                                              "lambda" = 1, 
                                              "kappa" = .75, 
                                              "tau" = 1, 
-                                             "ySim" = y, 
+                                             "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
   
@@ -140,7 +140,7 @@ sasp = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000,
                                                "u" = rgamma(P, (1 / .75) + 1, 1), 
                                                "lambda" = 1, 
                                                "kappa" = .75, 
-                                               "ySim" = y, 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
@@ -190,7 +190,7 @@ sasp = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000,
                                                "u" = rgamma(P, (1 / .75) + 1, 1), 
                                                "lambda" = 1, 
                                                "kappa" = .75, 
-                                               "ySim" = y, 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     

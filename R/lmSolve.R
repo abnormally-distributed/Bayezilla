@@ -120,7 +120,7 @@ pseudoinverse  =
 #' @examples
 #' XtXinv()
 #'
-XtXinv = function (X, tol = 1e-3)
+XtXinv = function (X, robust = TRUE, tol = 1e-3)
 {
   X = as.matrix(X)
   return(pseudoinverse(crossprod(X), tol = tol))

@@ -14,7 +14,7 @@ glmBayes(formula, data, family = "gaussian", s = 1, df = 1,
 
 \item{data}{a data frame}
 
-\item{family}{one of "gaussian", "binomial", or "poisson".}
+\item{family}{one of "gaussian", "st" (Student-t with nu=3), "binomial", or "poisson".}
 
 \item{s}{The desired prior scale. Defaults to 1. Is automatically squared within the model so
 select a number here on the standard deviation scale.}

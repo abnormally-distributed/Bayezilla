@@ -13,7 +13,7 @@ blasso(formula, data, family = "gaussian", log_lik = FALSE,
 
 \item{data}{a data frame.}
 
-\item{family}{one of "gaussian", "binomial", or "poisson".}
+\item{family}{one of "gaussian", "st" (Student-t with nu=3), "binomial", or "poisson".}
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 
@@ -44,10 +44,7 @@ The Laplace distribution can be expressed as a scale mixture of normals with an 
 parameter. This is the method that Park & Casella (2008) utilize and the method that is utilized here. The hierarchical 
 structure of the prior distribution is given below. \cr
 \cr
-Note that for the binomial and poisson likelihood functions 
-the New Bayesian LASSO is used, which is a re-parameterization of the Bayesian LASSO utilizing a scale mixture of
-uniform distributions to obtain the Laplacian priors (Mallick & Yi, 2014). I have found that this variant simply 
-samples faster for the binomial and poisson models. Plug-in pseudovariances are used for these. 
+Note that for the binomial and poisson likelihood functions plug-in pseudovariances are used.
 \cr
 Model Specification:
 \cr
@@ -66,5 +63,4 @@ blasso()
 \references{
 Park, T., & Casella, G. (2008). The Bayesian Lasso. Journal of the American Statistical Association, 103(482), 681-686. Retrieved from http://www.jstor.org/stable/27640090 \cr
 \cr
-Mallick, H., & Yi, N. (2014). A New Bayesian Lasso. Statistics and its interface, 7(4), 571–582. doi:10.4310/SII.2014.v7.n4.a12 \cr
 }

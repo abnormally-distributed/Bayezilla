@@ -92,6 +92,7 @@ blassoDC = function(formula, design.formula, data, log_lik = FALSE, iter=10000, 
                                              "eta" = rep(1, P), 
                                              "lambda" = 2, 
                                              "tau" = 1, 
+                                             "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
   
@@ -146,7 +147,7 @@ if (family == "binomial" || family == "logistic"){
                                              "design_beta" = as.vector(coef(glmnet::glmnet(x = FX, y = y, family = "binomial", lambda = 0, alpha = 0, standardize = FALSE))[-1,1]),
                                              "u" = rgamma(P, 2, 1), 
                                              "lambda" = 1, 
-                                             "ySim" = y, 
+                                             "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
   
@@ -202,7 +203,7 @@ inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::
                                            "beta" = rep(0, P), 
                                            "u" = rgamma(P, 2, 1), 
                                            "lambda" = 1, 
-                                           "ySim" = y, 
+                                           "ySim" = sample(y, length(y)),
                                            .RNG.name= "lecuyer::RngStream", 
                                            .RNG.seed= sample(1:10000, 1)))
 

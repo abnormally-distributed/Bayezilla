@@ -28,5 +28,6 @@ Imports:
     corpcor (>= 1.6),
     EnvStats (>= 2.3.1),
     ggstance (>= 0.3.1),
-    glmnet (>= 2.0-18)
+    glmnet (>= 2.0-18),
+    plotly (>= 4.9.0)
 NeedsCompilation: yes

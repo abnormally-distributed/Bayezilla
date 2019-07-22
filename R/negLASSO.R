@@ -91,7 +91,7 @@ negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
                                              "psi" = abs(jitter(rep(1, P), amount = 1)), 
                                              "lambda" = 2, 
                                              "tau" = 1, 
-                                             "ySim" = y,
+                                             "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed = sample(1:10000, 1)))
 }
@@ -131,7 +131,7 @@ negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
                                               "eta" = abs(jitter(rep(1, P), amount = 1)), 
                                               "psi" = abs(jitter(rep(1, P), amount = 1)), 
                                               "lambda" = 2, 
-                                              "ySim" = y,
+                                              "ySim" = sample(y, length(y)),
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed = sample(1:10000, 1)))
   }
@@ -170,7 +170,7 @@ negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
                                               "eta" = abs(jitter(rep(1, P), amount = 1)), 
                                               "psi" = abs(jitter(rep(1, P), amount = 1)), 
                                               "lambda" = 2, 
-                                              "ySim" = y,
+                                              "ySim" = sample(y, length(y)),
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed = sample(1:10000, 1)))
   }

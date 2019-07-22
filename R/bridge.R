@@ -93,7 +93,7 @@ bridge = function(formula, data, family = "gaussian", kappa = 1.4, log_lik = FAL
                                              "u" = rgamma(P, (1 / kappa) + 1, 1), 
                                              "lambda" = 1, 
                                              "tau" = 1, 
-                                             "ySim" = y, 
+                                             "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
   
@@ -140,7 +140,7 @@ bridge = function(formula, data, family = "gaussian", kappa = 1.4, log_lik = FAL
                                                "beta" = rep(0, P), 
                                                "u" = rgamma(P, (1 / kappa) + 1, 1), 
                                                "lambda" = 1, 
-                                               "ySim" = y, 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
@@ -188,7 +188,7 @@ bridge = function(formula, data, family = "gaussian", kappa = 1.4, log_lik = FAL
                                              "beta" = rep(0, P), 
                                              "u" = rgamma(P, (1 / kappa) + 1, 1), 
                                              "lambda" = 1, 
-                                             "ySim" = y, 
+                                             "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
   

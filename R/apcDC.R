@@ -171,7 +171,7 @@ apcDC = function(formula, design.formula, data, family = "gaussian", lower = NUL
                                               "design_beta" = rep(0, FP),
                                               "tau" = 1, 
                                               "g_inv" = 1/length(y), 
-                                              "ySim" = y, 
+                                              "ySim" = sample(y, length(y)),
                                               "lambda" = runif(1, lower, upper),
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed = sample(1:10000, 1)))
@@ -247,7 +247,7 @@ apcDC = function(formula, design.formula, data, family = "gaussian", lower = NUL
                                               "beta" = as.vector(coef(glm(formula, data, family = "binomial")))[-1], 
                                               "design_beta" = rep(0, FP),
                                               "g_inv" = 1/length(y), 
-                                              "ySim" = y, 
+                                              "ySim" = sample(y, length(y)),
                                               "lambda" = runif(1, lower, upper),
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed= sample(1:10000, 1)))
@@ -333,7 +333,7 @@ apcDC = function(formula, design.formula, data, family = "gaussian", lower = NUL
     }
     inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "poisson")))[1], 
                                               "g_inv" = 1/length(y), 
-                                              "ySim" = y, 
+                                              "ySim" = sample(y, length(y)),
                                               "lambda" = runif(1, lower, upper),
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed= sample(1:10000, 1), 

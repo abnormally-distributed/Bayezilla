@@ -129,6 +129,7 @@ gdp = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, 
                                              "eta" = rep(1, P), 
                                              "lambda" = rep(1, P), 
                                              "tau" = 1, 
+                                             "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
   
@@ -163,7 +164,6 @@ gdp = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, 
       ySim[i] ~ dbern(psi[i])
   }
   
-  sigma <- sqrt(1/tau)
   Deviance <- -2 * sum(log_lik[1:N])
 }"
     
@@ -180,6 +180,7 @@ gdp = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, 
                                                "zeta" = 1, 
                                                "eta" = rep(1, P), 
                                                "lambda" = rep(1, P), 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
@@ -214,7 +215,6 @@ gdp = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, 
     ySim[i] ~ dpois(psi[i])
   }
   
-  sigma <- sqrt(1/tau)
   Deviance <- -2 * sum(log_lik[1:N])
 }"
     
@@ -231,6 +231,7 @@ gdp = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, 
                                                "zeta" = 1, 
                                                "eta" = rep(1, P), 
                                                "lambda" = rep(1, P), 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     

@@ -5,8 +5,9 @@
 \title{Bayesian 't-tests'}
 \usage{
 tTest(formula = NULL, data, compval = 0, model = "is",
-  iter = 10000, warmup = 2500, adapt = 2500, chains = 4,
-  thin = 3, method = "parallel", cl = makeCluster(2), ...)
+  median = FALSE, iter = 10000, warmup = 2500, adapt = 2500,
+  chains = 4, thin = 3, method = "parallel", cl = makeCluster(2),
+  ...)
 }
 \arguments{
 \item{formula}{If using an independent samples t-test, supply a formula of the form y ~ group}
@@ -17,7 +18,9 @@ If using repeated measures, the vector of group differences.}
 
 \item{compval}{the hypothesized null value for a one sample t-test}
 
-\item{model}{one of "is" (independent samples t-test) , "rm" (repeated measures t-test), or "os" (one sample t-test)}
+\item{model}{one of "is" (independent samples t-test), "rm" (repeated measures t-test), or "os" (one sample t-test)}
+
+\item{median}{change to TRUE to compare the medians instead of means}
 
 \item{iter}{the number of iterations. defaults to 10000.}
 
@@ -39,18 +42,6 @@ If using repeated measures, the vector of group differences.}
 a runjags object
 }
 \description{
-A conjugate normal-gamma model: \cr
-\cr
-   tau_i ~ dgamma(square(prec(y)) / 1000, prec(y) / 1000) \cr
-   \cr
-   mu_i ~ normal(0, .5 * prec(y)) ** \cr
-   \cr
-   y ~ normal(mu_i, tau_i) \cr
-   \cr
-   *For unit scaled and centered response variables this implies gamma(.001, .001) \cr
-   \cr
-   **For unit scaled response variables this implies normal(0, tau = .5) \cr
-   
 INDEPENDENT SAMPLES T-TEST: 
 
 The difference in means is modeled as mu_1 - mu_2. The difference in the standard deviations of both groups

@@ -11,7 +11,7 @@
 #' @param cred.level the credibility level. defaults to 0.90
 #' @param keeppars the list of specific variables to keep
 #' @param droppars list of parameters to exclude
-#' @param ess set to TRUE (default) to include ess
+#' @param ess set to TRUE to include ess
 #' @param knitr if you want to return the summary with knitr's kable function set to TRUE. Default is TRUE.
 #' @param type output type for kable. Defaults to "markdown"
 #' @param ... other arguments to pass to knitr::kable
@@ -20,7 +20,7 @@
 #' @examples
 #' post_summary()
 #'
-post_summary = function (x, digits = 2, estimate.method = "both", ess = TRUE, cred.level = 0.90, cred.method = "QI", keeppars = NULL, droppars = c("ySim", "log_lik", "lp__"), knitr = TRUE, type = "markdown", ...)
+post_summary = function (x, digits = 2, estimate.method = "both", ess = FALSE, cred.level = 0.90, cred.method = "QI", keeppars = NULL, droppars = c("ySim", "log_lik", "lp__"), knitr = TRUE, type = "markdown", ...)
   {
     stan <- inherits(x, "stanfit")
     if (stan == TRUE) {
@@ -67,18 +67,18 @@ post_summary = function (x, digits = 2, estimate.method = "both", ess = TRUE, cr
     if (estimate.method == "mean") {
       estimate.method <- match.arg(estimate.method, c("mean",
                                                       "median"))
-      m <- switch(estimate.method, mean = colMeans(ss), median = apply(ss, 2, stats::median))
+      m <- switch(estimate.method, mean = colMeans(ss), median = apply(ss, 2, function(x) stats::median(zapsmall(x, digits = 3))))
       ret <- data.frame(estimate = m, std.error = apply(ss, 2, sd))
     }
     else if (estimate.method == "median") {
       estimate.method <- match.arg(estimate.method, c("mean",
                                                       "median"))
-      m <- switch(estimate.method, mean = colMeans(ss), median = apply(ss, 2, stats::median))
+      m <- switch(estimate.method, mean = colMeans(ss), median = apply(ss, 2, function(x) stats::median(zapsmall(x, digits = 3))))
       ret <- data.frame(estimate = m, std.error = apply(ss, 2, sd))
     }
     else if (estimate.method == "both"){
       exp.val <- colMeans(ss)
-      q50 <- apply(ss, 2, stats::median)
+      q50 <- apply(ss, 2, function(x) stats::median(zapsmall(x, digits = 3)))
       ret <- data.frame(estimate = exp.val, median = q50,
                         std.error = apply(ss, 2, sd))
     }
@@ -407,11 +407,11 @@ jointMode = function(x, keeppars = NULL, droppars = c("ySim", "log_lik", "lp__",
   }
   
   logdensity = function(x) {
-    d <- density(x, from = min(x), to = max(x), n = length(x), kernel = "triangular")
+    d <- density(zapsmall(round(x, 3), 2), from = min(x), to = max(x), n = length(x), kernel = "triangular")
     lp = log(d$y) 
     #dx = d$x
     #cbind.data.frame(lp = lp, x = dx)
-    lp
+    round(lp, 4)
   }
   
   logpost = apply(ss, 2, function(x) logdensity(x))
@@ -503,14 +503,14 @@ jointMode = function(x, keeppars = NULL, droppars = c("ySim", "log_lik", "Devian
   }
   
   logdensityY = function(x) {
-    d <- density(x, from = min(x), to = max(x), n = length(x), kernel = "t")
-    lp = log(d$y)
+    d <- density(x, from = min(x), to = max(x), n = length(x), kernel = "g")
+    lp = log(d$y / sum(d$y))
     lp
   }
   
   logdensityX = function(x) {
-    d <- density(x, from = min(x), to = max(x), n = length(x), kernel = "t")
-    d$x
+    d <- density(x, from = min(x), to = max(x), n = length(x), kernel = "g")
+    zapsmall(round(d$x, 3) , 2)
   }
   
   logpost = apply(ss, 2, function(x) logdensityY(x))

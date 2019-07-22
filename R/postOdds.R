@@ -21,17 +21,19 @@
 #' \cr
 #'
 #' @param fit a runjags or stanfit object. Alternatively, a numeric vector can be provided.
-#' @param param the name of the parameter to be tested
+#' @param keeppars The name of the parameters. Can use "beta" to match up with all betas, ie, "beta[1]", "beta[2]", etc. Defaults to c("Intercept", "beta").
 #' @param H0 a single value or a vector of values for the null hypothesis. Defaults to zero but this is not appropriate
-#' for a binomial test. Be sure to pick a reasonable null hypothesis.
+#' for a binomial test. Be sure to pick a reasonable null hypothesis. If only one values is provided for multiple parameters this
+#' value will be used for all tests.
 #' @param method whether the mean (default), "median", or a kernel density estimate of the "mode" should be used for the hypothesis test
 #' @export
 #' @examples
 #' postOdds()
 #' 
-postOdds = function(fit, param = NULL, H0 = 0, method = "mean"){
+postOdds = function(fit, keeppars = c("Intercept", "beta"), H0 = 0, method = "mean"){
   
   posterior.odds = function(posterior, H0, method){
+    
     if (method == "mean"){
       estimate = mean(posterior)
     }
@@ -41,19 +43,19 @@ postOdds = function(fit, param = NULL, H0 = 0, method = "mean"){
     else if (method == "mode"){
       
       contMode = function(x) {
-          d <- density(x, from = min(x), to = max(x), n = length(x), kernel = "t")
-          d$x[which.max(d$y)]
+        d <- density(x, from = min(x), to = max(x), n = length(x), kernel = "t")
+        d$x[which.max(d$y)]
       }
-
+      
       estimate = contMode(posterior)
       
     }
     
     dfun = function(t){
       
-    
+      
       fun = approxfun(x = density(posterior, from=min(posterior), to=max(posterior), n=length(posterior), kernel="o")$x, 
-                     y = density(posterior, from=min(posterior), to=max(posterior), n=length(posterior), kernel="o")$y)
+                      y = density(posterior, from=min(posterior), to=max(posterior), n=length(posterior), kernel="o")$y)
       d = fun(t)
       if (is.na(d)){
         d <- 0
@@ -64,30 +66,71 @@ postOdds = function(fit, param = NULL, H0 = 0, method = "mean"){
     dens.est  = dfun(estimate)
     dens.null = dfun(H0)
     p = (dens.null) / (dens.est)
-    c("p" = p, "odds" = p / (1 - p))
+    c("p" = round(p, 3), "odds" = round(p / (1 - p), 3))
   }
   
-    if (is.null(fit)){
-      stop("Please provide a runjags or stanfit model object.")
-    }
-    if (is.null(param) & !is.vector(fit))  {
-      stop("Please choose a single parameter to test with the 'param' argument.")
-    } 
+  if (is.null(fit)){
+    stop("Please provide a vector, a runjags, or stanfit model object.")
+  }
   
-    stan <- inherits(fit, "stanfit")
-    if (is.vector(fit)) {
-      paramSampleVec = fit
-    }
-    else if (stan == TRUE) {
-      paramSampleVec <- as.matrix(fit)
-      paramSampleVec = as.vector(paramSampleVec[,which(colnames(paramSampleVec) == param)])
-    } 
-    else if (class(fit) == "runjags") {
-      paramSampleVec = as.vector(combine.mcmc(fit, collapse.chains = TRUE, vars = param))
-    }
-     
+  droppars = NULL
   
+  if (is.vector(fit)) {
+    paramSampleVec = fit
     posterior.odds(paramSampleVec, H0, method)
+  }
+  
+  else {
+    stan <- inherits(fit, "stanfit")
+    if (stan == TRUE) {
+      ss <- as.matrix(fit)
+      wch = unique(unlist(sapply(droppars, function(z) which(regexpr(z, colnames(ss)) == 1))))
+      if (length(wch) != 0){
+        ss <- ss[,-wch]
+      }
+      if (!is.null(keeppars)) {
+        wch = unique(unlist(sapply(keeppars, function(z) which(regexpr(z, colnames(ss)) == 1))))
+        if (length(wch) != 0){
+          ss <- ss[,wch]
+        }
+      }
+    }
+    else if (class(fit) == "runjags"){
+      ss <- runjags::combine.mcmc(fit, collapse.chains = TRUE)
+      ss <- as.matrix(ss)
+      wch = unique(unlist(sapply(droppars, function(z) which(regexpr(z, colnames(ss)) == 1))))
+      if (length(wch) != 0){
+        ss <- ss[,-wch]
+      }
+      if (!is.null(keeppars)) {
+        wch = unique(unlist(sapply(keeppars, function(z) which(regexpr(z, colnames(ss)) == 1))))
+        if (length(wch) != 0){
+          ss <- ss[,wch]
+        }
+      }
+    }
+    else {
+      ss <- as.matrix(fit)
+      wch = unique(unlist(sapply(droppars, function(z) which(regexpr(z, colnames(ss)) == 1))))
+      if (length(wch) != 0){
+        ss <- ss[,-wch]
+      }
+      if (!is.null(keeppars)) {
+        wch = unique(unlist(sapply(keeppars, function(z) which(regexpr(z, colnames(ss)) == 1))))
+        if (length(wch) != 0){
+          ss <- ss[,wch]
+        }
+      }
+    }
+    names = colnames(ss)
+    if (length(H0)==1){
+      H0 = rep(H0, ncol(ss))
+    }
+    pvals = sapply(1:ncol(ss), function(x) round(posterior.odds(ss[,x], H0[x], method = method), 3))
+    pvals = as.data.frame(t(pvals))
+    rownames(pvals) = names
+    pvals
+  }
   
 }
 

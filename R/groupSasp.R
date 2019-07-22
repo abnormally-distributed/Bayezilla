@@ -104,7 +104,7 @@ groupSasp = function(X, y, idx, family = "gaussian", log_lik = FALSE, iter=10000
                                                "lambda" = rep(1, nG), 
                                                "tau" = 1, 
                                                "kappa" = .75, 
-                                               "ySim" = y, 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
@@ -157,7 +157,7 @@ groupSasp = function(X, y, idx, family = "gaussian", log_lik = FALSE, iter=10000
                                                "u" = rgamma(nG, (1 / .75) + 1, 1), 
                                                "lambda" = rep(1, nG), 
                                                "kappa" = .75, 
-                                               "ySim" = y, 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
@@ -209,7 +209,7 @@ groupSasp = function(X, y, idx, family = "gaussian", log_lik = FALSE, iter=10000
                                              "beta" = rep(0, P), 
                                              "u" = rgamma(nG, (1 / .75) + 1, 1), 
                                              "lambda" = rep(1, nG), 
-                                             "ySim" = y, 
+                                             "ySim" = sample(y, length(y)),
                                              "kappa" = .75, 
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))

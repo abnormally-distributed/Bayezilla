@@ -98,7 +98,7 @@ bridgeDC = function(formula, design.formula, data,  family = "gaussian", kappa =
                                                "u" = rgamma(P, (1 / kappa) + 1, 1), 
                                                "lambda" = 1, 
                                                "tau" = 1, 
-                                               "ySim" = y, 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
@@ -150,7 +150,7 @@ bridgeDC = function(formula, design.formula, data,  family = "gaussian", kappa =
                                                "design_beta" =  as.vector(coef(glmnet::glmnet(x = FX, y = y, family = "binomial", lambda = runif(1, .01, .15), alpha = runif(1, .2, .5), standardize = FALSE))[-1,1]), 
                                                "u" = rgamma(P, (1 / kappa) + 1, 1), 
                                                "lambda" = 1, 
-                                               "ySim" = y, 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
@@ -205,7 +205,7 @@ bridgeDC = function(formula, design.formula, data,  family = "gaussian", kappa =
                                              "design_beta" =  as.vector(coef(glmnet::glmnet(x = FX, y = y, family = "poisson", lambda = runif(1, .01, .15), alpha = runif(1, .2, .5), standardize = FALSE))[-1,1]), 
                                              "u" = rgamma(P, (1 / kappa) + 1, 1), 
                                              "lambda" = 1, 
-                                             "ySim" = y, 
+                                             "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
   

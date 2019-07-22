@@ -133,6 +133,7 @@ gdpDC = function(formula, design.formula, data, family = "gaussian", log_lik = F
                                              "eta" = rep(1, P), 
                                              "lambda" = rep(1, P), 
                                              "tau" = 1, 
+                                             "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
   
@@ -184,6 +185,7 @@ gdpDC = function(formula, design.formula, data, family = "gaussian", log_lik = F
                                                "zeta" = 1, 
                                                "eta" = rep(1, P), 
                                                "lambda" = rep(1, P), 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
@@ -235,6 +237,7 @@ gdpDC = function(formula, design.formula, data, family = "gaussian", log_lik = F
                                                "alpha" = 1, 
                                                "zeta" = 1, 
                                                "eta" = rep(1, P), 
+                                               "ySim" = sample(y, length(y)),
                                                "lambda" = rep(1, P), 
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))

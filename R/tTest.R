@@ -1,19 +1,6 @@
 #' Bayesian 't-tests' 
 #'
 #' @description 
-#' 
-#' A conjugate normal-gamma model: \cr
-#' \cr
-#'    tau_i ~ dgamma(square(prec(y)) / 1000, prec(y) / 1000) \cr
-#'    \cr
-#'    mu_i ~ normal(0, .5 * prec(y)) ** \cr
-#'    \cr
-#'    y ~ normal(mu_i, tau_i) \cr
-#'    \cr
-#'    *For unit scaled and centered response variables this implies gamma(.001, .001) \cr
-#'    \cr
-#'    **For unit scaled response variables this implies normal(0, tau = .5) \cr
-#'    
 #' INDEPENDENT SAMPLES T-TEST: 
 #' 
 #' The difference in means is modeled as mu_1 - mu_2. The difference in the standard deviations of both groups
@@ -65,7 +52,8 @@
 #' @param data the data frame containing the outcome variable and group labels for independent samples t-test. 
 #' If using the one sample t-test, the vector of observations. 
 #' If using repeated measures, the vector of group differences.
-#' @param model one of "is" (independent samples t-test) , "rm" (repeated measures t-test), or "os" (one sample t-test)
+#' @param model one of "is" (independent samples t-test), "rm" (repeated measures t-test), or "os" (one sample t-test)
+#' @param median change to TRUE to compare the medians instead of means
 #' @param compval the hypothesized null value for a one sample t-test
 #' @param iter the number of iterations. defaults to 10000.
 #' @param warmup number of burnin samples. defaults to 2500.
@@ -83,8 +71,10 @@
 #' @examples
 #' tTest(len ~ supp, ToothGrowth)
 #' 
-tTest = function(formula = NULL, data, compval = 0, model = "is", iter=10000, warmup=2500, adapt=2500, chains=4, thin=3, method = "parallel", cl = makeCluster(2), ...){
+tTest = function(formula = NULL, data, compval = 0, model = "is", median = FALSE, iter=10000, warmup=2500, adapt=2500, chains=4, thin=3, method = "parallel", cl = makeCluster(2), ...){
  
+  if (median == FALSE){
+
     if (model == "is"){
       
       two_sample_t <- 
@@ -92,8 +82,8 @@ tTest = function(formula = NULL, data, compval = 0, model = "is", iter=10000, wa
         "model {
 
     for (g in 1:2){
-      tau[g] ~ dgamma(sh, ra)
-      mu[g]  ~ dnorm(ymean, yprec)
+      tau[g] ~ dgamma(1e-100, 1e-100)
+      mu[g]  ~ dnorm(0, 1e-100)
       sigma[g] <- sqrt(1 / tau[g])
   }    
     
@@ -118,7 +108,7 @@ tTest = function(formula = NULL, data, compval = 0, model = "is", iter=10000, wa
     N1 = as.vector(table(group))[1]
     N2 = as.vector(table(group))[2]
     write_lines(two_sample_t, "two_sample_t.txt")
-    jagsdata = list("N" = N, "N1" = N1, "N2" = N2, "group" = group, "y" = y, "yprec" = prec(y), "ymean" = mean(y), sh = square(prec(y)) / 1000, ra = prec(y) / 1000)
+    jagsdata = list("N" = N, "N1" = N1, "N2" = N2, "group" = group, "y" = y)
     monitor = c("muDiff", "sigmaDiff", "mu", "sigma",  "effSize", "U3", "CL", "logBF", "ySim")
     inits = lapply(1:chains, function(z) list("mu" = c(mean(y), mean(y)), "ySim"  = y, "tau" = c(1/var(y),1/var(y)),
                                               .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:1000, 1)))
@@ -136,8 +126,8 @@ tTest = function(formula = NULL, data, compval = 0, model = "is", iter=10000, wa
     repeated_measures_t <- "
   
   model {
-    mu ~ dnorm(0, .5 * yprec)
-    tau ~ dgamma(sh, ra)
+    mu ~ dnorm(0, 1e-100)
+    tau ~ dgamma(1e-100, 1e-100)
     
     for (i in 1:N) {
       y[i] ~ dnorm(mu, tau)
@@ -150,7 +140,7 @@ tTest = function(formula = NULL, data, compval = 0, model = "is", iter=10000, wa
     prior_effSize <- logdensity.norm(0, 0, 1)
     posterior_effSize <- logdensity.norm(0, effSize, 1)
     logBF <- prior_effSize - posterior_effSize
-}"
+  }"
     
     if (is.null(data)) {
       cat(crayon::red("Please provide a vector of paired differences "))
@@ -158,7 +148,7 @@ tTest = function(formula = NULL, data, compval = 0, model = "is", iter=10000, wa
     
     y = data
     write_lines(repeated_measures_t, "repeated_measures_t.txt")
-    jagsdata = list("N" = length(y), "y" = y, "yprec" = prec(y), sh = square(prec(y)) / 1000, ra = prec(y) / 1000)
+    jagsdata = list("N" = length(y), "y" = y)
     monitor = c("mu", "sigma",  "effSize", "CL", "logBF", "ySim")
     inits = lapply(1:chains, function(z) list("mu" = mean(y), "ySim"  = y, "tau" = 1/var(y),
                                               .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
@@ -176,8 +166,8 @@ tTest = function(formula = NULL, data, compval = 0, model = "is", iter=10000, wa
     one_sample_t <- "
   
   model {
-    mu ~ dnorm(0, .5 * yprec)
-    tau ~ dgamma(sh, ra)
+    mu ~ dnorm(0, 1e-100)
+    tau ~ dgamma(1e-100, 1e-100)
     
     for (i in 1:N) {
       y[i] ~ dnorm(mu, tau)
@@ -200,7 +190,7 @@ tTest = function(formula = NULL, data, compval = 0, model = "is", iter=10000, wa
     
     y = data
     write_lines(one_sample_t, "one_sample_t.txt")
-    jagsdata = list("N" = length(y), "y" = y, "yprec" = prec(y), compval = compval, sh = square(prec(y)) / 1000, ra = prec(y) / 1000)
+    jagsdata = list("N" = length(y), "y" = y, compval = compval)
     monitor = c("mu", "sigma",  "effSize", "logBF", "ySim")
     
     inits = lapply(1:chains, function(z) list("mu" = mean(y), "ySim"  = y, "tau" = 1/var(y),
@@ -217,5 +207,147 @@ tTest = function(formula = NULL, data, compval = 0, model = "is", iter=10000, wa
     return(out)
     
     }
+  
+  }
+
+  if (median == TRUE){
+    
+    if (model == "is"){
+      
+      two_sample_t <- 
+        
+        "model {
+
+    for (g in 1:2){
+      tau[g] ~ dscaled.gamma(1e100, 1)
+      mu[g]  ~ dnorm(0, 1e-100)
+      sigma[g] <- sqrt(1 / tau[g])
+    }    
+    
+    for (i in 1:N){
+      y[i] ~ ddexp(mu[group[i]], tau[group[i]])
+      ySim[i] ~ ddexp(mu[group[i]], tau[group[i]])
+    }
+
+  muDiff <- mu[1] - mu[2]
+  sigmaDiff <- sigma[1] - sigma[2]
+  effSize <- (muDiff) / sqrt( ( (pow(sigma[1],2)*(N1-1)) + (pow(sigma[2],2)*(N2-1)) ) / (N1+N2-2) )
+  U3 <- phi(effSize)
+  CL <- phi(effSize / sqrt(2))
+  prior_effSize <- logdensity.norm(0, 0, 1)
+  posterior_effSize <- logdensity.norm(0, effSize, 1)
+  logBF <- prior_effSize - posterior_effSize
+}
+"
+    y = model.frame(formula, data)[,1]
+    group = as.numeric(as.factor(model.matrix(formula, data)[,2]))
+    N = length(y)
+    N1 = as.vector(table(group))[1]
+    N2 = as.vector(table(group))[2]
+    write_lines(two_sample_t, "two_sample_t.txt")
+    jagsdata = list("N" = N, "N1" = N1, "N2" = N2, "group" = group, "y" = y)
+    monitor = c("muDiff", "sigmaDiff", "mu", "sigma",  "effSize", "U3", "CL", "logBF", "ySim")
+    inits = lapply(1:chains, function(z) list("mu" = c(mean(y), mean(y)), "ySim"  = y, "tau" = c(1/var(y),1/var(y)),
+                                              .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:1000, 1)))
+    out = run.jags(model = "two_sample_t.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+    if (!is.null(cl)){
+      parallel::stopCluster(cl = cl)
+    }
+    file.remove("two_sample_t.txt")
+    return(out)
+    
+    }
+
+if (model == "rm") {
+  
+  repeated_measures_t <- "
+  
+  model {
+    mu ~ dnorm(0, 1e-100)
+    tau ~ dscaled.gamma(1e100, 1)
+    
+    for (i in 1:N) {
+      y[i] ~ ddexp(mu, tau)
+      ySim[i] ~ ddexp(mu, tau)
+    }
+    
+    sigma <- sqrt(1/tau)
+    effSize <- (mu - 0) / sigma
+    CL <- phi(effSize / sqrt(2))
+    prior_effSize <- logdensity.norm(0, 0, 1)
+    posterior_effSize <- logdensity.norm(0, effSize, 1)
+    logBF <- prior_effSize - posterior_effSize
+}"
+  
+  if (is.null(data)) {
+    cat(crayon::red("Please provide a vector of paired differences "))
+  }
+  
+  y = data
+  write_lines(repeated_measures_t, "repeated_measures_t.txt")
+  jagsdata = list("N" = length(y), "y" = y)
+  monitor = c("mu", "sigma",  "effSize", "CL", "logBF", "ySim")
+  inits = lapply(1:chains, function(z) list("mu" = mean(y), "ySim"  = y, "tau" = 1/var(y),
+                                            .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
+  out = run.jags(model = "repeated_measures_t.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+  if (!is.null(cl)){
+    parallel::stopCluster(cl = cl)
+  }
+  file.remove("repeated_measures_t.txt")
+  return(out)
+  
+}
+
+if (model == "os") {
+  
+  one_sample_t <- "
+  
+  model {
+    mu ~ dnorm(0, 1e-100)
+    tau ~ dscaled.gamma(1e100, 1)
+    
+    for (i in 1:N) {
+      y[i] ~ ddexp(mu, tau)
+      ySim[i] ~ ddexp(mu, tau)
+    }
+    
+    sigma <- sqrt(1/tau)
+    effSize <- (mu - compval) / sigma
+    prior_effSize <- logdensity.norm(compval, compval, 1)
+    posterior_effSize <- logdensity.norm(compval, effSize, 1)
+    logBF <- prior_effSize - posterior_effSize
+    
+}"
+  
+  if (is.null(data)) {
+    cat(crayon::red("Please provide a vector of observations"))
+  }
+  if (is.null(compval)) {
+    cat(crayon::red("Please provide a comparison value against which to test the mean of y"))
+  }
+  
+  y = data
+  write_lines(one_sample_t, "one_sample_t.txt")
+  jagsdata = list("N" = length(y), "y" = y, compval = compval)
+  monitor = c("mu", "sigma",  "effSize", "logBF", "ySim")
+  
+  inits = lapply(1:chains, function(z) list("mu" = mean(y), "ySim"  = y, "tau" = 1/var(y),
+                                            .RNG.name="lecuyer::RngStream", .RNG.seed= sample(1:10000, 1)))
+  
+  out = run.jags(model = "one_sample_t.txt", modules = "glm", monitor = monitor, data = jagsdata, inits = inits, 
+                 burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+  
+  if (!is.null(cl)){
+    parallel::stopCluster(cl = cl)
+  }
+  
+  file.remove("one_sample_t.txt")
+  return(out)
+  
+}
+
+  }
+
+
 }
 

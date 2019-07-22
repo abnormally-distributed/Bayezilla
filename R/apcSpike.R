@@ -48,7 +48,7 @@
 #' @param data a data frame
 #' @param lower lower limit on value of lambda. Is NULL by default and limits are set based on the minimum value that produces a positive definite covariance matrix.
 #' @param uppper upper limit on value of lambda. Is NULL by default and limits are set based on the maximum value that produces a positive definite covariance matrix.
-#' @param family one of "gaussian", "binomial", or "poisson".
+#' @param family one of "gaussian", "st" (Student-t with nu = 3), "binomial", or "poisson".
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 15000.
 #' @param warmup How many warmup samples? Defaults to 5000.
@@ -191,7 +191,100 @@ apcSpike = function(formula, data, family = "gaussian", lower = NULL, upper = NU
                                               "tau" = 1, 
                                               "lambda" = runif(1, lower, upper), 
                                               "g_inv" = 1/length(y), 
-                                              "ySim" = y, 
+                                              "ySim" = sample(y, length(y)),
+                                              .RNG.name= "lecuyer::RngStream", 
+                                              .RNG.seed = sample(1:10000, 1)))
+  }
+  
+  
+  if (family == "st"){
+    
+    jags_apc = "model{
+              
+              phi ~ dbeta(1, 1)
+              tau ~ dgamma(.01, .01)
+              g_inv ~ dgamma(.5, N * .5)
+              g <- 1 / g_inv
+              sigma <- sqrt(1/tau)
+              lambda ~ dunif(lower, upper)
+              
+              for (i in 1:(P-1)) {
+               for (j in (i+1):P) {
+                 Dpower[i,j] <- 0
+                 Dpower[j,i] <- Dpower[i,j]
+                }
+              }
+              
+              for (i in 1:P){
+                Dpower[i,i] <- pow(D[i], lambda)
+              }
+              
+              
+              prior_cov_pre_raw <- L %*% Dpower %*% t(L)
+              
+              
+              for (i in 1:P){
+                for (j in 1:P){
+                  prior_cov_raw[i,j] <- prior_cov_pre_raw[i,j] / N
+                }
+              }
+              
+              for (i in 1:P){
+                d[i] <- prior_cov_raw[i, i]
+              }
+              
+              trace <- sum(d[1:P])
+              K <- t / trace
+              
+              for (i in 1:P){
+                for (j in 1:P){
+                    prior_cov[i, j] <- g * pow(sigma, 2)* (prior_cov_raw[i, j] * K)
+                }
+              }
+
+              omega <- inverse(prior_cov) 
+              theta[1:P] ~ dmnorm(rep(0,P), omega[1:P,1:P])
+              
+              for (i in 1:P){
+                delta[i] ~ dbern(phi)
+                beta[i] <- delta[i] * theta[i]
+              }
+              
+              Intercept ~ dnorm(0, 1e-10)
+              
+              for (i in 1:N){
+                 mu[i] <- Intercept + sum(beta[1:P] * X[i,1:P])
+                 y[i] ~ dt(mu[i], tau, 3)
+                 log_lik[i] <- logdensity.t(y[i], mu[i], tau, 3)
+                 ySim[i] ~ dt(mu[i], tau, 3)
+              }
+              Deviance <- -2 * sum(log_lik[1:N])
+              BIC <- (log(N) * sum(delta[1:P])) + Deviance
+          }"
+    
+    P = ncol(X)
+    write_lines(jags_apc, "jags_apc.txt")
+    jagsdata = list(X = X, 
+                    y = y,  
+                    N = length(y), 
+                    P = ncol(X), 
+                    t = Trace(XtXinv(X)), 
+                    D=D,  
+                    L=L, 
+                    lower = lower, 
+                    upper = upper)
+    monitor = c("Intercept", "beta", "sigma", "g", "lambda" , "phi",  "BIC", "Deviance", "delta", "ySim", "log_lik")
+    if (log_lik == FALSE){
+      monitor = monitor[-(length(monitor))]
+    }
+    inits = lapply(1:chains, function(z) list("Intercept"= lmSolve(formula, data)[1], 
+                                              "phi" = rbeta(1, 2, 2), 
+                                              "delta" = rep(0, P), 
+                                              "theta" = lmSolve(formula, data)[-1], 
+                                              "tau" = 1, 
+                                              "lambda" = runif(1, lower, upper), 
+                                              "g_inv" = 1/length(y), 
+                                              "ySim" = sample(y, length(y)),
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed = sample(1:10000, 1)))
   }
@@ -283,7 +376,7 @@ apcSpike = function(formula, data, family = "gaussian", lower = NULL, upper = NU
                                               "theta" = as.vector(coef(glm(formula, data, family = "binomial")))[-1], 
                                               "lambda" = runif(1, lower, upper), 
                                               "g_inv" = 1/length(y), 
-                                              "ySim" = y, 
+                                              "ySim" = sample(y, length(y)),
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed= sample(1:10000, 1)))
   }
@@ -369,7 +462,7 @@ apcSpike = function(formula, data, family = "gaussian", lower = NULL, upper = NU
       }
       inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "poisson")))[1], 
                                                 "g_inv" = 1/length(y), 
-                                                "ySim" = y, 
+                                                "ySim" = sample(y, length(y)),
                                                 .RNG.name= "lecuyer::RngStream", 
                                                 .RNG.seed= sample(1:10000, 1),
                                                 "phi" = rbeta(1, 2, 2), 

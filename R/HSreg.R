@@ -97,6 +97,7 @@ inits = lapply(1:chains, function(z) list("beta" = rep(0, ncol(X)),
                                           "c2_inv" = 1/slab_df, 
                                           "lambda"= 10, 
                                           "tau" = 1,
+                                          "ySim" = sample(y, length(y)),
                                           .RNG.name= "lecuyer::RngStream",
                                           .RNG.seed= sample(1:10000, 1)))
 monitor = c("Intercept", "beta", "sigma", "Deviance", "lambda", "c2", "ySim", "log_lik")
@@ -153,6 +154,7 @@ inits = lapply(1:chains, function(z) list("beta" = rep(0, ncol(X)),
                                           "eta" =  rep(1, ncol(X)),
                                           "c2_inv" = 1/slab_df, 
                                           "lambda"= 10, 
+                                          "ySim" = sample(y, length(y)),
                                           .RNG.name= "lecuyer::RngStream",
                                           .RNG.seed= sample(1:10000, 1)))
 
@@ -209,6 +211,7 @@ inits = lapply(1:chains, function(z) list("beta" = rep(0, ncol(X)),
                                           "eta" =  rep(1, ncol(X)),
                                           "c2_inv" = 1/slab_df, 
                                           "lambda"= 10, 
+                                          "ySim" = sample(y, length(y)),
                                           .RNG.name= "lecuyer::RngStream",
                                           .RNG.seed= sample(1:10000, 1)))
 

@@ -105,6 +105,7 @@ adaLASSODC = function(formula, design.formula, data, family = "gaussian", log_li
                                                "eta" = rep(1, P), 
                                                "sh" = .5, 
                                                "ra" = .1, 
+                                               "ySim" = sample(y, length(y)),
                                                "lambda" = sample(1:3, size = P, replace =TRUE), 
                                                "tau" = 1))
     
@@ -162,7 +163,7 @@ adaLASSODC = function(formula, design.formula, data, family = "gaussian", log_li
                                                "ra" = .10, 
                                                "u" = rgamma(P, 2, 1), 
                                                "lambda" = rep(1, P), 
-                                               "ySim" = y, 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
@@ -220,7 +221,7 @@ adaLASSODC = function(formula, design.formula, data, family = "gaussian", log_li
                                              "ra" = .10, 
                                              "u" = rgamma(P, 2, 1), 
                                              "lambda" = rep(1, P), 
-                                             "ySim" = y, 
+                                             "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
   

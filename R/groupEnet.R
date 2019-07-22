@@ -86,6 +86,7 @@ groupEnet  = function(X, y, idx, family = "gaussian", log_lik = FALSE, iter=1000
                                              "lambdaL1" = 2, 
                                              "lambdaL2" = 5, 
                                              "tau" = 1,
+                                             "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
   
@@ -137,6 +138,7 @@ groupEnet  = function(X, y, idx, family = "gaussian", log_lik = FALSE, iter=1000
                                                "eta" = 1 + abs(jitter(rep(1, max(idx)), amount = .25)), 
                                                "lambdaL1" = 2, 
                                                "lambdaL2" = 5, 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
@@ -189,6 +191,7 @@ groupEnet  = function(X, y, idx, family = "gaussian", log_lik = FALSE, iter=1000
                                                "eta" = 1 + abs(jitter(rep(1, max(idx)), amount = .25)), 
                                                "lambdaL1" = 2, 
                                                "lambdaL2" = 5, 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     

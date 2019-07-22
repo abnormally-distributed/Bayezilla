@@ -145,7 +145,7 @@ extLASSODC  = function(formula, design.formula, data, family = "gaussian", eta_p
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), FP = FP, FX = FX, local_u = local_u)
       inits = lapply(1:chains, function(z) list("Intercept" = lmSolve(design.formula, data)[1], 
                                                 "design_beta" = lmSolve(design.formula, data)[-1], 
-                                                "ySim" = y, 
+                                                "ySim" = sample(y, length(y)),
                                                 "Omega" = 2, 
                                                 "beta" = lmSolve(formula, data)[-1], 
                                                 "eta" = rep(1, P), 
@@ -213,7 +213,7 @@ extLASSODC  = function(formula, design.formula, data, family = "gaussian", eta_p
       
       inits = lapply(1:chains, function(z) list("Intercept" = lmSolve(design.formula, data)[1], 
                                                 "design_beta" = lmSolve(design.formula, data)[-1], 
-                                                "ySim" = y, 
+                                                "ySim" = sample(y, length(y)),
                                                 "Omega" = 2, 
                                                 "beta" = lmSolve(formula, data)[-1], 
                                                 "eta" = rep(1, P), 
@@ -280,7 +280,7 @@ extLASSODC  = function(formula, design.formula, data, family = "gaussian", eta_p
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), FP = FP, FX = FX, local_u = local_u)
       inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(design.formula, data, family = "binomial")))[1], 
                                                 "design_beta" = as.vector(coef(glm(design.formula, data, family = "binomial")))[-1], 
-                                                "ySim" = y, 
+                                                "ySim" = sample(y, length(y)),
                                                 "Omega" = 2, 
                                                 "beta" = jitter(rep(0, P), amount = .25), 
                                                 "eta" = rep(1, P), 
@@ -344,7 +344,7 @@ extLASSODC  = function(formula, design.formula, data, family = "gaussian", eta_p
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), FP = FP, FX = FX, local_u = local_u, top_u = top_u)
       inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(design.formula, data, family = "binomial")))[1],
                                                 "design_beta" = as.vector(coef(glm(design.formula, data, family = "binomial")))[-1], 
-                                                "ySim" = y, 
+                                                "ySim" = sample(y, length(y)),
                                                 "Omega" = 2, 
                                                 "beta" = jitter(rep(0, P), amount = .25), 
                                                 "eta" = rep(1, P), 
@@ -412,7 +412,7 @@ extLASSODC  = function(formula, design.formula, data, family = "gaussian", eta_p
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), FP = FP, FX = FX, local_u = local_u)
       inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(design.formula, data, family = "poisson")))[1], 
                                                 "design_beta" = as.vector(coef(glm(design.formula, data, family = "poisson")))[-1], 
-                                                "ySim" = y, 
+                                                "ySim" = sample(y, length(y)),
                                                 "Omega" = 2, 
                                                 "beta" = jitter(rep(0, P), amount = .25), 
                                                 "eta" = rep(1, P), 
@@ -477,7 +477,7 @@ extLASSODC  = function(formula, design.formula, data, family = "gaussian", eta_p
       jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), FP = FP, FX = FX, local_u = local_u, top_u = top_u)
       inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(design.formula, data, family = "poisson")))[1], 
                                                 "design_beta" = as.vector(coef(glm(design.formula, data, family = "poisson")))[-1], 
-                                                "ySim" = y, 
+                                                "ySim" = sample(y, length(y)),
                                                 "Omega" = 2, 
                                                 "beta" = rep(0, P), 
                                                 "eta" = rep(1, P), 

@@ -103,6 +103,7 @@ if (family == "gaussian"){
                                              "eta" = rep(2, max(idx)), 
                                              "lambda" = 2, 
                                              "tau" = 1, 
+                                             "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)
                                              ))
@@ -154,7 +155,7 @@ if (family == "binomial" || family == "logistic"){
                                              "beta" = rep(0, P), 
                                              "u" = rgamma(nG, nG + 1, 1), 
                                              "lambda" = 1, 
-                                             "ySim" = y, 
+                                             "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
   
@@ -205,7 +206,7 @@ inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::
                                            "beta" = rep(0, P), 
                                            "u" = rgamma(nG, nG+1, 1), 
                                            "lambda" = 1, 
-                                           "ySim" = y, 
+                                           "ySim" = sample(y, length(y)),
                                            .RNG.name= "lecuyer::RngStream", 
                                            .RNG.seed= sample(1:10000, 1)))
 

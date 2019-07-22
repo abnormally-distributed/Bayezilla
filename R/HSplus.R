@@ -82,6 +82,7 @@ inits = lapply(1:chains, function(z) list("beta" = rep(0, ncol(X)),
                                           "local_lambda_B" =  rep(1, ncol(X)),
                                           "global_lambda"= 1,
                                           "tau" = 1,
+                                          "ySim" = sample(y, length(y)),
                                           .RNG.name= "lecuyer::RngStream",
                                           .RNG.seed= sample(1:10000, 1)))
 monitor = c("Intercept", "beta", "sigma", "Deviance" , "global_lambda", "local_lambda_A", "local_lambda_B", "ySim", "log_lik")
@@ -132,6 +133,7 @@ inits = lapply(1:chains, function(z) list("beta" = rep(0, ncol(X)),
                                           "local_lambda_A" =  rep(1, ncol(X)),
                                           "local_lambda_B" =  rep(1, ncol(X)),
                                           "global_lambda"= 1,
+                                          "ySim" = sample(y, length(y)),
                                           .RNG.name= "lecuyer::RngStream",
                                           .RNG.seed= sample(1:10000, 1)))
 monitor = c("Intercept", "beta", "Deviance" , "global_lambda", "local_lambda_A", "local_lambda_B", "ySim", "log_lik")
@@ -179,6 +181,7 @@ inits = lapply(1:chains, function(z) list("beta" = rep(0, ncol(X)),
                                           "local_lambda_A" =  rep(1, ncol(X)),
                                           "local_lambda_B" =  rep(1, ncol(X)),
                                           "global_lambda"= 1,
+                                          "ySim" = sample(y, length(y)),
                                           .RNG.name= "lecuyer::RngStream",
                                           .RNG.seed= sample(1:10000, 1)))
 monitor = c("Intercept", "beta", "Deviance" , "global_lambda", "local_lambda_A", "local_lambda_B", "ySim", "log_lik")

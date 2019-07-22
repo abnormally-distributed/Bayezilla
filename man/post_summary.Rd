@@ -4,7 +4,7 @@
 \alias{post_summary}
 \title{Get a tidy summary of a bayesian model}
 \usage{
-post_summary(x, digits = 2, estimate.method = "both", ess = TRUE,
+post_summary(x, digits = 2, estimate.method = "both", ess = FALSE,
   cred.level = 0.9, cred.method = "QI", keeppars = NULL,
   droppars = c("ySim", "log_lik", "lp__"), knitr = TRUE,
   type = "markdown", ...)
@@ -17,7 +17,7 @@ post_summary(x, digits = 2, estimate.method = "both", ess = TRUE,
 \item{estimate.method}{one of "mean" or "median", or "both". If "mean" or "median" the
 estimate will be in column title "estimate". If "both" (the default) the mean will be the "estimate" column and the median will be in the "median" column.}
 
-\item{ess}{set to TRUE (default) to include ess}
+\item{ess}{set to TRUE to include ess}
 
 \item{cred.level}{the credibility level. defaults to 0.90}
 

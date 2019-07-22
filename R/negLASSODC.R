@@ -87,7 +87,7 @@ negLASSODC  = function(formula, design.formula, data, family = "gaussian", log_l
                                                "psi" = abs(jitter(rep(1, P), amount = 1)), 
                                                "lambda" = 2, 
                                                "tau" = 1, 
-                                               "ySim" = y,
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed = sample(1:10000, 1)))
   }
@@ -132,7 +132,7 @@ negLASSODC  = function(formula, design.formula, data, family = "gaussian", log_l
                                               "eta" = abs(jitter(rep(1, P), amount = 1)), 
                                               "psi" = abs(jitter(rep(1, P), amount = 1)), 
                                               "lambda" = 2, 
-                                              "ySim" = y,
+                                              "ySim" = sample(y, length(y)),
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed = sample(1:10000, 1)))
   }
@@ -175,7 +175,7 @@ negLASSODC  = function(formula, design.formula, data, family = "gaussian", log_l
                                               "eta" = abs(jitter(rep(1, P), amount = 1)), 
                                               "psi" = abs(jitter(rep(1, P), amount = 1)), 
                                               "lambda" = 2, 
-                                              "ySim" = y,
+                                              "ySim" = sample(y, length(y)),
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed = sample(1:10000, 1)))
   }

@@ -7,10 +7,7 @@
 #' parameter. This is the method that Park & Casella (2008) utilize and the method that is utilized here. The hierarchical 
 #' structure of the prior distribution is given below. \cr
 #' \cr
-#' Note that for the binomial and poisson likelihood functions 
-#' the New Bayesian LASSO is used, which is a re-parameterization of the Bayesian LASSO utilizing a scale mixture of
-#' uniform distributions to obtain the Laplacian priors (Mallick & Yi, 2014). I have found that this variant simply 
-#' samples faster for the binomial and poisson models. Plug-in pseudovariances are used for these. 
+#' Note that for the binomial and poisson likelihood functions plug-in pseudovariances are used.
 #' \cr
 #' Model Specification:
 #' \cr
@@ -26,7 +23,7 @@
 #'
 #' @param formula the model formula
 #' @param data a data frame.
-#' @param family one of "gaussian", "binomial", or "poisson".
+#' @param family one of "gaussian", "st" (Student-t with nu=3), "binomial", or "poisson".
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 10000.
 #' @param warmup How many warmup samples? Defaults to 1000.
@@ -39,8 +36,6 @@
 #'
 #' @references Park, T., & Casella, G. (2008). The Bayesian Lasso. Journal of the American Statistical Association, 103(482), 681-686. Retrieved from http://www.jstor.org/stable/27640090 \cr
 #' \cr
-#' Mallick, H., & Yi, N. (2014). A New Bayesian Lasso. Statistics and its interface, 7(4), 571–582. doi:10.4310/SII.2014.v7.n4.a12 \cr
-#' 
 #' @return
 #' a runjags object
 #' @export
@@ -48,14 +43,14 @@
 #' @examples
 #' blasso()
 blasso = function(formula, data, family = "gaussian",  log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(2), ...){
+  
+  X = model.matrix(formula, data)[,-1]
+  y = model.frame(formula, data)[,1]
+  
+  
+  if (family == "gaussian"){
     
-    X = model.matrix(formula, data)[,-1]
-    y = model.frame(formula, data)[,1]
-
-    
-if (family == "gaussian"){
-      
-  jags_blasso = "model{
+    jags_blasso = "model{
   tau ~ dgamma(.01, .01) 
   sigma2 <- 1/tau
   lambda ~ dgamma(0.5 , 0.20)
@@ -76,41 +71,94 @@ if (family == "gaussian"){
   sigma <- sqrt(1/tau)
   Deviance <- -2 * sum(log_lik[1:N])
 }"
-      P <- ncol(X)
-      write_lines(jags_blasso, "jags_blasso.txt")
-      jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X))
-      monitor <- c("Intercept", "beta", "sigma", "lambda", "Deviance", "ySim", "log_lik")
-      if (log_lik == FALSE){
-        monitor = monitor[-(length(monitor))]
-      }
-      inits <- lapply(1:chains, function(z) list("Intercept" = lmSolve(formula, data)[1], 
-                                                 "beta" = lmSolve(formula, data)[-1], 
-                                                 "eta" = rep(1, P), 
-                                                 "lambda" = 2, 
-                                                 "tau" = 1, 
-                                                 "ySim" = y, 
-                                                 .RNG.name= "lecuyer::RngStream", 
-                                                 .RNG.seed= sample(1:10000, 1)))
-      
-  out = run.jags(model = "jags_blasso.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
-  file.remove("jags_blasso.txt")
-  if (!is.null(cl)) {
+    P <- ncol(X)
+    write_lines(jags_blasso, "jags_blasso.txt")
+    jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X))
+    monitor <- c("Intercept", "beta", "sigma", "lambda", "Deviance", "ySim", "log_lik")
+    if (log_lik == FALSE){
+      monitor = monitor[-(length(monitor))]
+    }
+    inits <- lapply(1:chains, function(z) list("Intercept" = lmSolve(formula, data)[1], 
+                                               "beta" = lmSolve(formula, data)[-1], 
+                                               "eta" = rep(1, P), 
+                                               "lambda" = 2, 
+                                               "tau" = 1, 
+                                               "ySim" = sample(y, length(y)),
+                                               .RNG.name= "lecuyer::RngStream", 
+                                               .RNG.seed= sample(1:10000, 1)))
+    
+    out = run.jags(model = "jags_blasso.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+    file.remove("jags_blasso.txt")
+    if (!is.null(cl)) {
       parallel::stopCluster(cl = cl)
+    }
+    return(out)
+    
+  }  
+  
+  
+  if (family == "st"){
+    
+    jags_blasso = "model{
+  tau ~ dgamma(.01, .01) 
+  sigma2 <- 1/tau
+  lambda ~ dgamma(0.50, 0.20)
+  
+  for (p in 1:P){
+    eta[p] ~ dexp(lambda^2 / 2)
+    omega[p] <- 1 / (sigma2 * eta[p])
+    beta[p] ~ dnorm(0, omega[p])
   }
-  return(out)
   
-}  
+  Intercept ~ dnorm(0, 1e-5)
   
+  for (i in 1:N){
+    mu[i] <- Intercept + sum(beta[1:P] * X[i,1:P])
+    y[i] ~ dt(mu[i], tau, 3)
+    log_lik[i] <- logdensity.t(y[i], mu[i], tau, 3)
+    ySim[i] ~ dt(mu[i], tau, 3)
+  }
   
-  if (family == "binomial" || family == "logistic"){
+  sigma <- sqrt(1/tau)
+  Deviance <- -2 * sum(log_lik[1:N])
+}"
+    P <- ncol(X)
+    write_lines(jags_blasso, "jags_blasso.txt")
+    jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X))
+    monitor <- c("Intercept", "beta", "sigma", "lambda", "Deviance", "ySim", "log_lik")
+    if (log_lik == FALSE){
+      monitor = monitor[-(length(monitor))]
+    }
+    inits <- lapply(1:chains, function(z) list("Intercept" = lmSolve(formula, data)[1], 
+                                               "beta" = lmSolve(formula, data)[-1], 
+                                               "eta" = rep(1, P), 
+                                               "lambda" = 2, 
+                                               "tau" = 1, 
+                                               "ySim" = sample(y, length(y)),
+                                               .RNG.name= "lecuyer::RngStream", 
+                                               .RNG.seed= sample(1:10000, 1)))
     
-    jags_bridge = "model{
+    out = run.jags(model = "jags_blasso.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+    file.remove("jags_blasso.txt")
+    if (!is.null(cl)) {
+      parallel::stopCluster(cl = cl)
+    }
+    return(out)
     
-  lambda ~ dgamma(0.5 , 0.20)
+  }  
   
-  for (i in 1:P){
-    u[i] ~ dgamma( 2  , lambda )
-    beta[i] ~ dunif(-1 * (sigma * u[i]), sigma * u[i])
+  
+  
+  if (family == "binomial"){
+    
+    jags_blasso = "model{
+    
+  lambda ~ dgamma(0.50, 0.20)
+  
+  for (p in 1:P){
+    eta[p] ~ dexp(lambda^2 / 2)
+    omega[p] <- 1 / (sigma2 * eta[p])
+    beta[p] ~ dnorm(0, omega[p])
   }
   
   Intercept ~ dnorm(0, 1e-10)
@@ -126,38 +174,38 @@ if (family == "gaussian"){
 }"
     
     P <- ncol(X)
-    write_lines(jags_bridge, "jags_bridge.txt")
-    jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), sigma = sqrt(pow(mean(y), -1) * pow(1 - mean(y), -1)))
+    write_lines(jags_blasso, "jags_blasso.txt")
+    jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), sigma2 = pow(mean(y), -1) * pow(1 - mean(y), -1))
     monitor <- c("Intercept", "beta", "lambda", "Deviance", "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
     inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "binomial", lambda = 0.025, alpha = 0, standardize = FALSE))[1,1]), 
                                                "beta" = rep(0, P), 
-                                               "u" = rgamma(P, 2, 1), 
+                                               "eta" = rgamma(P, 2, 1), 
                                                "lambda" = 1, 
-                                               "ySim" = y, 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
-    out = run.jags(model = "jags_bridge.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
-    file.remove("jags_bridge.txt")
+    out = run.jags(model = "jags_blasso.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+    file.remove("jags_blasso.txt")
     if (!is.null(cl)) {
       parallel::stopCluster(cl = cl)
     }
     return(out)
   }
   
-  
   if (family == "poisson"){
     
-    jags_bridge = "model{
+    jags_blasso = "model{
     
   lambda ~ dgamma(0.5 , 0.20)
   
-  for (i in 1:P){
-    u[i] ~ dgamma( 2 , lambda )
-    beta[i] ~ dunif(-1 * pow(sigma * u[i], 1/kappa), pow(sigma * u[i], 1/kappa))
+  for (p in 1:P){
+    eta[p] ~ dexp(lambda^2 / 2)
+    omega[p] <- 1 / (sigma2 * eta[p])
+    beta[p] ~ dnorm(0, omega[p])
   }
   
   Intercept ~ dnorm(0, 1e-10)
@@ -173,8 +221,8 @@ if (family == "gaussian"){
 }"
   
   P <- ncol(X)
-  write_lines(jags_bridge, "jags_bridge.txt")
-  jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), sigma = sqrt(pow(mean(y) , -1)))
+  write_lines(jags_blasso, "jags_blasso.txt")
+  jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), sigma2 = pow(mean(y) , -1))
   monitor <- c("Intercept", "beta", "lambda", "Deviance", "ySim", "log_lik")
   
   if (log_lik == FALSE){
@@ -183,19 +231,19 @@ if (family == "gaussian"){
   
   inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "poisson", lambda = 0.025, alpha = 0, standardize = FALSE))[1,1]), 
                                              "beta" = rep(0, P), 
-                                             "u" = rgamma(P, 2, 1), 
+                                             "eta" = rgamma(P, 2, 1), 
                                              "lambda" = 1, 
-                                             "ySim" = y, 
+                                             "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
   
-  out = run.jags(model = "jags_bridge.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
-  file.remove("jags_bridge.txt")
+  out = run.jags(model = "jags_blasso.txt", modules = c("bugs on", "glm on", "dic off"), n.chains = chains, monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+  file.remove("jags_blasso.txt")
   if (!is.null(cl)) {
     parallel::stopCluster(cl = cl)
   }
   return(out)
   }
-  
+
 }
-  
+

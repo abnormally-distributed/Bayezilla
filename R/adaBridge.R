@@ -104,7 +104,7 @@ adaBridge = function(formula, data, family = "gaussian", kappa = 1.4, log_lik = 
                                                "u" = rgamma(P, (1 / kappa) + 1, 1), 
                                                "lambda" = rep(1, P), 
                                                "tau" = 1, 
-                                               "ySim" = y, 
+                                               "ySim" = sample(y, length(y)),, 
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
@@ -152,7 +152,7 @@ adaBridge = function(formula, data, family = "gaussian", kappa = 1.4, log_lik = 
                                                "beta" = rep(0, P), 
                                                "u" = rgamma(P, (1 / kappa) + 1, 1), 
                                                "lambda" = rep(1, P), 
-                                               "ySim" = y, 
+                                               "ySim" = sample(y, length(y)),, 
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
@@ -203,7 +203,7 @@ adaBridge = function(formula, data, family = "gaussian", kappa = 1.4, log_lik = 
                                              "beta" = rep(0, P), 
                                              "u" = rgamma(P, (1 / kappa) + 1, 1), 
                                              "lambda" = rep(1, P), 
-                                             "ySim" = y, 
+                                             "ySim" = sample(y, length(y)),, 
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
   

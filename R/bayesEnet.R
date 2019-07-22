@@ -17,7 +17,7 @@
 #' \cr
 #' @param formula the model formula
 #' @param data a data frame.
-#' @param family one of "gaussian", "binomial", or "poisson".
+#' @param family one of "gaussian", "st" (Student-t with nu = 3), "binomial", or "poisson".
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 10000.
 #' @param warmup How many warmup samples? Defaults to 1000.
@@ -40,7 +40,6 @@ bayesEnet  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=
 
   X = model.matrix(formula, data)[,-1]
   y = model.frame(formula, data)[,1]
-
   
   if (family == "gaussian"){
   
@@ -80,10 +79,11 @@ bayesEnet  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=
                                              "lambdaL1" = 5, 
                                              "lambdaL2" = 15, 
                                              "tau" = 1, 
+                                             "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
 
-  out = run.jags(model = "jags_elastic_net.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+  out = run.jags(model = "jags_elastic_net.txt", modules = c("bugs on", "glm on", "dic off"), n.chains = chains, monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
   file.remove("jags_elastic_net.txt")
   if (!is.null(cl)) {
     parallel::stopCluster(cl = cl)
@@ -92,7 +92,59 @@ bayesEnet  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=
   }
   
   
-  if (family == "binomial" || family == "logistic"){
+  if (family == "st"){
+    
+    jags_elastic_net = "model{
+
+              tau ~ dgamma(.01, .01)
+              sigma <- sqrt(1/tau)
+              lambdaL1 ~ dgamma(0.50, 0.2)
+              lambdaL2 ~ dgamma(0.50, 0.2)
+
+              Intercept ~ dnorm(0, 1e-10)
+
+              for (p in 1:P){
+                eta[p] ~ dgamma(.5, (8 * lambdaL2 * pow(sigma,2)) / pow(lambdaL1, 2)) T(1,)
+                beta_prec[p] <- (lambdaL2/pow(sigma,2)) * (eta[p]/(eta[p]-1))
+                beta[p] ~ dnorm(0, beta_prec[p])
+              }
+
+              for (i in 1:N){
+                 mu[i] <- Intercept + sum(beta[1:P] * X[i,1:P])
+                 y[i] ~ dt(mu[i], tau, 3)
+                 log_lik[i] <- logdensity.t(mu[i], tau, 3)
+                 ySim[i] ~ dt(mu[i], tau, 3)
+              }
+              Deviance <- -2 * sum(log_lik[1:N])
+          }"
+    
+    P <- ncol(X)
+    write_lines(jags_elastic_net, "jags_elastic_net.txt")
+    jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X))
+    monitor <- c("Intercept", "beta", "sigma", "lambdaL1", "lambdaL2", "Deviance",  "ySim", "log_lik")
+    if (log_lik == FALSE){
+      monitor = monitor[-(length(monitor))]
+    }
+    inits <- lapply(1:chains, function(z) list("Intercept" = 0, 
+                                               "beta" = lmSolve(formula, data)[-1], 
+                                               "eta" = 1 + abs(jitter(rep(1, P), amount = .25)), 
+                                               "lambdaL1" = 5, 
+                                               "lambdaL2" = 15, 
+                                               "tau" = 1, 
+                                               "ySim" = sample(y, length(y)),
+                                               .RNG.name= "lecuyer::RngStream", 
+                                               .RNG.seed= sample(1:10000, 1)))
+    
+    out = run.jags(model = "jags_elastic_net.txt", modules = c("bugs on", "glm on", "dic off"), n.chains = chains, monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+    file.remove("jags_elastic_net.txt")
+    if (!is.null(cl)) {
+      parallel::stopCluster(cl = cl)
+    }
+    return(out)
+  }
+  
+  
+  if (family == "binomial"){
     
     jags_elastic_net = "model{
 
@@ -133,11 +185,12 @@ bayesEnet  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=
                                                "beta" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "binomial", lambda = runif(1, .01, .15), alpha = runif(1, .01, .5), standardize = FALSE))[-1,1]), 
                                                "eta" = 1 + abs(jitter(rep(1, P), amount = .25)), 
                                                "lambdaL1" = 5, 
-                                               "lambdaL2" = 15, 
+                                               "lambdaL2" = 15,
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
-    out = run.jags(model = "jags_elastic_net.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+    out = run.jags(model = "jags_elastic_net.txt", modules = c("bugs on", "glm on", "dic off"), n.chains = chains, monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
     file.remove("jags_elastic_net.txt")
     if (!is.null(cl)) {
       parallel::stopCluster(cl = cl)
@@ -185,10 +238,11 @@ bayesEnet  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=
                                                "eta" = 1 + abs(jitter(rep(1, P), amount = .25)), 
                                                "lambdaL1" = 5, 
                                                "lambdaL2" = 15, 
+                                               "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
-    out = run.jags(model = "jags_elastic_net.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+    out = run.jags(model = "jags_elastic_net.txt", modules = c("bugs on", "glm on", "dic off"), n.chains = chains, monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
     file.remove("jags_elastic_net.txt")
     if (!is.null(cl)) {
       parallel::stopCluster(cl = cl)

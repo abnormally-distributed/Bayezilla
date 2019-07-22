@@ -195,7 +195,7 @@ apcSpikeDC = function(formula, design.formula, data, family = "gaussian", lower 
                                               "theta" = lmSolve(formula, data)[-1], 
                                               "tau" = 1, 
                                               "g_inv" = 1/length(y), 
-                                              "ySim" = y, 
+                                              "ySim" = sample(y, length(y)),
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed = sample(1:10000, 1)))
   }
@@ -255,7 +255,7 @@ apcSpikeDC = function(formula, design.formula, data, family = "gaussian", lower 
                                               "lambda" = runif(1, lower, upper), 
                                               "theta" = as.vector(coef(glm(formula, data, family = "binomial")))[-1], 
                                               "g_inv" = 1/length(y), 
-                                              "ySim" = y, 
+                                              "ySim" = sample(y, length(y)),
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed= sample(1:10000, 1)))
   }
@@ -312,7 +312,7 @@ apcSpikeDC = function(formula, design.formula, data, family = "gaussian", lower 
     inits = lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glm(formula, data, family = "poisson")))[1], 
                                               "design_beta" = rep(0, FP), 
                                               "g_inv" = 1/length(y), 
-                                              "ySim" = y, 
+                                              "ySim" = sample(y, length(y)),
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed= sample(1:10000, 1),
                                               "phi" = rbeta(1, 2, 2), 

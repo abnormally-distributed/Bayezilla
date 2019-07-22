@@ -96,6 +96,7 @@ adaEnetDC  = function(formula, design.formula, data, family = "gaussian", log_li
                                              "lambda1" = rep(1, P), 
                                              "lambda2" = 20, 
                                              "tau" = 1,
+                                             "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
   
@@ -159,6 +160,7 @@ if (family == "binomial" || family == "logistic"){
                                              "lambdaL1" = rep(1, P), 
                                              "lambdaL2" = 2, 
                                              "design_beta" = rep(0, FP),
+                                             "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
   
@@ -220,6 +222,7 @@ if (family == "poisson"){
                                              "lambdaL1" = rep(1, P), 
                                              "lambdaL2" = 2, 
                                              "design_beta" = rep(0, FP),
+                                             "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
   

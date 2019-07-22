@@ -14,7 +14,7 @@ apcSpike(formula, data, family = "gaussian", lower = NULL,
 
 \item{data}{a data frame}
 
-\item{family}{one of "gaussian", "binomial", or "poisson".}
+\item{family}{one of "gaussian", "st" (Student-t with nu = 3), "binomial", or "poisson".}
 
 \item{lower}{lower limit on value of lambda. Is NULL by default and limits are set based on the minimum value that produces a positive definite covariance matrix.}
 

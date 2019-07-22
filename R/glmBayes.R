@@ -49,7 +49,7 @@
 #' 
 #' @param formula the model formula
 #' @param data a data frame
-#' @param family one of "gaussian", "binomial", or "poisson".
+#' @param family one of "gaussian", "st" (Student-t with nu=3), "binomial", or "poisson".
 #' @param df degrees of freedom for prior.
 #' @param s The desired prior scale. Defaults to 1. Is automatically squared within the model so
 #' select a number here on the standard deviation scale.
@@ -107,11 +107,54 @@ glmBayes  = function(formula, data, family = "gaussian", s = 1, df = 1, log_lik 
     inits = lapply(1:chains, function(z) list("Intercept" = lmSolve(formula, data)[1], 
                                               "beta" = lmSolve(formula, data)[-1], 
                                               "tau" = 1, 
-                                              "ySim" = y, 
+                                              "ySim" = sample(y, length(y)), 
                                               "eta" = 2, 
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed = sample(1:10000, 1)))
   }
+  
+  
+  
+  if (family == "st"){
+    
+    jags_glm = "model{
+              tau ~ dgamma(0.01, 0.01) 
+              eta ~ dgamma(df * 0.50, pow(s, 2) * (df * 0.50))
+              
+              for (p in 1:P){
+                beta[p] ~ dnorm(0, eta)
+              }
+              
+              Intercept ~ dnorm(0, 1e-10)
+              
+              for (i in 1:N){
+                 mu[i] <- Intercept + sum(beta[1:P] * X[i,1:P])
+                 y[i] ~ dt(mu[i], tau, 3)
+                 log_lik[i] <- logdensity.t(y[i], mu[i], tau, 3)
+                 ySim[i] ~ dt(mu[i], tau, 3)
+              }
+              
+              sigma <- sqrt(1/tau)
+              Deviance <- -2 * sum(log_lik[1:N])
+          }"
+    
+    P = ncol(X)
+    write_lines(jags_glm, "jags_glm.txt")
+    jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), s = s, df = df)
+    monitor = c("Intercept", "beta", "sigma", "Deviance", "ySim" ,"log_lik")
+    if (log_lik == FALSE){
+      monitor = monitor[-(length(monitor))]
+    }
+    inits = lapply(1:chains, function(z) list("Intercept" = lmSolve(formula, data)[1], 
+                                              "beta" = lmSolve(formula, data)[-1], 
+                                              "tau" = 1, 
+                                              "ySim" = sample(y, length(y)), 
+                                              "eta" = 2, 
+                                              .RNG.name= "lecuyer::RngStream", 
+                                              .RNG.seed = sample(1:10000, 1)))
+  }
+  
+  
   
   if (family == "binomial"){
     
@@ -143,7 +186,7 @@ glmBayes  = function(formula, data, family = "gaussian", s = 1, df = 1, log_lik 
     }
     inits = lapply(1:chains, function(z) list("Intercept" = coef(glm(formula, data, family = "binomial"))[1], 
                                               "beta" = coef(glm(formula, data, family = "binomial"))[-1],
-                                              "ySim" = y, 
+                                              "ySim" = sample(y, length(y)), 
                                               "eta" = 2, 
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed= sample(1:10000, 1)))
@@ -179,17 +222,20 @@ glmBayes  = function(formula, data, family = "gaussian", s = 1, df = 1, log_lik 
       monitor = monitor[-(length(monitor))]
     }
     inits = lapply(1:chains, function(z) list("Intercept" = coef(glm(formula, data, family = "poissson"))[1], 
-                                              "ySim" = y,
+                                              "ySim" = sample(y, length(y)),
                                               "eta" = 2, 
                                               "beta" = coef(glm(formula, data, family = "poissson"))[-1], 
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed= sample(1:10000, 1)))
   }
   
+  
   out = run.jags(model = "jags_glm.txt", modules = c("glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, n.chains = chains, summarise = FALSE,...)
+  
   if (is.null(cl) == FALSE){
     parallel::stopCluster(cl = cl)
   }
+  
   file.remove("jags_glm.txt")
   return(out)
 }

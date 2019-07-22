@@ -4,15 +4,17 @@
 \alias{postOdds}
 \title{Get the posterior odds between a point estimator and a null hypothesis}
 \usage{
-postOdds(fit, param = NULL, H0 = 0, method = "mean")
+postOdds(fit, keeppars = c("Intercept", "beta"), H0 = 0,
+  method = "mean")
 }
 \arguments{
 \item{fit}{a runjags or stanfit object. Alternatively, a numeric vector can be provided.}
 
-\item{param}{the name of the parameter to be tested}
+\item{keeppars}{The name of the parameters. Can use "beta" to match up with all betas, ie, "beta[1]", "beta[2]", etc. Defaults to c("Intercept", "beta").}
 
 \item{H0}{a single value or a vector of values for the null hypothesis. Defaults to zero but this is not appropriate
-for a binomial test. Be sure to pick a reasonable null hypothesis.}
+for a binomial test. Be sure to pick a reasonable null hypothesis. If only one values is provided for multiple parameters this
+value will be used for all tests.}
 
 \item{method}{whether the mean (default), "median", or a kernel density estimate of the "mode" should be used for the hypothesis test}
 }

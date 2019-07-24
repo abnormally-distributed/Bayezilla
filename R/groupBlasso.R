@@ -117,7 +117,7 @@ if (family == "gaussian"){
 }
 
 
-if (family == "binomial" || family == "logistic"){
+if (family == "binomial"){
   
   jags_group_blasso = "model{
   

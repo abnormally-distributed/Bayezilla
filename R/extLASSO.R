@@ -66,8 +66,8 @@
 #' @param top_u If using eta_prior = "classic" this must be assigned a value. Default is 50. 
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 10000.
-#' @param warmup How many warmup samples? Defaults to 10000.
-#' @param adapt How many adaptation steps? Defaults to 15000.
+#' @param warmup How many warmup samples? Defaults to 2000.
+#' @param adapt How many adaptation steps? Defaults to 1000.
 #' @param chains How many chains? Defaults to 4.
 #' @param thin Thinning interval. Defaults to 3.
 #' @param method Defaults to "rjparallel". For an alternative parallel option, choose "parallel" or. Otherwise, "rjags" (single core run).
@@ -80,7 +80,7 @@
 #' @examples
 #' extLASSO()
 #'
-extLASSO  = function(formula, data, family = "gaussian", eta_prior = "classic", local_u = 4, top_u = 50, log_lik = FALSE, iter=10000, warmup = 10000, adapt=15000, chains=4, thin = 3, method = "rjparallel", cl = makeCluster(2), ...){
+extLASSO  = function(formula, data, family = "gaussian", eta_prior = "classic", local_u = 4, top_u = 50, log_lik = FALSE, iter=10000, warmup = 2000, adapt= 1000, chains=4, thin = 3, method = "rjparallel", cl = makeCluster(2), ...){
   
   X = model.matrix(formula, data)[,-1]
   y = model.frame(formula, data)[,1]

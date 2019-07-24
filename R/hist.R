@@ -318,12 +318,12 @@ hist.default <- function (x, breaks = "dhist", freq = FALSE, probability = !freq
 #' @examples 
 #' nclass.dhist()
 #' 
-nclass.dhist = function(x, b = 1.5, rx = range(x), min.bins = 9) {
+nclass.dhist = function(x, b = 1.5, rx = range(x), min.bins = 5) {
   
-  n.bins <-function(x, min.bins = 9){
+  n.bins <-function(x, min.bins = 5){
     x<-x[!is.na(x)]
     n<-length(x)
-    Q<-quantile(x, c(0.025 , 0.98))
+    Q<-quantile(x, c(0.05 , 0.95))
     X<-range(x)
     result<- ceiling(n^(1/3)*(X[2]-X[1])/(2*(Q[2]-Q[1])))
     result <- max(c(min.bins, result))
@@ -331,7 +331,7 @@ nclass.dhist = function(x, b = 1.5, rx = range(x), min.bins = 9) {
     result
   }
   
-  a = b*diff(quantile(x, c(0.025 , 0.98)))
+  a = b*diff(quantile(x, c(0.05 , 0.95)))
   
   nbins <- n.bins(x, min.bins = min.bins)
   

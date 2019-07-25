@@ -6,7 +6,7 @@
 \usage{
 extLASSO(formula, data, family = "gaussian", eta_prior = "classic",
   local_u = 4, top_u = 50, log_lik = FALSE, iter = 10000,
-  warmup = 10000, adapt = 15000, chains = 4, thin = 3,
+  warmup = 2000, adapt = 1000, chains = 4, thin = 3,
   method = "rjparallel", cl = makeCluster(2), ...)
 }
 \arguments{
@@ -26,9 +26,9 @@ extLASSO(formula, data, family = "gaussian", eta_prior = "classic",
 
 \item{iter}{How many post-warmup samples? Defaults to 10000.}
 
-\item{warmup}{How many warmup samples? Defaults to 10000.}
+\item{warmup}{How many warmup samples? Defaults to 2000.}
 
-\item{adapt}{How many adaptation steps? Defaults to 15000.}
+\item{adapt}{How many adaptation steps? Defaults to 1000.}
 
 \item{chains}{How many chains? Defaults to 4.}
 

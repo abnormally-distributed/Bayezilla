@@ -4,7 +4,7 @@
 \alias{nclass.dhist}
 \title{Density-based adaptive width histogram bins}
 \usage{
-nclass.dhist(x, b = 1.5, rx = range(x), min.bins = 9)
+nclass.dhist(x, b = 1.5, rx = range(x), min.bins = 5)
 }
 \arguments{
 \item{b}{slope. See paper for details. Defaults to 1.5.}

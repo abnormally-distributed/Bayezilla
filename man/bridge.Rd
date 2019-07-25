@@ -14,7 +14,7 @@ bridge(formula, data, family = "gaussian", kappa = 1.4,
 
 \item{data}{a data frame.}
 
-\item{family}{one of "gaussian", "binomial", or "poisson".}
+\item{family}{one of "gaussian", "st" (Student-t with nu=3), "binomial", or "poisson".}
 
 \item{kappa}{the Lp norm you wish to utilize. Default is 1.4.}
 

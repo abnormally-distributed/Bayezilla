@@ -7,7 +7,6 @@ output: html_notebook
 
 
 Properties of OLS (or Maximum Likelihood Estimates more generally): 
-
 Ordinary least squares is the best linear unbiased estimator (BLUE) of the coefficients in ordinary linear model, so long as it exists and is unique. "Best" means giving the lowest standard error for the coefficient(s). For example, least
 absolute deviations will have standard errors $\geq$ to those of OLS. OLS is asymptotically unbiased in that as $N \rightarrow \infty$ OLS will recover the true values of the coefficients. 
 

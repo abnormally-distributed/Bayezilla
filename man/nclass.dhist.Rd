@@ -4,14 +4,14 @@
 \alias{nclass.dhist}
 \title{Density-based adaptive width histogram bins}
 \usage{
-nclass.dhist(x, b = 1.5, rx = range(x), min.bins = 5)
+nclass.dhist(x, b = 1.5, rx = range(x), min.bins = NULL)
 }
 \arguments{
 \item{b}{slope. See paper for details. Defaults to 1.5.}
 
 \item{rx}{range of data, if not taken from data.}
 
-\item{min.bins}{the minimum number of bins.}
+\item{min.bins}{the minimum number of bins. Optional.}
 
 \item{nbins}{number of bins. See Denby & Mallows (2009).}
 }
@@ -28,7 +28,8 @@ immediately obvious, and captures interesting features of heavy tails and skew w
 that yield The former oversmooths in regions of high density, and is poor at identifying sharp peaks and multimodality. 
 By contrast, the latter variety oversmooths in regions of low density and can mask outliers and the 
 heavy tails of more leptokurtotic distributions. Alternatively, a function can be supplied which will compute the
-intended number of breaks or the actual breakpoints as a function of x. For more information, see Denby & Mallows (2009).
+intended number of breaks or the actual breakpoints as a function of x. For more information, see Denby & Mallows (2009). 
+The original code was authored by Lorraine Denby, but some minor improvements have been made here.
 }
 \examples{
 nclass.dhist()
@@ -43,5 +44,5 @@ L. Denby and C. Mallows. Variations on the histogram. Journal
 \url{http://pubs.research.avayalabs.com/pdfs/ALR-2007-003-paper.pdf}
 }
 \author{
-Lorraine Denby
+Lorraine Denby, Brandon Vaughan
 }

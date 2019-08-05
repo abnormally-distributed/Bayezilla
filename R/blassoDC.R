@@ -50,6 +50,9 @@ blassoDC = function(formula, design.formula, data, log_lik = FALSE, iter=10000, 
   y = model.frame(formula, data)[,1]
   FX <- as.matrix(model.matrix(design.formula, data)[, -1])
   
+  resids = y - as.vector(lmSolve(formula , data) %*% t(model.matrix(formula, data)))
+  tau = prec(resids)
+  
   if (family == "gaussian"){
     
   jags_blasso = "model{
@@ -70,11 +73,13 @@ blassoDC = function(formula, design.formula, data, log_lik = FALSE, iter=10000, 
   Intercept ~ dnorm(0, 1e-10)
   
   for (i in 1:N){
-    y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]) + sum(design_beta[1:FP] * FX[i,1:FP]) , tau) 
-    log_lik[i] <- logdensity.norm(y[i], Intercept + sum(beta[1:P] * X[i,1:P]) + sum(design_beta[1:FP] * FX[i,1:FP]), tau)
-    ySim[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]) + sum(design_beta[1:FP] * FX[i,1:FP]) , tau)
+    mu[i] <- Intercept + sum(beta[1:P] * X[i,1:P]) + sum(design_beta[1:FP] * FX[i,1:FP]) 
+    y[i] ~ dnorm(mu[i], tau) 
+    log_lik[i] <- logdensity.norm(y[i], mu[i], tau)
+    ySim[i] ~ dnorm(mu[i], tau)
   }
-  sigma <- sqrt(1/tau)
+  
+  sigma <- sqrt(sigma2)
   Deviance <- -2 * sum(log_lik[1:N])
 }"
   
@@ -90,8 +95,8 @@ blassoDC = function(formula, design.formula, data, log_lik = FALSE, iter=10000, 
                                              "beta" = lmSolve(formula, data)[-1], 
                                              "design_beta" =  lmSolve(design.formula, data)[-1], 
                                              "eta" = rep(1, P), 
-                                             "lambda" = 2, 
-                                             "tau" = 1, 
+                                             "tau" = tau,
+                                             "lambda" = sample(2:10, size = 1), 
                                              "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
@@ -105,7 +110,7 @@ blassoDC = function(formula, design.formula, data, log_lik = FALSE, iter=10000, 
 }
 
 
-if (family == "binomial" || family == "logistic"){
+if (family == "binomial"){
   
   jags_blasso = "model{
     
@@ -146,7 +151,7 @@ if (family == "binomial" || family == "logistic"){
                                              "beta" = rep(0, P), 
                                              "design_beta" = as.vector(coef(glmnet::glmnet(x = FX, y = y, family = "binomial", lambda = 0, alpha = 0, standardize = FALSE))[-1,1]),
                                              "u" = rgamma(P, 2, 1), 
-                                             "lambda" = 1, 
+                                             "lambda" = sample(2:10, size = 1), 
                                              "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))
@@ -202,7 +207,7 @@ inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::
                                            "design_beta" = as.vector(coef(glmnet::glmnet(x = FX, y = y, family = "poisson", lambda = 0, alpha = 0, standardize = FALSE))[-1,1]),
                                            "beta" = rep(0, P), 
                                            "u" = rgamma(P, 2, 1), 
-                                           "lambda" = 1, 
+                                           "lambda" = sample(2:10, size = 1), 
                                            "ySim" = sample(y, length(y)),
                                            .RNG.name= "lecuyer::RngStream", 
                                            .RNG.seed= sample(1:10000, 1)))

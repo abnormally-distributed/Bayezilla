@@ -25,6 +25,7 @@
 #' @param formula the model formula
 #' @param data a data frame.
 #' @param family one of "gaussian", "binomial", or "poisson".
+#' @param dof the degrees of freedom for the normal-exponential-gamma prior. 
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 10000.
 #' @param warmup How many warmup samples? Defaults to 1000.
@@ -49,7 +50,7 @@
 #' \code{\link[Bayezilla]{HSreg}}
 #'
 #' @export
-negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(3), ...){
+negLASSO  = function(formula, data, family = "gaussian", dof = 0.75, log_lik = FALSE, iter=10000, warmup=1000, adapt=2000, chains=4, thin=1, method = "parallel", cl = makeCluster(3), ...){
 
   X = model.matrix(formula, data)[,-1]
   y = model.frame(formula, data)[,1]
@@ -65,7 +66,7 @@ negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
               Intercept ~ dnorm(0, 1e-10)
 
               for (p in 1:P){
-                eta[p] ~ dgamma(.5, 1 / pow(lambda,2))
+                eta[p] ~ dgamma(dof, 1 / pow(lambda,2))
                 psi[p] ~ dexp(eta[p])
                 beta[p] ~ dnorm(0, 1 / psi[p])
               }
@@ -80,7 +81,7 @@ negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
 
   P <- ncol(X)
   write_lines(jags_neg_LASSO, "jags_neg_LASSO.txt")
-  jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X))
+  jagsdata <- list(X = X, y = y, N = length(y), P = ncol(X), dof = dof)
   monitor <- c("Intercept", "beta", "sigma", "lambda", "Deviance", "ySim", "log_lik")
   if (log_lik == FALSE){
     monitor = monitor[-(length(monitor))]
@@ -106,7 +107,7 @@ negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
               Intercept ~ dnorm(0, 1e-10)
 
               for (p in 1:P){
-                eta[p] ~ dgamma(.5, 1 / pow(lambda,2))
+                eta[p] ~ dgamma(dof, 1 / pow(lambda,2))
                 psi[p] ~ dexp(eta[p])
                 beta[p] ~ dnorm(0, 1 / psi[p])
               }
@@ -121,7 +122,7 @@ negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
 
     P = ncol(X)
     write_lines(jags_neg_LASSO, "jags_neg_LASSO.txt")
-    jagsdata = list(X = X, y = y, N = length(y), P = ncol(X))
+    jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), dof = dof)
     monitor = c("Intercept", "beta", "lambda", "Deviance", "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
@@ -145,7 +146,7 @@ negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
               Intercept ~ dnorm(0, 1e-10)
 
               for (p in 1:P){
-                eta[p] ~ dgamma(.5, 1 / pow(lambda,2))
+                eta[p] ~ dgamma(dof, 1 / pow(lambda,2))
                 psi[p] ~ dexp(eta[p])
                 beta[p] ~ dnorm(0, 1 / psi[p])
               }
@@ -160,7 +161,7 @@ negLASSO  = function(formula, data, family = "gaussian", log_lik = FALSE, iter=1
 
     P = ncol(X)
     write_lines(jags_neg_LASSO, "jags_neg_LASSO.txt")
-    jagsdata = list(X = X, y = y, N = length(y), P = ncol(X))
+    jagsdata = list(X = X, y = y, N = length(y), P = ncol(X), dof = dof)
     monitor = c("Intercept", "beta", "lambda", "Deviance", "ySim", "log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]

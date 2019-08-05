@@ -9,7 +9,7 @@
 #' @param right logical; if TRUE, the histogram cells are right-closed (left open) intervals.
 #' @param density the density of shading lines, in lines per inch. The default value of NULL means that no shading lines are drawn. Non-positive values of density also inhibit the drawing of shading lines.
 #' @param angle the slope of shading lines, given as an angle in degrees (counter-clockwise).
-#' @param col a colour to be used to fill the bars. The default is "#71D795CC".
+#' @param col a colour to be used to fill the bars. The default is "#00ff3cCC".
 #' @param border the color of the border around the bars. The default is to use the standard foreground color.
 #' @param main 	these arguments to title have useful defaults here.
 #' @param xlim the range of x and y values with sensible defaults. Note that xlim is not used to define the histogram (breaks), but only for plotting (when plot = TRUE).
@@ -18,7 +18,7 @@
 #' @param ylab these arguments to title have useful defaults here.
 #' @param axes logical. If TRUE (default), axes are draw if the plot is drawn.
 #' @param rug Should a rug be plotted under the histogram? Defaults to TRUE. 
-#' @param rug.col The rug color. 
+#' @param rug.col The rug color. Defaults to #8d03e7.
 #' @param plot 	logical. If TRUE (default), a histogram is plotted, otherwise a list of breaks and counts is returned. In the latter case, a warning is used if (typically graphical) arguments are specified that only apply to the plot = TRUE case.
 #' @param labels logical or character string. Additionally draw labels on top of bars, if not FALSE; see plot.histogram.
 #' @param nclass 	numeric (integer). For S(-PLUS) compatibility only, nclass is equivalent to breaks for a scalar or character argument.
@@ -79,10 +79,10 @@
 
 hist <- function(x, breaks = "dhist", freq = FALSE, probability = !freq, 
                  include.lowest = TRUE, right = TRUE, density = NULL, angle = 45, 
-                 col = "#71D795CC", border = NULL, main = NULL, 
+                 col = "#00ff3cCC", border = NULL, main = NULL, 
                  xlim = range(breaks), ylim = NULL, xlab = xname, ylab, axes = TRUE, 
                  plot = TRUE, labels = FALSE, nclass = NULL, warn.unused = TRUE, rug = TRUE, 
-                 rug.col = "#445edd",
+                 rug.col = "#8d03e7",
                  ...) { UseMethod("hist") }
 
 #' Modified Version of hist() with additional functionality
@@ -96,7 +96,7 @@ hist <- function(x, breaks = "dhist", freq = FALSE, probability = !freq,
 #' @param right logical; if TRUE, the histogram cells are right-closed (left open) intervals.
 #' @param density the density of shading lines, in lines per inch. The default value of NULL means that no shading lines are drawn. Non-positive values of density also inhibit the drawing of shading lines.
 #' @param angle the slope of shading lines, given as an angle in degrees (counter-clockwise).
-#' @param col a colour to be used to fill the bars. The default is "#71D795CC".
+#' @param col a colour to be used to fill the bars. The default is "#00ff3cCC".
 #' @param border the color of the border around the bars. The default is to use the standard foreground color.
 #' @param main 	these arguments to title have useful defaults here.
 #' @param xlim the range of x and y values with sensible defaults. Note that xlim is not used to define the histogram (breaks), but only for plotting (when plot = TRUE).
@@ -105,7 +105,7 @@ hist <- function(x, breaks = "dhist", freq = FALSE, probability = !freq,
 #' @param ylab these arguments to title have useful defaults here.
 #' @param axes logical. If TRUE (default), axes are draw if the plot is drawn.
 #' @param rug Should a rug be plotted under the histogram? Defaults to TRUE. 
-#' @param rug.col The rug color. 
+#' @param rug.col The rug color. Defaults to #8d03e7.
 #' @param plot 	logical. If TRUE (default), a histogram is plotted, otherwise a list of breaks and counts is returned. In the latter case, a warning is used if (typically graphical) arguments are specified that only apply to the plot = TRUE case.
 #' @param labels logical or character string. Additionally draw labels on top of bars, if not FALSE; see plot.histogram.
 #' @param nclass 	numeric (integer). For S(-PLUS) compatibility only, nclass is equivalent to breaks for a scalar or character argument.
@@ -165,10 +165,10 @@ hist <- function(x, breaks = "dhist", freq = FALSE, probability = !freq,
 #' 
 hist.default <- function (x, breaks = "dhist", freq = FALSE, probability = !freq, 
                           include.lowest = TRUE, right = TRUE, density = NULL, angle = 45, 
-                          col = "#71D795CC", border = NULL, main = NULL, 
+                          col = "#00ff3cCC", border = NULL, main = NULL, 
                           xlim = range(breaks), ylim = NULL, xlab = xname, ylab, axes = TRUE, 
                           plot = TRUE, labels = FALSE, nclass = NULL, warn.unused = TRUE, rug = TRUE, 
-                          rug.col = "#445edd",
+                          rug.col = "#8d03e7",
                           ...) 
 {
   if (!is.numeric(x)) 
@@ -269,7 +269,7 @@ hist.default <- function (x, breaks = "dhist", freq = FALSE, probability = !freq
 
     invisible(r)
     if (isTRUE(rug)){
-      rug(x, ticksize = 0.01, side = 1, lwd = 0.5, col = rug.col,
+      rug(x, ticksize = 0.015, side = 1, lwd = 0.5, col = rug.col,
           quiet = getOption("warn") < 0, ...)
     }
   }
@@ -301,8 +301,8 @@ hist.default <- function (x, breaks = "dhist", freq = FALSE, probability = !freq
 #' By contrast, the latter variety oversmooths in regions of low density and can mask outliers and the 
 #' heavy tails of more leptokurtotic distributions. Alternatively, a function can be supplied which will compute the
 #' intended number of breaks or the actual breakpoints as a function of x. For more information, see Denby & Mallows (2009). 
-#'
-#' @author Lorraine Denby
+#' The original code was authored by Lorraine Denby, but some minor improvements have been made here.
+#' @author Lorraine Denby, Brandon Vaughan
 #' @seealso
 #'   \url{http://pubs.research.avayalabs.com/pdfs/ALR-2007-003-paper.pdf}
 #' @references L. Denby and C. Mallows. Variations on the histogram. Journal
@@ -310,7 +310,7 @@ hist.default <- function (x, breaks = "dhist", freq = FALSE, probability = !freq
 #'   URL \url{http://pubs.amstat.org/doi/abs/10.1198/jcgs.2009.0002.}
 #' @param b slope. See paper for details. Defaults to 1.5.
 #' @param nbins number of bins. See Denby & Mallows (2009).
-#' @param min.bins the minimum number of bins. 
+#' @param min.bins the minimum number of bins. Optional.
 #' @param rx range of data, if not taken from data.
 #' @return A function that takes a single parameter, a numeric x specifying
 #'   the data for which breaks are needed, and returns a vector of breaks.
@@ -318,20 +318,49 @@ hist.default <- function (x, breaks = "dhist", freq = FALSE, probability = !freq
 #' @examples 
 #' nclass.dhist()
 #' 
-nclass.dhist = function(x, b = 1.5, rx = range(x), min.bins = 5) {
+nclass.dhist = function(x, b = 1.5, rx = range(x), min.bins = NULL){
   
-  n.bins <-function(x, min.bins = 5){
+  
+  n.bins <-function(x, min.bins = NULL){
+    
+    binsfunc = function(b){
+      bincounts = b^2
+      bincounts = bincounts/sum(b)
+      bincounts = 1 - b
+      bincounts = floor(weighted.mean(b, bincounts))
+      return(bincounts)
+    }
+  
+    hdi = Bayezilla::cred_interval(x, method = "HDI", cred.level = 0.80)
+    ecd = ecdf(x)
+    l = ecd(hdi[1])
+    u = ecd(hdi[2])
     x<-x[!is.na(x)]
     n<-length(x)
-    Q<-quantile(x, c(0.05 , 0.95))
+    Q<-quantile(x, c(l, u))
     X<-range(x)
     result<- ceiling(n^(1/3)*(X[2]-X[1])/(2*(Q[2]-Q[1])))
-    result <- max(c(min.bins, result))
-    names(result)<-NULL
-    result
+    
+    
+    if (is.null(min.bins)){
+      fd = nclass.FD(x)
+      sturge = nclass.Sturges(x)
+      scott = nclass.scott(x)  
+      result <- binsfunc(b = c(fd, sturge, scott, result))
+      names(result)<-NULL
+      result
+    } else if (!is.null(min.bins)){
+      result <- c(min.bins, result)
+      names(result)<-NULL
+      result
+    }
   }
   
-  a = b*diff(quantile(x, c(0.05 , 0.95)))
+  hdi = Bayezilla::cred_interval(x, method = "HDI", cred.level = 0.80)
+  ecd = ecdf(x)
+  l = ecd(hdi[1])
+  u = ecd(hdi[2])
+  a = b*diff(quantile(x, c(l , u)))
   
   nbins <- n.bins(x, min.bins = min.bins)
   

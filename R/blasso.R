@@ -50,11 +50,13 @@ blasso = function(formula, data, family = "gaussian",  log_lik = FALSE, iter=100
   
   if (family == "gaussian"){
     
+    resids = y - as.vector(lmSolve(formula , data) %*% t(model.matrix(formula, data)))
+    tau = prec(resids)
+    
     jags_blasso = "model{
-  tau ~ dgamma(.01, .01) 
-  sigma2 <- 1/tau
-  lambda ~ dgamma(0.5 , 0.20)
-  
+  lambda ~ dgamma(0.50, 0.20)
+  tau ~ dgamma(0.01, 0.01)
+  sigma2 <- 1 / tau
   for (p in 1:P){
     eta[p] ~ dexp(lambda^2 / 2)
     omega[p] <- 1 / (sigma2 * eta[p])
@@ -64,11 +66,12 @@ blasso = function(formula, data, family = "gaussian",  log_lik = FALSE, iter=100
   Intercept ~ dnorm(0, 1e-10)
   
   for (i in 1:N){
-    y[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
-    log_lik[i] <- logdensity.norm(y[i], Intercept + sum(beta[1:P] * X[i,1:P]), tau)
-    ySim[i] ~ dnorm(Intercept + sum(beta[1:P] * X[i,1:P]), tau)
+    mu[i] <- Intercept + sum(beta[1:P] * X[i,1:P])
+    y[i] ~ dnorm(mu[i], tau)
+    log_lik[i] <- logdensity.norm(y[i], mu[i], tau)
+    ySim[i] ~ dnorm(mu[i], tau)
   }
-  sigma <- sqrt(1/tau)
+  sigma <- sqrt(sigma2)
   Deviance <- -2 * sum(log_lik[1:N])
 }"
     P <- ncol(X)
@@ -81,13 +84,13 @@ blasso = function(formula, data, family = "gaussian",  log_lik = FALSE, iter=100
     inits <- lapply(1:chains, function(z) list("Intercept" = lmSolve(formula, data)[1], 
                                                "beta" = lmSolve(formula, data)[-1], 
                                                "eta" = rep(1, P), 
-                                               "lambda" = 2, 
-                                               "tau" = 1, 
+                                               "tau" = tau,
+                                               "lambda" = sample(2:10, size = 1), 
                                                "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
-    out = run.jags(model = "jags_blasso.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+    out = run.jags(model = "jags_blasso.txt", modules = c("bugs on", "glm on", "dic off"),  n.chains = chains, monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
     file.remove("jags_blasso.txt")
     if (!is.null(cl)) {
       parallel::stopCluster(cl = cl)
@@ -98,6 +101,8 @@ blasso = function(formula, data, family = "gaussian",  log_lik = FALSE, iter=100
   
   
   if (family == "st"){
+    resids = y - as.vector(lmSolve(formula , data) %*% t(model.matrix(formula, data)))
+    tau = prec(resids)
     
     jags_blasso = "model{
   tau ~ dgamma(.01, .01) 
@@ -119,7 +124,7 @@ blasso = function(formula, data, family = "gaussian",  log_lik = FALSE, iter=100
     ySim[i] ~ dt(mu[i], tau, 3)
   }
   
-  sigma <- sqrt(1/tau)
+  sigma <- sqrt(sigma2)
   Deviance <- -2 * sum(log_lik[1:N])
 }"
     P <- ncol(X)
@@ -132,13 +137,13 @@ blasso = function(formula, data, family = "gaussian",  log_lik = FALSE, iter=100
     inits <- lapply(1:chains, function(z) list("Intercept" = lmSolve(formula, data)[1], 
                                                "beta" = lmSolve(formula, data)[-1], 
                                                "eta" = rep(1, P), 
-                                               "lambda" = 2, 
-                                               "tau" = 1, 
+                                               "tau" = tau * 3,
+                                               "lambda" = sample(2:10, size = 1), 
                                                "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
     
-    out = run.jags(model = "jags_blasso.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, ...)
+    out = run.jags(model = "jags_blasso.txt", modules = c("bugs on", "glm on", "dic off"), monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, n.chains = chains, summarise = FALSE, ...)
     file.remove("jags_blasso.txt")
     if (!is.null(cl)) {
       parallel::stopCluster(cl = cl)
@@ -146,8 +151,6 @@ blasso = function(formula, data, family = "gaussian",  log_lik = FALSE, iter=100
     return(out)
     
   }  
-  
-  
   
   if (family == "binomial"){
     
@@ -183,7 +186,7 @@ blasso = function(formula, data, family = "gaussian",  log_lik = FALSE, iter=100
     inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "binomial", lambda = 0.025, alpha = 0, standardize = FALSE))[1,1]), 
                                                "beta" = rep(0, P), 
                                                "eta" = rgamma(P, 2, 1), 
-                                               "lambda" = 1, 
+                                               "lambda" = sample(2:10, size = 1), 
                                                "ySim" = sample(y, length(y)),
                                                .RNG.name= "lecuyer::RngStream", 
                                                .RNG.seed= sample(1:10000, 1)))
@@ -232,7 +235,7 @@ blasso = function(formula, data, family = "gaussian",  log_lik = FALSE, iter=100
   inits <- lapply(1:chains, function(z) list("Intercept" = as.vector(coef(glmnet::glmnet(x = X, y = y, family = "poisson", lambda = 0.025, alpha = 0, standardize = FALSE))[1,1]), 
                                              "beta" = rep(0, P), 
                                              "eta" = rgamma(P, 2, 1), 
-                                             "lambda" = 1, 
+                                             "lambda" = sample(2:10, size = 1), 
                                              "ySim" = sample(y, length(y)),
                                              .RNG.name= "lecuyer::RngStream", 
                                              .RNG.seed= sample(1:10000, 1)))

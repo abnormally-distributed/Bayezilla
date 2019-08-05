@@ -6,10 +6,10 @@
 \usage{
 hist(x, breaks = "dhist", freq = FALSE, probability = !freq,
   include.lowest = TRUE, right = TRUE, density = NULL, angle = 45,
-  col = "#71D795CC", border = NULL, main = NULL,
+  col = "#00ff3cCC", border = NULL, main = NULL,
   xlim = range(breaks), ylim = NULL, xlab = xname, ylab,
   axes = TRUE, plot = TRUE, labels = FALSE, nclass = NULL,
-  warn.unused = TRUE, rug = TRUE, rug.col = "#445edd", ...)
+  warn.unused = TRUE, rug = TRUE, rug.col = "#8d03e7", ...)
 }
 \arguments{
 \item{x}{a vector of values for which the histogram is desired.}
@@ -29,7 +29,7 @@ a single number giving the number of cells for the histogram, or a character str
 
 \item{angle}{the slope of shading lines, given as an angle in degrees (counter-clockwise).}
 
-\item{col}{a colour to be used to fill the bars. The default is "#71D795CC".}
+\item{col}{a colour to be used to fill the bars. The default is "#00ff3cCC".}
 
 \item{border}{the color of the border around the bars. The default is to use the standard foreground color.}
 
@@ -55,7 +55,7 @@ a single number giving the number of cells for the histogram, or a character str
 
 \item{rug}{Should a rug be plotted under the histogram? Defaults to TRUE.}
 
-\item{rug.col}{The rug color.}
+\item{rug.col}{The rug color. Defaults to #8d03e7.}
 
 \item{...}{further arguments and graphical parameters passed to plot.histogram and thence to title and axis (if plot = TRUE).}
 }

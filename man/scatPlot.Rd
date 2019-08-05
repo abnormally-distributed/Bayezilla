@@ -5,7 +5,8 @@
 \title{Scatterplots with Marginal Histograms}
 \usage{
 scatPlot(x, y, xlab = "x", ylab = "y", col = "blues",
-  x.breaks = "dhist", y.breaks = "dhist", smooth = FALSE)
+  x.breaks = "dhist", y.breaks = "dhist", smooth = FALSE,
+  regline = TRUE)
 }
 \arguments{
 \item{x}{the x-axis variable}
@@ -21,6 +22,10 @@ scatPlot(x, y, xlab = "x", ylab = "y", col = "blues",
 \item{x.breaks}{breaks in x axis histogram. defaults to 15.}
 
 \item{y.breaks}{breaks in y axis histogram. defaults to 15.}
+
+\item{smooth}{should a smoother line be added. Defaults to FALSE.}
+
+\item{regline}{should a regression line be added? Defaults to TRUE, with both robust and ordinary least squares lines being plotted.}
 }
 \value{
 a plot

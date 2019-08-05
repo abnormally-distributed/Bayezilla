@@ -7,6 +7,8 @@
 #' @param col color scheme. one of "blue" (the default), "red", "green", or "purple"
 #' @param x.breaks breaks in x axis histogram. defaults to 15.
 #' @param y.breaks breaks in y axis histogram. defaults to 15. 
+#' @param smooth should a smoother line be added. Defaults to FALSE. 
+#' @param regline should a regression line be added? Defaults to TRUE, with both robust and ordinary least squares lines being plotted.
 #'
 #' @return
 #' a plot
@@ -14,23 +16,23 @@
 #'
 #' @examples
 #' scatterPlot(iris$Sepal.Width, iris$Petal.Length, xlab = "Sepal Width", ylab = "Petal Length", col = "purple")
-scatPlot = function(x, y, xlab="x", ylab="y", col = "blues", x.breaks = "dhist", y.breaks = "dhist", smooth = FALSE){
+scatPlot = function(x, y, xlab="x", ylab="y", col = "blues", x.breaks = "dhist", y.breaks = "dhist", smooth = FALSE, regline = TRUE){
   
   old.par <- par(no.readonly = TRUE) # save default, for resetting... 
   on.exit(par(old.par))     #and when we quit the function, restore to original values
   
   #light, dark, dark, light, smoothline 
   if (col == "blues" || col == "blue"){
-    ColorScheme = c("#6495edCC", "#0d2f6dCC", "#0a2556CC", "#6dabff5E", "#1f7dffA1")
+    ColorScheme = c("#6495edCC", "#0d2f6dCC", "#0a2556CC", "#6dabff5E", "#1f7dffA1", "#022e7dCC")
   }
   if (col == "purples" || col == "purple"){
-    ColorScheme = c("#d4aad4CC" , "#400040CC", "#270027CC", "#e035e05E", "#8347b3A1")
+    ColorScheme = c("#d4aad4CC" , "#400040CC", "#270027CC", "#e035e05E", "#8347b3A1", "#33253dCC")
   }
   if (col == "reds" || col == "red"){
-    ColorScheme = c("#e87a7aCC", "#8b1a1aCC", "#910202CC", "#f44b755E", "#ec0518A1")
+    ColorScheme = c("#e87a7aCC", "#8b1a1aCC", "#910202CC", "#f44b755E", "#ec0518A1", "#4f0d0dCC")
   }
   if (col == "greens" || col == "green"){
-    ColorScheme= c("#66cc66BF", "#194d33CC", "#133a26CC", "#61db5e5E", "#42d43eA1")
+    ColorScheme= c("#66cc66BF", "#194d33CC", "#133a26CC", "#61db5e5E", "#42d43eA1", "#163324CC")
   }
   
   xrange <- range(x)
@@ -43,7 +45,15 @@ scatPlot = function(x, y, xlab="x", ylab="y", col = "blues", x.breaks = "dhist",
   par(mar=c(4, 4,.5,.5), oma = c(1.5, 1.5, 0, 0))
   plot(x, y, xlab = xlab, ylab = ylab, xlim=xrange, ylim=yrange, xaxt = "n", yaxt = "n", lwd = 1.225, cex = 1.25, lty = 1, pch = 21, bty="n", family = "serif", col = ColorScheme[2], bg = ColorScheme[1], cex.lab=1.25)
   if(smooth == TRUE){
-    lines(stats::lowess(x, y), col= ColorScheme[5], lwd = 4)
+    lines(stats::lowess(x, y), col= ColorScheme[5], lwd = 3)
+  } 
+  if(regline == TRUE){
+    robust = coef(MASS::rlm(y ~ x))
+    ordinary = coef(lm(y ~ x))
+    abline(robust[1], robust[2], col = ColorScheme[6], lwd = 3)
+    abline(ordinary[1], ordinary[2], col = "#1b1e24A1", lwd = 3, lty = 3)
+    legend("topright", legend=c("Robust", "OLS"),
+           col=c(ColorScheme[6], "#1b1e24A1"), lty=c(1,3), lwd = 2, cex = 1, inset=.05)
   }
   axis(1, col = NA, tck = 0, family = "serif", cex = 1.5)
   axis(2, col = NA, tck = 0, family = "serif", cex = 1.5)

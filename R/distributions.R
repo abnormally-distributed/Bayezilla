@@ -386,20 +386,20 @@ dal  = function (x, mu = 0, scale = 1, k = 0.5, log = FALSE)
 #' @param mu vector of location parameter values
 #' @param scale vector of scale parameter values
 #' @param alpha vector of skewness parameter
-#' @param kappa vector of kurtosis parameter
+#' @param nu vector of kurtosis parameter
 #'
 #' @return vector
 #' @export
 #'
 #' @examples
 #' rshash()
-rshash = function (n, mu = 0, scale = 1, alpha = 0, kappa = 1) 
+rshash = function (n, mu = 0, scale = 1, alpha = 0, nu = 1) 
 {
   if (any(n <= 0)) 
     stop(paste("n must be a positive integer", "\n", ""))
   n <- ceiling(n)
   p <- runif(n)
-  r <- qshash(p, mu = mu, scale = scale, alpha = alpha, kappa = kappa)
+  r <- qshash(p, mu = mu, scale = scale, alpha = alpha, nu = nu)
   r
 }
 
@@ -409,7 +409,7 @@ rshash = function (n, mu = 0, scale = 1, alpha = 0, kappa = 1)
 #' @param mu vector of location parameter values
 #' @param scale vector of scale parameter values
 #' @param alpha vector of skewness parameter
-#' @param kappa vector of kurtosis parameter
+#' @param nu vector of kurtosis parameter
 #' @param log if TRUE, probabilities p are given as log(p).
 #'
 #' @return vector
@@ -417,15 +417,15 @@ rshash = function (n, mu = 0, scale = 1, alpha = 0, kappa = 1)
 #'
 #' @examples
 #' dshash()
-dshash = function (x, mu = 0, scale = 1, alpha = 0, kappa = 1, log = FALSE){
+dshash = function (x, mu = 0, scale = 1, alpha = 0, nu = 1, log = FALSE){
   
   if (any(scale < 0)) 
     stop(paste("scale must be positive", "\n", ""))
-  if (any(kappa < 0)) 
-    stop(paste("kappa must be positive", "\n", ""))
-  z <- (x - mu)/(scale * kappa)
-  c <- cosh(kappa * asinh(z) - alpha)
-  r <- sinh(kappa * asinh(z) - alpha)
+  if (any(nu < 0)) 
+    stop(paste("nu must be positive", "\n", ""))
+  z <- (x - mu)/(scale * nu)
+  c <- cosh(nu * asinh(z) - alpha)
+  r <- sinh(nu * asinh(z) - alpha)
   loglik <- -log(scale) - 0.5 * log(2 * pi) - 0.5 * log(1 +  (z^2)) + log(c) - 0.5 * (r^2)
   if (log == FALSE) 
     fy <- exp(loglik)
@@ -439,7 +439,7 @@ dshash = function (x, mu = 0, scale = 1, alpha = 0, kappa = 1, log = FALSE){
 #' @param mu vector of location parameter values
 #' @param scale vector of scale parameter values
 #' @param alpha vector of skewness parameter
-#' @param kappa vector of kurtosis parameter
+#' @param nu vector of kurtosis parameter
 #' @param lower.tail if TRUE (default), probabilities are P[X <= x], otherwise, P[X > x]
 #' @param log.p if TRUE, probabilities p are given as log(p).
 #'
@@ -448,16 +448,16 @@ dshash = function (x, mu = 0, scale = 1, alpha = 0, kappa = 1, log = FALSE){
 #'
 #' @examples
 #' pshash()
-pshash = function (q, mu = 0, scale = 1, alpha = 0, kappa = 1, lower.tail = TRUE, 
+pshash = function (q, mu = 0, scale = 1, alpha = 0, nu = 1, lower.tail = TRUE, 
                    log.p = FALSE) 
 {
   if (any(scale < 0)) 
     stop(paste("scale must be positive", "\n", ""))
-  if (any(kappa < 0)) 
-    stop(paste("kappa must be positive", "\n", ""))
-  z <- (q - mu)/(scale * kappa)
-  c <- cosh(kappa * asinh(z) - alpha)
-  r <- sinh(kappa * asinh(z) - alpha)
+  if (any(nu < 0)) 
+    stop(paste("nu must be positive", "\n", ""))
+  z <- (q - mu)/(scale * nu)
+  c <- cosh(nu * asinh(z) - alpha)
+  r <- sinh(nu * asinh(z) - alpha)
   p <- pNO(r)
   if (lower.tail == TRUE) 
     p <- p
@@ -474,7 +474,7 @@ pshash = function (q, mu = 0, scale = 1, alpha = 0, kappa = 1, lower.tail = TRUE
 #' @param mu vector of location parameter values
 #' @param scale vector of scale parameter values
 #' @param alpha vector of skewness parameter
-#' @param kappa vector of kurtosis parameter
+#' @param nu vector of kurtosis parameter
 #' @param lower.tail if TRUE (default), probabilities are P[X <= x], otherwise, P[X > x]
 #' @param log.p if TRUE, probabilities p are given as log(p).
 #'
@@ -483,7 +483,7 @@ pshash = function (q, mu = 0, scale = 1, alpha = 0, kappa = 1, lower.tail = TRUE
 #'
 #' @examples
 #' qshash()
-qshash = function (p, mu = 0, scale = 1, alpha = 0, kappa = 1, lower.tail = TRUE, log.p = FALSE) 
+qshash = function (p, mu = 0, scale = 1, alpha = 0, nu = 1, lower.tail = TRUE, log.p = FALSE) 
 {
   if (log.p == TRUE) 
     p <- exp(p)
@@ -493,8 +493,8 @@ qshash = function (p, mu = 0, scale = 1, alpha = 0, kappa = 1, lower.tail = TRUE
   if (lower.tail == TRUE) 
     p <- p
   else p <- 1 - p
-  y <- mu + (kappa * scale) * sinh((1/kappa) * asinh(qnorm(p)) + 
-                                     (alpha/kappa))
+  y <- mu + (nu * scale) * sinh((1/nu) * asinh(qnorm(p)) + 
+                                  (alpha/nu))
   y
 }
 

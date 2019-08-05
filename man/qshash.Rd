@@ -4,7 +4,7 @@
 \alias{qshash}
 \title{Sinh-Arcsinh (SHASH) quantile function}
 \usage{
-qshash(p, mu = 0, scale = 1, alpha = 0, kappa = 1,
+qshash(p, mu = 0, scale = 1, alpha = 0, nu = 1,
   lower.tail = TRUE, log.p = FALSE)
 }
 \arguments{
@@ -16,7 +16,7 @@ qshash(p, mu = 0, scale = 1, alpha = 0, kappa = 1,
 
 \item{alpha}{vector of skewness parameter}
 
-\item{kappa}{vector of kurtosis parameter}
+\item{nu}{vector of kurtosis parameter}
 
 \item{lower.tail}{if TRUE (default), probabilities are P[X <= x], otherwise, P[X > x]}
 

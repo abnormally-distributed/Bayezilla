@@ -4,7 +4,7 @@
 \alias{rshash}
 \title{Sinh-Arcsinh (SHASH) random number generator}
 \usage{
-rshash(n, mu = 0, scale = 1, alpha = 0, kappa = 1)
+rshash(n, mu = 0, scale = 1, alpha = 0, nu = 1)
 }
 \arguments{
 \item{n}{number of observations}
@@ -15,7 +15,7 @@ rshash(n, mu = 0, scale = 1, alpha = 0, kappa = 1)
 
 \item{alpha}{vector of skewness parameter}
 
-\item{kappa}{vector of kurtosis parameter}
+\item{nu}{vector of kurtosis parameter}
 }
 \value{
 vector

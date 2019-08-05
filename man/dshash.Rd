@@ -4,7 +4,7 @@
 \alias{dshash}
 \title{Sinh-Arcsinh (SHASH) probability density function}
 \usage{
-dshash(x, mu = 0, scale = 1, alpha = 0, kappa = 1, log = FALSE)
+dshash(x, mu = 0, scale = 1, alpha = 0, nu = 1, log = FALSE)
 }
 \arguments{
 \item{x}{vector of quantiles}
@@ -15,7 +15,7 @@ dshash(x, mu = 0, scale = 1, alpha = 0, kappa = 1, log = FALSE)
 
 \item{alpha}{vector of skewness parameter}
 
-\item{kappa}{vector of kurtosis parameter}
+\item{nu}{vector of kurtosis parameter}
 
 \item{log}{if TRUE, probabilities p are given as log(p).}
 }

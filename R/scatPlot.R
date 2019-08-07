@@ -70,7 +70,7 @@ scatPlot = function(x, y, xlab="x", ylab="y", col = "blues", hist = TRUE, x.brea
   if(regline == TRUE){
     resids = model.frame(y ~ x, data = data)[,1] - as.vector(lmSolve(y ~ x, data = data) %*% t(model.matrix(y ~ x, data = data)))
     w = tukey.wts((resids - mean(resids)) / sd(resids))
-    robust = round(coef(MASS::rlm(y ~ x, data = data, scale.est = "Huber", init = "lts", method = "MM", psi = MASS:::psi.huber, weights = w, w = w, acc = 1e-6, maxit = 100)), 3)
+    robust = round(coef(MASS::rlm(y ~ x, data = data, scale.est = "Huber", init = "lts", method = "MM", psi = MASS::psi.hampel, w = w, acc = 1e-3, maxit = 500)), 3)
     ordinary = coef(lm(y ~ x))
     abline(robust[1], robust[2], col = ColorScheme[6], lwd = 3)
     abline(ordinary[1], ordinary[2], col = "#1b1e24A1", lwd = 2.5, size = 2, lty = 3)

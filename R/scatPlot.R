@@ -16,7 +16,7 @@
 #'
 #' @examples
 #' scatterPlot(iris$Sepal.Width, iris$Petal.Length, xlab = "Sepal Width", ylab = "Petal Length", col = "purple")
-scatPlot = function(x, y, xlab="x", ylab="y", col = "blues", x.breaks = "dhist", y.breaks = "dhist", smooth = FALSE, regline = TRUE){
+scatPlot = function(x, y, xlab="x", ylab="y", col = "blues", hist = TRUE, x.breaks = "dhist", y.breaks = "dhist", smooth = FALSE, regline = TRUE){
   
   old.par <- par(no.readonly = TRUE) # save default, for resetting... 
   on.exit(par(old.par))     #and when we quit the function, restore to original values
@@ -35,10 +35,13 @@ scatPlot = function(x, y, xlab="x", ylab="y", col = "blues", x.breaks = "dhist",
     ColorScheme= c("#66cc66BF", "#194d33CC", "#133a26CC", "#61db5e5E", "#42d43eA1", "#163324CC")
   }
   
+  
   xrange <- range(x)
   yrange <- range(y)
-  zones=matrix(c(2,0,1,3), ncol=2, byrow=TRUE)
-  layout(zones, widths=c(4/5,1/5), heights=c(1/5,4/5))
+  
+  if (hist == TRUE){
+    zones=matrix(c(2,0,1,3), ncol=2, byrow=TRUE)
+    layout(zones, widths=c(4/5,1/5), heights=c(1/5,4/5))
   xhist = hist(x, plot=FALSE, breaks = x.breaks)
   yhist = hist(y, plot=FALSE, breaks = y.breaks)
   top = max(c(xhist$counts, yhist$counts))
@@ -62,6 +65,26 @@ scatPlot = function(x, y, xlab="x", ylab="y", col = "blues", x.breaks = "dhist",
   par(mar=c(4,0,2,3))
   barplot(yhist$counts, axes=FALSE, xlim=c(0, top), space=0, horiz=TRUE, border = ColorScheme[3], col = ColorScheme[4])
   par(oma=c(4,4,0,0))
+  
+  } 
+  
+  if (hist == FALSE){
+    plot(x, y, xlab = xlab, ylab = ylab, xlim=xrange, ylim=yrange, xaxt = "n", yaxt = "n", lwd = 1.225, cex = 1.25, lty = 1, pch = 21, bty="n", family = "serif", col = ColorScheme[2], bg = ColorScheme[1], cex.lab=1.25)
+    if(smooth == TRUE){
+      lines(stats::lowess(x, y), col= ColorScheme[5], lwd = 3)
+    } 
+    if(regline == TRUE){
+      robust = coef(MASS::rlm(y ~ x))
+      ordinary = coef(lm(y ~ x))
+      abline(robust[1], robust[2], col = ColorScheme[6], lwd = 3)
+      abline(ordinary[1], ordinary[2], col = "#1b1e24A1", lwd = 3, lty = 3)
+      legend("topright", legend=c("Robust", "OLS"),
+             col=c(ColorScheme[6], "#1b1e24A1"), lty=c(1,3), lwd = 2, cex = 1, inset=.05)
+    }
+    
+    axis(1, col = NA, tck = 0, family = "serif", cex = 1.5)
+    axis(2, col = NA, tck = 0, family = "serif", cex = 1.5)
+  }
 }
 
 #' Visualize your data with a scatterplot matrix

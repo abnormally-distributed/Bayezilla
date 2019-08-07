@@ -4,7 +4,7 @@
 \alias{scatPlot}
 \title{Scatterplots with Marginal Histograms}
 \usage{
-scatPlot(x, y, xlab = "x", ylab = "y", col = "blues",
+scatPlot(x, y, xlab = "x", ylab = "y", col = "blues", hist = TRUE,
   x.breaks = "dhist", y.breaks = "dhist", smooth = FALSE,
   regline = TRUE)
 }

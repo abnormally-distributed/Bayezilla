@@ -9,9 +9,9 @@ scatPlot(x, y, xlab = "x", ylab = "y", col = "blues", hist = TRUE,
   regline = TRUE)
 }
 \arguments{
-\item{x}{the x-axis variable}
+\item{x}{the x-axis variable or a formula}
 
-\item{y}{the y-axis variable}
+\item{y}{the y-axis variable or a data frame if x is a formula}
 
 \item{xlab}{the x axis label}
 

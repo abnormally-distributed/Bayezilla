@@ -1,7 +1,7 @@
 #' Scatterplots with Marginal Histograms
 #'
-#' @param x the x-axis variable
-#' @param y the y-axis variable
+#' @param x the x-axis variable or a formula
+#' @param y the y-axis variable or a data frame if x is a formula
 #' @param xlab the x axis label
 #' @param ylab the y axis label
 #' @param col color scheme. one of "blue" (the default), "red", "green", or "purple"
@@ -20,6 +20,23 @@ scatPlot = function(x, y, xlab="x", ylab="y", col = "blues", hist = TRUE, x.brea
   
   old.par <- par(no.readonly = TRUE) # save default, for resetting... 
   on.exit(par(old.par))     #and when we quit the function, restore to original values
+  
+  if (class(x) == "formula"){
+    
+    if (class(y) != "data.frame"){
+      stop("When providing a formula to x, y must be a data frame")
+    } else if (class(y) == "data.frame"){
+      mf = model.frame(x, y)
+      y = as.vector(mf[,2])
+      x = as.vector(mf[,1])
+      data = data.frame(y = y, x = x)
+    }
+    
+  } else {
+    
+    data = data.frame(y = y, x = x)
+    
+  }
   
   #light, dark, dark, light, smoothline 
   if (col == "blues" || col == "blue"){
@@ -51,10 +68,12 @@ scatPlot = function(x, y, xlab="x", ylab="y", col = "blues", hist = TRUE, x.brea
     lines(stats::lowess(x, y), col= ColorScheme[5], lwd = 3)
   } 
   if(regline == TRUE){
-    robust = coef(MASS::rlm(y ~ x))
+    resids = model.frame(y ~ x, data = data)[,1] - as.vector(lmSolve(y ~ x, data = data) %*% t(model.matrix(y ~ x, data = data)))
+    w = tukey.wts((resids - mean(resids)) / sd(resids))
+    robust = round(coef(MASS::rlm(y ~ x, data = data, scale.est = "Huber", init = "lts", method = "MM", psi = MASS:::psi.huber, weights = w, w = w, acc = 1e-6, maxit = 100)), 3)
     ordinary = coef(lm(y ~ x))
     abline(robust[1], robust[2], col = ColorScheme[6], lwd = 3)
-    abline(ordinary[1], ordinary[2], col = "#1b1e24A1", lwd = 3, lty = 3)
+    abline(ordinary[1], ordinary[2], col = "#1b1e24A1", lwd = 2.5, size = 2, lty = 3)
     legend("topright", legend=c("Robust", "OLS"),
            col=c(ColorScheme[6], "#1b1e24A1"), lty=c(1,3), lwd = 2, cex = 1, inset=.05)
   }

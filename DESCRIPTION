@@ -1,7 +1,7 @@
 Package: Bayezilla
 Type: Package
 Title: Bayesian Models With JAGS and Several Utilities for Data Exploration and Model Evaluation.
-Version: 0.1.5
+Version: 0.1.8
 Author: Brandon Vaughan
 Maintainer: Brandon Vaughan <vaughanb@musc.edu>
 Description: Fits various Bayesian models with JAGS. 
@@ -19,7 +19,8 @@ Depends:
     tibble (>= 1.4.1),    
     tidyr (>= 0.8.3), 
     dplyr (>= 0.8.0.1),
-    parallel (>= 3.5.1)
+    parallel (>= 3.5.1),
+    MASS (>= 7.3-50)
 Imports: 
     methods,
     fBasics (>= 3042.89),

@@ -52,6 +52,9 @@ scatPlot = function(x, y, xlab="x", ylab="y", col = "blues", hist = TRUE, x.brea
     ColorScheme= c("#66cc66BF", "#194d33CC", "#133a26CC", "#61db5e5E", "#42d43eA1", "#163324CC")
   }
   
+  tukey.wts = function (r, t = 4.685){
+    return((1 - pmin(1, abs(r/t))^2)^2)
+  }
   
   xrange <- range(x)
   yrange <- range(y)
@@ -59,44 +62,47 @@ scatPlot = function(x, y, xlab="x", ylab="y", col = "blues", hist = TRUE, x.brea
   if (hist == TRUE){
     zones=matrix(c(2,0,1,3), ncol=2, byrow=TRUE)
     layout(zones, widths=c(4/5,1/5), heights=c(1/5,4/5))
-  xhist = hist(x, plot=FALSE, breaks = x.breaks)
-  yhist = hist(y, plot=FALSE, breaks = y.breaks)
-  top = max(c(xhist$counts, yhist$counts))
-  par(mar=c(4, 4,.5,.5), oma = c(1.5, 1.5, 0, 0))
-  plot(x, y, xlab = xlab, ylab = ylab, xlim=xrange, ylim=yrange, xaxt = "n", yaxt = "n", lwd = 1.225, cex = 1.25, lty = 1, pch = 21, bty="n", family = "serif", col = ColorScheme[2], bg = ColorScheme[1], cex.lab=1.25)
-  if(smooth == TRUE){
-    lines(stats::lowess(x, y), col= ColorScheme[5], lwd = 3)
-  } 
-  if(regline == TRUE){
-    resids = model.frame(y ~ x, data = data)[,1] - as.vector(lmSolve(y ~ x, data = data) %*% t(model.matrix(y ~ x, data = data)))
-    w = tukey.wts((resids - mean(resids)) / sd(resids))
-    robust = round(coef(MASS::rlm(y ~ x, data = data, scale.est = "Huber", init = "lts", method = "MM", psi = MASS::psi.hampel, w = w, acc = 1e-3, maxit = 500)), 3)
-    ordinary = coef(lm(y ~ x))
-    abline(robust[1], robust[2], col = ColorScheme[6], lwd = 3)
-    abline(ordinary[1], ordinary[2], col = "#1b1e24A1", lwd = 2.5, size = 2, lty = 3)
-    legend("topright", legend=c("Robust", "OLS"),
-           col=c(ColorScheme[6], "#1b1e24A1"), lty=c(1,3), lwd = 2, cex = 1, inset=.05)
-  }
-  axis(1, col = NA, tck = 0, family = "serif", cex = 1.5)
-  axis(2, col = NA, tck = 0, family = "serif", cex = 1.5)
-  par(mar=c(0,4,3,2))
-  barplot(xhist$counts, axes=FALSE, ylim=c(0, top), space=0, border = ColorScheme[3], col = ColorScheme[4])
-  par(mar=c(4,0,2,3))
-  barplot(yhist$counts, axes=FALSE, xlim=c(0, top), space=0, horiz=TRUE, border = ColorScheme[3], col = ColorScheme[4])
-  par(oma=c(4,4,0,0))
-  
+    xhist = hist(x, plot=FALSE, breaks = x.breaks)
+    yhist = hist(y, plot=FALSE, breaks = y.breaks)
+    top = max(c(xhist$counts, yhist$counts))
+    par(mar=c(4, 4,.5,.5), oma = c(1.5, 1.5, 0, 0))
+    plot(x, y, xlab = xlab, ylab = ylab, xlim=xrange, ylim=yrange, xaxt = "n", yaxt = "n", lwd = 1.225, cex = 1.25, lty = 1, pch = 21, bty="n", family = "serif", col = ColorScheme[2], bg = ColorScheme[1], cex.lab=1.25)
+    if(smooth == TRUE){
+      lines(smooth.spline(x, y), col= ColorScheme[5], lwd = 3)
+    } 
+    if(regline == TRUE){
+      resids = model.frame(y ~ x, data = data)[,1] - as.vector(lmSolve(y ~ x, data = data) %*% t(model.matrix(y ~ x, data = data)))
+      w = tukey.wts((resids - mean(resids)) / sd(resids))
+      robust = round(coef(MASS::rlm(y ~ x, data = data, scale.est = "Huber", init = "lts", method = "MM", psi = MASS::psi.hampel, w = w, acc = 1e-3, maxit = 500)), 3)
+      ordinary = coef(lm(y ~ x))
+      abline(robust[1], robust[2], col = ColorScheme[6], lwd = 3)
+      abline(ordinary[1], ordinary[2], col = "#1b1e24A1", lwd = 2.5, lty = 2)
+      legend("topright", legend=c("Robust", "OLS"),
+             col=c(ColorScheme[6], "#1b1e24A1"), lty=c(1,3), lwd = 2, cex = 1, inset=.05)
+    }
+    axis(1, col = NA, tck = 0, family = "serif", cex = 1.5)
+    axis(2, col = NA, tck = 0, family = "serif", cex = 1.5)
+    par(mar=c(0,4,3,2))
+    barplot(xhist$counts, axes=FALSE, ylim=c(0, top), space=0, border = ColorScheme[3], col = ColorScheme[4])
+    par(mar=c(4,0,2,3))
+    barplot(yhist$counts, axes=FALSE, xlim=c(0, top), space=0, horiz=TRUE, border = ColorScheme[3], col = ColorScheme[4])
+    par(oma=c(4,4,0,0))
+    
   } 
   
   if (hist == FALSE){
     plot(x, y, xlab = xlab, ylab = ylab, xlim=xrange, ylim=yrange, xaxt = "n", yaxt = "n", lwd = 1.225, cex = 1.25, lty = 1, pch = 21, bty="n", family = "serif", col = ColorScheme[2], bg = ColorScheme[1], cex.lab=1.25)
     if(smooth == TRUE){
-      lines(stats::lowess(x, y), col= ColorScheme[5], lwd = 3)
+      lines(smooth.spline(x, y), col= ColorScheme[5], lwd = 3)
     } 
     if(regline == TRUE){
-      robust = coef(MASS::rlm(y ~ x))
+      resids = model.frame(y ~ x, data = data)[,1] - as.vector(lmSolve(y ~ x, data = data) %*% t(model.matrix(y ~ x, data = data)))
+      w = tukey.wts((resids - mean(resids)) / sd(resids))
+      robust = round(coef(MASS::rlm(y ~ x, data = data, scale.est = "Huber", init = "lts", method = "MM", psi = MASS::psi.hampel, w = w, acc = 1e-3, maxit = 500)), 3)
+      
       ordinary = coef(lm(y ~ x))
       abline(robust[1], robust[2], col = ColorScheme[6], lwd = 3)
-      abline(ordinary[1], ordinary[2], col = "#1b1e24A1", lwd = 3, lty = 3)
+      abline(ordinary[1], ordinary[2], col = "#1b1e24A1", lwd = 2, lty = 2)
       legend("topright", legend=c("Robust", "OLS"),
              col=c(ColorScheme[6], "#1b1e24A1"), lty=c(1,3), lwd = 2, cex = 1, inset=.05)
     }
@@ -138,28 +144,28 @@ scatPlot = function(x, y, xlab="x", ylab="y", col = "blues", hist = TRUE, x.brea
 #' scatMat(iris)
 scatMat <-
   function(x,
-             smooth = TRUE,
-             digits = 2,
-             method = "pearson",
-             pch = 19,
-             lm = FALSE,
-             cor = TRUE,
-             jitter = FALSE,
-             amount = 2,
-             hist.col = "#0054f9A6",
-             points.col = "#35a8f59E",
-             smooth.col = "#663399BF",
-             breaks = "FD",
-             cex.cor = 1,
-             cex.num = 1.5,
-             smoother = FALSE,
-             ...) {
+           smooth = TRUE,
+           digits = 2,
+           method = "pearson",
+           pch = 19,
+           lm = FALSE,
+           cor = TRUE,
+           jitter = FALSE,
+           amount = 2,
+           hist.col = "#0054f9A6",
+           points.col = "#35a8f59E",
+           smooth.col = "#663399BF",
+           breaks = "FD",
+           cex.cor = 1,
+           cex.num = 1.5,
+           smoother = FALSE,
+           ...) {
     density <- FALSE
     scale <- TRUE
     wt <- NULL
     show.points <- TRUE
     rug <- FALSE
-
+    
     "panel.hist.density" <-
       function(x, ...) {
         usr <- par("usr")
@@ -182,9 +188,9 @@ scatMat <-
         if (density) {
           tryd <-
             try(d <- density(x,
-              na.rm = TRUE,
-              bw = "nrd",
-              adjust = 1.5
+                             na.rm = TRUE,
+                             bw = "nrd",
+                             adjust = 1.5
             ), silent = TRUE)
           if (class(tryd) != "try-error") {
             d$y <- d$y / max(d$y)
@@ -195,8 +201,8 @@ scatMat <-
           rug(x)
         }
       }
-
-
+    
+    
     "panel.cor" <-
       function(x, y, prefix = "", ...) {
         usr <- par("usr")
@@ -214,27 +220,27 @@ scatMat <-
         cex <- cex.num
         text(0.5, 0.5, txt, cex = cex)
       }
-
+    
     "panel.smoother" <-
       function(x,
-                     y,
-                     pch = par("pch"),
-                     col.smooth = smooth.col,
-                     span = 2 / 3,
-                     iter = 3,
-                     lwd = 3,
-                     ...) {
+               y,
+               pch = par("pch"),
+               col.smooth = smooth.col,
+               span = 2 / 3,
+               iter = 3,
+               lwd = 3,
+               ...) {
         xm <- mean(x, na.rm = TRUE)
         ym <- mean(y, na.rm = TRUE)
         xs <- sd(x, na.rm = TRUE)
         ys <- sd(y, na.rm = TRUE)
         r <- cor(x, y, use = "pairwise", method = method)
-
+        
         if (jitter) {
           x <- jitter(x, factor = amount)
           y <- jitter(y, factor = amount)
         }
-
+        
         if (smoother) {
           if (show.points) {
             points(x, y, pch = pch, col = points.col, ...)
@@ -249,20 +255,27 @@ scatMat <-
         ok <- is.finite(x) & is.finite(y)
         if (any(ok)) {
           if (smooth) {
-            lines(stats::lowess(x[ok], y[ok], f = span, iter = iter),
-              col = smooth.col,
-              lwd = 3
+            
+            if (length(unique(x)) < 10 || length(unique(y)) < 10){
+              smoothed = stats::lowess(x[ok], y[ok], f = span, iter = iter)
+            } else {
+              smoothed = smooth.spline(x[ok], y[ok])
+            }
+            
+            lines(smoothed ,
+                  col = smooth.col,
+                  lwd = 3
             )
           }
         }
       }
-
+    
     "panel.lm" <-
       function(x,
-                     y,
-                     pch = par("pch"),
-                     col.lm = "red",
-                     ...) {
+               y,
+               pch = par("pch"),
+               col.lm = "red",
+               ...) {
         ymin <- min(y)
         ymax <- max(y)
         xmin <- min(x)
@@ -293,26 +306,26 @@ scatMat <-
           lml <- lm(y ~ x)
         }
       }
-
-
+    
+    
     #######
-
+    
     old.par <-
       par(no.readonly = TRUE) # save default, for resetting...
     on.exit(par(old.par)) # and when we quit the function, restore to original values
-
+    
     par(
       xaxt = "n",
       yaxt = "n",
       bty = "null",
       family = "serif"
     )
-
+    
     if (missing(cex.cor)) {
       cex.cor <-
         1
     } # this allows us to scale the points separately from the correlations
-
+    
     for (i in 1:ncol(x)) {
       # treat character data as numeric
       if (is.character(x[[i]])) {
@@ -321,7 +334,7 @@ scatMat <-
       }
     }
     n.obs <- nrow(x)
-
+    
     if (!lm) {
       # the basic default is here
       if (cor) {
@@ -356,7 +369,7 @@ scatMat <-
       # lm is TRUE
       if (!cor) {
         # this case does not show the correlations, but rather shows the regression lines above and below the diagonal
-
+        
         pairs(
           x,
           diag.panel = panel.hist.density,
@@ -371,7 +384,7 @@ scatMat <-
         axis(2, col = NA, tck = 0)
       } else {
         # the normal case is to show the regressions below and the rs above
-
+        
         pairs(
           x,
           diag.panel = panel.hist.density,

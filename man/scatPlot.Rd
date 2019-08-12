@@ -6,7 +6,8 @@
 \usage{
 scatPlot(x, y, xlab = "x", ylab = "y", col = "blues", hist = TRUE,
   x.breaks = "dhist", y.breaks = "dhist", smooth = FALSE,
-  regline = TRUE)
+  regline = TRUE, font = "serif", inset = 0.05,
+  legend.pos = "topright", box.lty = 1, box.cex = 0.95)
 }
 \arguments{
 \item{x}{the x-axis variable or a formula}
@@ -26,6 +27,16 @@ scatPlot(x, y, xlab = "x", ylab = "y", col = "blues", hist = TRUE,
 \item{smooth}{should a smoother line be added. Defaults to FALSE.}
 
 \item{regline}{should a regression line be added? Defaults to TRUE, with both robust and ordinary least squares lines being plotted.}
+
+\item{font}{Defaults to "serif"}
+
+\item{inset}{the inset of the legend. Defaults to 0.05}
+
+\item{legend.pos}{the legend position. Defaults to "topright"}
+
+\item{box.lty}{the linetype of the legend box outline}
+
+\item{box.cex}{the size of the legend}
 }
 \value{
 a plot

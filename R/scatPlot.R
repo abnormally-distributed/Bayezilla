@@ -9,6 +9,11 @@
 #' @param y.breaks breaks in y axis histogram. defaults to 15. 
 #' @param smooth should a smoother line be added. Defaults to FALSE. 
 #' @param regline should a regression line be added? Defaults to TRUE, with both robust and ordinary least squares lines being plotted.
+#' @param font Defaults to "serif"
+#' @param legend.pos the legend position. Defaults to "topright"
+#' @param inset the inset of the legend. Defaults to 0.05
+#' @param box.lty the linetype of the legend box outline
+#' @param box.cex the size of the legend
 #'
 #' @return
 #' a plot
@@ -16,7 +21,7 @@
 #'
 #' @examples
 #' scatterPlot(iris$Sepal.Width, iris$Petal.Length, xlab = "Sepal Width", ylab = "Petal Length", col = "purple")
-scatPlot = function(x, y, xlab="x", ylab="y", col = "blues", hist = TRUE, x.breaks = "dhist", y.breaks = "dhist", smooth = FALSE, regline = TRUE){
+scatPlot = function(x, y, xlab="x", ylab="y", col = "blues", hist = TRUE, x.breaks = "dhist", y.breaks = "dhist", smooth = FALSE, regline = TRUE, font = "serif", inset = 0.05, legend.pos = "topright", box.lty = 1, box.cex = 0.95){
   
   old.par <- par(no.readonly = TRUE) # save default, for resetting... 
   on.exit(par(old.par))     #and when we quit the function, restore to original values
@@ -59,6 +64,8 @@ scatPlot = function(x, y, xlab="x", ylab="y", col = "blues", hist = TRUE, x.brea
   xrange <- range(x)
   yrange <- range(y)
   
+  par(family = font)
+  
   if (hist == TRUE){
     zones=matrix(c(2,0,1,3), ncol=2, byrow=TRUE)
     layout(zones, widths=c(4/5,1/5), heights=c(1/5,4/5))
@@ -66,22 +73,22 @@ scatPlot = function(x, y, xlab="x", ylab="y", col = "blues", hist = TRUE, x.brea
     yhist = hist(y, plot=FALSE, breaks = y.breaks)
     top = max(c(xhist$counts, yhist$counts))
     par(mar=c(4, 4,.5,.5), oma = c(1.5, 1.5, 0, 0))
-    plot(x, y, xlab = xlab, ylab = ylab, xlim=xrange, ylim=yrange, xaxt = "n", yaxt = "n", lwd = 1.225, cex = 1.25, lty = 1, pch = 21, bty="n", family = "serif", col = ColorScheme[2], bg = ColorScheme[1], cex.lab=1.25)
+    plot(x, y, xlab = xlab, ylab = ylab, xlim=xrange, ylim=yrange, xaxt = "n", yaxt = "n", lwd = 1.225, cex = 1.25, lty = 1, pch = 21, bty="n", family = font, col = ColorScheme[2], bg = ColorScheme[1], cex.lab=1.25)
     if(smooth == TRUE){
-      lines(smooth.spline(x, y), col= ColorScheme[5], lwd = 3)
+      lines(smooth.spline(x, y), col= ColorScheme[5], lwd = 3, lty = 1)
     } 
     if(regline == TRUE){
       resids = model.frame(y ~ x, data = data)[,1] - as.vector(lmSolve(y ~ x, data = data) %*% t(model.matrix(y ~ x, data = data)))
       w = tukey.wts((resids - mean(resids)) / sd(resids))
       robust = round(coef(MASS::rlm(y ~ x, data = data, scale.est = "Huber", init = "lts", method = "MM", psi = MASS::psi.hampel, w = w, acc = 1e-3, maxit = 500)), 3)
       ordinary = coef(lm(y ~ x))
-      abline(robust[1], robust[2], col = ColorScheme[6], lwd = 3)
-      abline(ordinary[1], ordinary[2], col = "#1b1e24A1", lwd = 2.5, lty = 2)
-      legend("topright", legend=c("Robust", "OLS"),
-             col=c(ColorScheme[6], "#1b1e24A1"), lty=c(1,3), lwd = 2, cex = 1, inset=.05)
+      abline(robust[1], robust[2], col = ColorScheme[6], lwd = 3, lty = 1)
+      abline(ordinary[1], ordinary[2], col = "#1b1e24A1", lwd = 2.5, lty = 3)
+      legend(legend.pos, legend=c("Robust", "OLS"),
+             col=c(ColorScheme[6], "#1b1e24A1"), lty=c(1,3), lwd = 2, cex = box.cex, box.lty = box.lty, inset=inset)
     }
-    axis(1, col = NA, tck = 0, family = "serif", cex = 1.5)
-    axis(2, col = NA, tck = 0, family = "serif", cex = 1.5)
+    axis(1, col = NA, tck = 0, family = font, cex = 1.5)
+    axis(2, col = NA, tck = 0, family = font, cex = 1.5)
     par(mar=c(0,4,3,2))
     barplot(xhist$counts, axes=FALSE, ylim=c(0, top), space=0, border = ColorScheme[3], col = ColorScheme[4])
     par(mar=c(4,0,2,3))
@@ -91,7 +98,7 @@ scatPlot = function(x, y, xlab="x", ylab="y", col = "blues", hist = TRUE, x.brea
   } 
   
   if (hist == FALSE){
-    plot(x, y, xlab = xlab, ylab = ylab, xlim=xrange, ylim=yrange, xaxt = "n", yaxt = "n", lwd = 1.225, cex = 1.25, lty = 1, pch = 21, bty="n", family = "serif", col = ColorScheme[2], bg = ColorScheme[1], cex.lab=1.25)
+    plot(x, y, xlab = xlab, ylab = ylab, xlim=xrange, ylim=yrange, xaxt = "n", yaxt = "n", lwd = 1.225, cex = 1.25, lty = 1, pch = 21, bty="n", family = font, col = ColorScheme[2], bg = ColorScheme[1], cex.lab=1.25)
     if(smooth == TRUE){
       lines(smooth.spline(x, y), col= ColorScheme[5], lwd = 3)
     } 
@@ -101,14 +108,14 @@ scatPlot = function(x, y, xlab="x", ylab="y", col = "blues", hist = TRUE, x.brea
       robust = round(coef(MASS::rlm(y ~ x, data = data, scale.est = "Huber", init = "lts", method = "MM", psi = MASS::psi.hampel, w = w, acc = 1e-3, maxit = 500)), 3)
       
       ordinary = coef(lm(y ~ x))
-      abline(robust[1], robust[2], col = ColorScheme[6], lwd = 3)
-      abline(ordinary[1], ordinary[2], col = "#1b1e24A1", lwd = 2, lty = 2)
-      legend("topright", legend=c("Robust", "OLS"),
-             col=c(ColorScheme[6], "#1b1e24A1"), lty=c(1,3), lwd = 2, cex = 1, inset=.05)
+      abline(robust[1], robust[2], col = ColorScheme[6], lwd = 3, lty = 1)
+      abline(ordinary[1], ordinary[2], col = "#1b1e24A1", lwd = 2.5, lty = 3)
+      legend(legend.pos, legend=c("Robust", "OLS"),
+             col=c(ColorScheme[6], "#1b1e24A1"), lty=c(1,3), lwd = 2, cex = box.cex, inset=inset, box.lty = box.lty)
     }
     
-    axis(1, col = NA, tck = 0, family = "serif", cex = 1.5)
-    axis(2, col = NA, tck = 0, family = "serif", cex = 1.5)
+    axis(1, col = NA, tck = 0, family = font, cex = 1.5)
+    axis(2, col = NA, tck = 0, family = font, cex = 1.5)
   }
 }
 
@@ -146,7 +153,7 @@ scatMat <-
   function(x,
            smooth = TRUE,
            digits = 2,
-           method = "pearson",
+           method = "spearman",
            pch = 19,
            lm = FALSE,
            cor = TRUE,
@@ -160,6 +167,7 @@ scatMat <-
            cex.num = 1.5,
            smoother = FALSE,
            ...) {
+    
     density <- FALSE
     scale <- TRUE
     wt <- NULL
@@ -242,9 +250,8 @@ scatMat <-
         }
         
         if (smoother) {
-          if (show.points) {
-            points(x, y, pch = pch, col = points.col, ...)
-          }
+          bw = c(min(c(density(x, bw = "nrd0", n = 96)$bw, density(x, bw = "sj", n = 96)$bw)), min(c(density(y, bw = "nrd0", n = 96)$bw, density(y, bw = "sj", n = 96)$bw)))
+          smoothScatter(x,y,add=TRUE, bandwidth = bw, nrpoints=0, nbin = 96, colramp = colorRampPalette(c("white", colorRampPalette(c(points.col, "black"))(10)[4])), transformation = function(x) {abs(x)})
           axis(1, col = NA, tck = 0)
           axis(2, col = NA, tck = 0)
         } else {
@@ -287,8 +294,9 @@ scatMat <-
           y <- jitter(y, factor = amount)
         }
         if (smoother) {
-          smoothScatter(x, y, add = TRUE, nrpoints = 0)
-        } else {
+          bw = c(min(c(density(x, bw = "nrd0", n = 96)$bw, density(x, bw = "sj", n = 96)$bw)), min(c(density(y, bw = "nrd0", n = 96)$bw, density(y, bw = "sj", n = 96)$bw)))
+          smoothScatter(x,y,add=TRUE, bandwidth = bw, nrpoints=0, nbin = 96, colramp = colorRampPalette(c("white", colorRampPalette(c(points.col, "black"))(10)[4])), transformation = function(x) {abs(x)})
+          } else {
           if (show.points) {
             points(
               x,

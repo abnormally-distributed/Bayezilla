@@ -4,8 +4,8 @@
 \alias{scatMat}
 \title{Visualize your data with a scatterplot matrix}
 \usage{
-scatMat(x, smooth = TRUE, digits = 2, method = "pearson", pch = 19,
-  lm = FALSE, cor = TRUE, jitter = FALSE, amount = 2,
+scatMat(x, smooth = TRUE, digits = 2, method = "spearman",
+  pch = 19, lm = FALSE, cor = TRUE, jitter = FALSE, amount = 2,
   hist.col = "#0054f9A6", points.col = "#35a8f59E",
   smooth.col = "#663399BF", breaks = "FD", cex.cor = 1,
   cex.num = 1.5, smoother = FALSE, ...)

@@ -136,10 +136,10 @@ ecdf2d = function(x, y, xlim = range(x), ylim = range(y),
   dx = xfun(x)
   dy = yfun(y)
   
-  if (any(dx) < 0 ){
+  if (any(dx < 0 )){
     dx = dx + abs(min(dx))
   }
-  if (any(dy) < 0 ){
+  if (any(dy < 0 )){
     dy = dy + abs(min(dy))
   }
   dx = (dx-min(dx))/(max(dx)-min(dx))

@@ -4,9 +4,10 @@
 \alias{adaEnet}
 \title{Bayesian Adaptive Elastic Net}
 \usage{
-adaEnet(formula, data, family = "gaussian", log_lik = FALSE,
-  iter = 10000, warmup = 1000, adapt = 2000, chains = 4,
-  thin = 1, method = "parallel", cl = makeCluster(2), ...)
+adaEnet(formula, data, family = "gaussian", lambda.prior = "dmouch",
+  log_lik = FALSE, iter = 10000, warmup = 1000, adapt = 2000,
+  chains = 4, thin = 1, method = "rjparallel", cl = makeCluster(2),
+  ...)
 }
 \arguments{
 \item{formula}{the model formula}
@@ -14,6 +15,8 @@ adaEnet(formula, data, family = "gaussian", log_lik = FALSE,
 \item{data}{a data frame.}
 
 \item{family}{one of "gaussian", "binomial", or "poisson".}
+
+\item{lambda.prior}{either "dmouch" (the default) or "gamma"}
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 
@@ -27,7 +30,7 @@ adaEnet(formula, data, family = "gaussian", log_lik = FALSE,
 
 \item{thin}{Thinning interval. Defaults to 1.}
 
-\item{method}{Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).}
+\item{method}{Defaults to "rjparallel". For an alternative parallel option, choose "parallel". Otherwise, "rjags" (single core run).}
 
 \item{cl}{Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.}
 

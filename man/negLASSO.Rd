@@ -4,10 +4,10 @@
 \alias{negLASSO}
 \title{Normal-exponential-gamma Bayesian LASSO}
 \usage{
-negLASSO(formula, data, family = "gaussian", dof = 0.75,
-  log_lik = FALSE, iter = 10000, warmup = 1000, adapt = 2000,
-  chains = 4, thin = 1, method = "parallel", cl = makeCluster(3),
-  ...)
+negLASSO(formula, data, family = "gaussian", lambda.prior = "dmouch",
+  dof = 0.5, log_lik = FALSE, iter = 10000, warmup = 1000,
+  adapt = 2000, chains = 4, thin = 1, method = "rjparallel",
+  cl = makeCluster(3), ...)
 }
 \arguments{
 \item{formula}{the model formula}
@@ -16,7 +16,9 @@ negLASSO(formula, data, family = "gaussian", dof = 0.75,
 
 \item{family}{one of "gaussian", "binomial", or "poisson".}
 
-\item{dof}{the degrees of freedom for the normal-exponential-gamma prior.}
+\item{lambda.prior}{either "dmouch" (the default) or "gamma"}
+
+\item{dof}{the degrees of freedom for the normal-exponential-gamma prior. Defaults to 0.50.}
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 
@@ -30,7 +32,7 @@ negLASSO(formula, data, family = "gaussian", dof = 0.75,
 
 \item{thin}{Thinning interval. Defaults to 1.}
 
-\item{method}{Defaults to "parallel". For another parallel option, choose "rjparallel" or "rjags" for a single core run.}
+\item{method}{Defaults to "rjparallel". For another parallel option, choose "parallel" or "rjags" for a single core run.}
 
 \item{cl}{Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to 3.}
 
@@ -63,15 +65,8 @@ normal-exponential-gamma hierarchy, except that it is parameterized slightly dif
 \examples{
 negLASSO()
 
+
 }
 \references{
 Griffin, J. E. and Brown, P. J. (2011), Bayesian Hyper‐LASSOs With Non-Convex Penalization. Australian & New Zealand Journal of Statistics, 53: 423-442. doi:10.1111/j.1467-842X.2011.00641.x
-}
-\seealso{
-\code{\link[Bayezilla]{adaLASSO}} 
-\code{\link[Bayezilla]{extLASSO}}
-\code{\link[Bayezilla]{blasso}}
-\code{\link[Bayezilla]{HS}}
-\code{\link[Bayezilla]{HSplus}}
-\code{\link[Bayezilla]{HSreg}}
 }

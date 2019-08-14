@@ -8,6 +8,7 @@
 #' @param model the runjags object
 #' @param col_labs column labels
 #' @param colors colors defaults to magenta, dark grey, and blue, c("#99004C", "#1c1c1c", "#0065CC")
+#' @param font font for the axis labels. Defaults to "serif"
 #' @param ... other arguments to image()
 #'
 #'
@@ -26,7 +27,7 @@
 #' \if{html}{\figure{imageIncl.png}{}}
 #' \if{latex}{\figure{imageIncl.png}{}}
 #'
-plotIncl <- function(model, col_labs = NULL, colors=c("#99004C", "#1c1c1c", "#0065CC"), ...){
+plotIncl <- function(model, col_labs = NULL, font = "serif", colors=c("#99004C", "#1c1c1c", "#0065CC"), ...){
   x = as.matrix(combine.mcmc(model,collapse.chains = TRUE))
   x = x[,grep(colnames(x), pattern =  "beta")]
   x = sign(x)
@@ -71,6 +72,7 @@ plotIncl <- function(model, col_labs = NULL, colors=c("#99004C", "#1c1c1c", "#00
   if( !is.null(title) ){
     title(main=title)
   }
+  par(family = font)
   axis(BELOW<-1, at=1:length(xLabels), labels=xLabels, cex.axis=0.7)
 }
 
@@ -83,6 +85,7 @@ plotIncl <- function(model, col_labs = NULL, colors=c("#99004C", "#1c1c1c", "#00
 #'
 #' @param model the model
 #' @param col_labs variable names
+#' @param font font for the axis labels. Defaults to "serif"
 #'
 #' @return
 #' a plot
@@ -92,7 +95,7 @@ plotIncl <- function(model, col_labs = NULL, colors=c("#99004C", "#1c1c1c", "#00
 #' @examples
 #' plotPips()
 #'
-plotPips = function(model, col_labs = NULL){
+plotPips = function(model, col_labs = NULL, font = "serif"){
   x = as.matrix(combine.mcmc(model,collapse.chains = TRUE))
   x = x[,grep(colnames(x), pattern =  "delta")]
   if (is.null(col_labs) == FALSE){
@@ -103,13 +106,14 @@ plotPips = function(model, col_labs = NULL){
   
   colnames(data) = c("variable", "pip")
   ggplot(data = data, aes(x = variable, y = pip, color = ifelse(pip < .50, "Fail", ifelse(pip <= .60 & pip > .50, "Borderline", "Pass")), fill = ifelse(pip < .50, "Fail", ifelse(pip <= .60 & pip > .50, "Borderline", "Pass")))) +
-    geom_segment( aes(x=variable, xend=variable , y=0, yend= pip - .001), size = 1.125, alpha = .60, linetype = "dotted") +
-    geom_point(size = 5, alpha = .80, shape = 21) +
-    scale_fill_manual(values =  c( "#709e61", "red", "#51fa51"), aesthetics = "fill") +
-    scale_color_manual(values =  c("#788b74", "darkred", "#05a905"), aesthetics = "color") +
+    geom_segment( aes(x=variable, xend=variable , y=0, yend= pip - .001), size = 1.125, alpha = .50, linetype = "solid") +
+    geom_point(size = 5, alpha = .90, shape = 21) +
+    scale_fill_manual(values =  c("red", "#51fa51" , "#709e61"), aesthetics = "fill") +
+    scale_color_manual(values =  c("darkred", "#05a905" , "#788b74"), aesthetics = "color") +
     theme(legend.position="none") +
     coord_cartesian(ylim = c(0, 1)) +
-    geom_hline(yintercept = .50, colour="#990000", linetype="dashed")
+    geom_hline(yintercept = .50, colour="#990000", linetype="longdash") + 
+    theme(text = element_text(family = font))
 }
 
 

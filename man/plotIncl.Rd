@@ -4,13 +4,15 @@
 \alias{plotIncl}
 \title{Use the image function to plot the variables included at each iteration of an SSVS model}
 \usage{
-plotIncl(model, col_labs = NULL, colors = c("#99004C", "#1c1c1c",
-  "#0065CC"), ...)
+plotIncl(model, col_labs = NULL, font = "serif",
+  colors = c("#99004C", "#1c1c1c", "#0065CC"), ...)
 }
 \arguments{
 \item{model}{the runjags object}
 
 \item{col_labs}{column labels}
+
+\item{font}{font for the axis labels. Defaults to "serif"}
 
 \item{colors}{colors defaults to magenta, dark grey, and blue, c("#99004C", "#1c1c1c", "#0065CC")}
 

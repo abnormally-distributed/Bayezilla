@@ -4,12 +4,14 @@
 \alias{plotPips}
 \title{plot inclusion probabilities from SSVS models}
 \usage{
-plotPips(model, col_labs = NULL)
+plotPips(model, col_labs = NULL, font = "serif")
 }
 \arguments{
 \item{model}{the model}
 
 \item{col_labs}{variable names}
+
+\item{font}{font for the axis labels. Defaults to "serif"}
 }
 \value{
 a plot

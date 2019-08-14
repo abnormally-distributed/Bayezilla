@@ -231,7 +231,7 @@ hist.default <- function (x, breaks = "dhist", freq = FALSE, probability = !freq
   if (is.na(nB)) 
     stop("invalid length(breaks)")
   h <- diff(breaks)
-  equidist <- !use.br || diff(range(h)) < 1e-07 * mean(h)
+  equidist <- !use.br || diff(range(h)) < 1e-07 * max(c(mean(h), median(h)))
   if (!use.br && any(h <= 0)) 
     stop("'breaks' are not strictly increasing")
   freq1 <- freq
@@ -332,6 +332,11 @@ nclass.dhist = function(x, b = 1.5, rx = range(x), min.bins = NULL){
     }
   
     hdi = Bayezilla::cred_interval(x, method = "HDI", cred.level = 0.80)
+    if(hdi[1] == hdi[2]){
+      num = hdi[1]
+      newx = x[which(x != num)]
+      hdi = Bayezilla::cred_interval(newx, method = "HDI", cred.level = 0.80)
+    }
     ecd = ecdf(x)
     l = ecd(hdi[1])
     u = ecd(hdi[2])
@@ -351,12 +356,20 @@ nclass.dhist = function(x, b = 1.5, rx = range(x), min.bins = NULL){
       result
     } else if (!is.null(min.bins)){
       result <- c(min.bins, result)
+      if(is.nan(result)) {
+        result <- min.bins
+      }
       names(result)<-NULL
       result
     }
   }
   
   hdi = Bayezilla::cred_interval(x, method = "HDI", cred.level = 0.80)
+  if(hdi[1] == hdi[2]){
+    num = hdi[1]
+    newx = x[which(x != num)]
+    hdi = Bayezilla::cred_interval(newx, method = "HDI", cred.level = 0.80)
+  }
   ecd = ecdf(x)
   l = ecd(hdi[1])
   u = ecd(hdi[2])
@@ -419,8 +432,8 @@ nclass.dhist = function(x, b = 1.5, rx = range(x), min.bins = NULL){
       max(x)
     )
     aa <- hist(x, breaks = cut.pt, plot = F, probability = T)
-    xbr <- aa$breaks
+    xbr <- unique(aa$breaks)
   }
   
-  xbr
+  unique(xbr)
 }

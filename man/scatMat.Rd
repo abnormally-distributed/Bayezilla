@@ -8,7 +8,7 @@ scatMat(x, smooth = TRUE, digits = 2, method = "spearman",
   pch = 19, lm = FALSE, cor = TRUE, jitter = FALSE, amount = 2,
   hist.col = "#0054f9A6", points.col = "#35a8f59E",
   smooth.col = "#663399BF", breaks = "FD", cex.cor = 1,
-  cex.num = 1.5, smoother = FALSE, ...)
+  cex.num = 1.5, smoother = FALSE, font = "serif", ...)
 }
 \arguments{
 \item{x}{The data frame}
@@ -17,7 +17,7 @@ scatMat(x, smooth = TRUE, digits = 2, method = "spearman",
 
 \item{digits}{Number of significant digits. defaults to 2.}
 
-\item{method}{"pearson", "spearman", or "kendall"}
+\item{method}{method used for correlations; one of "pearson", "spearman" (the default), or "kendall"}
 
 \item{pch}{The symbol used for plotting}
 
@@ -42,6 +42,8 @@ scatMat(x, smooth = TRUE, digits = 2, method = "spearman",
 \item{cex.num}{The size of the numbers in the upper right triangle of the scatterplot. Defaults to 1.5}
 
 \item{smoother}{If TRUE, then smooth.scatter the data points – slow but pretty with lots of subjects}
+
+\item{font}{font for the axis labels. Defaults to "serif"}
 
 \item{...}{other arguments}
 }

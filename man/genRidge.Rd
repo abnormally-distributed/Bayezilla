@@ -4,9 +4,10 @@
 \alias{genRidge}
 \title{Generalized Ridge Regression}
 \usage{
-genRidge(formula, data, family = "gaussian", log_lik = FALSE,
-  iter = 10000, warmup = 1000, adapt = 2000, chains = 4,
-  thin = 1, method = "parallel", cl = makeCluster(2), ...)
+genRidge(formula, data, family = "gaussian", lambda.prior = "dmouch",
+  log_lik = FALSE, iter = 8000, warmup = 1000, adapt = 1000,
+  chains = 4, thin = 1, method = "rjparallel", cl = makeCluster(2),
+  ...)
 }
 \arguments{
 \item{formula}{the model formula}
@@ -15,19 +16,21 @@ genRidge(formula, data, family = "gaussian", log_lik = FALSE,
 
 \item{family}{one of "gaussian", "binomial", or "poisson".}
 
+\item{lambda.prior}{either "dmouch" (the default) or "gamma"}
+
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 
-\item{iter}{How many post-warmup samples? Defaults to 10000.}
+\item{iter}{How many post-warmup samples? Defaults to 8000.}
 
 \item{warmup}{How many warmup samples? Defaults to 1000.}
 
-\item{adapt}{How many adaptation steps? Defaults to 2000.}
+\item{adapt}{How many adaptation steps? Defaults to 1000.}
 
 \item{chains}{How many chains? Defaults to 4.}
 
 \item{thin}{Thinning interval. Defaults to 1.}
 
-\item{method}{Defaults to "parallel". For an alternative parallel option, choose "rjparallel" or. Otherwise, "rjags" (single core run).}
+\item{method}{Defaults to "rjparallel". For an alternative parallel option, choose "parallel". Otherwise, "rjags" (single core run).}
 
 \item{cl}{Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.}
 

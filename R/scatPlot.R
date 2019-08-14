@@ -128,7 +128,7 @@ scatPlot = function(x, y, xlab="x", ylab="y", col = "blues", hist = TRUE, x.brea
 #' @param x The data frame
 #' @param smooth Should the smoother line be enabled?
 #' @param digits Number of significant digits. defaults to 2.
-#' @param method "pearson", "spearman", or "kendall"
+#' @param method method used for correlations; one of "pearson", "spearman" (the default), or "kendall"
 #' @param pch The symbol used for plotting 
 #' @param lm TRUE or FALSE (Defaults to FALSE)
 #' @param cor TRUE or FALSE (Defaults to TRUE)
@@ -141,6 +141,7 @@ scatPlot = function(x, y, xlab="x", ylab="y", col = "blues", hist = TRUE, x.brea
 #' @param cex.cor Size of points
 #' @param cex.num The size of the numbers in the upper right triangle of the scatterplot. Defaults to 1.5
 #' @param smoother If TRUE, then smooth.scatter the data points – slow but pretty with lots of subjects
+#' @param font font for the axis labels. Defaults to "serif"
 #' @param ... other arguments
 #'
 #' @return
@@ -166,6 +167,7 @@ scatMat <-
            cex.cor = 1,
            cex.num = 1.5,
            smoother = FALSE,
+           font = "serif",
            ...) {
     
     density <- FALSE
@@ -326,7 +328,7 @@ scatMat <-
       xaxt = "n",
       yaxt = "n",
       bty = "null",
-      family = "serif"
+      family = font
     )
     
     if (missing(cex.cor)) {

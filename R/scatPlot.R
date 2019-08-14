@@ -1,3 +1,71 @@
+#' Bivariate Scatterplot 
+#'
+#' @param formula a formula of the form y ~ x
+#' @param data a data frame if y and x are not vectors in the global environment or subsets of a data frame
+#' @param xlab the x axis label
+#' @param ylab the y axis label
+#' @param col color scheme. one of "blue" (the default), "red", "green", or "purple"
+#' @param smooth should a smoother line be added. Defaults to FALSE. 
+#' @param regline should a regression line be added? Defaults to TRUE, with both robust and ordinary least squares lines being plotted.
+#' @param font Defaults to "serif"
+#'
+#' @return
+#' a plot
+#' @export
+#'
+#' @examples
+#' scatPlot(iris$Sepal.Width ~ iris$Petal.Length, xlab = "Sepal Width", ylab = "Petal Length", col = "purple")
+scatPlot = function(formula, data = NULL, xlab="x", ylab="y", col = "blues", smooth = FALSE, regline = TRUE, font = "serif"){
+  
+  old.par <- par(no.readonly = TRUE) # save default, for resetting... 
+  on.exit(par(old.par))     #and when we quit the function, restore to original values
+  
+  mf = model.frame(formula, data)
+  y = as.vector(mf[,1])
+  x = as.vector(mf[,2])
+  data = data.frame(y = y, x = x)
+  
+  #light, dark, dark, light, smoothline 
+  if (col == "blues" || col == "blue"){
+    ColorScheme = c("#6495edCC", "#0d2f6dCC", "#0a2556CC", "#6dabff5E", "#1f7dffA1", "#022e7dCC")
+  }
+  if (col == "purples" || col == "purple"){
+    ColorScheme = c("#d4aad4CC" , "#400040CC", "#270027CC", "#e035e05E", "#8347b3A1", "#33253dCC")
+  }
+  if (col == "reds" || col == "red"){
+    ColorScheme = c("#e87a7aCC", "#8b1a1aCC", "#910202CC", "#f44b755E", "#ec0518A1", "#4f0d0dCC")
+  }
+  if (col == "greens" || col == "green"){
+    ColorScheme= c("#66cc66BF", "#194d33CC", "#133a26CC", "#61db5e5E", "#42d43eA1", "#163324CC")
+  }
+  
+  tukey.wts = function (r, t = 4.685){
+    return((1 - pmin(1, abs(r/t))^2)^2)
+  }
+  
+  xrange <- range(x)
+  yrange <- range(y)
+  
+  par(family = font)
+  plot(x, y, xlab = xlab, ylab = ylab, xlim=xrange, ylim=yrange, xaxt = "n", yaxt = "n", lwd = 1.225, cex = 1.25, lty = 1, pch = 21, bty="l", family = font, col = ColorScheme[2], bg = ColorScheme[1], cex.lab=1.25)
+  
+  if(smooth == TRUE){
+    lines(smooth.spline(x, y), col= ColorScheme[5], lwd = 3)
+  } 
+  if(regline == TRUE){
+    resids = model.frame(y ~ x, data = data)[,1] - as.vector(lmSolve(y ~ x, data = data) %*% t(model.matrix(y ~ x, data = data)))
+    w = tukey.wts((resids - mean(resids)) / sd(resids))
+    robust = round(coef(MASS::rlm(y ~ x, data = data, scale.est = "Huber", init = "lts", method = "MM", psi = MASS::psi.hampel, w = w, acc = 1e-3, maxit = 500)), 3)
+    ordinary = coef(lm(y ~ x))
+    abline(robust[1], robust[2], col = ColorScheme[6], lwd = 3.5, lty = 1)
+    abline(ordinary[1], ordinary[2], col = "#1b1e24A1", lwd = 3, lty = 3)
+  } 
+  axis(1, col = NA, tck = 0, family = font, cex = 1.5)
+  axis(2, col = NA, tck = 0, family = font, cex = 1.5)
+}
+
+
+
 #' Scatterplots with Marginal Histograms
 #'
 #' @param x the x-axis variable or a formula
@@ -20,8 +88,8 @@
 #' @export
 #'
 #' @examples
-#' scatterPlot(iris$Sepal.Width, iris$Petal.Length, xlab = "Sepal Width", ylab = "Petal Length", col = "purple")
-scatPlot = function(x, y, xlab="x", ylab="y", col = "blues", hist = TRUE, x.breaks = "dhist", y.breaks = "dhist", smooth = FALSE, regline = TRUE, font = "serif", inset = 0.05, legend.pos = "topright", box.lty = 1, box.cex = 0.95){
+#' scatPlotH(iris$Sepal.Width, iris$Petal.Length, xlab = "Sepal Width", ylab = "Petal Length", col = "purple")
+scatPlotH = function(x, y, xlab="x", ylab="y", col = "blues", hist = TRUE, x.breaks = "dhist", y.breaks = "dhist", smooth = FALSE, regline = TRUE, font = "serif", inset = 0.05, legend.pos = "topright", box.lty = 1, box.cex = 0.95){
   
   old.par <- par(no.readonly = TRUE) # save default, for resetting... 
   on.exit(par(old.par))     #and when we quit the function, restore to original values

@@ -2,17 +2,15 @@
 % Please edit documentation in R/scatPlot.R
 \name{scatPlot}
 \alias{scatPlot}
-\title{Scatterplots with Marginal Histograms}
+\title{Bivariate Scatterplot}
 \usage{
-scatPlot(x, y, xlab = "x", ylab = "y", col = "blues", hist = TRUE,
-  x.breaks = "dhist", y.breaks = "dhist", smooth = FALSE,
-  regline = TRUE, font = "serif", inset = 0.05,
-  legend.pos = "topright", box.lty = 1, box.cex = 0.95)
+scatPlot(formula, data = NULL, xlab = "x", ylab = "y",
+  col = "blues", smooth = FALSE, regline = TRUE, font = "serif")
 }
 \arguments{
-\item{x}{the x-axis variable or a formula}
+\item{formula}{a formula of the form y ~ x}
 
-\item{y}{the y-axis variable or a data frame if x is a formula}
+\item{data}{a data frame if y and x are not vectors in the global environment or subsets of a data frame}
 
 \item{xlab}{the x axis label}
 
@@ -20,30 +18,18 @@ scatPlot(x, y, xlab = "x", ylab = "y", col = "blues", hist = TRUE,
 
 \item{col}{color scheme. one of "blue" (the default), "red", "green", or "purple"}
 
-\item{x.breaks}{breaks in x axis histogram. defaults to 15.}
-
-\item{y.breaks}{breaks in y axis histogram. defaults to 15.}
-
 \item{smooth}{should a smoother line be added. Defaults to FALSE.}
 
 \item{regline}{should a regression line be added? Defaults to TRUE, with both robust and ordinary least squares lines being plotted.}
 
 \item{font}{Defaults to "serif"}
-
-\item{inset}{the inset of the legend. Defaults to 0.05}
-
-\item{legend.pos}{the legend position. Defaults to "topright"}
-
-\item{box.lty}{the linetype of the legend box outline}
-
-\item{box.cex}{the size of the legend}
 }
 \value{
 a plot
 }
 \description{
-Scatterplots with Marginal Histograms
+Bivariate Scatterplot
 }
 \examples{
-scatterPlot(iris$Sepal.Width, iris$Petal.Length, xlab = "Sepal Width", ylab = "Petal Length", col = "purple")
+scatPlot(iris$Sepal.Width ~ iris$Petal.Length, xlab = "Sepal Width", ylab = "Petal Length", col = "purple")
 }

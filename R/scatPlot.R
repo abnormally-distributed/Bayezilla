@@ -28,10 +28,10 @@ scatPlot = function(formula, data = NULL, xlab="default", ylab="default", col = 
   data = data.frame(y = y, x = x)
   
   if (xlab == "default"){
-    xlab = colnames(mf)[1]
+    xlab = colnames(mf)[2]
   }
   if (ylab == "default"){
-    ylab = colnames(mf)[2]
+    ylab = colnames(mf)[1]
   }
   
   

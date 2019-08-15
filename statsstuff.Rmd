@@ -167,8 +167,7 @@ plotFunc(from = -6, to = 6, func = dst, args = list(nu = 3)) + stat_function(fun
 ```
 
 
-This is a fully parametric approach to robustness, meaning it does not rely on 
-a nonparametric function like the previous approaches. 
+This is a fully parametric approach to robustness, meaning it does not rely on a nonparametric function like the previous approaches. 
 
 
 

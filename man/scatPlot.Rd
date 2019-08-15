@@ -5,7 +5,8 @@
 \title{Bivariate Scatterplot}
 \usage{
 scatPlot(formula, data = NULL, xlab = "x", ylab = "y",
-  col = "blues", smooth = FALSE, regline = TRUE, font = "serif")
+  col = "blues", smooth = FALSE, regline = TRUE, ci = FALSE,
+  conf.level = 0.9, font = "serif")
 }
 \arguments{
 \item{formula}{a formula of the form y ~ x}
@@ -21,6 +22,10 @@ scatPlot(formula, data = NULL, xlab = "x", ylab = "y",
 \item{smooth}{should a smoother line be added. Defaults to FALSE.}
 
 \item{regline}{should a regression line be added? Defaults to TRUE, with both robust and ordinary least squares lines being plotted.}
+
+\item{ci}{should confidence intervals be displayed? Defaults to FALSE.}
+
+\item{conf.level}{Default confidence level is 0.90. Set to 0.682 for standard error bars.}
 
 \item{font}{Defaults to "serif"}
 }

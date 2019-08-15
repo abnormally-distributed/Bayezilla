@@ -8,6 +8,8 @@
 #' @param smooth should a smoother line be added. Defaults to FALSE. 
 #' @param regline should a regression line be added? Defaults to TRUE, with both robust and ordinary least squares lines being plotted.
 #' @param font Defaults to "serif"
+#' @param ci should confidence intervals be displayed? Defaults to FALSE.
+#' @param conf.level Default confidence level is 0.90. Set to 0.682 for standard error bars. 
 #'
 #' @return
 #' a plot
@@ -15,7 +17,7 @@
 #'
 #' @examples
 #' scatPlot(iris$Sepal.Width ~ iris$Petal.Length, xlab = "Sepal Width", ylab = "Petal Length", col = "purple")
-scatPlot = function(formula, data = NULL, xlab="x", ylab="y", col = "blues", smooth = FALSE, regline = TRUE, font = "serif"){
+scatPlot = function(formula, data = NULL, xlab="x", ylab="y", col = "blues", smooth = FALSE, regline = TRUE, ci = FALSE, conf.level = 0.90, font = "serif"){
   
   old.par <- par(no.readonly = TRUE) # save default, for resetting... 
   on.exit(par(old.par))     #and when we quit the function, restore to original values
@@ -52,13 +54,25 @@ scatPlot = function(formula, data = NULL, xlab="x", ylab="y", col = "blues", smo
   if(smooth == TRUE){
     lines(smooth.spline(x, y), col= ColorScheme[5], lwd = 3)
   } 
+  
   if(regline == TRUE){
     resids = model.frame(y ~ x, data = data)[,1] - as.vector(lmSolve(y ~ x, data = data) %*% t(model.matrix(y ~ x, data = data)))
     w = tukey.wts((resids - mean(resids)) / sd(resids))
-    robust = round(coef(MASS::rlm(y ~ x, data = data, scale.est = "Huber", init = "lts", method = "MM", psi = MASS::psi.hampel, w = w, acc = 1e-3, maxit = 500)), 3)
-    ordinary = coef(lm(y ~ x))
+    robust.fit = MASS::rlm(y ~ x, data = data, scale.est = "Huber", init = "lts", method = "MM", psi = MASS::psi.hampel, w = w, acc = 1e-3, maxit = 500)
+    ols.fit = lm(y ~ x)
+    robust = round(coef(robust.fit), 3)
+    ordinary = round(coef(robust.fit), 3)
     abline(robust[1], robust[2], col = ColorScheme[6], lwd = 3.5, lty = 1)
     abline(ordinary[1], ordinary[2], col = "#1b1e24A1", lwd = 3, lty = 3)
+    if (ci) {
+      ols.ci = confint.default(ols.fit, level = conf.level)
+      rlm.ci = confint.default(robust.fit, level = conf.level)
+      abline(robust[1], rlm.ci[2,1], col = ColorScheme[6], lwd = 1.2, lty = 6)
+      abline(robust[1], rlm.ci[2,2], col = ColorScheme[6], lwd = 1.2, lty = 6)
+      abline(ordinary[1], ols.ci[2,1], col = "#1b1e24A1", lwd = 1.2, lty = 2)
+      abline(ordinary[1], ols.ci[2,2], col = "#1b1e24A1", lwd = 1.2, lty = 2)
+    }
+    
   } 
   axis(1, col = NA, tck = 0, family = font, cex = 1.5)
   axis(2, col = NA, tck = 0, family = font, cex = 1.5)

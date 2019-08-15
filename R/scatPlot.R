@@ -57,7 +57,7 @@ scatPlot = function(formula, data = NULL, xlab="default", ylab="default", col = 
   yrange <- range(y)
   
   par(family = font)
-  plot(x, y, xlab = xlab, ylab = ylab, xlim=xrange, ylim=yrange, xaxt = "n", yaxt = "n", lwd = 1.225, cex = 1.25, lty = 1, pch = 21, bty="l", family = font, col = ColorScheme[2], bg = ColorScheme[1], cex.lab=1.25)
+  plot(x = x, y = y, xlab = xlab, ylab = ylab, xlim=xrange, ylim=yrange, xaxt = "n", yaxt = "n", lwd = 1.225, cex = 1.25, lty = 1, pch = 21, bty="l", family = font, col = ColorScheme[2], bg = ColorScheme[1], cex.lab=1.25)
   
   if(smooth == TRUE){
     lines(smooth.spline(x, y), col= ColorScheme[5], lwd = 3)

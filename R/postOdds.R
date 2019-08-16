@@ -65,7 +65,7 @@ postOdds = function(fit, keeppars = c("Intercept", "beta"), H0 = 0, method = "me
     
     dens.est  = dfun(estimate)
     dens.null = dfun(H0)
-    p = (dens.null) / (dens.est)
+    p = (((dens.null) / (dens.est))  / (1 + ((dens.null) / (dens.est))))
     c("p" = round(p, 3), "odds" = round(p / (1 - p), 3))
   }
   

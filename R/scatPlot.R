@@ -17,7 +17,7 @@
 #'
 #' @examples
 #' scatPlot(iris$Sepal.Width ~ iris$Petal.Length, xlab = "Sepal Width", ylab = "Petal Length", col = "purple")
-scatPlot = function(formula, data = NULL, xlab="x", ylab="y", col = "blues", smooth = FALSE, regline = TRUE, ci = FALSE, conf.level = 0.90, font = "serif"){
+scatPlot = function(formula, data = NULL, xlab="default", ylab="default", col = "blues", smooth = FALSE, regline = TRUE, ci = FALSE, conf.level = 0.90, font = "serif"){
   
   old.par <- par(no.readonly = TRUE) # save default, for resetting... 
   on.exit(par(old.par))     #and when we quit the function, restore to original values
@@ -26,6 +26,14 @@ scatPlot = function(formula, data = NULL, xlab="x", ylab="y", col = "blues", smo
   y = as.vector(mf[,1])
   x = as.vector(mf[,2])
   data = data.frame(y = y, x = x)
+  
+  if (xlab == "default"){
+    xlab = colnames(mf)[2]
+  }
+  if (ylab == "default"){
+    ylab = colnames(mf)[1]
+  }
+  
   
   #light, dark, dark, light, smoothline 
   if (col == "blues" || col == "blue"){
@@ -49,7 +57,7 @@ scatPlot = function(formula, data = NULL, xlab="x", ylab="y", col = "blues", smo
   yrange <- range(y)
   
   par(family = font)
-  plot(x, y, xlab = xlab, ylab = ylab, xlim=xrange, ylim=yrange, xaxt = "n", yaxt = "n", lwd = 1.225, cex = 1.25, lty = 1, pch = 21, bty="l", family = font, col = ColorScheme[2], bg = ColorScheme[1], cex.lab=1.25)
+  plot(x = x, y = y, xlab = xlab, ylab = ylab, xlim=xrange, ylim=yrange, xaxt = "n", yaxt = "n", lwd = 1.225, cex = 1.25, lty = 1, pch = 21, bty="l", family = font, col = ColorScheme[2], bg = ColorScheme[1], cex.lab=1.25)
   
   if(smooth == TRUE){
     lines(smooth.spline(x, y), col= ColorScheme[5], lwd = 3)

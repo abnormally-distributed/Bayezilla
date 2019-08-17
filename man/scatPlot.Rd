@@ -4,7 +4,7 @@
 \alias{scatPlot}
 \title{Bivariate Scatterplot}
 \usage{
-scatPlot(formula, data = NULL, xlab = "x", ylab = "y",
+scatPlot(formula, data = NULL, xlab = "default", ylab = "default",
   col = "blues", smooth = FALSE, regline = TRUE, ci = FALSE,
   conf.level = 0.9, font = "serif")
 }

@@ -46,11 +46,9 @@ This implements generalized additive models (GAMs) via the basis functions
 available in the splines and splines2 packages. For example, you can use bs(), ns(),
 cSpline(), iSpline(), mSpline(), or the base R function poly() to generate basis functions
 for the variables intended for non-linear modeling. The basis functions are regularized
-using a hierarchical prior where the top-level shrinkage parameter lambda is given a 
-gamma prior, and the predictor specific shrinkage parameters are given a DuMouchel's
-prior. Note that predictor specific means for each variable a basis function represents,
-i.e., if variable x1 is represented by a basis function with 6 degrees of freedom then
-all 6 components share a single shrinkage parameter, akin to the Group LASSO. This is standard 
+using a hierarchical prior where the shrinkage parameter for each predictor is given a  
+DuMouchel's prior. Note that predictor specific means for each variable represented by a 
+basis function of n terms, all n terms share a shrinkage parameter. This is standard 
 procedure for GAMs.
 }
 \examples{

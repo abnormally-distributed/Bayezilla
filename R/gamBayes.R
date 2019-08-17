@@ -4,11 +4,9 @@
 #' available in the splines and splines2 packages. For example, you can use bs(), ns(),
 #' cSpline(), iSpline(), mSpline(), or the base R function poly() to generate basis functions
 #' for the variables intended for non-linear modeling. The basis functions are regularized
-#' using a hierarchical prior where the top-level shrinkage parameter lambda is given a 
-#' gamma prior, and the predictor specific shrinkage parameters are given a DuMouchel's
-#' prior. Note that predictor specific means for each variable a basis function represents,
-#' i.e., if variable x1 is represented by a basis function with 6 degrees of freedom then
-#' all 6 components share a single shrinkage parameter, akin to the Group LASSO. This is standard 
+#' using a hierarchical prior where the shrinkage parameter for each predictor is given a  
+#' DuMouchel's prior. Note that predictor specific means for each variable represented by a 
+#' basis function of n terms, all n terms share a shrinkage parameter. This is standard 
 #' procedure for GAMs.
 #' 
 #' @param formula the model formula
@@ -54,10 +52,8 @@ gamBayes = function(formula, data, family = "gaussian", log_lik = FALSE, iter= 4
     jags_glm = "model{
               tau ~ dgamma(0.01, 0.01) 
               
-              lambda ~ dgamma(1, 1)
-              
               for (s in 1:S){
-                eta[s] ~ dmouch(lambda)
+                eta[s] ~ dmouch(1)
               }
               
               for (p in 1:P){
@@ -83,7 +79,7 @@ gamBayes = function(formula, data, family = "gaussian", log_lik = FALSE, iter= 4
     P = ncol(X)
     write_lines(jags_glm, "jags_glm.txt")
     jagsdata = list(X = X, y = y,  N = length(y), P = ncol(X), S = max(idx), idx = idx, start = start, end = end)
-    monitor = c("Intercept", "beta", "sigma", "eta" , "lambda", "fX", "Deviance", "ySim" ,"log_lik")
+    monitor = c("Intercept", "beta", "sigma", "eta" , "fX", "Deviance", "ySim" ,"log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
@@ -91,7 +87,7 @@ gamBayes = function(formula, data, family = "gaussian", log_lik = FALSE, iter= 4
                                               "beta" = lmSolve(formula, data)[-1], 
                                               "tau" = 1, 
                                               "ySim" = sample(y, length(y)), 
-                                              "eta" = rep(2, max(idx)), "lambda" = 2,
+                                              "eta" = rep(2, max(idx)), 
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed = sample(1:10000, 1)))
   }
@@ -104,10 +100,8 @@ gamBayes = function(formula, data, family = "gaussian", log_lik = FALSE, iter= 4
               
               tau ~ dmouch(1)
               
-              lambda ~ dgamma(1, 1)
-              
               for (s in 1:S){
-                eta[s] ~ dmouch(lambda)
+                eta[s] ~ dmouch(1)
               }
               
               for (p in 1:P){
@@ -134,7 +128,7 @@ gamBayes = function(formula, data, family = "gaussian", log_lik = FALSE, iter= 4
     P = ncol(X)
     write_lines(jags_glm, "jags_glm.txt")
     jagsdata = list(X = X, y = y,  N = length(y), P = ncol(X), S = max(idx), idx = idx, start = start, end = end)
-    monitor = c("Intercept", "beta", "sigma", "eta" , "lambda", "fX", "Deviance", "ySim" ,"log_lik")
+    monitor = c("Intercept", "beta", "sigma", "eta" , "fX", "Deviance", "ySim" ,"log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
@@ -142,7 +136,7 @@ gamBayes = function(formula, data, family = "gaussian", log_lik = FALSE, iter= 4
                                               "beta" = lmSolve(formula, data)[-1], 
                                               "tau" = 1, 
                                               "ySim" = sample(y, length(y)), 
-                                              "eta" = rep(2, max(idx)), "lambda" = 2,
+                                              "eta" = rep(2, max(idx)), 
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed = sample(1:10000, 1)))
   }
@@ -153,10 +147,8 @@ gamBayes = function(formula, data, family = "gaussian", log_lik = FALSE, iter= 4
     
     jags_glm = "model{
               
-              lambda ~ dgamma(1, 1)
-              
               for (s in 1:S){
-                eta[s] ~ dmouch(lambda)
+                eta[s] ~ dmouch(1)
               }
               
               for (p in 1:P){
@@ -181,14 +173,14 @@ gamBayes = function(formula, data, family = "gaussian", log_lik = FALSE, iter= 4
     P = ncol(X)
     write_lines(jags_glm, "jags_glm.txt")
     jagsdata = list(X = X, y = y,  N = length(y), P = ncol(X), S = max(idx), idx = idx, start = start, end = end)
-    monitor = c("Intercept", "beta", "sigma", "eta" , "lambda", "fX", "Deviance", "ySim" ,"log_lik")
+    monitor = c("Intercept", "beta", "sigma", "eta" , "fX", "Deviance", "ySim" ,"log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
     inits = lapply(1:chains, function(z) list("Intercept" = coef(glm(formula, data, family = "binomial"))[1], 
                                               "beta" = coef(glm(formula, data, family = "binomial"))[-1],
                                               "ySim" = sample(y, length(y)), 
-                                              "eta" = rep(2, max(idx)), "lambda" = 2,
+                                              "eta" = rep(2, max(idx)), 
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed= sample(1:10000, 1)))
   }
@@ -198,10 +190,8 @@ gamBayes = function(formula, data, family = "gaussian", log_lik = FALSE, iter= 4
     
     jags_glm = "model{
 
-              lambda ~ dgamma(1, 1)
-
               for (s in 1:S){
-                eta[s] ~ dmouch(lambda)
+                eta[s] ~ dmouch(1)
               }
               
               for (p in 1:P){
@@ -227,13 +217,13 @@ gamBayes = function(formula, data, family = "gaussian", log_lik = FALSE, iter= 4
     write_lines(jags_glm, "jags_glm.txt")
     P = ncol(X)
     jagsdata = list(X = X, y = y,  N = length(y), P = ncol(X), S = max(idx), idx = idx, start = start, end = end)
-    monitor = c("Intercept", "beta", "sigma", "eta" , "lambda", "fX", "Deviance", "ySim" ,"log_lik")
+    monitor = c("Intercept", "beta", "sigma", "eta" , "fX", "Deviance", "ySim" ,"log_lik")
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
     inits = lapply(1:chains, function(z) list("Intercept" = coef(glm(formula, data, family = "poisson"))[1], 
                                               "ySim" = sample(y, length(y)),
-                                              "eta" = rep(2, max(idx)), "lambda" = 2,
+                                              "eta" = rep(2, max(idx)),
                                               "beta" = coef(glm(formula, data, family = "poisson"))[-1], 
                                               .RNG.name= "lecuyer::RngStream", 
                                               .RNG.seed= sample(1:10000, 1)))

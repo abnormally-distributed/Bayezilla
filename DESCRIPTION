@@ -4,7 +4,7 @@ Title: Bayesian Models With JAGS and Several Utilities for Data Exploration and 
 Version: 0.1.8
 Author: Brandon Vaughan
 Maintainer: Brandon Vaughan <vaughanb@musc.edu>
-Description: Fits various Bayesian models with JAGS. 
+Description: Bayesian Models With JAGS and Several Utilities for Data Exploration and Model Evaluation.
 License: The "don't steal my code and claim it as your own but feel free to use it" license. 
 Encoding: UTF-8
 LazyData: true
@@ -20,7 +20,9 @@ Depends:
     tidyr (>= 0.8.3), 
     dplyr (>= 0.8.0.1),
     parallel (>= 3.5.1),
-    MASS (>= 7.3-50)
+    MASS (>= 7.3-50),
+    splines (>= 3.1.0),
+    splines2 (>= 0.2.8)
 Imports: 
     methods,
     fBasics (>= 3042.89),

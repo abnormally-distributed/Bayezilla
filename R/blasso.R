@@ -51,7 +51,7 @@ blasso = function(formula, data, family = "gaussian", lambda.prior = "dmouch", l
   if (lambda.prior == "dmouch") {
     
     if (method == "parallel"){
-      message("method switching to rjparallel to enable use of DuMouchley's prior")
+      message("method switching to rjparallel to enable use of DuMouchel's prior")
       method <- "rjparallel"
     }
     

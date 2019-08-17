@@ -42,7 +42,7 @@ gamBayes = function(formula, data, family = "gaussian", log_lik = FALSE, iter= 4
   a = sapply(unique(idx), function(x) which(idx == x))
   start = sapply(a, function(x) min(x))
   end = sapply(a, function(x) max(x))
-  X = X[,-1]
+  X = as.matrix(X[,-1])
   
   if (method == "parallel"){
     message("method switching to rjparallel to enable use of DuMouchel's prior")

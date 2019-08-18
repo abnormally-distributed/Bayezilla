@@ -69,7 +69,7 @@ scatPlot = function(formula, data = NULL, xlab="default", ylab="default", col = 
     robust.fit = MASS::rlm(y ~ x, data = data, scale.est = "Huber", init = "lts", method = "MM", psi = MASS::psi.hampel, w = w, acc = 1e-3, maxit = 500)
     ols.fit = lm(y ~ x)
     robust = round(coef(robust.fit), 3)
-    ordinary = round(coef(robust.fit), 3)
+    ordinary = round(coef(ols.fit), 3)
     abline(robust[1], robust[2], col = ColorScheme[6], lwd = 3.5, lty = 1)
     abline(ordinary[1], ordinary[2], col = "#1b1e24A1", lwd = 3, lty = 3)
     if (ci) {

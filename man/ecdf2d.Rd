@@ -5,11 +5,12 @@
 \title{Bivariate empirical cumulative density function plot}
 \usage{
 ecdf2d(x, y, xlim = range(x), ylim = range(y), zlim = range(z, na.rm
-  = TRUE), xlab = NULL, ylab = NULL, zlab = NULL, main = NULL,
-  sub = NULL, theta = 0, phi = 15, r = sqrt(3), d = 1,
-  scale = TRUE, expand = 1, col = "viridis", border = NULL,
-  ltheta = -135, lphi = 0, shade = NA, box = TRUE, axes = TRUE,
-  nticks = 5, ticktype = "simple", plot = TRUE, ...)
+  = TRUE), xlab = NULL, ylab = NULL, zlab = "Joint CDF",
+  main = NULL, sub = NULL, theta = 0, phi = 15, r = sqrt(exp(1)),
+  d = 1, scale = TRUE, expand = 1, col = "viridis",
+  viridis.opt = "D", border = NA, ltheta = -135, lphi = 0,
+  shade = NA, box = TRUE, axes = TRUE, nticks = 4,
+  ticktype = "detailed", plot = TRUE, ...)
 }
 \arguments{
 \item{x}{the data from which the estimate is to be computed. For the default method a numeric vector: long vectors are not supported.}
@@ -46,7 +47,9 @@ ecdf2d(x, y, xlim = range(x), ylim = range(y), zlim = range(z, na.rm
 
 \item{col}{the color(s) of the surface facets. Transparent colours are ignored. This is recycled to the (nx-1)(ny-1) facets.}
 
-\item{border}{the color of the line drawn around the surface facets. The default, NULL, corresponds to par("fg"). A value of NA will disable the drawing of borders: this is sometimes useful when the surface is shaded.}
+\item{viridis.opt}{A character string indicating the viridis palette variant to use. Four options are available: "magma" (or "A"), "inferno" (or "B"), "plasma" (or "C"), "viridis" (or "D", the default option) and "cividis" (or "E").}
+
+\item{border}{the color of the line drawn around the surface facets. The default of NA will disable the drawing of borders: this is sometimes useful when the surface is shaded. NULL corresponds to par("fg").}
 
 \item{ltheta}{if finite values are specified for ltheta and lphi, the surface is shaded as though it was being illuminated from the direction specified by azimuth ltheta and colatitude lphi.}
 

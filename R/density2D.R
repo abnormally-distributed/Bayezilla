@@ -20,7 +20,8 @@
 #' @param scale before viewing the x, y and z coordinates of the points defining the surface are transformed to the interval [0,1]. If scale is TRUE the x, y and z coordinates are transformed separately. If scale is FALSE the coordinates are scaled so that aspect ratios are retained. This is useful for rendering things like DEM information.
 #' @param expand a expansion factor applied to the z coordinates. Often used with 0 < expand < 1 to shrink the plotting box in the z direction.
 #' @param col the color(s) of the surface facets. Transparent colours are ignored. This is recycled to the (nx-1)(ny-1) facets.
-#' @param border the color of the line drawn around the surface facets. The default, NULL, corresponds to par("fg"). A value of NA will disable the drawing of borders: this is sometimes useful when the surface is shaded.
+#' @param viridis.opt A character string indicating the viridis palette variant to use. Four options are available: "magma" (or "A"), "inferno" (or "B"), "plasma" (or "C"), "viridis" (or "D", the default option) and "cividis" (or "E").
+#' @param border the color of the line drawn around the surface facets. The default of NA will disable the drawing of borders: this is sometimes useful when the surface is shaded. NULL corresponds to par("fg").
 #' @param ltheta if finite values are specified for ltheta and lphi, the surface is shaded as though it was being illuminated from the direction specified by azimuth ltheta and colatitude lphi.
 #' @param lphi if finite values are specified for ltheta and lphi, the surface is shaded as though it was being illuminated from the direction specified by azimuth ltheta and colatitude lphi.
 #' @param shade the shade at a surface facet is computed as ((1+d)/2)^shade, where d is the dot product of a unit vector normal to the facet and a unit vector in the direction of a light source. Values of shade close to one yield shading similar to a point light source model and values close to zero produce no shading. Values in the range 0.5 to 0.75 provide an approximation to daylight illumination.
@@ -39,33 +40,33 @@ epdf2d = function(x, y, xlim = range(x), ylim = range(y),
                   zlim = range(z, na.rm = TRUE),
                   xlab = NULL, ylab = NULL, zlab = "Joint PDF",
                   main = NULL, sub = NULL,
-                  theta = 0, phi = 15, r = sqrt(3), d = 1,
+                  theta = 0, phi = 15, r = sqrt(exp(1)), d = 1,
                   scale = TRUE, expand = 1,
-                  col = "viridis", border = NULL, ltheta = -135, lphi = 0,
-                  shade = NA, box = TRUE, axes = TRUE, nticks = 5,
-                  ticktype = "simple", plot = TRUE, ...){
+                  col = "viridis", viridis.opt = "D" , border = NA, ltheta = -135, lphi = 0,
+                  shade = NA, box = TRUE, axes = TRUE, nticks = 4,
+                  ticktype = "detailed", plot = TRUE, ...){
   
-  dx = density(x, n = 30, kernel = "optcosine", bw = "SJ")$y
-  dy = density(y, n = 30, kernel = "optcosine", bw = "SJ")$y
+  dx = density(x, n = 42, kernel = "e", bw = "SJ")$y
+  dy = density(y, n = 42, kernel = "e", bw = "SJ")$y
   
   wch = c(max(dx), max(dy))[which.max(c(max(dx), max(dy)))]
   dx = dx * solve(wch, 100)
   dy = dy * solve(wch, 100)
   
   z = tcrossprod(dx, dy)
-  x = seq(min(x), max(x), len = 30)
-  y = seq(min(y), max(y), len = 30)
+  x = seq(min(x), max(x), len = 42)
+  y = seq(min(y), max(y), len = 42)
   X = list(x = sort(x), y = sort(y), z = z)
   
   if (col == "viridis"){
-    colors = substr(viridis::viridis(900, alpha = 1, begin = .15, end = 1), 1, 7)
-    z.facet.center <- (z[-1, -1] + z[-1, -30] + z[-30, -1] + z[-30, -30])/4
-    z.facet.range = cut(z.facet.center, 900)
+    colors = substr(viridis::viridis(1764, alpha = 1, begin = .084, end = 1, option = viridis.opt), 1, 7)
+    z.facet.center <- (z[-1, -1] + z[-1, -42] + z[-42, -1] + z[-42, -42])/4
+    z.facet.range = cut(z.facet.center, 1764)
     col = colors[z.facet.range]
   }
   
   if (plot){
-    persp(X, xlim = xlim, ylim = ylim, zlim = zlim, xlab = xlab, ylab = ylab,
+    persp(X, xlim = xlim, ylim = ylim, zlim = zlim, xlab = paste0("\n", xlab), ylab = paste0(ylab, "\n\n"),
           zlab = zlab, main = main, sub = sub, theta = theta, phi = phi, r = r, 
           d= d, scale = scale, expand = expand, col = col, border = border, 
           ltheta = ltheta, lphi = lphi, shade = shade, box = box, axes = axes, 
@@ -99,7 +100,8 @@ epdf2d = function(x, y, xlim = range(x), ylim = range(y),
 #' @param scale before viewing the x, y and z coordinates of the points defining the surface are transformed to the interval [0,1]. If scale is TRUE the x, y and z coordinates are transformed separately. If scale is FALSE the coordinates are scaled so that aspect ratios are retained. This is useful for rendering things like DEM information.
 #' @param expand a expansion factor applied to the z coordinates. Often used with 0 < expand < 1 to shrink the plotting box in the z direction.
 #' @param col the color(s) of the surface facets. Transparent colours are ignored. This is recycled to the (nx-1)(ny-1) facets.
-#' @param border the color of the line drawn around the surface facets. The default, NULL, corresponds to par("fg"). A value of NA will disable the drawing of borders: this is sometimes useful when the surface is shaded.
+#' @param viridis.opt A character string indicating the viridis palette variant to use. Four options are available: "magma" (or "A"), "inferno" (or "B"), "plasma" (or "C"), "viridis" (or "D", the default option) and "cividis" (or "E").
+#' @param border the color of the line drawn around the surface facets. The default of NA will disable the drawing of borders: this is sometimes useful when the surface is shaded. NULL corresponds to par("fg").
 #' @param ltheta if finite values are specified for ltheta and lphi, the surface is shaded as though it was being illuminated from the direction specified by azimuth ltheta and colatitude lphi.
 #' @param lphi if finite values are specified for ltheta and lphi, the surface is shaded as though it was being illuminated from the direction specified by azimuth ltheta and colatitude lphi.
 #' @param shade the shade at a surface facet is computed as ((1+d)/2)^shade, where d is the dot product of a unit vector normal to the facet and a unit vector in the direction of a light source. Values of shade close to one yield shading similar to a point light source model and values close to zero produce no shading. Values in the range 0.5 to 0.75 provide an approximation to daylight illumination.
@@ -116,13 +118,13 @@ epdf2d = function(x, y, xlim = range(x), ylim = range(y),
 #' ecdf2d(wines$Alcohol, wines$Malic.acid)
 ecdf2d = function(x, y, xlim = range(x), ylim = range(y),
                   zlim = range(z, na.rm = TRUE),
-                  xlab = NULL, ylab = NULL, zlab = NULL,
+                  xlab = NULL, ylab = NULL, zlab = "Joint CDF",
                   main = NULL, sub = NULL,
-                  theta = 0, phi = 15, r = sqrt(3), d = 1,
+                  theta = 0, phi = 15, r = sqrt(exp(1)), d = 1,
                   scale = TRUE, expand = 1,
-                  col = "viridis", border = NULL, ltheta = -135, lphi = 0,
-                  shade = NA, box = TRUE, axes = TRUE, nticks = 5,
-                  ticktype = "simple", plot = TRUE, ...){
+                  col = "viridis",viridis.opt = "D" , border = NA, ltheta = -135, lphi = 0,
+                  shade = NA, box = TRUE, axes = TRUE, nticks = 4,
+                  ticktype = "detailed", plot = TRUE, ...){
   
   dx = ecdf(x)
   dy = ecdf(y)
@@ -130,8 +132,8 @@ ecdf2d = function(x, y, xlim = range(x), ylim = range(y),
   xfun = splinefun(x, dx(x), method = "monoH.FC")
   yfun = splinefun(y, dy(y), method = "monoH.FC")
   
-  x = seq(min(x), max(x), len = 30)
-  y = seq(min(y), max(y), len = 30)
+  x = seq(min(x), max(x), len = 42)
+  y = seq(min(y), max(y), len = 42)
   
   dx = xfun(x)
   dy = yfun(y)
@@ -149,15 +151,15 @@ ecdf2d = function(x, y, xlim = range(x), ylim = range(y),
   X = list(x = sort(x), y = sort(y), z = z)
   
   if (col == "viridis"){
-    colors = substr(viridis::viridis(900, alpha = 1, begin = .15, end = 1), 1, 7)
-    z.facet.center <- (z[-1, -1] + z[-1, -30] + z[-30, -1] + z[-30, -30])/4
-    z.facet.range = cut(z.facet.center, 900)
+    colors = substr(viridis::viridis(1764, alpha = 1, begin = .084, end = 1, option = viridis.opt), 1, 7)
+    z.facet.center <- (z[-1, -1] + z[-1, -42] + z[-42, -1] + z[-42, -42])/4
+    z.facet.range = cut(z.facet.center, 1764)
     col = colors[z.facet.range]
   }
   
   if (plot){
-    persp(X, xlim = xlim, ylim = ylim, zlim = zlim, xlab = xlab, ylab = ylab,
-          zlab = "Joint Cumulative PDF", main = main, sub = sub, theta = theta, phi = phi, r = r, 
+    persp(X, xlim = xlim, ylim = ylim, zlim = zlim, xlab = paste0("\n", xlab), ylab = paste0(ylab, "\n\n") ,
+          zlab = zlab, main = main, sub = sub, theta = theta, phi = phi, r = r, 
           d= d, scale = scale, expand = expand, col = col, border = border, 
           ltheta = ltheta, lphi = lphi, shade = shade, box = box, axes = axes, 
           nticks = nticks, ticktype = ticktype, ...)

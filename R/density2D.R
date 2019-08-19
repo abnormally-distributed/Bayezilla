@@ -29,8 +29,7 @@
 #' @param axes should ticks and labels be added to the box. The default is TRUE. If box is FALSE then no ticks or labels are drawn.
 #' @param nticks character: "simple" draws just an arrow parallel to the axis to indicate direction of increase; "detailed" draws normal ticks as per 2D plots.
 #' @param ticktype the (approximate) number of tick marks to draw on the axes. Has no effect if ticktype is "simple".
-#' @param ... additional graphical parameters (see par).
-#'
+#' 
 #' @return either a list or a plot
 #' @export
 #'
@@ -44,7 +43,7 @@ epdf2d = function(x, y, xlim = range(x), ylim = range(y),
                   scale = TRUE, expand = 1,
                   col = "viridis", viridis.opt = "D" , border = NA, ltheta = -135, lphi = 0,
                   shade = NA, box = TRUE, axes = TRUE, nticks = 4,
-                  ticktype = "detailed", plot = TRUE, ...){
+                  ticktype = "detailed", plot = TRUE){
   
   dx = density(x, n = 42, kernel = "e", bw = "SJ")$y
   dy = density(y, n = 42, kernel = "e", bw = "SJ")$y
@@ -70,7 +69,7 @@ epdf2d = function(x, y, xlim = range(x), ylim = range(y),
           zlab = zlab, main = main, sub = sub, theta = theta, phi = phi, r = r, 
           d= d, scale = scale, expand = expand, col = col, border = border, 
           ltheta = ltheta, lphi = lphi, shade = shade, box = box, axes = axes, 
-          nticks = nticks, ticktype = ticktype, ...)
+          nticks = nticks, ticktype = ticktype)
   } else if (!plot){
     return(X)
   }
@@ -109,7 +108,6 @@ epdf2d = function(x, y, xlim = range(x), ylim = range(y),
 #' @param axes should ticks and labels be added to the box. The default is TRUE. If box is FALSE then no ticks or labels are drawn.
 #' @param nticks character: "simple" draws just an arrow parallel to the axis to indicate direction of increase; "detailed" draws normal ticks as per 2D plots.
 #' @param ticktype the (approximate) number of tick marks to draw on the axes. Has no effect if ticktype is "simple".
-#' @param ... additional graphical parameters (see par).
 #'
 #' @return either a list or a plot
 #' @export
@@ -122,7 +120,7 @@ ecdf2d = function(x, y, xlim = range(x), ylim = range(y),
                   main = NULL, sub = NULL,
                   theta = 0, phi = 15, r = sqrt(exp(1)), d = 1,
                   scale = TRUE, expand = 1,
-                  col = "viridis",viridis.opt = "D" , border = NA, ltheta = -135, lphi = 0,
+                  col = "viridis", viridis.opt = "D" , border = NA, ltheta = -135, lphi = 0,
                   shade = NA, box = TRUE, axes = TRUE, nticks = 4,
                   ticktype = "detailed", plot = TRUE, ...){
   

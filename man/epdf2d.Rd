@@ -10,7 +10,7 @@ epdf2d(x, y, xlim = range(x), ylim = range(y), zlim = range(z, na.rm
   d = 1, scale = TRUE, expand = 1, col = "viridis",
   viridis.opt = "D", border = NA, ltheta = -135, lphi = 0,
   shade = NA, box = TRUE, axes = TRUE, nticks = 4,
-  ticktype = "detailed", plot = TRUE, ...)
+  ticktype = "detailed", plot = TRUE)
 }
 \arguments{
 \item{x}{the data from which the estimate is to be computed. For the default method a numeric vector: long vectors are not supported.}
@@ -66,8 +66,6 @@ epdf2d(x, y, xlim = range(x), ylim = range(y), zlim = range(z, na.rm
 \item{ticktype}{the (approximate) number of tick marks to draw on the axes. Has no effect if ticktype is "simple".}
 
 \item{plot}{defaults to TRUE. Otherwise, returns a list of x, y, and z.}
-
-\item{...}{additional graphical parameters (see par).}
 }
 \value{
 either a list or a plot

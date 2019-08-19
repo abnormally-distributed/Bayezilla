@@ -45,22 +45,30 @@ epdf2d = function(x, y, xlim = range(x), ylim = range(y),
                   shade = NA, box = TRUE, axes = TRUE, nticks = 4,
                   ticktype = "detailed", plot = TRUE){
   
-  dx = density(x, n = 42, kernel = "e", bw = "SJ")$y
-  dy = density(y, n = 42, kernel = "e", bw = "SJ")$y
+  dx = density(x, n = 43, kernel = "e", bw = "SJ")$y
+  dy = density(y, n = 43, kernel = "e", bw = "SJ")$y
   
   wch = c(max(dx), max(dy))[which.max(c(max(dx), max(dy)))]
   dx = dx * solve(wch, 100)
   dy = dy * solve(wch, 100)
+  if (any(dx < 0 )){
+    dx = dx + abs(min(dx))
+  }
+  if (any(dy < 0 )){
+    dy = dy + abs(min(dy))
+  }
+  dx = ((dx-min(dx))/(max(dx)-min(dx))) * max(dnorm(x, mean(x), sd(x)))
+  dy = ((dy-min(dy))/(max(dy)-min(dy))) * max(dnorm(y, mean(y), sd(y)))
   
   z = tcrossprod(dx, dy)
-  x = seq(min(x), max(x), len = 42)
-  y = seq(min(y), max(y), len = 42)
+  x = seq(min(x), max(x), len = 43)
+  y = seq(min(y), max(y), len = 43)
   X = list(x = sort(x), y = sort(y), z = z)
   
   if (col == "viridis"){
-    colors = substr(viridis::viridis(1764, alpha = 1, begin = .084, end = 1, option = viridis.opt), 1, 7)
-    z.facet.center <- (z[-1, -1] + z[-1, -42] + z[-42, -1] + z[-42, -42])/4
-    z.facet.range = cut(z.facet.center, 1764)
+    colors = substr(viridis::viridis(1849, alpha = 1, begin = .084, end = 1, option = viridis.opt), 1, 7)
+    z.facet.center <- (z[-1, -1] + z[-1, -43] + z[-43, -1] + z[-43, -43])/4
+    z.facet.range = cut(z.facet.center, 1849)
     col = colors[z.facet.range]
   }
   
@@ -127,11 +135,11 @@ ecdf2d = function(x, y, xlim = range(x), ylim = range(y),
   dx = ecdf(x)
   dy = ecdf(y)
   
-  xfun = splinefun(x, dx(x), method = "monoH.FC")
-  yfun = splinefun(y, dy(y), method = "monoH.FC")
+  xfun = splinefun(jitter(x, amount = 0.0001), dx(x), method = "monoH.FC")
+  yfun = splinefun(jitter(y, amount = 0.0001), dy(y), method = "monoH.FC")
   
-  x = seq(min(x), max(x), len = 42)
-  y = seq(min(y), max(y), len = 42)
+  x = seq(min(x), max(x), len = 43)
+  y = seq(min(y), max(y), len = 43)
   
   dx = xfun(x)
   dy = yfun(y)
@@ -149,9 +157,9 @@ ecdf2d = function(x, y, xlim = range(x), ylim = range(y),
   X = list(x = sort(x), y = sort(y), z = z)
   
   if (col == "viridis"){
-    colors = substr(viridis::viridis(1764, alpha = 1, begin = .084, end = 1, option = viridis.opt), 1, 7)
-    z.facet.center <- (z[-1, -1] + z[-1, -42] + z[-42, -1] + z[-42, -42])/4
-    z.facet.range = cut(z.facet.center, 1764)
+    colors = substr(viridis::viridis(1849, alpha = 1, begin = .084, end = 1, option = viridis.opt), 1, 7)
+    z.facet.center <- (z[-1, -1] + z[-1, -43] + z[-43, -1] + z[-43, -43])/4
+    z.facet.range = cut(z.facet.center, 1849)
     col = colors[z.facet.range]
   }
   

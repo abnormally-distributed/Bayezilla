@@ -117,7 +117,10 @@ export(theme_min)
 export(vitals)
 export(zsDC)
 export(zsGlm)
+<<<<<<< HEAD
 export(zsRSpike)
+=======
+>>>>>>> 1e78545be1e0830ab612da4da5903cdc3fdf8c67
 export(zsRlm)
 export(zsSpike)
 export(zsSpikeDC)

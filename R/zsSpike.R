@@ -1,4 +1,4 @@
-#' Zellner-Siow g-prior Stochasitc Search Variable Selection
+#' Zellner-Siow g-prior Stochastic Search Variable Selection
 #'
 #' @description IMPORTANT: I suggest not using any factor predictor variables, only numeric. In my experience the inclusion of categorical
 #' predictors tends to lead to odd results in calculating the prior scale due to dummy variables being binary. \cr

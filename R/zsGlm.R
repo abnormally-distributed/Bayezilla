@@ -1,6 +1,6 @@
 #' Zellner-Siow g-prior
 #'
-#' The Zellner-Siow cauchy g-prior utilizes the inverse crossproduct is to determine the proper scale of the coefficient priors 
+#' @description The Zellner-Siow cauchy g-prior utilizes the inverse crossproduct is to determine the proper scale of the coefficient priors 
 #' by treating the inverse crossproduct of the model matrix as a covariance matrix for a multivariate normal prior distribution 
 #' for the coefficients, which is scaled by the parameter "g". The logic is that variables which carry the most information will
 #' consequently have a more dispersed prior, while variables that carry less information will have priors more concentrated about 

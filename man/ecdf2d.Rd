@@ -5,9 +5,9 @@
 \title{Bivariate empirical cumulative density function plot}
 \usage{
 ecdf2d(x, y, xlim = range(x), ylim = range(y), zlim = range(z, na.rm
-  = TRUE), xlab = NULL, ylab = NULL, zlab = "Joint CDF",
-  main = NULL, sub = NULL, theta = 0, phi = 15, r = sqrt(exp(1)),
-  d = 1, scale = TRUE, expand = 1, col = "viridis",
+  = TRUE), xlab = NULL, ylab = NULL, zlab = "\\nJoint CDF",
+  main = NULL, sub = NULL, theta = -20, phi = 15, r = exp(1),
+  d = 25, scale = TRUE, expand = 1, col = "viridis",
   viridis.opt = "D", border = NA, ltheta = -135, lphi = 0,
   shade = NA, box = TRUE, axes = TRUE, nticks = 4,
   ticktype = "detailed", plot = TRUE, ...)

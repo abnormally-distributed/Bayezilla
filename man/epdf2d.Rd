@@ -5,10 +5,10 @@
 \title{Bivariate kernel density plot}
 \usage{
 epdf2d(x, y, xlim = range(x), ylim = range(y), zlim = range(z, na.rm
-  = TRUE), xlab = NULL, ylab = NULL, zlab = "Joint PDF",
-  main = NULL, sub = NULL, theta = 0, phi = 15, r = sqrt(exp(1)),
+  = TRUE), xlab = NULL, ylab = NULL, zlab = "\\nJoint PDF",
+  main = NULL, sub = NULL, theta = 40, phi = 10, r = exp(1),
   d = 1, scale = TRUE, expand = 1, col = "viridis",
-  viridis.opt = "D", border = NA, ltheta = -135, lphi = 0,
+  viridis.opt = "D", border = NA, ltheta = -135, lphi = 15,
   shade = NA, box = TRUE, axes = TRUE, nticks = 4,
   ticktype = "detailed", plot = TRUE)
 }

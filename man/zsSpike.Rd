@@ -2,7 +2,7 @@
 % Please edit documentation in R/zsSpike.R
 \name{zsSpike}
 \alias{zsSpike}
-\title{Zellner-Siow g-prior Stochasitc Search Variable Selection}
+\title{Zellner-Siow g-prior Stochastic Search Variable Selection}
 \usage{
 zsSpike(formula, data, family = "gaussian", log_lik = FALSE,
   iter = 10000, warmup = 1000, adapt = 5000, chains = 4,

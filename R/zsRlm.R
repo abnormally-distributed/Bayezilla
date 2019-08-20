@@ -18,8 +18,8 @@
 #'
 #' \cr
 #' \cr
-#' \if{html}{\figure{robust.png}{}}
-#' \if{latex}{\figure{robust.png}{}}
+#' \if{html}{\figure{Robust.png}{}}
+#' \if{latex}{\figure{Robust.png}{}}
 #' \cr
 #'
 #' @references 
@@ -49,9 +49,6 @@
 #' @param c the tuning constant for the Huber weights function. Defaults to 1.345, which gives 95\% the efficiency of OLS when there are no outliers. 
 #' @param t the tuning constant for the Tukey's bisquare weights function. Defaults to 4.685, which gives 95\% the efficiency of OLS when there are no outliers.
 #' @param k the tuning constant controlling the asymptotic relative efficiency of Hampel's psi. The default is 0.9016085, which gives 95\% the efficiency of OLS when there are no outliers.
-#' @param formula the model formula
-#' @param data a data frame
-#' @param family one of "gaussian", "st" (Student-t with nu = 3), "binomial", or "poisson".
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 10000.
 #' @param warmup How many warmup samples? Defaults to 1000.
@@ -244,9 +241,9 @@ zsRlm = function(formula, data, robfun = "hampel", c = 1.345, t = 4.685, k = 0.9
                  y[i] ~ dnormmix(rep(mu[i], 2), tau, c(w[i], 1-w[i]))
                  ySim[i] ~ dnormmix(rep(mu[i], 2), tau, c(w[i], 1 - w[i]))
                  log_lik[i] <- logdensity.normmix(y[i], rep(mu[i], 2), tau, c(w[i], 1 - w[i]))
-                 residuals[i] <- pow(mu[i] - y[i], 2)
+                 residuals[i] <- sqrt(pow(mu[i] - y[i], 2))
               }
-               sigma <- sqrt(sum(residuals[1:N]) / (N - 1))
+               sigma <- mean(residuals[1:N])
                Deviance <- -2 * sum(log_lik[1:N])
           }"
     

@@ -40,12 +40,6 @@ zsRlm(formula, data, robfun = "hampel", c = 1.345, t = 4.685,
 
 \item{...}{Other arguments to run.jags.}
 
-\item{formula}{the model formula}
-
-\item{data}{a data frame}
-
-\item{family}{one of "gaussian", "st" (Student-t with nu = 3), "binomial", or "poisson".}
-
 \item{method}{Defaults to "parallel". For an alternative parallel option, choose "rjparallel". Otherwise, "rjags" (single core run).}
 }
 \value{
@@ -70,8 +64,8 @@ package.
 
 \cr
 \cr
-\if{html}{\figure{robust.png}{}}
-\if{latex}{\figure{robust.png}{}}
+\if{html}{\figure{Robust.png}{}}
+\if{latex}{\figure{Robust.png}{}}
 \cr
 }
 \examples{

@@ -18,8 +18,8 @@
 #'
 #' \cr
 #' \cr
-#' \if{html}{\figure{robust.png}{}}
-#' \if{latex}{\figure{robust.png}{}}
+#' \if{html}{\figure{Robust.png}{}}
+#' \if{latex}{\figure{Robust.png}{}}
 #' \cr
 #'
 #' @references 
@@ -245,9 +245,9 @@ zsRSpike = function(formula, data, robfun = "hampel", c = 1.345, t = 4.685, k = 
                  y[i] ~ dnormmix(rep(mu[i], 2), tau, c(w[i], 1-w[i]))
                  ySim[i] ~ dnormmix(rep(mu[i], 2), tau, c(w[i], 1 - w[i]))
                  log_lik[i] <- logdensity.normmix(y[i], rep(mu[i], 2), tau, c(w[i], 1 - w[i]))
-                 residuals[i] <- pow(mu[i] - y[i], 2)
+                 residuals[i] <- sqrt(pow(mu[i] - y[i], 2))
               }
-               sigma <- sqrt(sum(residuals[1:N]) / (N - 1))
+               sigma <- mean(residuals[1:N])
                Deviance <- -2 * sum(log_lik[1:N])
           }"
   

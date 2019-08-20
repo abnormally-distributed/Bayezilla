@@ -62,8 +62,8 @@ package.
 
 \cr
 \cr
-\if{html}{\figure{robust.png}{}}
-\if{latex}{\figure{robust.png}{}}
+\if{html}{\figure{Robust.png}{}}
+\if{latex}{\figure{Robust.png}{}}
 \cr
 }
 \examples{

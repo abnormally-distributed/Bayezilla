@@ -4,24 +4,16 @@
 \alias{zsRlm}
 \title{Robust Zellner-Siow g-prior}
 \usage{
-<<<<<<< HEAD
 zsRlm(formula, data, robfun = "hampel", c = 1.345, t = 4.685,
   k = 0.9016085, log_lik = FALSE, iter = 10000, warmup = 1000,
   adapt = 5000, chains = 4, thin = 1, method = "rjparallel",
   cl = makeCluster(2), ...)
-=======
-zsRlm(formula, data, family = "gaussian", robfun = "hampel",
-  c = 1.345, t = 4.685, k = 0.9016085, log_lik = FALSE,
-  iter = 10000, warmup = 1000, adapt = 5000, chains = 4,
-  thin = 1, method = "rjparallel", cl = makeCluster(2), ...)
->>>>>>> 1e78545be1e0830ab612da4da5903cdc3fdf8c67
 }
 \arguments{
 \item{formula}{the model formula}
 
 \item{data}{a data frame}
 
-<<<<<<< HEAD
 \item{robfun}{"huber" for Huber's Psi, "tukey" for Tukey's Bisquare, or "hampel" for Hampel's Psi (the default).}
 
 \item{c}{the tuning constant for the Huber weights function. Defaults to 1.345, which gives 95\% the efficiency of OLS when there are no outliers.}
@@ -29,9 +21,6 @@ zsRlm(formula, data, family = "gaussian", robfun = "hampel",
 \item{t}{the tuning constant for the Tukey's bisquare weights function. Defaults to 4.685, which gives 95\% the efficiency of OLS when there are no outliers.}
 
 \item{k}{the tuning constant controlling the asymptotic relative efficiency of Hampel's psi. The default is 0.9016085, which gives 95\% the efficiency of OLS when there are no outliers.}
-=======
-\item{family}{one of "gaussian", "st" (Student-t with nu = 3), "binomial", or "poisson".}
->>>>>>> 1e78545be1e0830ab612da4da5903cdc3fdf8c67
 
 \item{log_lik}{Should the log likelihood be monitored? The default is FALSE.}
 
@@ -45,15 +34,19 @@ zsRlm(formula, data, family = "gaussian", robfun = "hampel",
 
 \item{thin}{Thinning interval. Defaults to 1.}
 
-<<<<<<< HEAD
 \item{method}{Defaults to "rjparallel". For an alternative parallel option, choose "parallel". Otherwise, "rjags" (single core run).}
-=======
-\item{method}{Defaults to "parallel". For an alternative parallel option, choose "rjparallel". Otherwise, "rjags" (single core run).}
->>>>>>> 1e78545be1e0830ab612da4da5903cdc3fdf8c67
 
 \item{cl}{Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.}
 
 \item{...}{Other arguments to run.jags.}
+
+\item{formula}{the model formula}
+
+\item{data}{a data frame}
+
+\item{family}{one of "gaussian", "st" (Student-t with nu = 3), "binomial", or "poisson".}
+
+\item{method}{Defaults to "parallel". For an alternative parallel option, choose "rjparallel". Otherwise, "rjags" (single core run).}
 }
 \value{
 A run.jags object.
@@ -65,25 +58,15 @@ of two Gaussians with the same mean but different variances. The Gaussian with t
 "uncontaminated" data while the Gaussian with the higher variance models the "contaminated"
 portion of the data. Tukey, 1960; Box & Tiao, 1968; Gleason, 1993). The mixture proportions are obtained using either  Huber's
 Psi, Hampel's Psi, or Tukey's Bisquare functions to generate weights. Information about the weight functions
-<<<<<<< HEAD
 is given in the figure below. (Huber, 1964; Hampel et al., 1986; Hoaglin, Mosteller, & Tukey, 1983) 
 
-=======
-is given in the figure below. (Huber, 1964; Hampel et al., 1986; Hoaglin, Mosteller, & Tukey, 1983)
-}
-\details{
->>>>>>> 1e78545be1e0830ab612da4da5903cdc3fdf8c67
 The Fisher information matrix used as part of the g-prior (see the documentation in the \code{\link[Bayezilla]{zsGlm}}
 function for more information) is calculated here using a minimum volume ellipsoid method to obtain a robust
 covariance matrix, which is subjected to eigendecomposition and reconstructed as an inverse using the formula
 L * D^-1 * L'. The matrix is then scaled according to the ratio of the trace of the non-robust Fisher information matrix
 to the robust matrix. Note this particular model is meant to be an empirical Bayes or frequentist method estimated using
 full Bayesian 'machinery' as a means to an end, and not so much a fully Bayesian model as most other functions in this
-<<<<<<< HEAD
 package. 
-=======
-package.
->>>>>>> 1e78545be1e0830ab612da4da5903cdc3fdf8c67
 
 \cr
 \cr

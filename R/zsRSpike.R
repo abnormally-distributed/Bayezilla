@@ -268,7 +268,7 @@ zsRSpike = function(formula, data, robfun = "hampel", c = 1.345, t = 4.685, k = 
                                             .RNG.seed = sample(1:10000, 1)))
   
   
-  
+
   out = run.jags(model = "jags_apc.txt", modules = c("mix on", "glm on", "dic off"), n.chains = chains, monitor = monitor, data = jagsdata, inits = inits, burnin = warmup, sample = iter, thin = thin, adapt = adapt, method = method, cl = cl, summarise = FALSE, factories = "mix::TemperedMix sampler off", ...)
   if (is.null(cl) == FALSE){
     parallel::stopCluster(cl = cl)

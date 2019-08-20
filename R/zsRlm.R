@@ -1,10 +1,6 @@
 #' Robust Zellner-Siow g-prior
 #'
-<<<<<<< HEAD
 #' @description The same model as the \code{\link[Bayezilla]{zsGlm}} Gaussian model, but with the likelihood
-=======
-#' The same model as the \code{\link[Bayezilla]{zsGlm}} Gaussian model, but with the likelihood
->>>>>>> 1e78545be1e0830ab612da4da5903cdc3fdf8c67
 #' function replaced by a "contaminated normal" model which consists of a convolution
 #' of two Gaussians with the same mean but different variances. The Gaussian with the lower variance models the 
 #' "uncontaminated" data while the Gaussian with the higher variance models the "contaminated"
@@ -47,30 +43,23 @@
 #' \cr
 #' Zellner, A. (1986). "On assessing prior distributions and Bayesian regression analysis with g-prior distributions." In P. K. Goel and A. Zellner, editors, Bayesian Inference and Decision Techniques: Essays in Honor of Bruno de Finetti, 233?243.  \cr
 #' \cr
-<<<<<<< HEAD
 #' @param formula the model formula
 #' @param data a data frame
 #' @param robfun "huber" for Huber's Psi, "tukey" for Tukey's Bisquare, or "hampel" for Hampel's Psi (the default).
 #' @param c the tuning constant for the Huber weights function. Defaults to 1.345, which gives 95\% the efficiency of OLS when there are no outliers. 
 #' @param t the tuning constant for the Tukey's bisquare weights function. Defaults to 4.685, which gives 95\% the efficiency of OLS when there are no outliers.
 #' @param k the tuning constant controlling the asymptotic relative efficiency of Hampel's psi. The default is 0.9016085, which gives 95\% the efficiency of OLS when there are no outliers.
-=======
-
 #' @param formula the model formula
 #' @param data a data frame
 #' @param family one of "gaussian", "st" (Student-t with nu = 3), "binomial", or "poisson".
->>>>>>> 1e78545be1e0830ab612da4da5903cdc3fdf8c67
 #' @param log_lik Should the log likelihood be monitored? The default is FALSE.
 #' @param iter How many post-warmup samples? Defaults to 10000.
 #' @param warmup How many warmup samples? Defaults to 1000.
 #' @param adapt How many adaptation steps? Defaults to 2000.
 #' @param chains How many chains? Defaults to 4. 
 #' @param thin Thinning interval. Defaults to 1.
-<<<<<<< HEAD
 #' @param method Defaults to "rjparallel". For an alternative parallel option, choose "parallel". Otherwise, "rjags" (single core run).
-=======
 #' @param method Defaults to "parallel". For an alternative parallel option, choose "rjparallel". Otherwise, "rjags" (single core run).
->>>>>>> 1e78545be1e0830ab612da4da5903cdc3fdf8c67
 #' @param cl Use parallel::makeCluster(# clusters) to specify clusters for the parallel methods. Defaults to two cores.
 #' @param ... Other arguments to run.jags.
 #'
@@ -81,11 +70,8 @@
 #' @examples
 #' zsRlm()
 #' 
-<<<<<<< HEAD
 zsRlm = function(formula, data, robfun = "hampel", c = 1.345, t = 4.685, k = 0.9016085, log_lik = FALSE, iter=10000, warmup=1000, adapt=5000, chains=4, thin=1, method = "rjparallel", cl = makeCluster(2), ...)
-=======
-zsRlm = function(formula, data, family = "gaussian" , robfun = "hampel", c = 1.345, t = 4.685, k = 0.9016085, log_lik = FALSE, iter=10000, warmup=1000, adapt=5000, chains=4, thin=1, method = "rjparallel", cl = makeCluster(2), ...)
->>>>>>> 1e78545be1e0830ab612da4da5903cdc3fdf8c67
+
 {
   
   robXtXinv = function (X) {

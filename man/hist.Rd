@@ -63,9 +63,6 @@ a single number giving the number of cells for the histogram, or a character str
 a histogram
 }
 \description{
-Modified Version of hist() with additional functionality
-}
-\details{
 The definition of histogram differs by source (with country-specific biases). 
 R's default with equi-spaced breaks (also the default) is to plot the counts in the cells defined by breaks. 
 Thus the height of a rectangle is proportional to the number of points falling into the cell, as is the area 

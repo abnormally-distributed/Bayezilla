@@ -40,7 +40,7 @@
 #' hist(x, breaks = "sturges", main = "'Sturges' breaks method")
 #' 
 #' 
-#' @details 
+#' @description 
 #' The definition of histogram differs by source (with country-specific biases). 
 #' R's default with equi-spaced breaks (also the default) is to plot the counts in the cells defined by breaks. 
 #' Thus the height of a rectangle is proportional to the number of points falling into the cell, as is the area 

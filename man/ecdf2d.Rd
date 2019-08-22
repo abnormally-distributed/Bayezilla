@@ -5,12 +5,12 @@
 \title{Bivariate empirical cumulative density function plot}
 \usage{
 ecdf2d(x, y, xlim = range(x), ylim = range(y), zlim = range(z, na.rm
-  = TRUE), xlab = NULL, ylab = NULL, zlab = "\\nJoint CDF",
+  = TRUE), xlab = " x", ylab = "y", zlab = "Joint CDF",
   main = NULL, sub = NULL, theta = -20, phi = 15, r = exp(1),
-  d = 25, scale = TRUE, expand = 1, col = "viridis",
+  d = 25, scale = TRUE, expand = 1, col = NULL,
   viridis.opt = "D", border = NA, ltheta = -135, lphi = 0,
   shade = NA, box = TRUE, axes = TRUE, nticks = 4,
-  ticktype = "detailed", plot = TRUE, ...)
+  ticktype = "detailed", plot = TRUE, plotly = FALSE)
 }
 \arguments{
 \item{x}{the data from which the estimate is to be computed. For the default method a numeric vector: long vectors are not supported.}
@@ -66,6 +66,9 @@ ecdf2d(x, y, xlim = range(x), ylim = range(y), zlim = range(z, na.rm
 \item{ticktype}{the (approximate) number of tick marks to draw on the axes. Has no effect if ticktype is "simple".}
 
 \item{plot}{defaults to TRUE. Otherwise, returns a list of x, y, and z.}
+
+\item{plotly}{whether or not to use plotly for the plotting. If TRUE, most of the arguments except
+col, xlab, ylab, and zlab are ignored.}
 }
 \value{
 either a list or a plot

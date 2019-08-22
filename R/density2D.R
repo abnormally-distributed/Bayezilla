@@ -29,6 +29,8 @@
 #' @param axes should ticks and labels be added to the box. The default is TRUE. If box is FALSE then no ticks or labels are drawn.
 #' @param nticks character: "simple" draws just an arrow parallel to the axis to indicate direction of increase; "detailed" draws normal ticks as per 2D plots.
 #' @param ticktype the (approximate) number of tick marks to draw on the axes. Has no effect if ticktype is "simple".
+#' @param plotly whether or not to use plotly for the plotting. If TRUE, most of the arguments except
+#' col, xlab, ylab, and zlab are ignored.
 #' 
 #' @return either a list or a plot
 #' @export
@@ -37,16 +39,17 @@
 #' epdf2d(wines$Alcohol, wines$Malic.acid)
 epdf2d = function(x, y, xlim = range(x), ylim = range(y),
                   zlim = range(z, na.rm = TRUE),
-                  xlab = NULL, ylab = NULL, zlab = "\nJoint PDF",
+                  xlab = "x", ylab = "y", zlab = "Joint PDF",
                   main = NULL, sub = NULL,
                   theta = 40, phi = 10, r = exp(1), d = 1,
                   scale = TRUE, expand = 1,
-                  col = "viridis", viridis.opt = "D" , border = NA, ltheta = -135, lphi = 15,
+                  col = NULL, viridis.opt = "D" , border = NA, ltheta = -135, lphi = 15,
                   shade = NA, box = TRUE, axes = TRUE, nticks = 4,
-                  ticktype = "detailed", plot = TRUE){
+                  ticktype = "detailed", plot = TRUE, plotly = FALSE){
   
-  dx = density(x, n = 43, kernel = "e", bw = "SJ")$y
-  dy = density(y, n = 43, kernel = "e", bw = "SJ")$y
+
+  dx = density(x, n = 43, kernel = "o", bw = "SJ")$y
+  dy = density(y, n = 43, kernel = "o", bw = "SJ")$y
   
   wch = c(max(dx), max(dy))[which.max(c(max(dx), max(dy)))]
   dx = dx * solve(wch, 100)
@@ -65,24 +68,70 @@ epdf2d = function(x, y, xlim = range(x), ylim = range(y),
   y = seq(min(y), max(y), len = 43)
   X = list(x = sort(x), y = sort(y), z = z)
   
-  if (col == "viridis"){
-    colors = substr(viridis::viridis(1849, alpha = 1, begin = .084, end = 1, option = viridis.opt), 1, 7)
-    z.facet.center <- (z[-1, -1] + z[-1, -43] + z[-43, -1] + z[-43, -43])/4
-    z.facet.range = cut(z.facet.center, 1849)
-    col = colors[z.facet.range]
-  }
   
   if (plot){
-    persp(X, xlim = xlim, ylim = ylim, zlim = zlim, xlab = paste0("\n", xlab), ylab = paste0(ylab, "\n\n"),
-          zlab = zlab, main = main, sub = sub, theta = theta, phi = phi, r = r, 
-          d= d, scale = scale, expand = expand, col = col, border = border, 
-          ltheta = ltheta, lphi = lphi, shade = shade, box = box, axes = axes, 
-          nticks = nticks, ticktype = ticktype)
+    
+    if (plotly){
+      
+      if (is.null(col)){
+        colors = substr(viridis::viridis(1849, alpha = 1, begin = .084, end = 1, option = viridis.opt), 1, 7)
+      } else {
+        if (is.function(col)) {
+          color_function <- col
+          colors = color_function(1849)
+        } else {
+          stop("Please provide a color palette function")
+        }
+      }
+      
+      require(plotly)
+      
+      xlab <- list(
+        title = xlab ,
+        titlefont = par()$family
+      )
+      ylab <- list(
+        title = ylab,
+        titlefont = par()$family
+      )
+      zlab <- list(
+        title = zlab,
+        titlefont = par()$family
+      )
+      
+      plot_ly(z = ~X$z, x = ~ X$x, y = ~ X$y, colors = colors, showscale=FALSE) %>% 
+        add_surface() %>%
+        layout(scene = list(xaxis = xlab, yaxis = ylab, zaxis = zlab), showlegend = FALSE)
+      
+    } else{
+      
+      if (is.null(col)){
+        colors = substr(viridis::viridis(1849, alpha = 1, begin = .084, end = 1, option = viridis.opt), 1, 7)
+        z.facet.center <- (z[-1, -1] + z[-1, -43] + z[-43, -1] + z[-43, -43])/4
+        z.facet.range = cut(z.facet.center, 1849)
+        col = colors[z.facet.range]
+      } else {
+        if (is.function(col)) {
+          color_function <- col
+          colors = color_function(1849)
+          z.facet.center <- (z[-1, -1] + z[-1, -43] + z[-43, -1] + z[-43, -43])/4
+          z.facet.range = cut(z.facet.center, 1849)
+          col = colors[z.facet.range]
+        } else {
+          stop("Please provide a color palette function")
+        }
+      }
+      
+      
+      persp(X, xlim = xlim, ylim = ylim, zlim = zlim, xlab = paste0("\n", xlab), ylab = paste0(ylab, "\n\n"),
+            zlab = paste0("\n", zlab), main = main, sub = sub, theta = theta, phi = phi, r = r, 
+            d= d, scale = scale, expand = expand, col = col, border = border, 
+            ltheta = ltheta, lphi = lphi, shade = shade, box = box, axes = axes, 
+            nticks = nticks, ticktype = ticktype)
+    }
   } else if (!plot){
     return(X)
   }
-
-  
 }
 
 #' Bivariate empirical cumulative density function plot 
@@ -116,6 +165,8 @@ epdf2d = function(x, y, xlim = range(x), ylim = range(y),
 #' @param axes should ticks and labels be added to the box. The default is TRUE. If box is FALSE then no ticks or labels are drawn.
 #' @param nticks character: "simple" draws just an arrow parallel to the axis to indicate direction of increase; "detailed" draws normal ticks as per 2D plots.
 #' @param ticktype the (approximate) number of tick marks to draw on the axes. Has no effect if ticktype is "simple".
+#' @param plotly whether or not to use plotly for the plotting. If TRUE, most of the arguments except
+#' col, xlab, ylab, and zlab are ignored.
 #'
 #' @return either a list or a plot
 #' @export
@@ -124,13 +175,13 @@ epdf2d = function(x, y, xlim = range(x), ylim = range(y),
 #' ecdf2d(wines$Alcohol, wines$Malic.acid)
 ecdf2d = function(x, y, xlim = range(x), ylim = range(y),
                   zlim = range(z, na.rm = TRUE),
-                  xlab = NULL, ylab = NULL, zlab = "\nJoint CDF",
+                  xlab =" x", ylab = "y", zlab = "Joint CDF",
                   main = NULL, sub = NULL,
                   theta = -20, phi = 15, r = exp(1), d=25, 
                   scale = TRUE, expand = 1,
-                  col = "viridis", viridis.opt = "D" , border = NA, ltheta = -135, lphi = 0,
+                  col = NULL, viridis.opt = "D" , border = NA, ltheta = -135, lphi = 0,
                   shade = NA, box = TRUE, axes = TRUE, nticks = 4,
-                  ticktype = "detailed", plot = TRUE, ...){
+                  ticktype = "detailed", plot = TRUE, plotly = FALSE){
   
   dx = ecdf(x)
   dy = ecdf(y)
@@ -156,19 +207,70 @@ ecdf2d = function(x, y, xlim = range(x), ylim = range(y),
   z = tcrossprod(dx, dy)
   X = list(x = sort(x), y = sort(y), z = z)
   
-  if (col == "viridis"){
-    colors = substr(viridis::viridis(1849, alpha = 1, begin = .084, end = 1, option = viridis.opt), 1, 7)
-    z.facet.center <- (z[-1, -1] + z[-1, -43] + z[-43, -1] + z[-43, -43])/4
-    z.facet.range = cut(z.facet.center, 1849)
-    col = colors[z.facet.range]
-  }
-  
+
   if (plot){
+    
+    if (plotly){
+      
+      if (is.null(col)){
+        colors = substr(viridis::viridis(1849, alpha = 1, begin = .084, end = 1, option = viridis.opt), 1, 7)
+      } else {
+        if (is.function(col)) {
+          color_function <- col
+          colors = color_function(1849)
+          z.facet.center <- (z[-1, -1] + z[-1, -43] + z[-43, -1] + z[-43, -43])/4
+          z.facet.range = cut(z.facet.center, 1849)
+          colors = colors[z.facet.range]
+        } else {
+          stop("Please provide a color palette function")
+        }
+      }
+      
+      require(plotly)
+      
+      xlab <- list(
+        title = xlab ,
+        titlefont = par()$family
+      )
+      ylab <- list(
+        title = ylab,
+        titlefont = par()$family
+      )
+      zlab <- list(
+        title = zlab,
+        titlefont = par()$family
+      )
+      
+      plot_ly(z = ~X$z, x = ~ X$x, y = ~ X$y, colors = colors, showscale=FALSE) %>% 
+        add_surface() %>%
+        layout(scene = list(xaxis = xlab, yaxis = ylab, zaxis = zlab), showlegend = FALSE)
+      
+    } else{
+      
+      if (is.null(col)){
+        colors = substr(viridis::viridis(1849, alpha = 1, begin = .084, end = 1, option = viridis.opt), 1, 7)
+        z.facet.center <- (z[-1, -1] + z[-1, -43] + z[-43, -1] + z[-43, -43])/4
+        z.facet.range = cut(z.facet.center, 1849)
+        col = colors[z.facet.range]
+      } else {
+        if (is.function(col)) {
+          color_function <- col
+          colors = color_function(1849)
+          z.facet.center <- (z[-1, -1] + z[-1, -43] + z[-43, -1] + z[-43, -43])/4
+          z.facet.range = cut(z.facet.center, 1849)
+          col = colors[z.facet.range]
+        } else {
+          stop("Please provide a color palette function")
+        }
+      }
+
     persp(X, xlim = xlim, ylim = ylim, zlim = zlim, xlab = paste0("\n", xlab), ylab = paste0(ylab, "\n\n") ,
-          zlab = zlab, main = main, sub = sub, theta = theta, phi = phi, r = r, 
+          zlab = paste0("\n", zlab), main = main, sub = sub, theta = theta, phi = phi, r = r, 
           d= d, scale = scale, expand = expand, col = col, border = border, 
           ltheta = ltheta, lphi = lphi, shade = shade, box = box, axes = axes, 
           nticks = nticks, ticktype = ticktype, ...)
+    }
+
   } else if (!plot){
     return(X)
   }

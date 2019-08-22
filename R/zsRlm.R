@@ -108,7 +108,7 @@ zsRlm = function(formula, data, robfun = "hampel", c = 1.345, t = 4.685, k = 0.9
   
   hampel.wts = function(r, k = 0.9016085){
     
-    psi.hampell = function(x, a = 1.5 * k, b = 2.8 * k, r = 6 * k){
+    psi.hampell = function(x, a = 1.345 * k, b = 3 * k, r = 6 * k){
       
       if (abs(x) <= a){
         x

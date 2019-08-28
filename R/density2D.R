@@ -48,8 +48,8 @@ epdf2d = function(x, y, xlim = range(x), ylim = range(y),
                   ticktype = "detailed", plot = TRUE, plotly = FALSE){
   
 
-  dx = density(x, n = 43, kernel = "o", bw = "SJ")$y
-  dy = density(y, n = 43, kernel = "o", bw = "SJ")$y
+  dx = density(x, n = 43, kernel = "o", bw = "nrd0")$y
+  dy = density(y, n = 43, kernel = "o", bw = "nrd0")$y
   
   wch = c(max(dx), max(dy))[which.max(c(max(dx), max(dy)))]
   dx = dx * solve(wch, 100)
@@ -106,7 +106,7 @@ epdf2d = function(x, y, xlim = range(x), ylim = range(y),
     } else{
       
       if (is.null(col)){
-        colors = substr(viridis::viridis(1849, alpha = 1, begin = .084, end = 1, option = viridis.opt), 1, 7)
+        colors = substr(viridis::viridis(1849, alpha = 1, begin = 0, end = 1, option = viridis.opt), 1, 7)
         z.facet.center <- (z[-1, -1] + z[-1, -43] + z[-43, -1] + z[-43, -43])/4
         z.facet.range = cut(z.facet.center, 1849)
         col = colors[z.facet.range]
@@ -213,7 +213,7 @@ ecdf2d = function(x, y, xlim = range(x), ylim = range(y),
     if (plotly){
       
       if (is.null(col)){
-        colors = substr(viridis::viridis(1849, alpha = 1, begin = .084, end = 1, option = viridis.opt), 1, 7)
+        colors = substr(viridis::viridis(1849, alpha = 1, begin = 0, end = 1, option = viridis.opt), 1, 7)
       } else {
         if (is.function(col)) {
           color_function <- col

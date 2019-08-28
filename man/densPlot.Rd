@@ -6,7 +6,7 @@
 \usage{
 densPlot(x, rug = TRUE, col = "#45a3ffCC", border = "#000f1e",
   rug.col = "#62a3e2", main.title = "Density Plot",
-  kernel = "optcosine", n = 3072)
+  kernel = "optcosine", n = 1024)
 }
 \arguments{
 \item{x}{the numeric vector of interest}
@@ -23,7 +23,7 @@ densPlot(x, rug = TRUE, col = "#45a3ffCC", border = "#000f1e",
 
 \item{kernel}{one of the kernels from density(). Defaults to "optcosine"}
 
-\item{n}{number of points to generate the density grid. Defaults to 3072.}
+\item{n}{number of points to generate the density grid. Defaults to 1024.}
 }
 \value{
 a plot

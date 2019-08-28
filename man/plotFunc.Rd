@@ -4,9 +4,9 @@
 \alias{plotFunc}
 \title{plot a function}
 \usage{
-plotFunc(func, from = NULL, to = NULL, n = 1500, xname = "χ",
-  xlab = xname, ylab = NULL, xlim = NULL, args = list(),
-  color = "#005d8bCC", size = 0.75, ...)
+plotFunc(func, from = NULL, to = NULL, n = 1500,
+  xname = "<U+03C7>", xlab = xname, ylab = NULL, xlim = NULL,
+  args = list(), color = "#005d8bCC", size = 0.75, ...)
 }
 \arguments{
 \item{func}{The name of a function}

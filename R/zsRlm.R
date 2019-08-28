@@ -70,6 +70,88 @@
 zsRlm = function(formula, data, robfun = "hampel", c = 1.345, t = 4.685, k = 0.9016085, log_lik = FALSE, iter=10000, warmup=1000, adapt=5000, chains=4, thin=1, method = "rjparallel", cl = makeCluster(2), ...)
 
 {
+  rlmSolve = function (formula, data, robfun = "Huber", tolerance = 0.001) 
+  {
+    
+    huber.wts = function (r, c = 1.345){
+      R <- abs(r)
+      Rgtc <- R > c
+      w <- r
+      w[!Rgtc] <- 1
+      w[Rgtc] <- c/R[Rgtc]
+      return(w)
+    }
+    
+    tukey.wts = function (r, t = 4.685){
+      return((1 - pmin(1, abs(r/t))^2)^2)
+    }
+    
+    hampel.wts = function(r, k = 0.9016085){
+      
+      psi.hampell = function(x, a = 1.345 * k, b = 3 * k, r = 6 * k){
+        
+        if (abs(x) <= a){
+          x
+        } else if (a < abs(x) & abs(x) <= b){
+          a*sign(x)
+        } else if (b < abs(x) & abs(x) <= r){
+          a * sign(x) * ((r - abs(x)) / (r - b))
+        } else if (r < abs(x)){
+          0
+        }
+      }
+      p  = sapply(r, function(x) psi.hampell(x) / x)
+      if (any(is.nan(p))){
+        wch = which(is.nan(p))
+        p[wch] <- 1
+      }
+      return(p)
+    }
+    
+    
+    X = as.matrix(model.matrix(formula, data))
+    Y = model.frame(formula, data)[, 1]
+    
+    resids = Y - as.vector(lmSolve(formula , data) %*% t(model.matrix(formula, data)))
+    resids = (resids - mean(resids)) / sd(resids)
+    
+    
+    if (robfun == "Tukey" || robfun == "tukey"){
+      w = tukey.wts(resids)
+    }
+    
+    if (robfun == "Huber" || robfun == "huber"){
+      w = huber.wts(resids)
+    }
+    
+    if (robfun == "Hampel" || robfun == "hampel"){
+      w = hampel.wts(resids)
+    }
+    
+    betas = as.vector(pseudoinverse(t(X) %*% diag(w) %*% X) %*% (t(X) %*% diag(w) %*% Y))
+    names(betas) = colnames(X)
+    
+    resids = Y - as.vector(betas %*% t(model.matrix(formula, data)))
+    resids = (resids - mean(resids)) / sd(resids)
+    
+    if (robfun == "Tukey" || robfun == "tukey"){
+      w = tukey.wts(resids)
+    }
+    
+    if (robfun == "Huber" || robfun == "huber"){
+      w = huber.wts(resids)
+    }
+    
+    if (robfun == "Hampel" || robfun == "hampel"){
+      w = hampel.wts(resids)
+    }
+    
+    betas = as.vector(pseudoinverse(t(X) %*% diag(w) %*% X) %*% (t(X) %*% diag(w) %*% Y))
+    names(betas) = colnames(X)
+    
+    return(betas)
+  }
+  
   
   robXtXinv = function (X) {
     
@@ -254,8 +336,8 @@ zsRlm = function(formula, data, robfun = "hampel", c = 1.345, t = 4.685, k = 0.9
     if (log_lik == FALSE){
       monitor = monitor[-(length(monitor))]
     }
-    inits = lapply(1:chains, function(z) list("Intercept" = coef(MASS::rlm(formula, data, method = "MM"))[1], 
-                                              "beta" = coef(MASS::rlm(formula, data, method = "MM"))[-1], 
+    inits = lapply(1:chains, function(z) list("Intercept" = rlmSolve(formula, data, robfun = robfun)[1], 
+                                              "beta" = rlmSolve(formula, data, robfun = robfun)[-1], 
                                               "g_inv" = 1/length(y), 
                                               "ySim" = sample(y, length(y)), 
                                               .RNG.name= "lecuyer::RngStream", 

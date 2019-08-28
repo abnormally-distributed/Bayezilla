@@ -1,4 +1,4 @@
-#' Least Squares with Moore-Penrose Inverse
+#' Minimum Norm Regresion with Moore-Penrose Inverse
 #'
 #' A fast solver for simple least squares models. Returns coefficients only.
 #' Solves with moore-penrose pseudoinversion which is very fast and tolerant
@@ -6,6 +6,7 @@
 #'
 #' @param formula formula
 #' @param data data frame
+#' @param w optional weights
 #' @param tolerance tolerance
 #'
 #' @return
@@ -15,13 +16,57 @@
 #' @examples
 #' lmSolve()
 #'
-lmSolve = function(formula, data, tolerance = 1e-3){
+lmSolve = function(formula, data, w = NULL, tolerance = 1e-3){
   X = as.matrix(model.matrix(formula, data))
   Y = model.frame(formula, data)[,1]
-  betas = as.vector(XtXinv(X, tol = tolerance) %*% t(X) %*% Y)
-  names(betas) = colnames(X)
-  return(betas)
+  if (is.null(w)){
+    betas = as.vector(XtXinv(X, tol = tolerance) %*% t(X) %*% Y)
+    names(betas) = colnames(X)
+    return(betas)
+  } else{
+    betas = as.vector(pseudoinverse(t(X) %*% diag(w) %*% X, tol = tolerance) %*% t(X) %*% diag(w) %*% Y)
+    names(betas) = colnames(X)
+    return(betas)
+  }
+
 }
+
+#' Bootstrap minimum norm regression
+#'
+#' Bootstrap variant of lmSolve. Returns samples of coefficients only.
+#' Solves with moore-penrose pseudoinversion which is very fast and tolerant
+#' to non-positive definite model matrices.
+#'
+#' @param formula formula
+#' @param data data frame
+#' @param iter number of iterations. defaults to 4000.
+#' @param tolerance tolerance
+#'
+#' @return
+#' a vector
+#' @export
+#'
+#' @examples
+#' bootlmSolve()
+#'
+bootlmSolve = function(formula, data, iter = 4000, tolerance = 1e-3){
+  
+  dirichlet_weights <- matrix( rexp(NROW(data) * iter, 1) , ncol = NROW(data), byrow = TRUE)
+  dirichlet_weights <- dirichlet_weights / rowSums(dirichlet_weights)
+  
+  linear_model <- function(formula, data, w, tolerance){
+    lmSolve(formula, data, w, tolerance)
+  }
+  
+  stat_call <- quote(linear_model(formula, data, w))
+  
+  boot_sample <- apply(dirichlet_weights, 1, function(w) {
+    eval(stat_call)
+  })
+  
+  return(as.mcmc(t(boot_sample)))
+}
+
 
 #' pseudoinverse
 #'

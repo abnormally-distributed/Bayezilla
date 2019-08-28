@@ -5,8 +5,8 @@
 \title{plot a density function over a histogram}
 \usage{
 plotDist(x = NULL, dfunc, args = list(), bins = 20, n = 1500,
-  type = "irregular", xname = "χ", xlab = xname, ylab = NULL,
-  xlim = NULL, color = "#f45342CC", size = 2, ...)
+  type = "irregular", xname = "<U+03C7>", xlab = xname,
+  ylab = NULL, xlim = NULL, color = "#f45342CC", size = 2, ...)
 }
 \arguments{
 \item{x}{the data}

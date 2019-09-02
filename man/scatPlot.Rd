@@ -5,8 +5,9 @@
 \title{Bivariate Scatterplot}
 \usage{
 scatPlot(formula, data = NULL, xlab = "default", ylab = "default",
-  col = "blues", smooth = FALSE, regline = TRUE, ci = FALSE,
-  conf.level = 0.9, font = "serif")
+  col = "blues", smooth = FALSE, smoother = FALSE, regline = TRUE,
+  font = "serif", inset = 0.05, legend.pos = "topright",
+  box.lty = 1, box.cex = 0.75)
 }
 \arguments{
 \item{formula}{a formula of the form y ~ x}
@@ -21,13 +22,19 @@ scatPlot(formula, data = NULL, xlab = "default", ylab = "default",
 
 \item{smooth}{should a smoother line be added. Defaults to FALSE.}
 
+\item{smoother}{If FALSE the data are represented as points. If TRUE, a smooth density is used. The latter is useful for large sample sizes.}
+
 \item{regline}{should a regression line be added? Defaults to TRUE, with both robust and ordinary least squares lines being plotted.}
 
-\item{ci}{should confidence intervals be displayed? Defaults to FALSE.}
-
-\item{conf.level}{Default confidence level is 0.90. Set to 0.682 for standard error bars.}
-
 \item{font}{Defaults to "serif"}
+
+\item{inset}{the inset of the legend. Defaults to 0.05}
+
+\item{legend.pos}{the legend position. Defaults to "topright"}
+
+\item{box.lty}{the linetype of the legend box outline}
+
+\item{box.cex}{the size of the legend}
 }
 \value{
 a plot
@@ -36,5 +43,5 @@ a plot
 Bivariate Scatterplot
 }
 \examples{
-scatPlot(iris$Sepal.Width ~ iris$Petal.Length, xlab = "Sepal Width", ylab = "Petal Length", col = "purple")
+scatPlot(Sepal.Width ~ Petal.Length, iris, xlab = "Sepal Width", ylab = "Petal Length", col = "purple")
 }

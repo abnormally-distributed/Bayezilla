@@ -8,6 +8,16 @@
   invisible()
   }
 
+.onLoad <- function(libname, pkgname){
+  par(family = "serif", font.lab = 2, font.main = 2)
+  invisible()
+}
+
+.onAttach<- function(libname, pkgname){
+    par(family = "serif", font.lab = 2, font.main = 2)
+    invisible()
+}
+
 .onLoad <- function(libname, pkgname) {
   ggplot2::theme_set(Bayezilla:::theme_min())
   invisible()

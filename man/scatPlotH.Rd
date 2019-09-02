@@ -4,15 +4,16 @@
 \alias{scatPlotH}
 \title{Scatterplots with Marginal Histograms}
 \usage{
-scatPlotH(x, y, xlab = "x", ylab = "y", col = "blues", hist = TRUE,
-  x.breaks = "dhist", y.breaks = "dhist", smooth = FALSE,
-  regline = TRUE, font = "serif", inset = 0.05,
-  legend.pos = "topright", box.lty = 1, box.cex = 0.95)
+scatPlotH(formula, data, xlab = "default", ylab = "default",
+  col = "blues", x.breaks = "dhist", y.breaks = "dhist",
+  smooth = FALSE, smoother = FALSE, regline = TRUE, font = "serif",
+  inset = 0.05, legend.pos = "topright", box.lty = 1,
+  box.cex = 0.75)
 }
 \arguments{
-\item{x}{the x-axis variable or a formula}
+\item{formula}{a formula of the form y ~ x}
 
-\item{y}{the y-axis variable or a data frame if x is a formula}
+\item{data}{a data frame if y and x are not vectors in the global environment or subsets of a data frame}
 
 \item{xlab}{the x axis label}
 
@@ -24,7 +25,9 @@ scatPlotH(x, y, xlab = "x", ylab = "y", col = "blues", hist = TRUE,
 
 \item{y.breaks}{breaks in y axis histogram. defaults to 15.}
 
-\item{smooth}{should a smoother line be added. Defaults to FALSE.}
+\item{smooth}{should a smooth line be added. Defaults to FALSE.}
+
+\item{smoother}{If FALSE the data are represented as points. If TRUE, a smooth density is used. The latter is useful for large sample sizes.}
 
 \item{regline}{should a regression line be added? Defaults to TRUE, with both robust and ordinary least squares lines being plotted.}
 
@@ -45,5 +48,5 @@ a plot
 Scatterplots with Marginal Histograms
 }
 \examples{
-scatPlotH(iris$Sepal.Width, iris$Petal.Length, xlab = "Sepal Width", ylab = "Petal Length", col = "purple")
+scatPlotH(Sepal.Width ~ Petal.Length, iris, xlab = "Sepal Width", ylab = "Petal Length", col = "purple")
 }

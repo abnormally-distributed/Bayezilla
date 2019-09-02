@@ -8,7 +8,7 @@ scatMat(x, smooth = TRUE, digits = 2, method = "spearman",
   pch = 19, lm = FALSE, cor = TRUE, jitter = FALSE, amount = 2,
   hist.col = "#0054f9A6", points.col = "#35a8f59E",
   smooth.col = "#663399BF", breaks = "FD", cex.cor = 1,
-  cex.num = 1.5, smoother = FALSE, font = "serif", ...)
+  cex.num = 1.5, smoother = TRUE, font = "serif", ...)
 }
 \arguments{
 \item{x}{The data frame}
@@ -53,7 +53,9 @@ a plot
 \description{
 This is a function to help quickly visualize the relationships among your data.
 Like the other pre-themed plotting functions in this package, this utilizes a
-minimalist Tufte inspired aesthetic.
+minimalist Tufte inspired aesthetic. When smooth is true it also automatically detects factor variables
+or variables with less than 4 unique values to avoid trying to fit a smooth line
+to nominal data, which is typically ugly at best and uninformative at worst.
 }
 \examples{
 scatMat(iris)

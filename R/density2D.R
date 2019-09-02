@@ -39,7 +39,7 @@
 #' epdf2d(wines$Alcohol, wines$Malic.acid)
 epdf2d = function(x, y, xlim = range(x), ylim = range(y),
                   zlim = range(z, na.rm = TRUE),
-                  xlab = "x", ylab = "y", zlab = "Joint PDF",
+                  xlab = " x ", ylab = " y ", zlab = "Joint PDF",
                   main = NULL, sub = NULL,
                   theta = 40, phi = 10, r = exp(1), d = 1,
                   scale = TRUE, expand = 1,
@@ -175,7 +175,7 @@ epdf2d = function(x, y, xlim = range(x), ylim = range(y),
 #' ecdf2d(wines$Alcohol, wines$Malic.acid)
 ecdf2d = function(x, y, xlim = range(x), ylim = range(y),
                   zlim = range(z, na.rm = TRUE),
-                  xlab =" x", ylab = "y", zlab = "Joint CDF",
+                  xlab =" x ", ylab = " y ", zlab = "Joint CDF",
                   main = NULL, sub = NULL,
                   theta = -20, phi = 15, r = exp(1), d=25, 
                   scale = TRUE, expand = 1,
@@ -268,7 +268,7 @@ ecdf2d = function(x, y, xlim = range(x), ylim = range(y),
           zlab = paste0("\n", zlab), main = main, sub = sub, theta = theta, phi = phi, r = r, 
           d= d, scale = scale, expand = expand, col = col, border = border, 
           ltheta = ltheta, lphi = lphi, shade = shade, box = box, axes = axes, 
-          nticks = nticks, ticktype = ticktype, ...)
+          nticks = nticks, ticktype = ticktype)
     }
 
   } else if (!plot){
